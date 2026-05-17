@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dissolution Similarity: reference vs test</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    /* ─── Page shell ───────────────────────────────────────────────── */
+    .page {
+      max-width: 900px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    /* ─── Header band ──────────────────────────────────────────────── */
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    /* ─── Content area ─────────────────────────────────────────────── */
+    .content {
+      padding: 32px 36px;
+    }
+
+    /* ─── Section headings ─────────────────────────────────────────── */
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    /* ─── Tables ───────────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* Numeric columns right-aligned */
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ─── Similarity badges ─────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .badge-pass  { background: #d4edda; color: #155724; border: 1px solid #b8dac2; }
+    .badge-fail  { background: #f8d7da; color: #721c24; border: 1px solid #e8b4b8; }
+
+    /* ─── Interpretation block ──────────────────────────────────────── */
+    .interp-box {
+      background: #f0f6ff;
+      border-left: 4px solid #1a78c2;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #1a3a5c;
+      margin-top: 12px;
+    }
+
+    /* ─── Disclaimer ────────────────────────────────────────────────── */
+    .disclaimer-box {
+      background: #f7f7f7;
+      border: 1px solid #dde1e7;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #666c74;
+      line-height: 1.55;
+    }
+
+    .disclaimer-box strong {
+      color: #444c55;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────── */
+    .report-footer {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #8a95a3;
+    }
+
+    .report-footer a {
+      color: #1a78c2;
+      text-decoration: none;
+    }
+
+    /* ─── Print styles ──────────────────────────────────────────────── */
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; }
+      .report-footer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header class="report-header">
+    <p class="org-label">OpenPKFlow &mdash; Dissolution Analysis Report</p>
+    <h1>Dissolution Similarity: reference vs test</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated</strong>
+        2026-05-17T18:36:49.367316+00:00
+      </div>
+      <div class="meta-item">
+        <strong>Software</strong>
+        OpenPKFlow 0.1.0
+      </div>
+      <div class="meta-item">
+        <strong>Reference</strong>
+        reference
+      </div>
+      <div class="meta-item">
+        <strong>Test</strong>
+        test
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main content ─────────────────────────────────────────────── -->
+  <main class="content">
+
+    <!-- Similarity Factors -->
+    <section>
+      <h2>Similarity Factor Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th class="num">Value</th>
+            <th>Criterion</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>f1 (Difference Factor)</td>
+            <td class="num">12.34</td>
+            <td>0 &ndash; 15 (acceptable range)</td>
+            <td>
+              
+                <span class="badge badge-pass">PASS</span>
+              
+            </td>
+          </tr>
+          <tr>
+            <td>f2 (Similarity Factor)</td>
+            <td class="num">57.87</td>
+            <td>&ge; 50 (acceptable range)</td>
+            <td>
+              
+                <span class="badge badge-pass">PASS</span>
+              
+            </td>
+          </tr>
+          <tr>
+            <td>Timepoints used (n)</td>
+            <td class="num">6</td>
+            <td>&ge; 3 recommended</td>
+            <td>
+              
+                <span class="badge badge-pass">OK</span>
+              
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="interp-box">
+        f2 &gt;= 50 supports similarity between the reference and test profiles.
+      </div>
+    </section>
+
+    <!-- Dissolution Data -->
+    <section>
+      <h2>Dissolution Profile Data</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time (min)</th>
+            <th class="num">reference Mean (%)</th>
+            <th class="num">test Mean (%)</th>
+            <th class="num">Difference (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>5.0</td>
+            <td class="num">15.00</td>
+            <td class="num">12.07</td>
+            <td class="num">-2.93</td>
+          </tr>
+          
+          <tr>
+            <td>10.0</td>
+            <td class="num">30.00</td>
+            <td class="num">24.03</td>
+            <td class="num">-5.97</td>
+          </tr>
+          
+          <tr>
+            <td>15.0</td>
+            <td class="num">48.00</td>
+            <td class="num">40.00</td>
+            <td class="num">-8.00</td>
+          </tr>
+          
+          <tr>
+            <td>20.0</td>
+            <td class="num">62.03</td>
+            <td class="num">54.97</td>
+            <td class="num">-7.07</td>
+          </tr>
+          
+          <tr>
+            <td>30.0</td>
+            <td class="num">78.00</td>
+            <td class="num">70.07</td>
+            <td class="num">-7.93</td>
+          </tr>
+          
+          <tr>
+            <td>45.0</td>
+            <td class="num">90.03</td>
+            <td class="num">82.07</td>
+            <td class="num">-7.97</td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Disclaimer -->
+    <section>
+      <h2>Disclaimer</h2>
+      <div class="disclaimer-box">
+        <strong>Regulatory Notice</strong>
+        This report was generated using OpenPKFlow (open-source). Final regulatory interpretation should be reviewed by qualified formulation, pharmacokinetic, and regulatory experts.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────── -->
+  <footer class="report-footer">
+    <span>
+      Generated by <strong>OpenPKFlow 0.1.0</strong>
+      &mdash; <a href="https://github.com/priyamthakar1/openpkflow">github.com/priyamthakar1/openpkflow</a>
+    </span>
+    <span>2026-05-17T18:36:49.367316+00:00</span>
+  </footer>
+
+</div>
+</body>
+</html>

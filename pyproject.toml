@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openpkflow"
+version = "0.1.0"
+description = "Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Priyam Thakar", email = "priyamthakar1@gmail.com" }
+]
+keywords = [
+  "pharmacokinetics",
+  "pharmacometrics",
+  "dissolution",
+  "NCA",
+  "PKPD",
+  "formulation",
+  "bioequivalence",
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Healthcare Industry",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "matplotlib>=3.7",
+  "pydantic>=2.0",
+  "typer>=0.12",
+  "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+reports = [
+  "openpyxl>=3.1",
+  "reportlab>=4.0",
+  "python-docx>=1.1",
+]
+bayes = [
+  "pymc>=5.0",
+  "arviz>=0.16",
+  "cmdstanpy>=1.2",
+]
+ml = [
+  "scikit-learn>=1.4",
+  "torch>=2.0",
+]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.5",
+  "mypy>=1.8",
+  "build>=1.2",
+  "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/priyamthakar1/openpkflow"
+Repository = "https://github.com/priyamthakar1/openpkflow"
+Issues = "https://github.com/priyamthakar1/openpkflow/issues"
+Documentation = "https://priyamthakar1.github.io/openpkflow/"
+
+[project.scripts]
+openpkflow = "openpkflow.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openpkflow"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short"
