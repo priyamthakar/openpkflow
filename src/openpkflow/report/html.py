@@ -6,6 +6,7 @@ from pathlib import Path
 import jinja2
 
 from openpkflow import __version__
+from openpkflow.dissolution.plotting import dissolution_profile_plot_b64
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
@@ -89,6 +90,13 @@ def render_html_report(
         reference_mean=reference_mean,
         test_mean=test_mean,
         disclaimer=_DISCLAIMER,
+        plot_b64=dissolution_profile_plot_b64(
+            time_points=time_points,
+            reference_mean=reference_mean,
+            test_mean=test_mean,
+            reference_label=reference_label,
+            test_label=test_label,
+        ),
     )
 
     if output_path is not None:

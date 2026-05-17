@@ -1,16 +1,26 @@
-"""Example datasets for OpenPKFlow.
-
-Access via pathlib.Path:
-
-    from openpkflow.datasets import EXAMPLE_DISSOLUTION_CSV
-    df = pd.read_csv(EXAMPLE_DISSOLUTION_CSV)
-"""
+"""Example datasets for OpenPKFlow."""
 from __future__ import annotations
 
-from pathlib import Path
+from importlib.resources import files
 
-DATASETS_DIR = Path(__file__).parent
 
-EXAMPLE_DISSOLUTION_CSV = DATASETS_DIR / "example_dissolution.csv"
+def _dataset_path(name: str) -> str:
+    return str(files("openpkflow.datasets").joinpath(name))
 
-__all__ = ["EXAMPLE_DISSOLUTION_CSV", "DATASETS_DIR"]
+
+def example_dissolution_path() -> str:
+    """Path to the borderline-similar example dataset (f2 approx 57)."""
+    return _dataset_path("example_dissolution.csv")
+
+
+def example_similar_path() -> str:
+    """Path to the clearly-similar example dataset (f2 approx 80)."""
+    return _dataset_path("example_similar.csv")
+
+
+def example_not_similar_path() -> str:
+    """Path to the not-similar example dataset (f2 approx 38)."""
+    return _dataset_path("example_not_similar.csv")
+
+
+__all__ = ["example_dissolution_path", "example_similar_path", "example_not_similar_path"]

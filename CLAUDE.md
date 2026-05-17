@@ -1,4 +1,6 @@
-# OpenPKFlow — Project Guide for Claude Code
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Identity
 
@@ -9,8 +11,44 @@
 **License:** MIT  
 **Philosophy:** Transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. Does not replace expert regulatory judgement or validated commercial platforms.
 
-Full project brief: see `openpkflow_ultimate_project_handout.md` in the repo root.  
-PK/PD reference: see `PK_PD_Computational_Modeling_Reference.pdf` in the repo root.
+---
+
+## Commands
+
+```bash
+# Install in editable mode with dev tools
+pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# Run tests with coverage
+pytest --cov=src/openpkflow --cov-report=term-missing
+
+# Run a single test file
+pytest tests/dissolution/test_similarity.py
+
+# Run a single test by name
+pytest tests/dissolution/test_similarity.py::TestF2::test_identical_profiles
+
+# Lint and auto-fix
+ruff check src/ tests/ --fix
+ruff format src/ tests/
+
+# Type-check
+mypy src/openpkflow
+
+# Build wheel/sdist
+python -m build
+
+# Verify wheel before upload
+python -m twine check dist/*
+
+# CLI
+openpkflow version
+openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
+openpkflow dissolution compare data.csv --reference reference --test test --report out.html
+```
 
 ---
 
@@ -38,13 +76,36 @@ validation/    — reference comparison utilities
 cli.py         — Typer CLI entry point
 ```
 
+### Dissolution data flow
+
+```
+CSV file
+  → load_dissolution_csv()           # pydantic-validated DataFrame
+  → DissolutionStudy.from_csv()      # groups by formulation label
+  → study.compare(ref, test)         # calls get_formulation_means(), then f1/f2
+  → ComparisonResult                 # dataclass: f1_value, f2_value, means, time_points
+  → result.summary()                 # text to stdout
+  → result.report("out.html")        # → report_dissolution() → render_html_report()
+```
+
+### Report rendering
+
+- HTML template lives at `src/openpkflow/report/templates/dissolution_report.html`
+- Jinja2 renderer is `src/openpkflow/report/html.py` — note: `zip` is manually injected into `env.globals` because Jinja2 does not expose Python builtins
+- Markdown renderer is `src/openpkflow/dissolution/reporting.py`
+- Format is inferred from file extension in `report_dissolution()`
+
+### Windows console constraint
+
+All CLI output and docstrings must use ASCII-only characters. Unicode punctuation (em dashes `—`, right arrows `→`, `>=`, `<=`) causes `UnicodeEncodeError` on Windows cp1252 consoles. Use plain ASCII equivalents (`>=`, `->`, `-`).
+
 ---
 
 ## Release Ladder
 
 ```
-0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests
-0.1.1  bootstrap_f2 (if clean with tests)
+0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests        DONE
+0.1.1  bootstrap_f2, example datasets, CI workflow, profile plots
 0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, etc.)
 0.3.0  full Markdown + HTML + ReportLab PDF report generator
 0.4.0  NCA engine (AUC, Cmax, Tmax, lambda_z, t1/2, CL/F, Vz/F)
@@ -107,7 +168,7 @@ Known reference values:
 ## Report Format Priority
 
 ```
-v0.1.x: console summary → Markdown report → simple HTML report
+v0.1.x: console summary → Markdown report → HTML report with embedded profile plot
 v0.2.x: dissolution model fitting results in reports
 v0.3.0: ReportLab PDF export, python-docx Word export
 ```
@@ -121,7 +182,7 @@ OpenPKFlow is **report-first**: the product delivers clean, professional, regula
 - Never force-push. Never `--no-verify`. Never amend published commits.
 - Commit message format: `<type>(<scope>): <short description>` (e.g., `feat(dissolution): add f1 and f2 with validation`)
 - Version bumps: update `pyproject.toml` version and `CHANGELOG.md` together in one commit.
-- Tag releases: `git tag v0.1.0`
+- Tag releases: `git tag v0.1.1`
 
 ## PyPI Upload Order
 

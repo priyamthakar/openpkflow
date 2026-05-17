@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from openpkflow.datasets import EXAMPLE_DISSOLUTION_CSV
+from openpkflow.datasets import example_dissolution_path as _example_path
+
+EXAMPLE_DISSOLUTION_CSV = _example_path()
 from openpkflow.dissolution import DissolutionStudy
 from openpkflow.dissolution.loader import load_dissolution_csv, DissolutionCSVConfig
 from openpkflow.dissolution.reporting import render_markdown_report, report_dissolution

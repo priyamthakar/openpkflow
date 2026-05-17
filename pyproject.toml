@@ -32,6 +32,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
+  "Typing :: Typed",
 ]
 dependencies = [
   "numpy>=1.24",
@@ -78,6 +79,9 @@ openpkflow = "openpkflow.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openpkflow"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/openpkflow/py.typed" = "openpkflow/py.typed"
 
 [tool.ruff]
 line-length = 100
