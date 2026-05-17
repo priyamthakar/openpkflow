@@ -238,3 +238,45 @@ def test_f2_decreases_as_profiles_diverge() -> None:
     T_close = [38.0, 58.0, 78.0, 88.0, 93.0]
     T_far = [20.0, 40.0, 60.0, 70.0, 75.0]
     assert f2(R, T_close) > f2(R, T_far)
+
+
+# ---------------------------------------------------------------------------
+# method parameter — all_points vs regulatory
+# ---------------------------------------------------------------------------
+
+
+class TestF2Method:
+    def test_all_points_default_same_as_explicit(self):
+        ref = [20.0, 40.0, 60.0, 80.0, 90.0]
+        tst = [21.0, 39.0, 61.0, 79.0, 88.0]
+        assert f2(ref, tst) == f2(ref, tst, method="all_points")
+
+    def test_regulatory_trims_above_85(self):
+        # Both profiles exceed 85 at index 4 (90, 92) — regulatory keeps [0:5]
+        # all_points uses all 6 points including the extra above-85 point
+        ref = [20.0, 40.0, 60.0, 80.0, 90.0, 95.0]
+        tst = [20.0, 40.0, 60.0, 80.0, 92.0, 96.0]
+        f2_all = f2(ref, tst, method="all_points")
+        f2_reg = f2(ref, tst, method="regulatory")
+        # regulatory uses 5 points (trims 6th), all_points uses 6
+        assert f2_reg != f2_all
+        # regulatory result should match computing f2 on first 5 points
+        assert abs(f2_reg - f2(ref[:5], tst[:5])) < 1e-10
+
+    def test_regulatory_no_trim_when_both_never_exceed_85(self):
+        ref = [20.0, 40.0, 60.0, 75.0, 82.0]
+        tst = [21.0, 39.0, 61.0, 74.0, 83.0]
+        # Neither exceeds 85 — result should be identical to all_points
+        assert f2(ref, tst, method="regulatory") == f2(ref, tst, method="all_points")
+
+    def test_regulatory_raises_when_fewer_than_3_points_remain(self):
+        # Both profiles exceed 85 from index 1 onward — only 2 points remain
+        ref = [20.0, 88.0, 92.0, 95.0]
+        tst = [20.0, 86.0, 90.0, 93.0]
+        # After trimming at index 1 (first both > 85), only 2 points remain
+        with pytest.raises(ValueError, match="fewer than 3 timepoints"):
+            f2(ref, tst, method="regulatory")
+
+    def test_unknown_method_raises(self):
+        with pytest.raises(ValueError, match="Unknown method"):
+            f2([20.0, 40.0, 60.0], [20.0, 40.0, 60.0], method="invalid")  # type: ignore[arg-type]

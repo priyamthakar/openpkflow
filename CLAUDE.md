@@ -103,7 +103,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.1.1 is tagged and CI-passing. Immediate priority is PyPI publication (TestPyPI first), then v0.1.2 polish, then v0.2.0 model fitting.
+v0.1.2 is live on PyPI. v0.1.3 polish is in progress. Next milestone is v0.2.0 dissolution model fitting.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -114,8 +114,9 @@ v0.1.1 is tagged and CI-passing. Immediate priority is PyPI publication (TestPyP
 ```
 0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests          DONE
 0.1.1  bootstrap_f2, profile plots in HTML reports, CI, example datasets, py.typed          DONE
-0.1.2  PyPI publish, README validation claims softened, f2_method="regulatory" option,
-       CV% warning in DissolutionStudy.compare(), validation/ notebook stub
+0.1.2  PyPI publish, Trusted Publishing workflow                                         DONE
+0.1.3  README polish, f2_method="regulatory" option, CV% warning in compare(),
+       validation claims softened
 0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, first-order,
        zero-order) — scipy curve_fit, AIC/BIC/R2, fit overlay in HTML report
 0.3.0  full Markdown + HTML + ReportLab PDF report generator

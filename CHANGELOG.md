@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-05-18
+
+### Added
+- `f2(method="regulatory")` option — trims timepoints per the FDA 85% rule (at most one timepoint where both profiles exceed 85% may be included); raises ValueError if fewer than 3 points remain after trimming
+- CV% warning in `DissolutionStudy.compare()` — warns when coefficient of variation exceeds FDA limits: CV > 20% at early timepoints (<=15 min) or CV > 10% at later timepoints
+
+### Changed
+- README: removed em dashes and minimised parentheses; updated status table to reflect v0.1.1 deliverables; softened validation claims
+- 78 tests passing
+
 ## [0.1.2] — 2026-05-18
 
 ### Added

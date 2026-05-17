@@ -13,12 +13,12 @@
 
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
-- **Dissolution similarity** — f1, f2, bootstrap f2, model fitting
-- **NCA** — AUC, Cmax, Tmax, half-life, CL/F, Vz/F *(planned v0.4.0)*
-- **PK simulation** — 1- and 2-compartment models, oral/IV/infusion *(planned v0.5.0)*
-- **Report generation** — Markdown, HTML, PDF, Word *(planned v0.3.0)*
+- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting
+- **NCA:** AUC, Cmax, Tmax, half-life, CL/F, Vz/F · planned v0.4.0
+- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion · planned v0.5.0
+- **Report generation:** Markdown, HTML, PDF, Word · planned v0.3.0
 
-It does not replace expert regulatory judgement or validated commercial platforms.  
+It does not replace expert regulatory judgement or validated commercial platforms.
 It makes routine analysis faster, cleaner, and more reproducible.
 
 ---
@@ -82,17 +82,17 @@ openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
 
 ---
 
-## Current status (v0.1.0)
+## Current status
 
 | Module | Status |
 |---|---|
 | `dissolution.f1` / `dissolution.f2` | Stable |
+| Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
-| Markdown + HTML report stub | Stable |
+| HTML report with profile plot | Stable |
 | CLI | Stable |
-| Bootstrap f2 | Planned v0.1.1 |
 | Dissolution model fitting | Planned v0.2.0 |
-| Full report generation | Planned v0.3.0 |
+| Full PDF/Word reports | Planned v0.3.0 |
 | NCA | Planned v0.4.0 |
 | PK simulation | Planned v0.5.0 |
 | Population PK | Planned v0.6.0 |
@@ -103,13 +103,9 @@ openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
 
 ## Validation
 
-All formula implementations are validated against:
-
-- Published FDA/EMA guidance examples
-- R package reference outputs (PKNCA, bootf2)
-- Manual Excel calculations
-
-Validation test cases cite their sources. See `tests/` for details.
+All formula implementations are validated against published FDA/EMA guidance examples.
+Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
+See `tests/` for details.
 
 ---
 
@@ -137,4 +133,4 @@ https://github.com/priyamthakar/openpkflow
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT · see [LICENSE](LICENSE)

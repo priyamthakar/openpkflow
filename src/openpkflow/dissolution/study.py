@@ -136,6 +136,36 @@ class ComparisonResult:
         }
 
 
+def _check_cv(
+    df: pd.DataFrame,
+    formulation: str,
+    config: DissolutionCSVConfig,
+) -> list[str]:
+    """Return warning strings for timepoints where CV exceeds FDA limits."""
+    col_form = config.formulation_col
+    col_time = config.time_col
+    col_pct = config.percent_released_col
+
+    subset = df[df[col_form] == formulation]
+    warnings_out: list[str] = []
+
+    for time_val, group in subset.groupby(col_time):
+        vals = group[col_pct].values
+        if len(vals) < 2:
+            continue
+        mean_val = float(vals.mean())
+        if mean_val == 0.0:
+            continue
+        cv = float(vals.std(ddof=1) / mean_val * 100.0)
+        limit = 20.0 if float(time_val) <= 15.0 else 10.0
+        if cv > limit:
+            warnings_out.append(
+                f"{formulation} at t={time_val}: CV={cv:.1f}% exceeds FDA limit of {limit:.0f}%"
+            )
+
+    return warnings_out
+
+
 class DissolutionStudy:
     """High-level dissolution study object.
 
@@ -259,6 +289,19 @@ class DissolutionStudy:
                     UserWarning,
                     stacklevel=2,
                 )
+
+        # CV check per FDA dissolution guidance (CV <= 20% early, <= 10% later)
+        cv_issues: list[str] = []
+        cv_issues.extend(_check_cv(self._df, reference, self._config))
+        cv_issues.extend(_check_cv(self._df, test, self._config))
+        if cv_issues:
+            warnings.warn(
+                "High CV detected - FDA guidance recommends CV <= 20% at early "
+                "timepoints (<=15 min) and CV <= 10% at later timepoints:\n  "
+                + "\n  ".join(cv_issues),
+                UserWarning,
+                stacklevel=2,
+            )
 
         f1_value = f1(ref_means, tst_means)
         f2_value = f2(ref_means, tst_means)

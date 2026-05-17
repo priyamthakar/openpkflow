@@ -201,3 +201,45 @@ def test_comparison_result_report_markdown(tmp_path: Path) -> None:
     rendered = result.report(out, format="markdown")
     assert out.exists()
     assert "# " in rendered
+
+
+# ---------------------------------------------------------------------------
+# CV warning tests
+# ---------------------------------------------------------------------------
+
+
+class TestCVWarning:
+    def test_high_cv_early_timepoint_warns(self, tmp_path):
+        # CV > 20% at t=5 min (early timepoint)
+        csv = tmp_path / "high_cv.csv"
+        csv.write_text(
+            "formulation,batch,time,percent_released\n"
+            "reference,R1,5,10.0\n"
+            "reference,R2,5,50.0\n"  # huge spread -> CV >> 20%
+            "reference,R1,15,60.0\n"
+            "reference,R2,15,62.0\n"
+            "reference,R1,30,80.0\n"
+            "reference,R2,30,81.0\n"
+            "test,T1,5,11.0\n"
+            "test,T2,5,51.0\n"
+            "test,T1,15,61.0\n"
+            "test,T2,15,63.0\n"
+            "test,T1,30,79.0\n"
+            "test,T2,30,80.0\n"
+        )
+        study = DissolutionStudy.from_csv(str(csv))
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            study.compare("reference", "test")
+            cv_warns = [x for x in w if "CV" in str(x.message)]
+            assert len(cv_warns) >= 1
+            assert "CV" in str(cv_warns[0].message)
+
+    def test_low_cv_no_warning(self):
+        from openpkflow.datasets import example_dissolution_path
+        study = DissolutionStudy.from_csv(example_dissolution_path())
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            study.compare("reference", "test")
+            cv_warns = [x for x in w if "CV" in str(x.message)]
+            assert len(cv_warns) == 0
