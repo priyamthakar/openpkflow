@@ -5,11 +5,15 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv
 from .similarity import f1, f2
+
+if TYPE_CHECKING:
+    from .bootstrap import BootstrapF2Result
 
 _85_PCT_WARNING = (
     "More than one mean dissolution value exceeds 85%% in the %s profile "
@@ -115,6 +119,50 @@ class ComparisonResult:
             reference_mean=self.reference_mean,
             test_mean=self.test_mean,
         )
+
+    def plot(
+        self,
+        output_path: str | Path | None = None,
+        show: bool = False,
+    ) -> None:
+        """Plot the dissolution profiles for reference and test.
+
+        Parameters
+        ----------
+        output_path : str or Path or None, optional
+            If provided, saves the figure to this path (PNG/PDF/SVG).
+        show : bool, optional
+            If True, calls plt.show() to display interactively. Default False.
+        """
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        tp = np.array(self.time_points)
+        fig, ax = plt.subplots(figsize=(7, 4), dpi=110)
+        ax.plot(tp, self.reference_mean, "o-", color="#003366", linewidth=2,
+                markersize=6, label=self.reference_label)
+        ax.plot(tp, self.test_mean, "s--", color="#cc3300", linewidth=2,
+                markersize=6, label=self.test_label)
+        ax.axhline(85, color="#888888", linestyle=":", linewidth=1, label="85% threshold")
+        verdict = "SIMILAR" if self.f2_value >= 50.0 else "NOT SIMILAR"
+        ax.set_title(
+            f"Dissolution Profile  |  f1={self.f1_value:.1f}  f2={self.f2_value:.1f}  [{verdict}]",
+            fontsize=11,
+        )
+        ax.set_xlabel("Time (min)", fontsize=10)
+        ax.set_ylabel("Mean % Dissolved", fontsize=10)
+        ax.set_ylim(0, 105)
+        ax.legend(fontsize=9)
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+
+        if output_path is not None:
+            fig.savefig(output_path, bbox_inches="tight")
+        if show:
+            plt.show()
+        plt.close(fig)
 
     def to_dict(self) -> dict[str, object]:
         """Return a plain-dict representation of the result.
@@ -315,4 +363,70 @@ class DissolutionStudy:
             reference_mean=ref_means,
             test_mean=tst_means,
             time_points=ref_times,
+        )
+
+    def bootstrap_compare(
+        self,
+        reference: str,
+        test: str,
+        *,
+        n_replicates: int = 5000,
+        confidence_level: float = 0.90,
+        seed: int | None = None,
+    ) -> "BootstrapF2Result":
+        """Compare two formulations using bootstrap f2 confidence interval.
+
+        Extracts vessel-level data from the loaded CSV and calls bootstrap_f2.
+        Suitable for small samples where fewer than 12 vessels are available.
+
+        Parameters
+        ----------
+        reference : str
+            Label of the reference formulation.
+        test : str
+            Label of the test formulation.
+        n_replicates : int, optional
+            Number of bootstrap replicates. Default 5000.
+        confidence_level : float, optional
+            CI level, e.g. 0.90 for 90% CI. Default 0.90.
+        seed : int or None, optional
+            Random seed for reproducibility.
+
+        Returns
+        -------
+        BootstrapF2Result
+        """
+        import numpy as np
+        from .bootstrap import BootstrapF2Result, bootstrap_f2 as _bootstrap_f2
+
+        available = self.formulations()
+        if reference not in available:
+            raise ValueError(f"Reference formulation '{reference}' not found. Available: {available}")
+        if test not in available:
+            raise ValueError(f"Test formulation '{test}' not found. Available: {available}")
+
+        cfg = self._config
+        df = self._df
+
+        def _vessel_matrix(label: str) -> "np.ndarray":
+            subset = df[df[cfg.formulation_col] == label].sort_values(
+                [cfg.batch_col, cfg.time_col]
+            )
+            batches = subset[cfg.batch_col].unique()
+            n_batches = len(batches)
+            rows = []
+            for batch in batches:
+                batch_data = subset[subset[cfg.batch_col] == batch].sort_values(cfg.time_col)
+                rows.append(batch_data[cfg.percent_released_col].values)
+            return np.array(rows, dtype=float)
+
+        ref_matrix = _vessel_matrix(reference)
+        tst_matrix = _vessel_matrix(test)
+
+        return _bootstrap_f2(
+            ref_matrix,
+            tst_matrix,
+            n_replicates=n_replicates,
+            confidence_level=confidence_level,
+            seed=seed,
         )

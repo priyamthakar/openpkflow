@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.4] — 2026-05-18
+
+### Added
+- `DissolutionStudy.bootstrap_compare(reference, test, ...)` — runs bootstrap f2 directly from loaded CSV data; no numpy required from the caller
+- `ComparisonResult.plot(output_path, show)` — plots reference vs test profile with f1/f2 in title; no matplotlib import required from the caller
+- `demo.ipynb` rewritten: only openpkflow imports, clean 7-section workflow
+
 ## [0.1.3] — 2026-05-18
 
 ### Added
