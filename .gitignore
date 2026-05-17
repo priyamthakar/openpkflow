@@ -43,6 +43,7 @@ dist/
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
+!demo.ipynb
 
 # Local config/secrets
 .env
