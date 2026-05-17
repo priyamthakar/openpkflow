@@ -194,7 +194,7 @@ Bootstrap f2 confidence intervals (planned for v0.2.0) will follow the
 Mandula/Shah (1998) bootstrap procedure as implemented in `bootf2`.
 
 If you identify a discrepancy, please open an issue at
-<https://github.com/priyamthakar1/openpkflow/issues>.
+<https://github.com/priyamthakar/openpkflow/issues>.
 
 ---
 

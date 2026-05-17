@@ -68,10 +68,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/priyamthakar1/openpkflow"
-Repository = "https://github.com/priyamthakar1/openpkflow"
-Issues = "https://github.com/priyamthakar1/openpkflow/issues"
-Documentation = "https://priyamthakar1.github.io/openpkflow/"
+Homepage = "https://github.com/priyamthakar/openpkflow"
+Repository = "https://github.com/priyamthakar/openpkflow"
+Issues = "https://github.com/priyamthakar/openpkflow/issues"
+Documentation = "https://priyamthakar.github.io/openpkflow/"
 
 [project.scripts]
 openpkflow = "openpkflow.cli:app"

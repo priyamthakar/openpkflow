@@ -121,7 +121,7 @@ Final regulatory interpretation should be reviewed by qualified formulation, pha
 
 ## Contributing
 
-Issues and PRs welcome at https://github.com/priyamthakar1/openpkflow/issues
+Issues and PRs welcome at https://github.com/priyamthakar/openpkflow/issues
 
 ---
 
@@ -131,7 +131,7 @@ If you use OpenPKFlow in research, please cite:
 
 ```
 Thakar, P. (2026). OpenPKFlow: Python-first pharmacometrics and dissolution toolkit.
-https://github.com/priyamthakar1/openpkflow
+https://github.com/priyamthakar/openpkflow
 ```
 
 ## License

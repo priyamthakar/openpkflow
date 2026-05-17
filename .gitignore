@@ -48,10 +48,11 @@ dist/
 .env
 *.local
 
-# Reports generated during tests
+# Reports generated during tests (but allow templates and docs)
 *.pdf
 *.html
 *.docx
 *.xlsx
+!src/**/*.html
 !examples/**/*.html
 !docs/**
