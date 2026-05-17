@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-18
+
+### Added
+- `dissolution.bootstrap_f2()` — bootstrap CI for f2 (Shah 1998, Davit 2013); suitable for small-sample (<12 vessel) similarity assessment
+- `dissolution.plotting.dissolution_profile_plot_b64()` — embedded matplotlib profile plot in HTML reports
+- HTML reports now include a dissolution profile chart (reference vs test, 85% threshold line)
+- `datasets.example_similar_path()` — example dataset with f2 ~80 (clearly similar profiles)
+- `datasets.example_not_similar_path()` — example dataset with f2 ~38 (clearly dissimilar profiles)
+- `py.typed` marker (PEP 561) — enables mypy type checking in downstream projects
+- GitHub Actions CI — matrix build across Python 3.10, 3.11, 3.12
+
+### Changed
+- `datasets/__init__.py` — constants replaced with `example_dissolution_path()`, `example_similar_path()`, `example_not_similar_path()` functions using `importlib.resources`
+- CLAUDE.md — added Commands section, data flow diagram, Windows ASCII constraint note
+
 ## [0.1.0] — 2026-05-17
 
 ### Added

@@ -101,12 +101,23 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ---
 
+## Current focus
+
+v0.1.1 is tagged and CI-passing. Immediate priority is PyPI publication (TestPyPI first), then v0.1.2 polish, then v0.2.0 model fitting.
+
+**Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
+
+---
+
 ## Release Ladder
 
 ```
-0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests        DONE
-0.1.1  bootstrap_f2, example datasets, CI workflow, profile plots
-0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, etc.)
+0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests          DONE
+0.1.1  bootstrap_f2, profile plots in HTML reports, CI, example datasets, py.typed          DONE
+0.1.2  PyPI publish, README validation claims softened, f2_method="regulatory" option,
+       CV% warning in DissolutionStudy.compare(), validation/ notebook stub
+0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, first-order,
+       zero-order) — scipy curve_fit, AIC/BIC/R2, fit overlay in HTML report
 0.3.0  full Markdown + HTML + ReportLab PDF report generator
 0.4.0  NCA engine (AUC, Cmax, Tmax, lambda_z, t1/2, CL/F, Vz/F)
 0.5.0  PK simulation (1-comp, 2-comp, oral, IV, infusion, repeated dosing)
@@ -190,8 +201,11 @@ OpenPKFlow is **report-first**: the product delivers clean, professional, regula
 2. `pip install -e .` works
 3. `python -m build` succeeds
 4. `python -m twine check dist/*` clean
-5. Upload to TestPyPI, install, verify CLI works
-6. Upload to real PyPI
+5. Upload to TestPyPI: `twine upload --repository testpypi dist/*`
+6. Fresh venv install: `pip install -i https://test.pypi.org/simple/ openpkflow` — verify `openpkflow version` and `openpkflow similarity` work
+7. Upload to real PyPI: `twine upload dist/*`
+
+**Preferred: PyPI Trusted Publishing** — no stored token, scoped to the repo. Set up at pypi.org/manage/account/publishing/ then add a `publish.yml` GitHub Actions workflow that triggers on version tags. Only the repo owner can configure this — it requires a one-time manual step at pypi.org.
 
 Do not upload broken or untested wheels.
 
