@@ -14,6 +14,7 @@ from .similarity import f1, f2
 
 if TYPE_CHECKING:
     from .bootstrap import BootstrapF2Result
+    from .models import DissolutionFitResults
 
 _85_PCT_WARNING = (
     "More than one mean dissolution value exceeds 85%% in the %s profile "
@@ -429,4 +430,47 @@ class DissolutionStudy:
             n_replicates=n_replicates,
             confidence_level=confidence_level,
             seed=seed,
+        )
+
+    def fit_models(
+        self,
+        formulation: str,
+        models: list[str] | None = None,
+    ) -> "DissolutionFitResults":
+        """Fit standard dissolution release models to the mean profile of a formulation.
+
+        Parameters
+        ----------
+        formulation : str
+            Label of the formulation to fit.
+        models : list[str] or None, optional
+            Model names to fit. Defaults to all five standard models:
+            ``["zero_order", "first_order", "higuchi", "korsmeyer_peppas", "weibull"]``.
+
+        Returns
+        -------
+        DissolutionFitResults
+            Fit results ranked by AICc. Use ``.best`` for the top-ranked model,
+            ``.summary()`` for a ranked table, ``.plot()`` for a profile overlay,
+            and ``.report()`` for an HTML report.
+
+        Raises
+        ------
+        ValueError
+            If the formulation label is not found in the dataset.
+        """
+        from .models import fit_dissolution_models
+
+        available = self.formulations()
+        if formulation not in available:
+            raise ValueError(
+                f"Formulation '{formulation}' not found. Available: {available}"
+            )
+
+        times, means = get_formulation_means(self._df, formulation)
+        return fit_dissolution_models(
+            time_points=times,
+            observed_mean=means,
+            formulation_label=formulation,
+            models=models,
         )

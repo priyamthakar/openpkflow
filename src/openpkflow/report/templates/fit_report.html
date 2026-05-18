@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    /* ── Content ─────────────────────────────────────────────────────── */
+    .content { padding: 32px 36px; }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    /* ── Tables ──────────────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── Badges ──────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .badge-best   { background: #d4edda; color: #155724; border: 1px solid #b8dac2; }
+    .badge-fail   { background: #f8d7da; color: #721c24; border: 1px solid #e8b4b8; }
+    .badge-rank   { background: #e8f0fb; color: #0d3b66; border: 1px solid #c6d8f0; }
+
+    /* ── Note box ────────────────────────────────────────────────────── */
+    .note-box {
+      background: #fffbeb;
+      border-left: 4px solid #d4a017;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: #5a4b00;
+      margin-top: 14px;
+    }
+
+    /* ── Disclaimer ──────────────────────────────────────────────────── */
+    .disclaimer-box {
+      background: #f7f7f7;
+      border: 1px solid #dde1e7;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #666c74;
+      line-height: 1.55;
+    }
+
+    .disclaimer-box strong {
+      color: #444c55;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ── Params cell ─────────────────────────────────────────────────── */
+    .params-cell {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      color: #2d3748;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────── */
+    .report-footer {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #8a95a3;
+    }
+
+    .report-footer a { color: #1a78c2; text-decoration: none; }
+
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ──────────────────────────────────────────────────────── -->
+  <header class="report-header">
+    <p class="org-label">OpenPKFlow &mdash; Dissolution Model Fitting Report</p>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated</strong>
+        {{ generated_at }}
+      </div>
+      <div class="meta-item">
+        <strong>Software</strong>
+        OpenPKFlow {{ openpkflow_version }}
+      </div>
+      <div class="meta-item">
+        <strong>Formulation</strong>
+        {{ formulation_label }}
+      </div>
+      <div class="meta-item">
+        <strong>Timepoints (n)</strong>
+        {{ n_timepoints }}
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main content ─────────────────────────────────────────────────── -->
+  <main class="content">
+
+    <!-- Model Fit Summary Table -->
+    <section>
+      <h2>Model Fit Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Model</th>
+            <th>Parameters</th>
+            <th class="num">R&sup2;</th>
+            <th class="num">AICc</th>
+            <th class="num">BIC</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in fit_rows %}
+          <tr>
+            <td class="num">
+              {% if row.converged %}
+                {% if row.is_best %}
+                  <span class="badge badge-best">BEST</span>
+                {% else %}
+                  <span class="badge badge-rank">{{ row.rank }}</span>
+                {% endif %}
+              {% else %}
+                &mdash;
+              {% endif %}
+            </td>
+            <td>{{ row.model_name }}</td>
+            <td class="params-cell">
+              {% if row.converged %}
+                {% for k, v in row.params.items() %}
+                  {{ k }}={{ "%.4g"|format(v) }}{% if not loop.last %}&nbsp;&nbsp;{% endif %}
+                {% endfor %}
+              {% else %}
+                &mdash;
+              {% endif %}
+            </td>
+            <td class="num">
+              {% if row.converged %}{{ "%.4f"|format(row.r_squared) }}{% else %}&mdash;{% endif %}
+            </td>
+            <td class="num">
+              {% if row.converged %}{{ "%.2f"|format(row.aicc) }}{% else %}&mdash;{% endif %}
+            </td>
+            <td class="num">
+              {% if row.converged %}{{ "%.2f"|format(row.bic) }}{% else %}&mdash;{% endif %}
+            </td>
+            <td>
+              {% if row.converged %}
+                <span class="badge badge-rank">OK</span>
+              {% else %}
+                <span class="badge badge-fail">FAILED</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="note-box">
+        <strong>Ranking note:</strong> Models are ranked by AICc (small-sample corrected AIC;
+        lower is better). R&sup2; is shown for familiarity but is misleading for nonlinear
+        models and should not be used for selection.
+        The Korsmeyer&ndash;Peppas power-law model is only mechanistically valid up to ~60%
+        release. The Weibull model is empirical (FDA/EMA guidance: not suitable for IVIVC
+        without mechanistic justification).
+      </div>
+    </section>
+
+    <!-- Overlay Plot -->
+    <section>
+      <h2>Dissolution Profile with Model Fits</h2>
+      <div style="text-align:center; margin: 1.5rem 0;">
+        <img src="data:image/png;base64,{{ plot_b64 }}"
+             alt="Dissolution model fit overlay plot"
+             style="max-width:720px; width:100%; border:1px solid #ddd; border-radius:6px;" />
+      </div>
+    </section>
+
+    <!-- Observed Data -->
+    <section>
+      <h2>Observed Mean Profile Data</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time (min)</th>
+            <th class="num">Mean % Dissolved</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t, q in zip(time_points, observed_mean) %}
+          <tr>
+            <td>{{ t }}</td>
+            <td class="num">{{ "%.2f"|format(q) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Disclaimer -->
+    <section>
+      <h2>Disclaimer</h2>
+      <div class="disclaimer-box">
+        <strong>Regulatory Notice</strong>
+        {{ disclaimer }}
+        <br /><br />
+        {{ fit_disclaimer }}
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────── -->
+  <footer class="report-footer">
+    <span>
+      Generated by <strong>OpenPKFlow {{ openpkflow_version }}</strong>
+      &mdash; <a href="https://github.com/priyamthakar/openpkflow">github.com/priyamthakar/openpkflow</a>
+    </span>
+    <span>{{ generated_at }}</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-"""Dissolution profile plot — reference vs test mean with error bars."""
+"""Dissolution profile plots — comparison and model fit overlays."""
 from __future__ import annotations
 
 import base64
@@ -58,6 +58,76 @@ def dissolution_profile_plot_b64(
     ax.set_ylim(0, 105)
     ax.axhline(85, color="#888888", linestyle=":", linewidth=1, label="85% threshold")
     ax.legend(fontsize=10)
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    plt.close(fig)
+    buf.seek(0)
+    return base64.b64encode(buf.read()).decode("ascii")
+
+
+def dissolution_fit_plot_b64(
+    time_points: list[float],
+    observed_mean: list[float],
+    fit_curves: list[tuple[str, list[float], list[float], float]],
+    formulation_label: str = "",
+) -> str:
+    """Return a base64-encoded PNG of observed mean with fitted model overlays.
+
+    Embeds cleanly as ``<img src="data:image/png;base64,...">`` in HTML reports.
+
+    Parameters
+    ----------
+    time_points :
+        Observed time points (minutes).
+    observed_mean :
+        Mean percent dissolved at each observed time point.
+    fit_curves :
+        List of ``(model_name, t_dense, Q_pred, aicc)`` tuples for each
+        converged model. ``t_dense`` and ``Q_pred`` are dense arrays for
+        smooth curve rendering.
+    formulation_label :
+        Formulation label used in the plot title.
+
+    Returns
+    -------
+    str
+        ASCII base64-encoded PNG image string.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    colors = ["#e63946", "#457b9d", "#2a9d8f", "#e9c46a", "#f4a261"]
+    linestyles: list[object] = ["-", "--", "-.", ":", (0, (3, 1, 1, 1))]
+
+    fig, ax = plt.subplots(figsize=(8, 5), dpi=110)
+    ax.scatter(
+        time_points, observed_mean,
+        color="#003366", s=55, zorder=5, label="Observed mean",
+    )
+    for i, (name, t_dense, Q_pred, aicc) in enumerate(fit_curves):
+        label = f"{name} (AICc={aicc:.1f})"
+        ax.plot(
+            t_dense, Q_pred,
+            color=colors[i % len(colors)],
+            linestyle=linestyles[i % len(linestyles)],  # type: ignore[arg-type]
+            linewidth=1.8,
+            label=label,
+        )
+
+    ax.set_xlabel("Time (min)", fontsize=11)
+    ax.set_ylabel("Mean % Dissolved", fontsize=11)
+    title = (
+        f"Dissolution Model Fit  —  {formulation_label}"
+        if formulation_label
+        else "Dissolution Model Fit"
+    )
+    ax.set_title(title, fontsize=12, fontweight="bold")
+    ax.set_ylim(0, 110)
+    ax.legend(fontsize=9, loc="lower right")
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
 

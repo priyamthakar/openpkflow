@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import jinja2
 
@@ -14,6 +15,12 @@ _DISCLAIMER = (
     "This report was generated using OpenPKFlow (open-source). "
     "Final regulatory interpretation should be reviewed by qualified "
     "formulation, pharmacokinetic, and regulatory experts."
+)
+
+_FIT_DISCLAIMER = (
+    "Dissolution model fitting characterises the release mechanism of a "
+    "formulation. It is not a regulatory similarity test. Use f2 or bootstrap "
+    "f2 for dissolution similarity assessment."
 )
 
 
@@ -97,6 +104,69 @@ def render_html_report(
             reference_label=reference_label,
             test_label=test_label,
         ),
+    )
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered, encoding="utf-8")
+
+    return rendered
+
+
+def render_model_fit_html_report(
+    *,
+    formulation_label: str,
+    time_points: list[float],
+    observed_mean: list[float],
+    fit_rows: list[dict[str, Any]],
+    plot_b64: str,
+    output_path: str | Path | None = None,
+) -> str:
+    """Render a dissolution model fit HTML report.
+
+    Parameters
+    ----------
+    formulation_label :
+        Label of the fitted formulation.
+    time_points :
+        Observed time points (minutes).
+    observed_mean :
+        Mean percent dissolved at each observed time point.
+    fit_rows :
+        Pre-processed fit data rows (one dict per model). Each dict must have:
+        ``model_name``, ``params``, ``r_squared``, ``aic``, ``aicc``, ``bic``,
+        ``n_points``, ``n_params``, ``converged``, ``rank``, ``is_best``.
+    plot_b64 :
+        Base64-encoded PNG of the model fit overlay plot.
+    output_path :
+        If given, write the rendered HTML to this path.
+
+    Returns
+    -------
+    str
+        The rendered HTML string.
+    """
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=True,
+    )
+    env.globals["zip"] = zip
+
+    template = env.get_template("fit_report.html")
+
+    rendered = template.render(
+        title=f"Dissolution Model Fitting: {formulation_label}",
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        openpkflow_version=__version__,
+        formulation_label=formulation_label,
+        n_timepoints=len(time_points),
+        time_points=time_points,
+        observed_mean=observed_mean,
+        fit_rows=fit_rows,
+        plot_b64=plot_b64,
+        disclaimer=_DISCLAIMER,
+        fit_disclaimer=_FIT_DISCLAIMER,
     )
 
     if output_path is not None:

@@ -9,6 +9,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-05-18
+
+### Added
+- `DissolutionStudy.fit_models(formulation, models=None)` — fits one or more standard release models to the mean profile of a formulation; returns `DissolutionFitResults`
+- `fit_dissolution_models(time_points, observed_mean, formulation_label, models=None)` — low-level public API for fitting without a loaded CSV
+- Five dissolution release models: `zero_order`, `first_order`, `higuchi`, `korsmeyer_peppas`, `weibull`
+- `ModelFit` frozen dataclass — fit result per model: params, R2, AIC, AICc, BIC, converged flag, `predict()`, `to_dict()`
+- `DissolutionFitResults` dataclass — ranked fit container: `.best` (lowest AICc), `.summary()`, `.plot()`, `.report()`, `.to_dict()`
+- `DissolutionFitResults.plot()` — overlay plot of observed mean + fitted curves, ranked by AICc
+- `DissolutionFitResults.report("fit.html")` — HTML report with fit table, overlay plot, and regulatory disclaimer
+- `dissolution_fit_plot_b64()` in `plotting.py` — base64 PNG for HTML report embedding
+- `render_model_fit_html_report()` in `report/html.py` — Jinja2 renderer for `fit_report.html`
+- `report/templates/fit_report.html` — navy-header HTML template matching existing dissolution report style
+- Korsmeyer-Peppas 60% rule: `UserWarning` when >1 timepoint exceeds 60% release
+- Weibull empirical-model note in report and docstring (FDA/EMA guidance context)
+- All five models exported from `openpkflow.dissolution`: `ModelFit`, `DissolutionFitResults`, `fit_dissolution_models`
+
+### Implementation notes
+- Models fitted to mean profile (not per-vessel); per-vessel fitting is future scope
+- Model ranking by AICc (small-sample corrected AIC); AIC and BIC also returned
+- R2 reported for familiarity but not used for selection (misleading for nonlinear models)
+- Each model has data-driven initial-guess and bounds helpers to prevent degenerate fits
+- Failed fits (non-convergence) included in results with `converged=False`; excluded from ranking and plots
+- Reference: Costa P, Lobo JMS (2001) Eur J Pharm Sci 13(2):123-133. DOI: 10.1016/S0928-0987(01)00095-1
+
 ## [0.1.4] — 2026-05-18
 
 ### Added
