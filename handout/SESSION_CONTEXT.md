@@ -9,14 +9,14 @@ Read this at the start of every new session. It contains the full current state 
 - **Package:** `openpkflow`
 - **Author:** Priyam Thakar, priyamthakar1@gmail.com
 - **GitHub:** https://github.com/priyamthakar/openpkflow (username: `priyamthakar`, not `priyamthakar1`)
-- **PyPI:** https://pypi.org/project/openpkflow/ — live and installable (v0.3.0 on PyPI; v0.4.0 built locally, not yet tagged/released)
+- **PyPI:** https://pypi.org/project/openpkflow/ — live and installable (v0.4.0 on PyPI)
 - **Working directory:** `D:\openpkflow`
 - **Python floor:** 3.10+
 - **Build:** hatchling, `src/` layout
 
 ---
 
-## Current version: 0.4.0 (local, not yet on PyPI)
+## Current version: 0.4.0 (on PyPI)
 
 ### Version history
 
