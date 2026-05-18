@@ -16,7 +16,7 @@ Read this at the start of every new session. It contains the full current state 
 
 ---
 
-## Current version: 0.4.0 (on PyPI)
+## Current version: 0.4.1 (on PyPI)
 
 ### Version history
 
@@ -30,6 +30,7 @@ Read this at the start of every new session. It contains the full current state 
 | 0.2.0 | Dissolution model fitting: 5 models, ModelFit, DissolutionFitResults, AICc ranking, HTML fit report |
 | 0.3.0 | PDF (ReportLab) + Word (python-docx) reports for comparison and model fit |
 | 0.4.0 | NCA engine: AUClast, AUCinf, Cmax, Tmax, lambda_z (BAR²), CL/F, Vz/F; HTML+Markdown reports; Theoph reference dataset; 93 NCA tests |
+| 0.4.1 | NCA PDF (ReportLab) and Word (python-docx) reports; logo added; 26 new tests |
 
 ---
 
@@ -175,8 +176,8 @@ CSV -> load_nca_csv() (BLQ handled) -> NCAStudy
 |--------|----------------------|-----------------------|------------|-------------|
 | html   | yes | yes | yes | yes |
 | markdown | yes | no | yes | yes |
-| pdf    | yes (requires [reports]) | yes (requires [reports]) | v0.4.1 | v0.4.1 |
-| docx   | yes (requires [reports]) | yes (requires [reports]) | v0.4.1 | v0.4.1 |
+| pdf    | yes (requires [reports]) | yes (requires [reports]) | yes (requires [reports]) | yes (requires [reports]) |
+| docx   | yes (requires [reports]) | yes (requires [reports]) | yes (requires [reports]) | yes (requires [reports]) |
 
 ---
 

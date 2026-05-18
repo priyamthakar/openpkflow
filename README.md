@@ -1,5 +1,9 @@
 # OpenPKFlow
 
+<p align="center">
+  <img src="docs/logo.png" alt="OpenPKFlow" width="420"/>
+</p>
+
 **A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
@@ -132,7 +136,7 @@ IV routes yield absolute clearance and volume: `CL`, `Vz`.
 | Dissolution CSV loader | Stable |
 | Dissolution model fitting (5 models, AICc) | Stable |
 | HTML, Markdown, PDF, Word reports | Stable |
-| NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.0 |
+| NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.1 |
 | PK simulation (1/2-comp, oral/IV) | Planned v0.5.0 |
 | Population PK diagnostics | Planned v0.6.0 |
 | Bayesian PK (PyMC, CmdStanPy) | Planned v0.8.0 |

@@ -6,7 +6,10 @@ import base64
 import io
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from openpkflow.nca.results import NCAResult, NCASummaryResults
 
 _DISCLAIMER = (
     "This report was generated using OpenPKFlow — an open-source Python workflow "
@@ -306,6 +309,267 @@ def render_model_fit_docx_report(
 
     fit_disclaimer_para = document.add_paragraph(_FIT_DISCLAIMER)
     for run in fit_disclaimer_para.runs:
+        run.italic = True
+        run.font.size = Pt(9)
+
+    buf = io.BytesIO()
+    document.save(buf)
+    docx_bytes = buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(docx_bytes)
+
+    return docx_bytes
+
+
+def render_nca_single_docx_report(
+    *,
+    result: NCAResult,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render a per-subject NCA report as a Word document.
+
+    Parameters
+    ----------
+    result :
+        NCA result for a single subject.
+    output_path :
+        If given, write the DOCX bytes to this path (parent dirs created automatically).
+
+    Returns
+    -------
+    bytes
+        DOCX file contents as bytes.
+    """
+    try:
+        import docx  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Word export requires python-docx. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from docx import Document
+    from docx.shared import Pt
+
+    from openpkflow import __version__
+
+    def _fmt(v: float | None) -> str:
+        return f"{v:.4g}" if v is not None else "N/A"
+
+    def _cl_label(r: NCAResult) -> tuple[str, str]:
+        if r.CL_F is not None:
+            return "CL_F (L/h)", _fmt(r.CL_F)
+        if r.CL is not None:
+            return "CL (L/h)", _fmt(r.CL)
+        return "CL_F (L/h)", "N/A"
+
+    def _vz_label(r: NCAResult) -> tuple[str, str]:
+        if r.Vz_F is not None:
+            return "Vz_F (L)", _fmt(r.Vz_F)
+        if r.Vz is not None:
+            return "Vz (L)", _fmt(r.Vz)
+        return "Vz_F (L)", "N/A"
+
+    cl_lbl, cl_val = _cl_label(result)
+    vz_lbl, vz_val = _vz_label(result)
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    document = Document()
+    document.add_heading(f"NCA Report - Subject {result.subject}", level=1)
+
+    meta_para = document.add_paragraph(
+        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
+    )
+    meta_para.runs[0].font.size = Pt(9)
+
+    document.add_heading("Study Parameters", level=2)
+    study_table = document.add_table(rows=1, cols=2)
+    study_table.style = "Table Grid"
+    hdr = study_table.rows[0].cells
+    for i, h in enumerate(["Parameter", "Value"]):
+        hdr[i].text = h
+    for cell in hdr:
+        for para in cell.paragraphs:
+            for run in para.runs:
+                run.bold = True
+    for label, value in [
+        ("Subject", str(result.subject)),
+        ("Route", result.route),
+        ("Dose", f"{result.dose:.4g}"),
+        ("AUC Method", result.auc_method),
+        ("BLQ Method", result.blq_method),
+    ]:
+        row_cells = study_table.add_row().cells
+        row_cells[0].text = label
+        row_cells[1].text = value
+
+    document.add_heading("PK Parameters", level=2)
+    pk_table = document.add_table(rows=1, cols=2)
+    pk_table.style = "Table Grid"
+    hdr2 = pk_table.rows[0].cells
+    for i, h in enumerate(["Parameter", "Value"]):
+        hdr2[i].text = h
+    for cell in hdr2:
+        for para in cell.paragraphs:
+            for run in para.runs:
+                run.bold = True
+    for label, value in [
+        ("Cmax", _fmt(result.Cmax)),
+        ("Tmax", _fmt(result.Tmax)),
+        ("AUClast", _fmt(result.AUClast)),
+        ("AUCinf_obs", _fmt(result.AUCinf_obs)),
+        ("AUC % Extrapolated", _fmt(result.AUC_percent_extrapolated)),
+        ("lambda_z", _fmt(result.lambda_z)),
+        ("Half-life", _fmt(result.half_life)),
+        ("lambda_z method", result.lambda_z_method or "N/A"),
+        (cl_lbl, cl_val),
+        (vz_lbl, vz_val),
+    ]:
+        row_cells = pk_table.add_row().cells
+        row_cells[0].text = label
+        row_cells[1].text = value
+
+    if result.warnings:
+        document.add_heading("Warnings", level=2)
+        for w in result.warnings:
+            document.add_paragraph(w, style="List Bullet")
+
+    document.add_paragraph()
+    disclaimer_para = document.add_paragraph(_DISCLAIMER)
+    for run in disclaimer_para.runs:
+        run.italic = True
+        run.font.size = Pt(9)
+
+    buf = io.BytesIO()
+    document.save(buf)
+    docx_bytes = buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(docx_bytes)
+
+    return docx_bytes
+
+
+def render_nca_summary_docx_report(
+    *,
+    summary: NCASummaryResults,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render a multi-subject NCA summary report as a Word document.
+
+    Parameters
+    ----------
+    summary :
+        Collection of per-subject NCA results.
+    output_path :
+        If given, write the DOCX bytes to this path (parent dirs created automatically).
+
+    Returns
+    -------
+    bytes
+        DOCX file contents as bytes.
+    """
+    try:
+        import docx  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Word export requires python-docx. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from docx import Document
+    from docx.shared import Pt
+
+    from openpkflow import __version__
+
+    def _fmt(v: float | None) -> str:
+        return f"{v:.4g}" if v is not None else "N/A"
+
+    def _cl_val(r: NCAResult) -> str:
+        if r.CL_F is not None:
+            return _fmt(r.CL_F)
+        if r.CL is not None:
+            return _fmt(r.CL)
+        return "N/A"
+
+    def _vz_val(r: NCAResult) -> str:
+        if r.Vz_F is not None:
+            return _fmt(r.Vz_F)
+        if r.Vz is not None:
+            return _fmt(r.Vz)
+        return "N/A"
+
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    document = Document()
+    document.add_heading("NCA Summary Report", level=1)
+
+    meta_para = document.add_paragraph(
+        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
+    )
+    meta_para.runs[0].font.size = Pt(9)
+
+    if summary.study_label:
+        document.add_heading("Study Parameters", level=2)
+        info_table = document.add_table(rows=1, cols=2)
+        info_table.style = "Table Grid"
+        hdr = info_table.rows[0].cells
+        for i, h in enumerate(["Parameter", "Value"]):
+            hdr[i].text = h
+        for cell in hdr:
+            for para in cell.paragraphs:
+                for run in para.runs:
+                    run.bold = True
+        for label, value in [
+            ("Study", summary.study_label),
+            ("AUC Method", summary.auc_method),
+            ("BLQ Method", summary.blq_method),
+        ]:
+            row_cells = info_table.add_row().cells
+            row_cells[0].text = label
+            row_cells[1].text = value
+
+    document.add_heading("PK Parameters by Subject", level=2)
+
+    col_headers = [
+        "Subject", "AUClast", "AUCinf_obs", "AUC%Extr",
+        "Cmax", "Tmax", "Half-life", "CL/CL_F", "Vz/Vz_F",
+    ]
+    tbl = document.add_table(rows=1, cols=len(col_headers))
+    tbl.style = "Table Grid"
+    hdr_cells = tbl.rows[0].cells
+    for i, h in enumerate(col_headers):
+        hdr_cells[i].text = h
+    for cell in hdr_cells:
+        for para in cell.paragraphs:
+            for run in para.runs:
+                run.bold = True
+                run.font.size = Pt(8)
+
+    for r in summary.results:
+        row_cells = tbl.add_row().cells
+        for i, val in enumerate([
+            str(r.subject),
+            _fmt(r.AUClast),
+            _fmt(r.AUCinf_obs),
+            _fmt(r.AUC_percent_extrapolated),
+            _fmt(r.Cmax),
+            _fmt(r.Tmax),
+            _fmt(r.half_life),
+            _cl_val(r),
+            _vz_val(r),
+        ]):
+            row_cells[i].text = val
+            for para in row_cells[i].paragraphs:
+                for run in para.runs:
+                    run.font.size = Pt(8)
+
+    document.add_paragraph()
+    disclaimer_para = document.add_paragraph(_DISCLAIMER)
+    for run in disclaimer_para.runs:
         run.italic = True
         run.font.size = Pt(9)
 

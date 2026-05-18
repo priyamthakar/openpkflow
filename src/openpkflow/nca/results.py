@@ -175,12 +175,13 @@ class NCAResult:
         output_path : str | Path
             Where to save the report file.
         format : str, optional
-            Output format: ``"html"`` or ``"markdown"``. Defaults to ``"html"``.
+            Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
+            Defaults to ``"html"``. PDF and DOCX require ``openpkflow[reports]``.
 
         Returns
         -------
         str | bytes
-            Rendered content (str for html/markdown).
+            Rendered content (str for html/markdown, bytes for pdf/docx).
         """
         from openpkflow.nca.reporting import report_nca_single
 
@@ -279,12 +280,13 @@ class NCASummaryResults:
         output_path : str | Path
             Where to save the report file.
         format : str, optional
-            Output format: ``"html"`` or ``"markdown"``. Defaults to ``"html"``.
+            Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
+            Defaults to ``"html"``. PDF and DOCX require ``openpkflow[reports]``.
 
         Returns
         -------
         str | bytes
-            Rendered content (str for html/markdown).
+            Rendered content (str for html/markdown, bytes for pdf/docx).
         """
         from openpkflow.nca.reporting import report_nca_summary
 

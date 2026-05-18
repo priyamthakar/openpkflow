@@ -9,6 +9,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-05-18
+
+### Added
+- `render_nca_single_pdf_report()` in `report/pdf.py` — ReportLab PDF for per-subject NCA results; study parameters table, PK parameters table, optional warnings section, disclaimer
+- `render_nca_summary_pdf_report()` in `report/pdf.py` — ReportLab PDF for multi-subject NCA summary; 9-column subject table fitted to letter-width, optional study parameters block, disclaimer
+- `render_nca_single_docx_report()` in `report/docx.py` — python-docx Word document for per-subject NCA; study and PK parameter tables, warnings list, italic disclaimer
+- `render_nca_summary_docx_report()` in `report/docx.py` — python-docx Word document for multi-subject NCA summary; study info block, 9-column subject table, italic disclaimer
+- `NCAResult.report(format="pdf"|"docx")` and `NCASummaryResults.report(format="pdf"|"docx")` — PDF and Word export from NCA results
+- `report_nca_single(format="pdf"|"docx")` and `report_nca_summary(format="pdf"|"docx")` dispatch arms in `nca/reporting.py`
+- 26 new tests in `tests/nca/test_nca_pdf_docx.py`: magic-byte assertions, file-write, None lambda_z, warnings section, full dispatch-chain, disclaimer round-trip via zipfile
+
+### Changed
+- `report_nca_single()` and `report_nca_summary()` docstrings updated; `NotImplementedError` stubs replaced with live dispatch
+- `NCAResult.report()` and `NCASummaryResults.report()` docstrings extended to include pdf/docx options
+- `report/docx.py` gains `TYPE_CHECKING` import block for NCA types (avoids circular import at runtime)
+- `docs/logo.png` added — official OpenPKFlow logo
+
+### Implementation notes
+- Renderers follow the same lazy-import pattern as dissolution PDF/DOCX; module top is stdlib only
+- Route-aware parameter labelling: oral subjects show CL_F/Vz_F; IV subjects show CL/Vz
+- None fields (lambda_z, AUCinf_obs, half_life) formatted as "N/A" via inline `_fmt()` helper
+
 ## [0.4.0] — 2026-05-18
 
 ### Added

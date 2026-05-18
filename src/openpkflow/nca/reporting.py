@@ -69,7 +69,8 @@ def report_nca_single(
     output_path : str | Path or None, optional
         If given, write the rendered report to this path.
     format : str, optional
-        Output format: ``"html"`` or ``"markdown"``. Defaults to ``"html"``.
+        Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
+        Defaults to ``"html"``. PDF and DOCX require ``openpkflow[reports]``.
 
     Returns
     -------
@@ -78,8 +79,6 @@ def report_nca_single(
 
     Raises
     ------
-    NotImplementedError
-        For ``"pdf"`` and ``"docx"`` formats.
     ValueError
         For unknown format strings.
     """
@@ -87,9 +86,13 @@ def report_nca_single(
         return _single_markdown(result, output_path=output_path)
     if format == "html":
         return _single_html(result, output_path=output_path)
-    if format in ("pdf", "docx"):
-        raise NotImplementedError("NCA PDF/DOCX reports are planned for v0.4.1.")
-    raise ValueError(f"Unknown format {format!r}. Choose 'html' or 'markdown'.")
+    if format == "pdf":
+        from openpkflow.report.pdf import render_nca_single_pdf_report
+        return render_nca_single_pdf_report(result=result, output_path=output_path)
+    if format == "docx":
+        from openpkflow.report.docx import render_nca_single_docx_report
+        return render_nca_single_docx_report(result=result, output_path=output_path)
+    raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +115,8 @@ def report_nca_summary(
     output_path : str | Path or None, optional
         If given, write the rendered report to this path.
     format : str, optional
-        Output format: ``"html"`` or ``"markdown"``. Defaults to ``"html"``.
+        Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
+        Defaults to ``"html"``. PDF and DOCX require ``openpkflow[reports]``.
 
     Returns
     -------
@@ -121,8 +125,6 @@ def report_nca_summary(
 
     Raises
     ------
-    NotImplementedError
-        For ``"pdf"`` and ``"docx"`` formats.
     ValueError
         For unknown format strings.
     """
@@ -130,9 +132,13 @@ def report_nca_summary(
         return _summary_markdown(summary, output_path=output_path)
     if format == "html":
         return _summary_html(summary, output_path=output_path)
-    if format in ("pdf", "docx"):
-        raise NotImplementedError("NCA PDF/DOCX reports are planned for v0.4.1.")
-    raise ValueError(f"Unknown format {format!r}. Choose 'html' or 'markdown'.")
+    if format == "pdf":
+        from openpkflow.report.pdf import render_nca_summary_pdf_report
+        return render_nca_summary_pdf_report(summary=summary, output_path=output_path)
+    if format == "docx":
+        from openpkflow.report.docx import render_nca_summary_docx_report
+        return render_nca_summary_docx_report(summary=summary, output_path=output_path)
+    raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
 
 # ---------------------------------------------------------------------------
