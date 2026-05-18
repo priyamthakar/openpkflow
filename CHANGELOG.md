@@ -9,6 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-05-18
+
+### Added
+- `pop/dataset.py` — `PopCSVConfig`, `load_pop_csv()` (NONMEM-style CSV loader with EVID/MDV filtering), `create_nonmem_dataset()` (dose + observation records merged into NONMEM-compatible DataFrame)
+- `pop/gof.py` — `compute_iwres()` (individual weighted residuals, proportional error model), `obs_pred_metrics()` (MPE/RMSE/rRMSE/R2), `GOFResult` dataclass with `iwres` property, `pred_metrics()`, `ipred_metrics()`, `summary()`, `to_dataframe()`, `plot()`, `report()`
+- `pop/vpc.py` — `VPCResult` dataclass; `simulate_vpc()`: simulation-based VPC using `sim.simulate()` + proportional/additive residual noise, time-binned percentile bands (5th/50th/95th) for both observed and simulated data
+- `pop/plotting.py` — `gof_plots_b64()`: 4-panel GOF figure (OBS vs PRED, OBS vs IPRED, IWRES vs TIME, IWRES vs IPRED) at 600 dpi; `vpc_plot_b64()`: VPC scatter + band overlay at 600 dpi
+- `pop/reporting.py` — `report_gof()` and `report_vpc()` dispatchers (HTML, Markdown, PDF, DOCX)
+- `report/templates/pop_gof_report.html` — dark-navy header, 6-metric highlight grid, embedded GOF 4-panel plot, metrics comparison table, data table, disclaimer
+- `report/templates/pop_vpc_report.html` — dark-navy header, VPC plot, VPC band data table, disclaimer
+- `render_gof_pdf_report()` and `render_vpc_pdf_report()` in `report/pdf.py`
+- `render_gof_docx_report()` and `render_vpc_docx_report()` in `report/docx.py`
+- 40 new tests in `tests/pop/`: `test_dataset.py` (10 tests), `test_gof.py` (14 tests), `test_vpc.py` (16 tests); degenerate + reference citations for each metric function
+
 ## [0.5.0] — 2026-05-18
 
 ### Added
