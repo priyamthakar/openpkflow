@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -92,7 +91,7 @@ def dissolution_compare(
     percent_released_col: str = typer.Option(
         "percent_released", help="Percent released column name."
     ),
-    report: Optional[Path] = typer.Option(
+    report: Path | None = typer.Option(
         None,
         "--report",
         help="Write an HTML or Markdown report to this path (format inferred from extension).",
@@ -115,7 +114,15 @@ def dissolution_compare(
     typer.echo(result.summary())
 
     if report is not None:
-        fmt = "markdown" if str(report).endswith((".md", ".markdown")) else "html"
+        _rp = str(report)
+        if _rp.endswith((".md", ".markdown")):
+            fmt = "markdown"
+        elif _rp.endswith(".pdf"):
+            fmt = "pdf"
+        elif _rp.endswith(".docx"):
+            fmt = "docx"
+        else:
+            fmt = "html"
         try:
             result.report(report, format=fmt)
             typer.echo(f"\nReport written to: {report}")

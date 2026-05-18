@@ -103,7 +103,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.1.2 is live on PyPI. v0.1.3 polish is in progress. Next milestone is v0.2.0 dissolution model fitting.
+v0.3.0 is current (PDF + Word reports). v0.2.0 (dissolution model fitting) and v0.3.0 are live on PyPI. Next milestone is v0.4.0 NCA engine.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 

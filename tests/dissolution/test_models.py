@@ -325,8 +325,8 @@ class TestDissolutionFitResults:
 
     def test_report_unsupported_format_raises(self) -> None:
         results = self._make_results()
-        with pytest.raises(ValueError, match="html"):
-            results.report("out.pdf", format="pdf")
+        with pytest.raises(ValueError, match="docx"):
+            results.report("out.pptx", format="pptx")
 
 
 # ──────────────────────────────────────────────────────────────────────────────

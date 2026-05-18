@@ -353,7 +353,7 @@ class DissolutionFitResults:
             plt.show()
         plt.close(fig)
 
-    def report(self, output_path: str | Path, format: str = "html") -> str:
+    def report(self, output_path: str | Path, format: str = "html") -> str | bytes:
         """Generate a model fit report.
 
         Parameters
@@ -361,26 +361,24 @@ class DissolutionFitResults:
         output_path : str or Path
             Where to save the report.
         format : str, optional
-            Output format. Only ``"html"`` is supported in v0.2.x.
+            Output format: ``"html"``, ``"pdf"``, or ``"docx"``. Defaults to ``"html"``.
 
         Returns
         -------
-        str
-            Rendered report content.
+        str | bytes
+            Rendered content (str for html, bytes for pdf/docx).
 
         Raises
         ------
         ValueError
-            If format is not ``"html"``.
+            If format is not a recognised format string.
         """
-        if format != "html":
+        if format not in {"html", "pdf", "docx"}:
             raise ValueError(
-                f"format must be 'html' in v0.2.x, got '{format!r}'. "
-                "PDF and Word export planned for v0.3.0."
+                f"format must be 'html', 'pdf', or 'docx', got {format!r}."
             )
 
         from openpkflow.dissolution.plotting import dissolution_fit_plot_b64
-        from openpkflow.report.html import render_model_fit_html_report
 
         t_dense = list(np.linspace(0.0, float(max(self.time_points)), 300))
         fit_curves = [
@@ -438,7 +436,7 @@ class DissolutionFitResults:
                     }
                 )
 
-        return render_model_fit_html_report(
+        render_kwargs: dict[str, object] = dict(
             formulation_label=self.formulation_label,
             time_points=self.time_points,
             observed_mean=self.observed_mean,
@@ -446,6 +444,17 @@ class DissolutionFitResults:
             plot_b64=plot_b64,
             output_path=output_path,
         )
+
+        if format == "html":
+            from openpkflow.report.html import render_model_fit_html_report
+            return render_model_fit_html_report(**render_kwargs)  # type: ignore[arg-type]
+
+        if format == "pdf":
+            from openpkflow.report.pdf import render_model_fit_pdf_report
+            return render_model_fit_pdf_report(**render_kwargs)  # type: ignore[arg-type]
+
+        from openpkflow.report.docx import render_model_fit_docx_report
+        return render_model_fit_docx_report(**render_kwargs)  # type: ignore[arg-type]
 
     def to_dict(self) -> dict[str, object]:
         """Return a plain-dict representation of all fit results.

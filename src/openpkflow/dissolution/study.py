@@ -90,20 +90,21 @@ class ComparisonResult:
         self,
         output_path: str | Path,
         format: str = "html",
-    ) -> str:
-        """Generate a Markdown or HTML report for this comparison result.
+    ) -> str | bytes:
+        """Generate a report for this comparison result.
 
         Parameters
         ----------
         output_path : str | Path
             Where to save the report file.
         format : str, optional
-            Output format: ``"html"`` or ``"markdown"``. Defaults to ``"html"``.
+            Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
+            Defaults to ``"html"``.
 
         Returns
         -------
-        str
-            The rendered report content.
+        str | bytes
+            Rendered content (str for html/markdown, bytes for pdf/docx).
         """
         from .reporting import report_dissolution
 
@@ -374,7 +375,7 @@ class DissolutionStudy:
         n_replicates: int = 5000,
         confidence_level: float = 0.90,
         seed: int | None = None,
-    ) -> "BootstrapF2Result":
+    ) -> BootstrapF2Result:
         """Compare two formulations using bootstrap f2 confidence interval.
 
         Extracts vessel-level data from the loaded CSV and calls bootstrap_f2.
@@ -398,7 +399,8 @@ class DissolutionStudy:
         BootstrapF2Result
         """
         import numpy as np
-        from .bootstrap import BootstrapF2Result, bootstrap_f2 as _bootstrap_f2
+
+        from .bootstrap import bootstrap_f2 as _bootstrap_f2
 
         available = self.formulations()
         if reference not in available:
@@ -409,7 +411,7 @@ class DissolutionStudy:
         cfg = self._config
         df = self._df
 
-        def _vessel_matrix(label: str) -> "np.ndarray":
+        def _vessel_matrix(label: str) -> np.ndarray:
             subset = df[df[cfg.formulation_col] == label].sort_values(
                 [cfg.batch_col, cfg.time_col]
             )
@@ -436,7 +438,7 @@ class DissolutionStudy:
         self,
         formulation: str,
         models: list[str] | None = None,
-    ) -> "DissolutionFitResults":
+    ) -> DissolutionFitResults:
         """Fit standard dissolution release models to the mean profile of a formulation.
 
         Parameters

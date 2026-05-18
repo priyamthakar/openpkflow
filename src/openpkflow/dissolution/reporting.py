@@ -82,8 +82,8 @@ def render_markdown_report(
     # -- Study parameters --------------------------------------------
     lines.append("## Study Parameters")
     lines.append("")
-    lines.append(f"| Parameter | Value |")
-    lines.append(f"|-----------|-------|")
+    lines.append("| Parameter | Value |")
+    lines.append("|-----------|-------|")
     lines.append(f"| Reference | {reference_label} |")
     lines.append(f"| Test | {test_label} |")
     lines.append(f"| Timepoints (n) | {n_timepoints} |")
@@ -134,7 +134,7 @@ def report_dissolution(
     output_path: str | Path,
     format: str = "html",
     **kwargs: object,
-) -> str:
+) -> str | bytes:
     """Generate a dissolution comparison report in the specified format.
 
     Parameters
@@ -142,21 +142,19 @@ def report_dissolution(
     output_path :
         Where to save the report file.
     format :
-        Output format: ``"html"`` or ``"markdown"``.
+        Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
     **kwargs :
         Keyword arguments forwarded to the underlying renderer.
-        See :func:`render_html_report` or :func:`render_markdown_report`
-        for the full list of accepted parameters.
 
     Returns
     -------
-    str
-        The rendered report content.
+    str | bytes
+        The rendered report content (str for html/markdown, bytes for pdf/docx).
 
     Raises
     ------
     ValueError
-        If ``format`` is not ``"html"`` or ``"markdown"``.
+        If ``format`` is not a recognised format string.
     """
     if format == "html":
         from openpkflow.report.html import render_html_report
@@ -166,4 +164,14 @@ def report_dissolution(
     if format == "markdown":
         return render_markdown_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
 
-    raise ValueError(f"Unknown format {format!r}. Choose 'html' or 'markdown'.")
+    if format == "pdf":
+        from openpkflow.report.pdf import render_comparison_pdf_report
+
+        return render_comparison_pdf_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
+
+    if format == "docx":
+        from openpkflow.report.docx import render_comparison_docx_report
+
+        return render_comparison_docx_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
+
+    raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")

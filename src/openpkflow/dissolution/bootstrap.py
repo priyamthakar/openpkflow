@@ -48,7 +48,7 @@ class BootstrapF2Result:
         pct = int(self.confidence_level * 100)
         verdict = "SIMILAR" if self.is_similar else "NOT SIMILAR"
         lines = [
-            f"Bootstrap f2 Analysis",
+            "Bootstrap f2 Analysis",
             f"  Observed f2:       {self.f2_observed:.2f}",
             f"  {pct}% CI:             [{self.ci_lower:.2f}, {self.ci_upper:.2f}]",
             (

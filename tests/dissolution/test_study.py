@@ -11,10 +11,9 @@ from openpkflow.datasets import example_dissolution_path as _example_path
 
 EXAMPLE_DISSOLUTION_CSV = _example_path()
 from openpkflow.dissolution import DissolutionStudy
-from openpkflow.dissolution.loader import load_dissolution_csv, DissolutionCSVConfig
-from openpkflow.dissolution.reporting import render_markdown_report, report_dissolution
+from openpkflow.dissolution.loader import load_dissolution_csv
+from openpkflow.dissolution.reporting import render_markdown_report
 from openpkflow.report.html import render_html_report
-
 
 # ---------------------------------------------------------------------------
 # Loader tests

@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from openpkflow.dissolution.similarity import f1, f2
-
 
 # ---------------------------------------------------------------------------
 # Degenerate / sanity cases

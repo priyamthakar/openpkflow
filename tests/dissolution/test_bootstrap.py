@@ -10,7 +10,6 @@ import pytest
 
 from openpkflow.dissolution.bootstrap import BootstrapF2Result, bootstrap_f2
 
-
 # Similar profiles: ref and test very close -> high f2, CI lower bound >= 50
 REF_SIMILAR = np.array([
     [20, 40, 60, 75, 88],

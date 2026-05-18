@@ -9,6 +9,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-05-18
+
+### Added
+- `render_comparison_pdf_report()` in `report/pdf.py` — ReportLab PDF for dissolution comparison; navy-header table, embedded profile plot, disclaimer
+- `render_model_fit_pdf_report()` in `report/pdf.py` — ReportLab PDF for model fit; ranked table with gold best-row highlight, fit overlay plot, dual disclaimer
+- `render_comparison_docx_report()` in `report/docx.py` — python-docx Word document for dissolution comparison; summary + data tables, embedded plot, italic disclaimer
+- `render_model_fit_docx_report()` in `report/docx.py` — python-docx Word document for model fit; ranked table with bold best row, failed-models note, fit overlay plot, dual disclaimer
+- `ComparisonResult.report(format="pdf"|"docx")` — PDF and Word export from study comparison
+- `DissolutionFitResults.report(format="pdf"|"docx")` — PDF and Word export from model fitting
+- `report_dissolution(format="pdf"|"docx")` dispatcher arms in `dissolution/reporting.py`
+- CLI format inference: `.pdf` -> `"pdf"`, `.docx` -> `"docx"` (in addition to existing `.md` -> `"markdown"`, else `"html"`)
+- 19 new tests in `tests/report/test_pdf.py` and `tests/report/test_docx.py`: magic-byte assertions, file size, `tmp_path` write, round-trip disclaimer check via python-docx, `pytest.importorskip` skip guard
+
+### Changed
+- CI matrix now installs `.[dev,reports]` so reportlab and python-docx are available in test runs
+- `DissolutionFitResults.report()` return type widened to `str | bytes`
+- `ComparisonResult.report()` and `report_dissolution()` return type widened to `str | bytes`
+
+### Implementation notes
+- Both renderers use lazy imports inside function bodies; module top is stdlib only
+- Import guard raises `ImportError("... pip install openpkflow[reports]")` if extra not installed
+- Plot embedding: `base64.b64decode(plot_b64)` -> `io.BytesIO` -> `Image`/`add_picture`
+- All docstrings ASCII-only; rendered document content may use unicode (binary format)
+
 ## [0.2.0] — 2026-05-18
 
 ### Added
