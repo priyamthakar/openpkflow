@@ -583,3 +583,138 @@ def render_nca_summary_docx_report(
         out.write_bytes(docx_bytes)
 
     return docx_bytes
+
+
+# ---------------------------------------------------------------------------
+# Simulation report
+# ---------------------------------------------------------------------------
+
+
+def render_sim_docx_report(
+    *,
+    result: Any,
+    output_path: str | Path | None = None,
+    time_unit: str = "h",
+    conc_unit: str = "ng/mL",
+) -> bytes:
+    """Render a PK simulation Word document report.
+
+    Parameters
+    ----------
+    result : SimulationResult
+        Simulation result to render.
+    output_path : str | Path or None, optional
+        If given, write the DOCX to this path.
+    time_unit : str, optional
+        Time unit label for tables and headings.
+    conc_unit : str, optional
+        Concentration unit label for tables and headings.
+
+    Returns
+    -------
+    bytes
+        DOCX byte content.
+    """
+    from datetime import datetime, timezone
+
+    from docx import Document
+    from docx.shared import Pt, RGBColor
+
+    from openpkflow import __version__
+    from openpkflow.sim.plotting import pk_profile_plot_b64
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    document = Document()
+    _NAVY_RGB = RGBColor(0x0D, 0x3B, 0x66)
+
+    model_name = type(result.model).__name__
+    label = result.label or "N/A"
+    route = result.regimen.route
+    n_doses = len(result.regimen.doses)
+
+    title_para = document.add_heading(f"PK Simulation Report -- {label}", 0)
+    for run in title_para.runs:
+        run.font.color.rgb = _NAVY_RGB
+
+    meta_para = document.add_paragraph(
+        f"Generated: {generated_at} | OpenPKFlow v{__version__} | "
+        f"Model: {model_name} | Route: {route} | Doses: {n_doses}"
+    )
+    for run in meta_para.runs:
+        run.font.size = Pt(9)
+
+    document.add_heading("Simulation Results", 1)
+    result_tbl = document.add_table(rows=1, cols=3)
+    result_tbl.style = "Table Grid"
+    hdr = result_tbl.rows[0].cells
+    hdr[0].text = "Metric"
+    hdr[1].text = "Value"
+    hdr[2].text = "Unit"
+    for metric, val, unit in [
+        ("Cmax", f"{result.Cmax:.4g}", conc_unit),
+        ("Tmax", f"{result.Tmax:.4g}", time_unit),
+        ("Cmin", f"{min(result.concs):.4g}", conc_unit),
+        ("Clast", f"{result.concs[-1]:.4g}", conc_unit),
+        ("Time range", f"{result.times[0]:.4g} - {result.times[-1]:.4g}", time_unit),
+    ]:
+        row = result_tbl.add_row().cells
+        row[0].text = metric
+        row[1].text = val
+        row[2].text = unit
+
+    document.add_heading("Concentration-Time Profile", 1)
+    b64 = pk_profile_plot_b64(
+        times=result.times, concs=result.concs,
+        dose_times=result.regimen.dose_times, label=result.label,
+        time_unit=time_unit, conc_unit=conc_unit,
+    )
+    img_bytes = base64.b64decode(b64)
+    document.add_picture(io.BytesIO(img_bytes))
+
+    document.add_heading("Model Parameters", 1)
+    params = result.model.param_dict()
+    param_tbl = document.add_table(rows=1, cols=2)
+    param_tbl.style = "Table Grid"
+    param_hdr = param_tbl.rows[0].cells
+    param_hdr[0].text = "Parameter"
+    param_hdr[1].text = "Value"
+    for k, v in params.items():
+        row = param_tbl.add_row().cells
+        row[0].text = str(k)
+        row[1].text = f"{v:.4g}" if isinstance(v, float) else str(v)
+
+    document.add_heading(f"Dose Regimen ({n_doses} dose{'s' if n_doses != 1 else ''})", 1)
+    dose_tbl = document.add_table(rows=1, cols=3)
+    dose_tbl.style = "Table Grid"
+    dose_hdr = dose_tbl.rows[0].cells
+    dose_hdr[0].text = "#"
+    dose_hdr[1].text = f"Time ({time_unit})"
+    dose_hdr[2].text = "Amount"
+    for i, d in enumerate(result.regimen.doses):
+        t_inf_str = f" (inf {d.t_inf:.4g} h)" if d.t_inf is not None else ""
+        row = dose_tbl.add_row().cells
+        row[0].text = str(i + 1)
+        row[1].text = f"{d.time:.4g}"
+        row[2].text = f"{d.amount:.4g}{t_inf_str}"
+
+    if result.warnings:
+        document.add_heading("Warnings", 1)
+        for w in result.warnings:
+            document.add_paragraph(f"- {w}")
+
+    document.add_paragraph()
+    disclaimer_para = document.add_paragraph(_DISCLAIMER)
+    for run in disclaimer_para.runs:
+        run.italic = True
+        run.font.size = Pt(9)
+
+    report_buf = io.BytesIO()
+    document.save(report_buf)
+    docx_bytes = report_buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(docx_bytes)
+
+    return docx_bytes

@@ -875,3 +875,153 @@ def render_nca_summary_pdf_report(
         out.write_bytes(pdf_bytes)
 
     return pdf_bytes
+
+
+# ---------------------------------------------------------------------------
+# Simulation report
+# ---------------------------------------------------------------------------
+
+
+def render_sim_pdf_report(
+    *,
+    result: Any,
+    output_path: str | Path | None = None,
+    time_unit: str = "h",
+    conc_unit: str = "ng/mL",
+) -> bytes:
+    """Render a PK simulation PDF report using ReportLab.
+
+    Parameters
+    ----------
+    result : SimulationResult
+        Simulation result to render.
+    output_path : str | Path or None, optional
+        If given, write the PDF to this path.
+    time_unit : str, optional
+        Time unit label for tables and headings.
+    conc_unit : str, optional
+        Concentration unit label for tables and headings.
+
+    Returns
+    -------
+    bytes
+        PDF byte content.
+    """
+    from datetime import datetime, timezone
+
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import mm
+    from reportlab.platypus import (
+        Image,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
+    )
+
+    from openpkflow import __version__
+    from openpkflow.sim.plotting import pk_profile_plot_b64
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    report_buf = io.BytesIO()
+    doc = SimpleDocTemplate(report_buf, pagesize=A4,
+                            leftMargin=20 * mm, rightMargin=20 * mm,
+                            topMargin=20 * mm, bottomMargin=20 * mm)
+
+    styles = getSampleStyleSheet()
+    _NAVY_COLOR = colors.HexColor(_NAVY)
+    _LIGHT_GREY_COLOR = colors.HexColor(_LIGHT_GREY)
+
+    style_h1 = ParagraphStyle("SH1", parent=styles["Heading1"],
+                               textColor=_NAVY_COLOR, fontSize=16, spaceAfter=6)
+    style_h2 = ParagraphStyle("SH2", parent=styles["Heading2"],
+                               textColor=_NAVY_COLOR, fontSize=12, spaceAfter=4)
+    style_normal = ParagraphStyle("SNorm", parent=styles["Normal"], fontSize=9)
+    style_disclaimer = ParagraphStyle("SDisc", parent=styles["Normal"],
+                                      fontSize=8, textColor=colors.grey)
+
+    model_name = type(result.model).__name__
+    label = result.label or "N/A"
+    route = result.regimen.route
+    n_doses = len(result.regimen.doses)
+
+    _tbl_style = TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), _NAVY_COLOR),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_LIGHT_GREY_COLOR, colors.white]),
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#cccccc")),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ])
+
+    story: list[Any] = [
+        Paragraph(f"PK Simulation Report -- {label}", style_h1),
+        Paragraph(
+            f"Generated: {generated_at} | OpenPKFlow v{__version__} | "
+            f"Model: {model_name} | Route: {route} | Doses: {n_doses}",
+            style_normal,
+        ),
+        Spacer(1, 6 * mm),
+        Paragraph("Simulation Results", style_h2),
+    ]
+
+    metrics_data = [
+        ["Metric", "Value", "Unit"],
+        ["Cmax", f"{result.Cmax:.4g}", conc_unit],
+        ["Tmax", f"{result.Tmax:.4g}", time_unit],
+        ["Cmin", f"{min(result.concs):.4g}", conc_unit],
+        ["Clast", f"{result.concs[-1]:.4g}", conc_unit],
+        ["Time range", f"{result.times[0]:.4g} - {result.times[-1]:.4g}", time_unit],
+    ]
+    story.append(Table(metrics_data, colWidths=[60 * mm, 50 * mm, 40 * mm], style=_tbl_style))
+    story.append(Spacer(1, 6 * mm))
+
+    story.append(Paragraph("Concentration-Time Profile", style_h2))
+    b64 = pk_profile_plot_b64(
+        times=result.times, concs=result.concs,
+        dose_times=result.regimen.dose_times, label=result.label,
+        time_unit=time_unit, conc_unit=conc_unit,
+    )
+    img_bytes = base64.b64decode(b64)
+    story.append(Image(io.BytesIO(img_bytes), width=160 * mm, height=80 * mm))
+    story.append(Spacer(1, 6 * mm))
+
+    story.append(Paragraph("Model Parameters", style_h2))
+    params = result.model.param_dict()
+    param_data = [["Parameter", "Value"]] + [
+        [str(k), f"{v:.4g}" if isinstance(v, float) else str(v)]
+        for k, v in params.items()
+    ]
+    story.append(Table(param_data, colWidths=[80 * mm, 80 * mm], style=_tbl_style))
+    story.append(Spacer(1, 4 * mm))
+
+    story.append(Paragraph(f"Dose Regimen ({n_doses} dose{'s' if n_doses != 1 else ''})", style_h2))
+    dose_data = [["#", f"Time ({time_unit})", "Amount"]]
+    for i, d in enumerate(result.regimen.doses):
+        t_inf_str = f" (inf {d.t_inf:.4g} h)" if d.t_inf is not None else ""
+        dose_data.append([str(i + 1), f"{d.time:.4g}", f"{d.amount:.4g}{t_inf_str}"])
+    story.append(Table(dose_data, colWidths=[20 * mm, 60 * mm, 80 * mm], style=_tbl_style))
+
+    if result.warnings:
+        story.append(Spacer(1, 4 * mm))
+        story.append(Paragraph("Warnings", style_h2))
+        for w in result.warnings:
+            story.append(Paragraph(f"- {w}", style_normal))
+
+    story.append(Spacer(1, 6 * mm))
+    story.append(Paragraph(_DISCLAIMER, style_disclaimer))
+
+    doc.build(story)
+    pdf_bytes = report_buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(pdf_bytes)
+
+    return pdf_bytes

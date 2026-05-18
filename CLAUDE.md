@@ -66,7 +66,7 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 ```
 dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← DONE v0.1–v0.2
 nca/           — AUC, lambda_z, PK parameters, reports                    ← DONE v0.4.0
-sim/           — ODE compartment models, dosing, population sim            ← v0.5.0
+sim/           — analytical compartment models, dosing, superposition      ← DONE v0.5.0
 pop/           — population PK dataset helpers, diagnostics, VPC           ← v0.6.0
 bayes/         — PyMC/Stan Bayesian PK models                              ← v0.8.0
 ml/            — neural ODE, features, predictors                          ← v0.9.0
@@ -88,6 +88,32 @@ nca/
   results.py       — NCAResult (per-subject), NCASummaryResults dataclasses
   study.py         — NCAStudy: from_csv(), analyze() -> NCASummaryResults
   reporting.py     — report_nca_single(), report_nca_summary() (HTML + Markdown)
+```
+
+### Sim module layout
+
+```
+sim/
+  __init__.py    — exports all public symbols
+  methods.py     — pure math: c_1cmt_iv_bolus, c_1cmt_iv_infusion, c_1cmt_oral,
+                   c_2cmt_iv_bolus, c_2cmt_oral, superpose
+  dosing.py      — Dose, DoseRegimen dataclasses; DoseRegimen.from_repeated()
+  models.py      — OneCompartmentModel, TwoCompartmentModel (CL/V parameterization)
+  simulate.py    — simulate(model, regimen, times) -> SimulationResult
+  results.py     — SimulationResult: times, concs, model, regimen, .summary(), .plot(), .report()
+  plotting.py    — pk_profile_plot_b64() base64 PNG helper
+  reporting.py   — report_simulation() dispatcher (HTML + Markdown + PDF + DOCX)
+```
+
+### Sim data flow
+
+```
+OneCompartmentModel(route, CL, Vz) or TwoCompartmentModel(...)
+  + DoseRegimen.from_repeated(amount, route, tau, n_doses)
+  + times array
+  -> simulate()         per-dose analytical superposition (linear systems only)
+  -> SimulationResult   .times, .concs, .Cmax, .Tmax
+  -> result.report("sim.html")   -> report_simulation() -> sim_report.html
 ```
 
 ### NCA data flow
@@ -131,7 +157,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.4.0 is current (NCA engine). v0.4.0 has not yet been pushed to PyPI — the wheel is built and clean, awaiting a version tag. Next milestone is v0.5.0 PK simulation (1-comp, 2-comp, oral/IV/infusion, repeated dosing).
+v0.5.0 is current (PK simulation engine). Next milestone is v0.6.0 population PK diagnostics, GOF plots, VPC helpers.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 

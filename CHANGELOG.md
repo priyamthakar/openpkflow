@@ -9,6 +9,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-18
+
+### Added
+- `sim/methods.py` — pure-math analytical PK functions: `c_1cmt_iv_bolus`, `c_1cmt_iv_infusion`, `c_1cmt_oral` (Bateman + L'Hopital flip-flop), `c_2cmt_iv_bolus`, `c_2cmt_oral` (3-exponential Laplace form), `superpose` (linear multi-dose superposition); `_2cmt_macro_constants` helper for alpha/beta eigenvalues
+- `sim/dosing.py` — `Dose` and `DoseRegimen` frozen dataclasses; `DoseRegimen.from_repeated()` factory for regular dosing regimens; route consistency validation
+- `sim/models.py` — `OneCompartmentModel` and `TwoCompartmentModel` frozen dataclasses; route-aware parameter validation (IV uses CL/Vz, oral uses CL_F/Vz_F); `half_life` property; `param_dict()` for reporting
+- `sim/simulate.py` — `simulate(model, regimen, times)` entry point; per-dose analytical superposition; supports 1-cmt IV bolus, 1-cmt IV infusion, 1-cmt oral, 2-cmt IV bolus, 2-cmt oral; pre-dose warning
+- `sim/results.py` — `SimulationResult` dataclass with `Cmax`/`Tmax` properties, `summary()`, `to_dataframe()`, `to_dict()`, `plot()`, `report(format=...)` methods
+- `sim/plotting.py` — `pk_profile_plot_b64()`: base64-encoded PNG of PK profile with optional dose-time markers (matplotlib Agg backend)
+- `sim/reporting.py` — `report_simulation()` dispatcher; HTML and Markdown renderers; PDF and DOCX dispatch to `report/pdf.py` and `report/docx.py`
+- `report/templates/sim_report.html` — dark-navy header, 4-metric highlight cards, embedded PK plot, model/regimen side-by-side cards, data table (capped at 200 rows), warnings, disclaimer
+- `render_sim_pdf_report()` in `report/pdf.py` — ReportLab PDF for simulation reports
+- `render_sim_docx_report()` in `report/docx.py` — python-docx Word document for simulation reports
+- 46 new tests across `tests/sim/`: `test_methods.py` (degenerate + textbook-cited reference cases for all 5 analytical functions + superpose), `test_simulate.py` (1-cmt and 2-cmt simulate, SimulationResult helpers, HTML/MD report), `test_roundtrip_nca.py` (simulate -> NCAStudy -> recover CL, Vz, CL_F, Vz_F, t1/2 within 2%)
+
+### Implementation notes
+- Analytical equations follow Gibaldi & Perrier, Pharmacokinetics 2nd ed. (1982); round-trip NCA tests cite Rowland & Tozer, Clinical Pharmacokinetics 4th ed. (2011)
+- CL/V parameterization throughout (k is derived, not primary); oral uses apparent parameters (CL_F, Vz_F) consistent with NCA module output
+- 2-cmt IV infusion deferred to v0.5.1 (not yet implemented in TwoCompartmentModel)
+- Population simulation deferred to v0.6.0 per release ladder
+
 ## [0.4.1] — 2026-05-18
 
 ### Added

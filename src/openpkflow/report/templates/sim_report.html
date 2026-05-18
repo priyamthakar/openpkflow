@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    .content {
+      padding: 32px 36px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e8edf2;
+      padding-bottom: 6px;
+      margin: 28px 0 14px;
+    }
+
+    h2:first-child { margin-top: 0; }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e3e8ef;
+      border-radius: 5px;
+      padding: 16px 20px;
+    }
+
+    .card h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #4a6fa5;
+      margin-bottom: 10px;
+    }
+
+    .kv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .kv-table td {
+      padding: 5px 0;
+      border-bottom: 1px solid #e8edf2;
+    }
+
+    .kv-table tr:last-child td { border-bottom: none; }
+
+    .kv-table .label {
+      color: #5a6a7e;
+      width: 52%;
+    }
+
+    .kv-table .value {
+      font-weight: 600;
+      color: #1a1a2e;
+      text-align: right;
+    }
+
+    .result-highlight {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .metric-box {
+      background: #f0f5ff;
+      border: 1px solid #ccd9f0;
+      border-radius: 5px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+
+    .metric-box .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #4a6fa5;
+      margin-bottom: 4px;
+    }
+
+    .metric-box .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0d3b66;
+    }
+
+    .metric-box .metric-unit {
+      font-size: 10px;
+      color: #7a8fa8;
+      margin-top: 1px;
+    }
+
+    .plot-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .plot-container img {
+      max-width: 100%;
+      border: 1px solid #e3e8ef;
+      border-radius: 4px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .data-table th {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .data-table td {
+      padding: 6px 12px;
+      border-bottom: 1px solid #e8edf2;
+      color: #1a1a2e;
+    }
+
+    .data-table tr:nth-child(even) td { background: #f8fafc; }
+
+    .truncated-note {
+      font-size: 12px;
+      color: #7a8fa8;
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    .warnings-list {
+      background: #fff8e1;
+      border-left: 4px solid #f9a825;
+      padding: 12px 16px;
+      border-radius: 0 4px 4px 0;
+      font-size: 13px;
+    }
+
+    .warnings-list ul { padding-left: 18px; }
+
+    .warnings-list li { margin-bottom: 4px; }
+
+    .disclaimer {
+      font-size: 11px;
+      color: #7a8fa8;
+      border-top: 1px solid #e3e8ef;
+      margin-top: 32px;
+      padding-top: 16px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div class="org-label">OpenPKFlow v{{ openpkflow_version }}</div>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated</strong>{{ generated_at }}
+      </div>
+      <div class="meta-item">
+        <strong>Model</strong>{{ model_name }}
+      </div>
+      <div class="meta-item">
+        <strong>Route</strong>{{ route }}
+      </div>
+      <div class="meta-item">
+        <strong>Doses</strong>{{ n_doses }}
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Key metrics -->
+    <h2>Simulation Results</h2>
+    <div class="result-highlight">
+      <div class="metric-box">
+        <div class="metric-label">Cmax</div>
+        <div class="metric-value">{{ "%.4g"|format(Cmax) }}</div>
+        <div class="metric-unit">{{ conc_unit }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Tmax</div>
+        <div class="metric-value">{{ "%.4g"|format(Tmax) }}</div>
+        <div class="metric-unit">{{ time_unit }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Cmin</div>
+        <div class="metric-value">{{ "%.4g"|format(Cmin) }}</div>
+        <div class="metric-unit">{{ conc_unit }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Clast</div>
+        <div class="metric-value">{{ "%.4g"|format(Clast) }}</div>
+        <div class="metric-unit">{{ conc_unit }}</div>
+      </div>
+    </div>
+
+    <!-- Profile plot -->
+    <h2>Concentration-Time Profile</h2>
+    <div class="plot-container">
+      <img src="data:image/png;base64,{{ plot_b64 }}" alt="PK Simulation Profile" />
+    </div>
+
+    <!-- Parameters + Regimen side by side -->
+    <h2>Model and Dosing</h2>
+    <div class="section-grid">
+
+      <div class="card">
+        <h3>Model Parameters</h3>
+        <table class="kv-table">
+          {% for key, val in params.items() %}
+          <tr>
+            <td class="label">{{ key }}</td>
+            <td class="value">{% if val is number %}{{ "%.4g"|format(val) }}{% else %}{{ val }}{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Dose Regimen ({{ n_doses }} dose{{ 's' if n_doses != 1 else '' }})</h3>
+        <table class="kv-table">
+          {% for row in dose_rows %}
+          <tr>
+            <td class="label">Dose {{ row.n }} @ t={{ "%.4g"|format(row.time) }} {{ time_unit }}</td>
+            <td class="value">{{ "%.4g"|format(row.amount) }}{% if row.t_inf %} ({{ "%.4g"|format(row.t_inf) }} h inf){% endif %}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Concentration-time data table -->
+    <h2>Data (Time vs. Concentration)</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Time ({{ time_unit }})</th>
+          <th>Concentration ({{ conc_unit }})</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data_rows %}
+        <tr>
+          <td>{{ row.time }}</td>
+          <td>{{ row.conc }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if truncated %}
+    <p class="truncated-note">Table shows first 200 of {{ n_timepoints }} time points.</p>
+    {% endif %}
+
+    <!-- Warnings -->
+    {% if warnings %}
+    <h2>Warnings</h2>
+    <div class="warnings-list">
+      <ul>
+        {% for w in warnings %}
+        <li>{{ w }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Disclaimer -->
+    <p class="disclaimer">{{ disclaimer }}</p>
+
+  </div>
+</div>
+</body>
+</html>
