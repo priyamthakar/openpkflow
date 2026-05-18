@@ -316,7 +316,7 @@ class DissolutionFitResults:
         colors = ["#e63946", "#457b9d", "#2a9d8f", "#e9c46a", "#f4a261"]
         linestyles = ["-", "--", "-.", ":", (0, (3, 1, 1, 1))]
 
-        fig, ax = plt.subplots(figsize=(8, 5), dpi=110)
+        fig, ax = plt.subplots(figsize=(8, 5), dpi=600)
         ax.scatter(
             t_obs, Q_obs,
             color="#003366", s=55, zorder=5, label="Observed mean",

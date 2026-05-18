@@ -44,7 +44,7 @@ def pk_profile_plot_b64(
     t = np.array(times)
     c = np.array(concs)
 
-    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=110)
+    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=600)
 
     ax.plot(t, c, color="#003366", linewidth=2, label=label or "Simulated profile")
 

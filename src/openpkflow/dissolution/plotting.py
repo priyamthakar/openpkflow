@@ -41,7 +41,7 @@ def dissolution_profile_plot_b64(
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots(figsize=(7, 4), dpi=110)
+    fig, ax = plt.subplots(figsize=(7, 4), dpi=600)
 
     tp = np.array(time_points)
     ref = np.array(reference_mean)
@@ -103,7 +103,7 @@ def dissolution_fit_plot_b64(
     colors = ["#e63946", "#457b9d", "#2a9d8f", "#e9c46a", "#f4a261"]
     linestyles: list[object] = ["-", "--", "-.", ":", (0, (3, 1, 1, 1))]
 
-    fig, ax = plt.subplots(figsize=(8, 5), dpi=110)
+    fig, ax = plt.subplots(figsize=(8, 5), dpi=600)
     ax.scatter(
         time_points, observed_mean,
         color="#003366", s=55, zorder=5, label="Observed mean",

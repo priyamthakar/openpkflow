@@ -142,7 +142,7 @@ class ComparisonResult:
         import numpy as np
 
         tp = np.array(self.time_points)
-        fig, ax = plt.subplots(figsize=(7, 4), dpi=110)
+        fig, ax = plt.subplots(figsize=(7, 4), dpi=600)
         ax.plot(tp, self.reference_mean, "o-", color="#003366", linewidth=2,
                 markersize=6, label=self.reference_label)
         ax.plot(tp, self.test_mean, "s--", color="#cc3300", linewidth=2,
