@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    /* Page shell */
+    .page {
+      max-width: 1100px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    /* Header band */
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    /* Content area */
+    .content {
+      padding: 32px 36px;
+    }
+
+    /* Section headings */
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* Numeric columns right-aligned */
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Subject label column */
+    .subject-col { font-weight: 600; color: #0d3b66; }
+
+    /* Warnings indicator */
+    .warn-indicator {
+      display: inline-block;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      letter-spacing: .04em;
+      margin-left: 6px;
+    }
+
+    /* Disclaimer */
+    .disclaimer-box {
+      background: #f7f7f7;
+      border: 1px solid #dde1e7;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #666c74;
+      line-height: 1.55;
+    }
+
+    .disclaimer-box strong {
+      color: #444c55;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Footer */
+    .report-footer {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #8a95a3;
+    }
+
+    .report-footer a {
+      color: #1a78c2;
+      text-decoration: none;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; }
+      .report-footer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="report-header">
+    <p class="org-label">OpenPKFlow &mdash; Non-Compartmental Analysis Summary Report</p>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated</strong>
+        {{ generated_at }}
+      </div>
+      <div class="meta-item">
+        <strong>Software</strong>
+        OpenPKFlow {{ openpkflow_version }}
+      </div>
+      {% if study_label %}
+      <div class="meta-item">
+        <strong>Study</strong>
+        {{ study_label }}
+      </div>
+      {% endif %}
+      {% if auc_method %}
+      <div class="meta-item">
+        <strong>AUC Method</strong>
+        {{ auc_method }}
+      </div>
+      {% endif %}
+      {% if blq_method %}
+      <div class="meta-item">
+        <strong>BLQ Method</strong>
+        {{ blq_method }}
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <!-- Summary parameters table -->
+    <section>
+      <h2>PK Parameters by Subject</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th class="num">AUClast</th>
+            <th class="num">AUCinf_obs</th>
+            <th class="num">AUC% Extr.</th>
+            <th class="num">Cmax</th>
+            <th class="num">Tmax</th>
+            <th class="num">half_life</th>
+            <th class="num">CL / CL_F</th>
+            <th class="num">Vz / Vz_F</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td class="subject-col">
+              {{ row.result.subject }}
+              {% if row.result.warnings %}
+              <span class="warn-indicator">WARN</span>
+              {% endif %}
+            </td>
+            <td class="num">{{ fmt(row.result.AUClast) }}</td>
+            <td class="num">{{ fmt(row.result.AUCinf_obs) }}</td>
+            <td class="num">{{ fmt(row.result.AUC_percent_extrapolated) }}</td>
+            <td class="num">{{ fmt(row.result.Cmax) }}</td>
+            <td class="num">{{ fmt(row.result.Tmax) }}</td>
+            <td class="num">{{ fmt(row.result.half_life) }}</td>
+            <td class="num">{{ row.cl_value }}</td>
+            <td class="num">{{ row.vz_value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Per-subject warnings (only shown when at least one subject has warnings) -->
+    {% set has_any_warnings = rows | selectattr("result.warnings") | list %}
+    {% if has_any_warnings %}
+    <section>
+      <h2>Warnings by Subject</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Warning</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          {% for w in row.result.warnings %}
+          <tr>
+            <td class="subject-col">{{ row.result.subject }}</td>
+            <td>{{ w }}</td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    <!-- Disclaimer -->
+    <section>
+      <h2>Disclaimer</h2>
+      <div class="disclaimer-box">
+        <strong>Regulatory Notice</strong>
+        {{ disclaimer }}
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="report-footer">
+    <span>
+      Generated by <strong>OpenPKFlow {{ openpkflow_version }}</strong>
+      &mdash; <a href="https://github.com/priyamthakar/openpkflow">github.com/priyamthakar/openpkflow</a>
+    </span>
+    <span>{{ generated_at }}</span>
+  </footer>
+
+</div>
+</body>
+</html>

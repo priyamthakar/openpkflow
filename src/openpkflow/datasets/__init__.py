@@ -23,4 +23,14 @@ def example_not_similar_path() -> str:
     return _dataset_path("example_not_similar.csv")
 
 
-__all__ = ["example_dissolution_path", "example_similar_path", "example_not_similar_path"]
+def example_theoph_path() -> str:
+    """Path to the R nlme Theoph reference dataset (12 subjects, oral theophylline)."""
+    return _dataset_path("theoph.csv")
+
+
+__all__ = [
+    "example_dissolution_path",
+    "example_similar_path",
+    "example_not_similar_path",
+    "example_theoph_path",
+]

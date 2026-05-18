@@ -1,0 +1,266 @@
+"""High-level NCAStudy API for running non-compartmental analysis."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Literal
+
+import pandas as pd
+
+from openpkflow.nca.methods import (
+    AUCResult,
+    LambdaZResult,
+    auc_inf_obs,
+    auc_linear,
+    auc_linear_up_log_down,
+    auc_log,
+    auc_percent_extrapolated,
+    clearance_volume_parameters,
+    cmax,
+    lambda_z,
+    tmax,
+)
+from openpkflow.nca.results import NCAResult, NCASummaryResults
+
+_VALID_AUC_METHODS = ("linear", "log", "linear_up_log_down")
+
+
+class NCAStudy:
+    """Non-compartmental analysis study object.
+
+    Load PK concentration-time data, run NCA per subject, and generate reports.
+    """
+
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        *,
+        auc_method: Literal["linear", "log", "linear_up_log_down"],
+        blq_method: str,
+        subject_col: str = "subject",
+        time_col: str = "time",
+        conc_col: str = "conc",
+        dose_col: str = "dose",
+        route_col: str = "route",
+        lloq: float | None = None,
+    ) -> None:
+        """Initialise an NCAStudy from a validated DataFrame.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Concentration-time data with subject, time, conc, dose, and route columns.
+        auc_method : {"linear", "log", "linear_up_log_down"}
+            AUC calculation method.
+        blq_method : str
+            BLQ handling method identifier (stored for reporting; caller is responsible
+            for applying BLQ handling before passing data).
+        subject_col : str, optional
+            Column name for subject identifiers. Default ``"subject"``.
+        time_col : str, optional
+            Column name for sample times. Default ``"time"``.
+        conc_col : str, optional
+            Column name for observed concentrations. Default ``"conc"``.
+        dose_col : str, optional
+            Column name for dose. Default ``"dose"``.
+        route_col : str, optional
+            Column name for route of administration. Default ``"route"``.
+        lloq : float or None, optional
+            Lower limit of quantification. Reserved for future BLQ handling. Default None.
+
+        Raises
+        ------
+        ValueError
+            If auc_method is not one of the valid choices.
+        """
+        if auc_method not in _VALID_AUC_METHODS:
+            raise ValueError(
+                f"auc_method must be one of {_VALID_AUC_METHODS!r} (got {auc_method!r})."
+            )
+        self._df = df
+        self._auc_method = auc_method
+        self._blq_method = blq_method
+        self._subject_col = subject_col
+        self._time_col = time_col
+        self._conc_col = conc_col
+        self._dose_col = dose_col
+        self._route_col = route_col
+        self._lloq = lloq
+
+    @classmethod
+    def from_csv(
+        cls,
+        path: str | Path,
+        *,
+        auc_method: Literal["linear", "log", "linear_up_log_down"],
+        blq_method: str,
+        subject_col: str = "subject",
+        time_col: str = "time",
+        conc_col: str = "conc",
+        dose_col: str = "dose",
+        route_col: str = "route",
+        lloq: float | None = None,
+    ) -> NCAStudy:
+        """Load an NCAStudy from a CSV file.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to the NCA CSV file.
+        auc_method : {"linear", "log", "linear_up_log_down"}
+            AUC calculation method.
+        blq_method : str
+            BLQ handling method identifier.
+        subject_col : str, optional
+            Column name for subject identifiers. Default ``"subject"``.
+        time_col : str, optional
+            Column name for sample times. Default ``"time"``.
+        conc_col : str, optional
+            Column name for observed concentrations. Default ``"conc"``.
+        dose_col : str, optional
+            Column name for dose. Default ``"dose"``.
+        route_col : str, optional
+            Column name for route of administration. Default ``"route"``.
+        lloq : float or None, optional
+            Lower limit of quantification. Default None.
+
+        Returns
+        -------
+        NCAStudy
+            Loaded and validated study object.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the CSV file does not exist.
+        ValueError
+            If required columns are missing, data fails validation, or auc_method is invalid.
+        """
+        from openpkflow.nca.loader import load_nca_csv
+
+        df = load_nca_csv(
+            path,
+            subject_col=subject_col,
+            time_col=time_col,
+            conc_col=conc_col,
+            dose_col=dose_col,
+            route_col=route_col,
+            blq_method=blq_method,
+            lloq=lloq,
+        )
+        return cls(
+            df,
+            auc_method=auc_method,
+            blq_method=blq_method,
+            subject_col=subject_col,
+            time_col=time_col,
+            conc_col=conc_col,
+            dose_col=dose_col,
+            route_col=route_col,
+            lloq=lloq,
+        )
+
+    def analyze(self) -> NCASummaryResults:
+        """Run NCA for every subject in the dataset.
+
+        Returns
+        -------
+        NCASummaryResults
+            Collection of per-subject NCAResult objects.
+        """
+        results: list[NCAResult] = []
+
+        for subject, group in self._df.groupby(self._subject_col, sort=True):
+            group_sorted = group.sort_values(self._time_col)
+
+            t: list[float] = group_sorted[self._time_col].tolist()
+            c: list[float] = group_sorted[self._conc_col].tolist()
+            dose: float = float(group_sorted[self._dose_col].dropna().iloc[0])
+            route: str = str(group_sorted[self._route_col].iloc[0])
+
+            subject_str = str(subject)
+            nca_warnings: list[str] = []
+
+            # Cmax and Tmax
+            cmax_val = cmax(c)
+            tmax_val = tmax(t, c)
+
+            # AUClast via dispatch
+            if self._auc_method == "linear":
+                auclast_val: float = auc_linear(t, c)
+                auc_warnings: list[str] = []
+            else:
+                fn = auc_log if self._auc_method == "log" else auc_linear_up_log_down
+                res: AUCResult = fn(t, c)
+                auclast_val = res.value
+                auc_warnings = res.warnings
+
+            nca_warnings.extend(auc_warnings)
+
+            # Terminal elimination rate constant
+            lz_result: LambdaZResult | None = None
+            aucinf: float | None = None
+            pct_extrap: float | None = None
+            cl_params: dict[str, float] | None = None
+
+            try:
+                lz_result = lambda_z(t, c, method="auto")
+                nca_warnings.extend(lz_result.warnings)
+
+                # Last quantifiable concentration (last positive value)
+                clast_obs: float = 0.0
+                for cv in reversed(c):
+                    if cv > 0.0:
+                        clast_obs = cv
+                        break
+
+                aucinf = auc_inf_obs(auclast_val, clast_obs, lz_result)
+                pct_extrap = auc_percent_extrapolated(auclast_val, aucinf)
+                cl_params = clearance_volume_parameters(dose, aucinf, lz_result, route=route)
+
+            except ValueError as exc:
+                nca_warnings.append(f"lambda_z could not be estimated: {exc}")
+
+            # Route-specific clearance/volume population
+            cl_f: float | None = None
+            vz_f: float | None = None
+            cl: float | None = None
+            vz: float | None = None
+
+            if cl_params is not None:
+                if route == "oral":
+                    cl_f = cl_params.get("CL_F")
+                    vz_f = cl_params.get("Vz_F")
+                else:
+                    cl = cl_params.get("CL")
+                    vz = cl_params.get("Vz")
+
+            result = NCAResult(
+                subject=subject_str,
+                route=route,
+                dose=dose,
+                auc_method=self._auc_method,
+                blq_method=self._blq_method,
+                AUClast=auclast_val,
+                AUCinf_obs=aucinf,
+                AUC_percent_extrapolated=pct_extrap,
+                Cmax=cmax_val,
+                Tmax=tmax_val,
+                lambda_z=lz_result.lambda_z if lz_result is not None else None,
+                half_life=lz_result.half_life if lz_result is not None else None,
+                lambda_z_method=lz_result.method if lz_result is not None else None,
+                selected_lambda_z_times=lz_result.selected_times if lz_result is not None else [],
+                selected_lambda_z_concs=lz_result.selected_concs if lz_result is not None else [],
+                CL_F=cl_f,
+                Vz_F=vz_f,
+                CL=cl,
+                Vz=vz,
+                warnings=nca_warnings,
+            )
+            results.append(result)
+
+        return NCASummaryResults(
+            results=results,
+            auc_method=self._auc_method,
+            blq_method=self._blq_method,
+        )
