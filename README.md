@@ -20,7 +20,9 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Dissolution similarity:** f1, f2, bootstrap f2, model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
 - **Report generation:** Markdown, HTML, PDF, Word
-- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion — planned v0.5.0
+- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion, repeated dosing — v0.5.0
+- **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers — v0.6.0
+- **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles — v0.9.0
 
 It does not replace expert regulatory judgement or validated commercial platforms.
 It makes routine analysis faster, cleaner, and more reproducible.
@@ -127,6 +129,58 @@ IV routes yield absolute clearance and volume: `CL`, `Vz`.
 
 ---
 
+## Quick start: PK simulation
+
+```python
+import numpy as np
+from openpkflow.sim import simulate
+from openpkflow.sim.models import OneCompartmentModel
+from openpkflow.sim.dosing import DoseRegimen
+
+model = OneCompartmentModel(route="oral", CL_F=5.0, Vz_F=50.0, ka=1.2)
+regimen = DoseRegimen.from_repeated(amount=100.0, route="oral", tau=24.0, n_doses=3)
+times = np.linspace(0, 72, 500)
+
+result = simulate(model, regimen, times)
+print(result.summary())
+result.report("sim_report.html")
+result.report("sim_report.pdf", format="pdf")   # requires [reports]
+```
+
+---
+
+## Quick start: population PK diagnostics
+
+```python
+import pandas as pd
+from openpkflow.pop import GOFResult, simulate_vpc
+from openpkflow.sim.models import OneCompartmentModel
+from openpkflow.sim.dosing import DoseRegimen
+
+# GOF -- supply your own PRED/IPRED from NONMEM or nlmixr2
+gof = GOFResult(
+    dv=[5.2, 8.1, 6.4, 3.2],
+    pred=[4.9, 7.8, 6.0, 3.0],
+    ipred=[5.1, 8.0, 6.3, 3.1],
+    time=[1.0, 2.0, 4.0, 8.0],
+    id=["S1", "S1", "S1", "S1"],
+    sigma=0.15,
+    study_label="Phase 1 Study",
+)
+print(gof.summary())
+gof.report("gof_report.html")
+
+# Simulation-based VPC
+model = OneCompartmentModel(route="oral", CL_F=5.0, Vz_F=50.0, ka=1.2)
+regimen = DoseRegimen.from_repeated(amount=100.0, route="oral", tau=24.0, n_doses=1)
+observed = pd.DataFrame({"TIME": [1, 2, 4, 8, 12], "DV": [5.1, 8.2, 6.5, 3.8, 2.1]})
+
+vpc = simulate_vpc(model, regimen, observed, n_replicates=500, seed=42)
+vpc.report("vpc_report.html")
+```
+
+---
+
 ## Current status
 
 | Module | Status |
@@ -137,10 +191,11 @@ IV routes yield absolute clearance and volume: `CL`, `Vz`.
 | Dissolution model fitting (5 models, AICc) | Stable |
 | HTML, Markdown, PDF, Word reports | Stable |
 | NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.1 |
-| PK simulation (1/2-comp, oral/IV) | Planned v0.5.0 |
-| Population PK diagnostics | Planned v0.6.0 |
-| Bayesian PK (PyMC, CmdStanPy) | Planned v0.8.0 |
-| ML / neural ODE | Planned v0.9.0 |
+| PK simulation (1/2-comp, oral/IV, repeated dosing) | Stable — v0.5.0 |
+| Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
+| Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
+| ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
+| Stable public release | Planned — v1.0.0 |
 
 ---
 

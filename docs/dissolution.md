@@ -11,8 +11,8 @@ OpenPKFlow provides:
 - **f1** and **f2** as standalone functions for quick comparisons.
 - A `DissolutionStudy` class (v0.1.x) that handles multi-batch CSV data, batch
   averaging, and report generation.
-- Bootstrap confidence intervals for f2 (v0.2.0, planned).
-- Weibull / first-order / Korsmeyer-Peppas model fitting (v0.2.0, planned).
+- Bootstrap confidence intervals for f2 (v0.1.1, stable).
+- Weibull / first-order / Korsmeyer-Peppas / Higuchi / zero-order model fitting (v0.2.0, stable).
 
 ---
 

@@ -64,12 +64,12 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 ### Module map
 
 ```
-dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← DONE v0.1–v0.2
+dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← DONE v0.1-v0.2
 nca/           — AUC, lambda_z, PK parameters, reports                    ← DONE v0.4.0
 sim/           — analytical compartment models, dosing, superposition      ← DONE v0.5.0
-pop/           — population PK dataset helpers, diagnostics, VPC           ← v0.6.0
-bayes/         — PyMC/Stan Bayesian PK models                              ← v0.8.0
-ml/            — neural ODE, features, predictors                          ← v0.9.0
+pop/           — GOF plots (4-panel), VPC (simulation-based), dataset      ← DONE v0.6.0
+bayes/         — ImportError guards; [bayes] extras wired; PyMC deferred   ← v0.8.0 deferred
+ml/            — PKSurrogate (torch MLP, EXPERIMENTAL)                     ← DONE v0.9.0
 report/        — Markdown, HTML, PDF (ReportLab), Word (python-docx)       ← DONE v0.3.0
 datasets/      — example CSVs (dissolution + theoph NCA reference)
 validation/    — reference comparison utilities
@@ -157,7 +157,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.5.0 is current (PK simulation engine). Next milestone is v0.6.0 population PK diagnostics, GOF plots, VPC helpers.
+v0.9.0 is current (ML surrogate, EXPERIMENTAL). All planned milestones through v0.9.0 are complete. Next milestone is v1.0.0 stable public release: API freeze, full documentation, PyPI upload of v0.9.0 series.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -175,11 +175,11 @@ v0.5.0 is current (PK simulation engine). Next milestone is v0.6.0 population PK
        zero-order) — scipy curve_fit, AIC/BIC/R2, fit overlay in HTML report
 0.3.0  full Markdown + HTML + ReportLab PDF report generator
 0.4.0  NCA engine (AUC, Cmax, Tmax, lambda_z, t1/2, CL/F, Vz/F)
-0.5.0  PK simulation (1-comp, 2-comp, oral, IV, infusion, repeated dosing)
-0.6.0  population PK diagnostics, GOF plots, VPC helpers
-0.7.0  Pharmpy bridge
-0.8.0  Bayesian PK (PyMC, CmdStanPy)
-0.9.0  ML / neural ODE prototypes
+0.5.0  PK simulation (1-comp, 2-comp, oral, IV, infusion, repeated dosing)       DONE
+0.6.0  population PK diagnostics, GOF plots, VPC helpers                         DONE
+0.7.0  Pharmpy bridge                                                             SKIPPED (reserved)
+0.8.0  Bayesian PK (PyMC, CmdStanPy)                                             DEFERRED (extras wired)
+0.9.0  ML surrogate (torch MLP, EXPERIMENTAL)                                    DONE
 1.0.0  stable public release
 ```
 
