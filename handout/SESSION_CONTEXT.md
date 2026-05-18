@@ -9,16 +9,14 @@ Read this at the start of every new session. It contains the full current state 
 - **Package:** `openpkflow`
 - **Author:** Priyam Thakar, priyamthakar1@gmail.com
 - **GitHub:** https://github.com/priyamthakar/openpkflow (username: `priyamthakar`, not `priyamthakar1`)
-- **PyPI:** https://pypi.org/project/openpkflow/ — live and installable
+- **PyPI:** https://pypi.org/project/openpkflow/ — live and installable (v0.3.0 on PyPI; v0.4.0 built locally, not yet tagged/released)
 - **Working directory:** `D:\openpkflow`
 - **Python floor:** 3.10+
 - **Build:** hatchling, `src/` layout
 
 ---
 
-## Current version: 0.3.0
-
-Published to PyPI. GitHub Actions Trusted Publishing handles every release automatically on `v*.*.*` tags.
+## Current version: 0.4.0 (local, not yet on PyPI)
 
 ### Version history
 
@@ -31,12 +29,13 @@ Published to PyPI. GitHub Actions Trusted Publishing handles every release autom
 | 0.1.4 | DissolutionStudy.bootstrap_compare(), ComparisonResult.plot(), demo.ipynb rewritten |
 | 0.2.0 | Dissolution model fitting: 5 models, ModelFit, DissolutionFitResults, AICc ranking, HTML fit report |
 | 0.3.0 | PDF (ReportLab) + Word (python-docx) reports for comparison and model fit |
+| 0.4.0 | NCA engine: AUClast, AUCinf, Cmax, Tmax, lambda_z (BAR²), CL/F, Vz/F; HTML+Markdown reports; Theoph reference dataset; 93 NCA tests |
 
 ---
 
-## What is actually built (v0.3.0)
+## What is actually built (v0.4.0)
 
-### Public API — entry points users should use
+### Dissolution public API
 
 ```python
 from openpkflow.dissolution import (
@@ -46,71 +45,53 @@ from openpkflow.dissolution import (
 from openpkflow.datasets import example_dissolution_path, example_similar_path, example_not_similar_path
 ```
 
-### `f1(reference, test)` / `f2(reference, test, *, method="all_points")`
+Key objects:
+- `DissolutionStudy.from_csv(path)` → compare, bootstrap_compare, fit_models
+- `ComparisonResult` — f1_value, f2_value, report(format="html"|"markdown"|"pdf"|"docx")
+- `DissolutionFitResults` — best model, AICc ranking, report(format=...)
+- `ModelFit` frozen dataclass — model_name, params, r_squared, aic, aicc, bic, predict()
 
-Scalar functions. Take `Sequence[float]` (plain Python lists), return float.
-
-`f2` accepts `method="all_points"` (default) or `method="regulatory"` which trims timepoints per the FDA 85% rule.
-
-### `DissolutionStudy`
-
-High-level study object. Always use this when working with CSV data.
+### NCA public API
 
 ```python
-study = DissolutionStudy.from_csv("data.csv")
-study.formulations()                          # -> list[str]
-result = study.compare("reference", "test")   # -> ComparisonResult
-boot   = study.bootstrap_compare("reference", "test", n_replicates=5000, seed=42)  # -> BootstrapF2Result
-fits   = study.fit_models("reference")        # -> DissolutionFitResults
+from openpkflow.nca import NCAStudy, NCAResult, NCASummaryResults
+from openpkflow.datasets import example_theoph_path
 ```
-
-### `ComparisonResult`
-
-Dataclass with: `f1_value`, `f2_value`, `n_timepoints`, `reference_mean`, `test_mean`, `time_points`.
 
 ```python
-result.summary()                                  # -> str
-result.report("out.html")                         # HTML (default)
-result.report("out.md", format="markdown")        # Markdown
-result.report("out.pdf", format="pdf")            # PDF via ReportLab (requires [reports])
-result.report("out.docx", format="docx")          # Word via python-docx (requires [reports])
-result.plot(output_path="plot.png", show=False)
-result.to_dict()
+study = NCAStudy.from_csv(
+    "pk_data.csv",
+    auc_method="linear_up_log_down",  # required; "linear" | "log" | "linear_up_log_down"
+    blq_method="none",                 # required; "none" | "drop" | "zero" | "half_lloq" | "lloq"
+)
+summary = study.analyze()             # -> NCASummaryResults
+
+# Per-subject
+result = summary.results[0]
+result.AUClast                        # float
+result.AUCinf_obs                     # float | None
+result.AUC_percent_extrapolated       # float | None
+result.Cmax, result.Tmax
+result.lambda_z, result.half_life     # float | None each
+result.CL_F, result.Vz_F             # float | None — oral apparent
+result.CL, result.Vz                  # float | None — IV absolute
+result.warnings                       # list[str]
+result.summary()                      # ASCII str
+result.to_dict()                      # flat dict
+result.report("sub.html")             # HTML or Markdown
+
+summary.summary()                     # ASCII tabular
+summary.to_dataframe()                # pd.DataFrame, one row per subject
+summary.report("summary.html")
 ```
 
-### `DissolutionFitResults`
+NCA CSV format: `subject,time,conc,dose,route`  
+- dose in the same unit as conc*time (e.g. mg when conc is mg/L, time is h)  
+- route: `"oral"` → CL_F/Vz_F; `"iv_bolus"` / `"iv_infusion"` → CL/Vz  
 
-```python
-fits.best             # -> ModelFit with lowest AICc
-fits.summary()        # -> str, ASCII, ranked table
-fits.plot()           # matplotlib overlay
-fits.report("fit.html")                      # HTML report
-fits.report("fit.pdf", format="pdf")         # PDF (requires [reports])
-fits.report("fit.docx", format="docx")       # Word (requires [reports])
-fits.to_dict()
-```
-
-`ModelFit` frozen dataclass: `model_name`, `params`, `r_squared`, `aic`, `aicc`, `bic`, `n_points`, `n_params`, `converged`. Has `predict(t_array)` and `to_dict()`.
-
-Five standard models: `zero_order`, `first_order`, `higuchi`, `korsmeyer_peppas`, `weibull`.
-Korsmeyer-Peppas fires `UserWarning` when >1 timepoint exceeds 60% release.
-Weibull noted as empirical-only in report (FDA/EMA guidance context).
-
-### `fit_dissolution_models(time_points, observed_mean, formulation_label, models=None)`
-
-Low-level public API — fits without a loaded CSV. Returns `DissolutionFitResults`.
-
-### `bootstrap_f2` / `BootstrapF2Result` (low-level)
-
-`bootstrap_f2()` takes 2D numpy arrays. Users should call `study.bootstrap_compare()` instead.
-
-### Datasets
-
-```python
-from openpkflow.datasets import example_dissolution_path, example_similar_path, example_not_similar_path
-```
-
-CSV format: `formulation,batch,time,percent_released`.
+BLQ handling: "none" | "drop" | "zero" | "half_lloq" (needs lloq=) | "lloq" (needs lloq=)  
+Aliases: "m1" → "drop", "m2" → "zero"  
+String BLQ: `<0.5` in conc column is parsed and treated as BLQ.
 
 ---
 
@@ -118,75 +99,106 @@ CSV format: `formulation,batch,time,percent_released`.
 
 ```
 src/openpkflow/
-  __init__.py                    # version only
-  cli.py                         # Typer CLI: version, similarity, dissolution compare
-  py.typed                       # PEP 561 marker
+  __init__.py                      version only
+  cli.py                           Typer CLI: version, similarity, dissolution compare
+  py.typed                         PEP 561 marker
 
   dissolution/
-    __init__.py                  # exports all public symbols
-    similarity.py                # f1(), f2()
-    loader.py                    # load_dissolution_csv(), DissolutionCSVConfig
-    study.py                     # DissolutionStudy, ComparisonResult
-    bootstrap.py                 # bootstrap_f2(), BootstrapF2Result
-    models.py                    # ModelFit, DissolutionFitResults, fit_dissolution_models()
-                                 #   five model callables, _REGISTRY, AICc ranking
-    plotting.py                  # dissolution_profile_plot_b64(), dissolution_fit_plot_b64()
-    reporting.py                 # render_markdown_report(), report_dissolution()
-                                 #   dispatcher for html/markdown/pdf/docx
+    __init__.py                    exports all public symbols
+    similarity.py                  f1(), f2()
+    loader.py                      load_dissolution_csv(), DissolutionCSVConfig
+    study.py                       DissolutionStudy, ComparisonResult
+    bootstrap.py                   bootstrap_f2(), BootstrapF2Result
+    models.py                      ModelFit, DissolutionFitResults, fit_dissolution_models()
+    plotting.py                    dissolution_profile_plot_b64(), dissolution_fit_plot_b64()
+    reporting.py                   render_markdown_report(), report_dissolution()
+
+  nca/
+    __init__.py                    exports all public NCA symbols
+    methods.py                     pure math: AUC (3 methods), cmax, tmax, lambda_z (BAR²),
+                                   auc_inf_obs, auc_percent_extrapolated,
+                                   clearance_volume_parameters; AUCResult, LambdaZResult
+    loader.py                      load_nca_csv() with BLQ handling
+    results.py                     NCAResult, NCASummaryResults dataclasses
+    study.py                       NCAStudy: from_csv(), analyze()
+    reporting.py                   report_nca_single(), report_nca_summary()
 
   report/
     __init__.py
-    html.py                      # render_html_report(), render_model_fit_html_report()
-    pdf.py                       # render_comparison_pdf_report(), render_model_fit_pdf_report()
-                                 #   lazy reportlab imports, [reports] extra guard
-    docx.py                      # render_comparison_docx_report(), render_model_fit_docx_report()
-                                 #   lazy docx imports, [reports] extra guard
+    html.py                        dissolution HTML renderers (Jinja2)
+    pdf.py                         dissolution PDF renderers (ReportLab, lazy import)
+    docx.py                        dissolution Word renderers (python-docx, lazy import)
     templates/
-      dissolution_report.html    # Navy header comparison report
-      fit_report.html            # Navy header model fit report
+      dissolution_report.html      comparison report template
+      fit_report.html              model fit report template
+      nca_single_report.html       NCA per-subject report
+      nca_summary_report.html      NCA multi-subject summary
 
   datasets/
-    __init__.py                  # example_*_path() functions
+    __init__.py                    example_dissolution_path(), example_similar_path(),
+                                   example_not_similar_path(), example_theoph_path()
     example_dissolution.csv
     example_similar.csv
     example_not_similar.csv
+    theoph.csv                     R nlme::Theoph — 12 subjects, oral theophylline
 
-  nca/, sim/, pop/, bayes/, ml/, validation/  # stubs only, not yet implemented
+  sim/, pop/, bayes/, ml/, validation/   stubs only
 ```
 
 ---
 
-## Dissolution data flow
+## Data flows
+
+### Dissolution
 
 ```
-CSV file
-  -> load_dissolution_csv()        pydantic-validated DataFrame
-  -> DissolutionStudy.from_csv()   wraps DataFrame
-  -> study.compare(ref, test)      get_formulation_means() -> f1/f2
-  -> ComparisonResult
-  -> result.report("out.html")     report_dissolution() -> render_html_report()
-  -> result.report("out.pdf")      report_dissolution() -> render_comparison_pdf_report()
-  -> result.report("out.docx")     report_dissolution() -> render_comparison_docx_report()
+CSV -> load_dissolution_csv() -> DissolutionStudy
+     -> study.compare(ref, test) -> ComparisonResult -> result.report("out.html|pdf|docx|md")
+     -> study.fit_models("ref")  -> DissolutionFitResults -> fits.report("fit.html|pdf|docx")
+```
 
-  -> study.fit_models("ref")       get_formulation_means() -> fit_dissolution_models()
-  -> DissolutionFitResults
-  -> fits.report("fit.html")       render_model_fit_html_report()
-  -> fits.report("fit.pdf")        render_model_fit_pdf_report()
-  -> fits.report("fit.docx")       render_model_fit_docx_report()
+### NCA
+
+```
+CSV -> load_nca_csv() (BLQ handled) -> NCAStudy
+     -> study.analyze() -> NCASummaryResults
+     -> summary.to_dataframe()
+     -> summary.report("summary.html|md")
+     -> result.report("sub.html|md")
 ```
 
 ---
 
 ## Report format support matrix
 
-| Format | Comparison | Model Fit | Notes |
-|--------|-----------|-----------|-------|
-| html   | yes       | yes       | Jinja2 templates; always available |
-| markdown | yes     | no        | always available |
-| pdf    | yes       | yes       | requires `pip install openpkflow[reports]` |
-| docx   | yes       | yes       | requires `pip install openpkflow[reports]` |
+| Format | Dissolution comparison | Dissolution model fit | NCA single | NCA summary |
+|--------|----------------------|-----------------------|------------|-------------|
+| html   | yes | yes | yes | yes |
+| markdown | yes | no | yes | yes |
+| pdf    | yes (requires [reports]) | yes (requires [reports]) | v0.4.1 | v0.4.1 |
+| docx   | yes (requires [reports]) | yes (requires [reports]) | v0.4.1 | v0.4.1 |
 
-CLI format inference: `.md`/`.markdown` -> markdown, `.pdf` -> pdf, `.docx` -> docx, else html.
+---
+
+## Test suite (223 tests as of v0.4.0)
+
+```
+tests/
+  dissolution/
+    test_similarity.py         f1/f2 validation, regulatory method
+    test_study.py              loader, compare, bootstrap, reports
+    test_bootstrap.py          BootstrapF2Result
+    test_models.py             5 models, AICc ranking, fit API, reports
+  nca/
+    test_methods.py            all math functions, hand-checked expected values
+    test_loader.py             BLQ handling, string-BLQ, edge cases
+    test_study.py              NCAStudy integration, NCAResult field coverage
+    test_theoph_reference.py   regression against R nlme Theoph dataset
+  report/
+    test_pdf.py                magic bytes, file write, import guard
+    test_docx.py               magic bytes, disclaimer round-trip, import guard
+  test_cli.py                  CLI commands
+```
 
 ---
 
@@ -194,79 +206,68 @@ CLI format inference: `.md`/`.markdown` -> markdown, `.pdf` -> pdf, `.docx` -> d
 
 - **CI:** `.github/workflows/ci.yml` — pytest matrix over Python 3.10/3.11/3.12; installs `.[dev,reports]`
 - **Publish:** `.github/workflows/publish.yml` — triggers on `v*.*.*` tags, OIDC Trusted Publishing
-- **Tag pattern:** `git tag v0.x.x && git push origin v0.x.x`
+- **Tag pattern:** `git tag v0.4.0 && git push origin v0.4.0`
 
 ---
 
 ## Known gotchas (do not repeat these mistakes)
 
 ### 1. Windows cp1252 console — ASCII only in CLI output
-Em dashes (`—`), right arrows (`->`) etc. cause `UnicodeEncodeError` on Windows cp1252 terminals. All CLI docstrings and `typer.echo()` must use plain ASCII. Document content in PDF/DOCX files is fine (binary format).
+Em dashes (`—`), right arrows (`->`) etc. cause `UnicodeEncodeError` on Windows cp1252 terminals. All CLI docstrings, `typer.echo()`, and `summary()` methods must use plain ASCII. Document content in HTML/PDF/DOCX files is fine.
 
 ### 2. Jinja2 does not expose Python builtins
 `zip()` must be manually injected in every `jinja2.Environment`:
 ```python
 env.globals["zip"] = zip
 ```
+NCA templates in `nca/reporting.py` handle this via `_make_jinja_env()`.
 
 ### 3. `.gitignore` blocks HTML templates and notebooks
 Exceptions declared in `.gitignore`: `!src/**/*.html`, `!demo.ipynb`. Add exceptions for any new templates.
 
 ### 4. `datasets/__init__.py` uses functions, not constants
-`example_dissolution_path()` — always call as a function, not a constant.
+`example_theoph_path()` — always call as a function, not a constant.
 
-### 5. `bootstrap_f2` is low-level — use `study.bootstrap_compare()` in user-facing code
+### 5. AUC method dispatch asymmetry
+`auc_linear` returns `float`; `auc_log` and `auc_linear_up_log_down` return `AUCResult`. Always use the dispatch snippet in NCAStudy.analyze():
+```python
+if auc_method == "linear":
+    auclast, auc_warnings = auc_linear(t, c), []
+else:
+    fn = auc_log if auc_method == "log" else auc_linear_up_log_down
+    res = fn(t, c)
+    auclast, auc_warnings = res.value, res.warnings
+```
 
-### 6. `[reports]` extra is required for PDF/DOCX
-`reportlab` and `python-docx` are optional. The renderers raise `ImportError` with a helpful message if not installed. CI now installs `.[dev,reports]`.
+### 6. BLQ handling contract
+The loader (`load_nca_csv`) applies BLQ handling before returning. The NCA math functions (`auc_linear`, etc.) do NOT handle NaN — they will raise or produce wrong results if passed NaN concentrations.
 
-### 7. `import docx` not `import python_docx`
-The python-docx package imports as `import docx` even though it's installed as `python-docx`.
+### 7. NCA lambda_z requires at least 3 post-Cmax positive points
+If fewer are available, `lambda_z()` raises `ValueError`. `NCAStudy.analyze()` catches this and stores `lambda_z=None` with a warning in `NCAResult.warnings`.
 
-### 8. GitHub username is `priyamthakar` — not `priyamthakar1`
+### 8. Theoph regression values (linear_up_log_down, no BLQ)
+Mean AUClast ~100.1, mean Cmax ~8.89 mg/L, mean half_life ~7.89 h, mean AUCinf ~119.4 h*mg/L.
+These are self-consistent regression values from our implementation, NOT PKNCA vignette values (which differ due to configuration differences).
+
+### 9. `[reports]` extra required for PDF/DOCX
+`reportlab` and `python-docx` are optional. Renderers raise `ImportError` with a helpful message if not installed.
+
+### 10. GitHub username is `priyamthakar` — not `priyamthakar1`
 
 ---
 
-## Test suite (130 tests as of v0.3.0)
-
-```
-tests/
-  dissolution/
-    test_similarity.py    f1/f2 validation, regulatory method
-    test_study.py         loader, compare, bootstrap, reports
-    test_bootstrap.py     BootstrapF2Result
-    test_models.py        5 models, AICc ranking, fit API, report
-  report/
-    test_pdf.py           magic bytes, file write, import guard (reportlab)
-    test_docx.py          magic bytes, disclaimer round-trip, import guard (python-docx)
-  test_cli.py             CLI commands
-```
-
-Run: `pytest` or `pytest --tb=short -q`
-
----
-
-## Next: v0.4.0 — NCA engine
+## Next: v0.5.0 — PK simulation
 
 ```python
-from openpkflow.nca import NCAStudy
-study = NCAStudy.from_csv("pk_data.csv")
-result = study.compute("subject_01")
-result.summary()   # AUC, Cmax, Tmax, lambda_z, t1/2, CL/F, Vz/F
-result.report("nca.html")
+from openpkflow.sim import PKModel
+
+model = PKModel(n_compartments=1, route="oral")
+result = model.simulate(dose=320, times=[0,1,2,4,8,12,24], params={"ka": 1.2, "CL": 3.2, "V": 30})
+result.plot()
+result.report("sim.html")
 ```
 
-NCA scope:
-- AUClast (linear-log trapezoidal), AUCinf, AUCpct_extrap
-- lambda_z (terminal slope via log-linear regression, adjustable fit range)
-- t1/2 = ln(2)/lambda_z
-- CL/F (oral), Vz/F — always labelled as apparent (slash-F) unless IV
-- Cmax, Tmax from observed data
-- BLQ handling: explicit method required (none / M1 / M2)
-
-Key correctness rules from CLAUDE.md: AUC method must be explicit; apparent vs absolute parameter names must be distinguished; BLQ handling must be explicit.
-
-After v0.4.0: v0.5.0 PK simulation (1-comp/2-comp, oral/IV/infusion, repeated dosing).
+Scope: 1-compartment oral/IV bolus/IV infusion, repeated dosing, single-subject and population overlay.
 
 ---
 
@@ -284,5 +285,6 @@ After v0.4.0: v0.5.0 PK simulation (1-comp/2-comp, oral/IV/infusion, repeated do
 
 - FDA 1997 Guidance: Dissolution Testing of Immediate Release Solid Oral Dosage Forms — f1/f2 definition and 85% rule
 - Shah VP et al. (1998) Pharm Res 15(6):889-896 — bootstrap f2 methodology
-- Davit BM et al. (2013) AAPS J 15(4):1150-1157 — bootstrap f2 regulatory context
-- Costa P, Lobo JMS (2001) Eur J Pharm Sci 13:123-133 — dissolution model fitting reference
+- Costa P, Lobo JMS (2001) Eur J Pharm Sci 13:123-133 — dissolution model fitting
+- Pinheiro JC, Bates DM (2000). Mixed-effects models in S and S-PLUS. Springer — Theoph dataset source
+- Bacon S et al. (2023). PKNCA: Non-Compartmental Analysis for Pharmacokinetics. CRAN — BAR² algorithm reference

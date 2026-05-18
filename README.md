@@ -13,10 +13,10 @@
 
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
-- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting
-- **NCA:** AUC, Cmax, Tmax, half-life, CL/F, Vz/F · planned v0.4.0
-- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion · planned v0.5.0
-- **Report generation:** Markdown, HTML, PDF, Word · planned v0.3.0
+- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas)
+- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
+- **Report generation:** Markdown, HTML, PDF (ReportLab), Word (python-docx)
+- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion — planned v0.5.0
 
 It does not replace expert regulatory judgement or validated commercial platforms.
 It makes routine analysis faster, cleaner, and more reproducible.
@@ -29,7 +29,7 @@ It makes routine analysis faster, cleaner, and more reproducible.
 pip install openpkflow
 ```
 
-For report generation:
+For PDF and Word reports:
 
 ```bash
 pip install openpkflow[reports]
@@ -37,7 +37,7 @@ pip install openpkflow[reports]
 
 ---
 
-## Quick start
+## Quick start: dissolution similarity
 
 ```python
 from openpkflow.dissolution import f1, f2
@@ -59,19 +59,10 @@ study = DissolutionStudy.from_csv("dissolution.csv")
 result = study.compare(reference="reference", test="test")
 result.summary()
 result.report("dissolution_report.html")
+result.report("dissolution_report.pdf", format="pdf")   # requires [reports]
 ```
 
-### CSV format
-
-```csv
-formulation,batch,time,percent_released
-reference,R1,5,18.2
-reference,R1,10,31.4
-reference,R1,15,47.9
-test,T1,5,17.5
-test,T1,10,30.1
-test,T1,15,46.2
-```
+CSV format: `formulation,batch,time,percent_released`
 
 ### CLI
 
@@ -82,21 +73,69 @@ openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
 
 ---
 
+## Quick start: NCA
+
+```python
+from openpkflow.nca import NCAStudy
+
+study = NCAStudy.from_csv(
+    "pk_data.csv",
+    auc_method="linear_up_log_down",   # required: "linear", "log", or "linear_up_log_down"
+    blq_method="none",                  # required: "none", "drop", "zero", "half_lloq", "lloq"
+)
+summary = study.analyze()
+print(summary.summary())               # tabular ASCII output
+
+# Per-subject results
+result = summary.results[0]
+print(f"Subject: {result.subject}")
+print(f"AUClast: {result.AUClast:.2f} h*mg/L")
+print(f"Cmax:    {result.Cmax:.2f} mg/L")
+print(f"Tmax:    {result.Tmax:.2f} h")
+print(f"t1/2:    {result.half_life:.2f} h")
+print(f"CL/F:    {result.CL_F:.2f} L/h")
+
+# Reports
+result.report("nca_subject1.html")
+summary.report("nca_summary.html")
+```
+
+### NCA CSV format
+
+```csv
+subject,time,conc,dose,route
+1,0.0,0.0,320.0,oral
+1,0.5,4.2,320.0,oral
+1,1.0,8.1,320.0,oral
+1,2.0,6.8,320.0,oral
+1,4.0,3.5,320.0,oral
+1,8.0,1.7,320.0,oral
+1,12.0,0.9,320.0,oral
+1,24.0,0.2,320.0,oral
+```
+
+Required columns: `subject`, `time`, `conc`, `dose`, `route`.
+Dose in the same mass unit as concentration * time (e.g. mg when conc is mg/L and time is h).
+Route values: `"oral"`, `"iv_bolus"`, `"iv_infusion"`.
+
+Oral route produces apparent parameters (`CL_F`, `Vz_F`).
+IV routes produce absolute parameters (`CL`, `Vz`).
+
+---
+
 ## Current status
 
 | Module | Status |
 |---|---|
-| `dissolution.f1` / `dissolution.f2` | Stable |
+| Dissolution f1 / f2 | Stable |
 | Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
-| HTML report with profile plot | Stable |
-| CLI | Stable |
-| Dissolution model fitting | Planned v0.2.0 |
-| Full PDF/Word reports | Planned v0.3.0 |
-| NCA | Planned v0.4.0 |
-| PK simulation | Planned v0.5.0 |
-| Population PK | Planned v0.6.0 |
-| Bayesian PK | Planned v0.8.0 |
+| Dissolution model fitting (5 models, AICc) | Stable |
+| HTML, Markdown, PDF, Word reports | Stable |
+| NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.0 |
+| PK simulation (1/2-comp, oral/IV) | Planned v0.5.0 |
+| Population PK diagnostics | Planned v0.6.0 |
+| Bayesian PK (PyMC, CmdStanPy) | Planned v0.8.0 |
 | ML / neural ODE | Planned v0.9.0 |
 
 ---
@@ -105,6 +144,7 @@ openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
 
 All formula implementations are validated against published FDA/EMA guidance examples.
 Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
+NCA results are validated against the R nlme Theoph reference dataset.
 See `tests/` for details.
 
 ---

@@ -9,7 +9,10 @@ import pytest
 
 docx = pytest.importorskip("docx", reason="python-docx not installed")
 
-from openpkflow.report.docx import render_comparison_docx_report, render_model_fit_docx_report  # noqa: E402
+from openpkflow.report.docx import (  # noqa: E402
+    render_comparison_docx_report,
+    render_model_fit_docx_report,
+)
 
 _TIME = [5.0, 10.0, 15.0, 30.0, 45.0, 60.0]
 _REF = [20.0, 40.0, 55.0, 70.0, 82.0, 90.0]

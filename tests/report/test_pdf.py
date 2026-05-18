@@ -9,7 +9,10 @@ import pytest
 
 reportlab = pytest.importorskip("reportlab", reason="reportlab not installed")
 
-from openpkflow.report.pdf import render_comparison_pdf_report, render_model_fit_pdf_report  # noqa: E402
+from openpkflow.report.pdf import (  # noqa: E402
+    render_comparison_pdf_report,
+    render_model_fit_pdf_report,
+)
 
 _TIME = [5.0, 10.0, 15.0, 30.0, 45.0, 60.0]
 _REF = [20.0, 40.0, 55.0, 70.0, 82.0, 90.0]

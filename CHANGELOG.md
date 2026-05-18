@@ -9,6 +9,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-18
+
+### Added
+- `nca/methods.py` — pure-math NCA layer: `auc_linear`, `auc_log`, `auc_linear_up_log_down` (linear-up/log-down), `cmax`, `tmax`, `lambda_z` (BAR² auto-selection and manual mode), `auc_inf_obs`, `auc_percent_extrapolated`, `clearance_volume_parameters`; `AUCResult` and `LambdaZResult` frozen dataclasses
+- `nca/loader.py` — `load_nca_csv()`: CSV loader with full BLQ handling (none/drop/zero/half_lloq/lloq, m1/m2 aliases, `<0.5` string-BLQ parsing via regex)
+- `nca/results.py` — `NCAResult` (per-subject) and `NCASummaryResults` dataclasses with `summary()`, `to_dict()`, `to_dataframe()`, `report()` methods; route-aware field naming (oral: CL_F/Vz_F, IV: CL/Vz)
+- `nca/study.py` — `NCAStudy` with `__init__(df, ...)`, `from_csv(path, ...)`, and `analyze() -> NCASummaryResults`; explicit auc_method required; lambda_z failure handled gracefully (None + warning)
+- `nca/reporting.py` — `report_nca_single()` and `report_nca_summary()` in HTML (Jinja2) and Markdown; PDF/DOCX deferred to v0.4.1
+- `report/templates/nca_single_report.html` — per-subject NCA HTML report with navy header, PK parameter table, warnings panel, disclaimer
+- `report/templates/nca_summary_report.html` — multi-subject summary HTML report with tabular results
+- `datasets/theoph.csv` — R nlme::Theoph reference dataset (12 subjects, 11 timepoints, oral theophylline, doses precomputed in mg)
+- `datasets/__init__.py` — adds `example_theoph_path()`
+- 93 NCA tests: `tests/nca/test_methods.py` (unit tests for all math functions with hand-checked expected values), `test_loader.py` (BLQ handling, edge cases), `test_study.py` (integration), `test_theoph_reference.py` (regression suite against Theoph dataset)
+
+### Changed
+- `nca/__init__.py` wired up to export all public NCA symbols
+- `datasets/__init__.py` adds `example_theoph_path()` to `__all__`
+
+### Implementation notes
+- AUC dispatch asymmetry: `auc_linear` returns `float`; `auc_log` and `auc_linear_up_log_down` return `AUCResult` — handled in NCAStudy.analyze()
+- BAR² lambda_z algorithm: enumerates all tail windows anchored at last quantifiable point, post-Cmax positive only, selects by adjusted R² descending then more points then longer span (mirrors PKNCA R package)
+- NaN handling contract: loader cleans arrays; AUC math functions assume clean input
+- Theoph regression values: AUClast mean ~100.1, Cmax mean ~8.89, half_life mean ~7.89 h (linear_up_log_down, no BLQ handling)
+
 ## [0.3.0] — 2026-05-18
 
 ### Added

@@ -64,16 +64,44 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 ### Module map
 
 ```
-dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← current MVP
-nca/           — AUC, lambda_z, PK parameters, tables, reporting           ← v0.4.0
+dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← DONE v0.1–v0.2
+nca/           — AUC, lambda_z, PK parameters, reports                    ← DONE v0.4.0
 sim/           — ODE compartment models, dosing, population sim            ← v0.5.0
 pop/           — population PK dataset helpers, diagnostics, VPC           ← v0.6.0
 bayes/         — PyMC/Stan Bayesian PK models                              ← v0.8.0
 ml/            — neural ODE, features, predictors                          ← v0.9.0
-report/        — Markdown, HTML, PDF (ReportLab), Word (python-docx)       ← v0.3.0
-datasets/      — example CSV files for tests and examples
+report/        — Markdown, HTML, PDF (ReportLab), Word (python-docx)       ← DONE v0.3.0
+datasets/      — example CSVs (dissolution + theoph NCA reference)
 validation/    — reference comparison utilities
 cli.py         — Typer CLI entry point
+```
+
+### NCA module layout
+
+```
+nca/
+  __init__.py      — exports all public symbols
+  methods.py       — pure math: auc_linear, auc_log, auc_linear_up_log_down,
+                     cmax, tmax, lambda_z (BAR² auto + manual), auc_inf_obs,
+                     auc_percent_extrapolated, clearance_volume_parameters
+  loader.py        — load_nca_csv(): CSV load + BLQ handling
+  results.py       — NCAResult (per-subject), NCASummaryResults dataclasses
+  study.py         — NCAStudy: from_csv(), analyze() -> NCASummaryResults
+  reporting.py     — report_nca_single(), report_nca_summary() (HTML + Markdown)
+```
+
+### NCA data flow
+
+```
+CSV file
+  -> load_nca_csv()            BLQ-handled DataFrame (subject, time, conc, dose, route)
+  -> NCAStudy(df, auc_method, blq_method)
+  -> study.analyze()           per-subject loop: AUClast, Cmax, Tmax, lambda_z, AUCinf,
+                               CL_F/Vz_F (oral) or CL/Vz (IV), warnings
+  -> NCASummaryResults         list of NCAResult
+  -> summary.to_dataframe()    pandas DataFrame
+  -> summary.report("out.html")  -> report_nca_summary() -> nca_summary_report.html
+  -> result.report("sub.html")   -> report_nca_single()  -> nca_single_report.html
 ```
 
 ### Dissolution data flow
@@ -103,7 +131,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.3.0 is current (PDF + Word reports). v0.2.0 (dissolution model fitting) and v0.3.0 are live on PyPI. Next milestone is v0.4.0 NCA engine.
+v0.4.0 is current (NCA engine). v0.4.0 has not yet been pushed to PyPI — the wheel is built and clean, awaiting a version tag. Next milestone is v0.5.0 PK simulation (1-comp, 2-comp, oral/IV/infusion, repeated dosing).
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
