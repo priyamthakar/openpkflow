@@ -199,6 +199,23 @@ vpc.report("vpc_report.html")
 
 ---
 
+## By the numbers
+
+| Stat | Value |
+|---|---|
+| Lines of source code (`src/`) | 9,453 |
+| Lines of tests (`tests/`) | 4,166 |
+| Total Python files | 65 (39 src + 26 tests) |
+| Tests | 363 |
+| Public functions / methods | 189 |
+| Classes | 21 |
+| HTML report templates | 7 |
+| Bundled example datasets | 4 |
+| Git commits | 23 |
+| Time to build v0.9.0 | 1 day |
+
+---
+
 ## Validation
 
 All formula implementations are validated against published FDA/EMA guidance examples.
