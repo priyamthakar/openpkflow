@@ -12,15 +12,15 @@ from openpkflow.dissolution.plotting import dissolution_profile_plot_b64
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 _DISCLAIMER = (
-    "This report was generated using OpenPKFlow (open-source). "
-    "Final regulatory interpretation should be reviewed by qualified "
-    "formulation, pharmacokinetic, and regulatory experts."
+    "This report was generated using OpenPKFlow — an open-source Python workflow "
+    "for pharmacometric analysis. Final regulatory interpretation should be reviewed "
+    "by qualified formulation, pharmacokinetic, and regulatory experts."
 )
 
 _FIT_DISCLAIMER = (
-    "Dissolution model fitting characterises the release mechanism of a "
-    "formulation. It is not a regulatory similarity test. Use f2 or bootstrap "
-    "f2 for dissolution similarity assessment."
+    "Dissolution model fitting characterises the release mechanism of a formulation — "
+    "it is not a regulatory similarity test. For dissolution similarity assessment, "
+    "use the f2 or bootstrap f2 method (FDA 1997 guidance)."
 )
 
 

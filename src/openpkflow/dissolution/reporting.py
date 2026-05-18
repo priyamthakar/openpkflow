@@ -5,9 +5,9 @@ from pathlib import Path
 from openpkflow import __version__
 
 _DISCLAIMER = (
-    "This report was generated using OpenPKFlow (open-source). "
-    "Final regulatory interpretation should be reviewed by qualified "
-    "formulation, pharmacokinetic, and regulatory experts."
+    "This report was generated using OpenPKFlow — an open-source Python workflow "
+    "for pharmacometric analysis. Final regulatory interpretation should be reviewed "
+    "by qualified formulation, pharmacokinetic, and regulatory experts."
 )
 
 
