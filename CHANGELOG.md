@@ -31,7 +31,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - AUC dispatch asymmetry: `auc_linear` returns `float`; `auc_log` and `auc_linear_up_log_down` return `AUCResult` — handled in NCAStudy.analyze()
 - BAR² lambda_z algorithm: enumerates all tail windows anchored at last quantifiable point, post-Cmax positive only, selects by adjusted R² descending then more points then longer span (mirrors PKNCA R package)
 - NaN handling contract: loader cleans arrays; AUC math functions assume clean input
-- Theoph regression values: AUClast mean ~100.1, Cmax mean ~8.89, half_life mean ~7.89 h (linear_up_log_down, no BLQ handling)
+- Theoph regression values: AUClast mean ~100.1, Cmax mean ~8.89, half_life mean ~7.89 h — linear_up_log_down, no BLQ handling
 
 ## [0.3.0] — 2026-05-18
 
@@ -55,7 +55,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Both renderers use lazy imports inside function bodies; module top is stdlib only
 - Import guard raises `ImportError("... pip install openpkflow[reports]")` if extra not installed
 - Plot embedding: `base64.b64decode(plot_b64)` -> `io.BytesIO` -> `Image`/`add_picture`
-- All docstrings ASCII-only; rendered document content may use unicode (binary format)
+- All docstrings ASCII-only; rendered document content may use unicode
 
 ## [0.2.0] — 2026-05-18
 
@@ -71,28 +71,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `render_model_fit_html_report()` in `report/html.py` — Jinja2 renderer for `fit_report.html`
 - `report/templates/fit_report.html` — navy-header HTML template matching existing dissolution report style
 - Korsmeyer-Peppas 60% rule: `UserWarning` when >1 timepoint exceeds 60% release
-- Weibull empirical-model note in report and docstring (FDA/EMA guidance context)
+- Weibull empirical-model note added to report and docstring per FDA/EMA guidance
 - All five models exported from `openpkflow.dissolution`: `ModelFit`, `DissolutionFitResults`, `fit_dissolution_models`
 
 ### Implementation notes
-- Models fitted to mean profile (not per-vessel); per-vessel fitting is future scope
-- Model ranking by AICc (small-sample corrected AIC); AIC and BIC also returned
-- R2 reported for familiarity but not used for selection (misleading for nonlinear models)
+- Models fitted to mean profile; per-vessel fitting is future scope
+- Model ranking by AICc, the small-sample-corrected information criterion; AIC and BIC also returned
+- R2 reported for familiarity but not used for selection — it is misleading for nonlinear models
 - Each model has data-driven initial-guess and bounds helpers to prevent degenerate fits
-- Failed fits (non-convergence) included in results with `converged=False`; excluded from ranking and plots
+- Failed fits included in results with `converged=False`; excluded from ranking and plots
 - Reference: Costa P, Lobo JMS (2001) Eur J Pharm Sci 13(2):123-133. DOI: 10.1016/S0928-0987(01)00095-1
 
 ## [0.1.4] — 2026-05-18
 
 ### Added
-- `DissolutionStudy.bootstrap_compare(reference, test, ...)` — runs bootstrap f2 directly from loaded CSV data; no numpy required from the caller
-- `ComparisonResult.plot(output_path, show)` — plots reference vs test profile with f1/f2 in title; no matplotlib import required from the caller
+- `DissolutionStudy.bootstrap_compare(reference, test, ...)` — runs bootstrap f2 directly from loaded CSV data
+- `ComparisonResult.plot(output_path, show)` — plots reference vs test profile with f1/f2 in title
 - `demo.ipynb` rewritten: only openpkflow imports, clean 7-section workflow
 
 ## [0.1.3] — 2026-05-18
 
 ### Added
-- `f2(method="regulatory")` option — trims timepoints per the FDA 85% rule (at most one timepoint where both profiles exceed 85% may be included); raises ValueError if fewer than 3 points remain after trimming
+- `f2(method="regulatory")` option — trims timepoints per the FDA 85% rule; at most one timepoint where both profiles exceed 85% may be included; raises ValueError if fewer than 3 points remain
 - CV% warning in `DissolutionStudy.compare()` — warns when coefficient of variation exceeds FDA limits: CV > 20% at early timepoints (<=15 min) or CV > 10% at later timepoints
 
 ### Changed

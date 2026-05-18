@@ -13,9 +13,9 @@
 
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
-- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas)
+- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
-- **Report generation:** Markdown, HTML, PDF (ReportLab), Word (python-docx)
+- **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV/infusion — planned v0.5.0
 
 It does not replace expert regulatory judgement or validated commercial platforms.
@@ -115,11 +115,11 @@ subject,time,conc,dose,route
 ```
 
 Required columns: `subject`, `time`, `conc`, `dose`, `route`.
-Dose in the same mass unit as concentration * time (e.g. mg when conc is mg/L and time is h).
+Dose units must match concentration × time — mg when conc is mg/L and time is h.
 Route values: `"oral"`, `"iv_bolus"`, `"iv_infusion"`.
 
-Oral route produces apparent parameters (`CL_F`, `Vz_F`).
-IV routes produce absolute parameters (`CL`, `Vz`).
+Oral route yields apparent clearance and volume: `CL_F`, `Vz_F`.
+IV routes yield absolute clearance and volume: `CL`, `Vz`.
 
 ---
 
