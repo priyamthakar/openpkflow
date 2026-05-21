@@ -230,6 +230,13 @@ vpc.report("vpc_report.html")
 
 ---
 
+## Roadmap
+
+Post-1.0.0 milestones: IVIVC, MSD/f2 alternatives, multi-media dissolution, RSABE, sparse NCA, CDISC output.
+See [ROADMAP.md](ROADMAP.md) for the full plan.
+
+---
+
 ## Current status
 
 | Module | Status |
@@ -246,7 +253,7 @@ vpc.report("vpc_report.html")
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
 | Bioequivalence (2x2 crossover TOST, 80-125%) | Stable -- v1.0.0 |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
-| Stable public release | Planned — v1.0.0 |
+| Stable public release | Done — v1.0.0 |
 
 ---
 

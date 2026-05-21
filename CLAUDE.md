@@ -157,7 +157,7 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v0.9.0 is current (ML surrogate, EXPERIMENTAL). All planned milestones through v0.9.0 are complete. Next milestone is v1.0.0 stable public release: API freeze, full documentation, PyPI upload of v0.9.0 series.
+v1.0.0 is current (BE module, stable public release). All planned milestones through v1.0.0 are complete. Next milestone is v1.1.0: dissolution regulatory toolkit (MSD, model-dependent comparison, RSD check). See `ROADMAP.md` for the full post-1.0.0 ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -180,8 +180,16 @@ v0.9.0 is current (ML surrogate, EXPERIMENTAL). All planned milestones through v
 0.7.0  Pharmpy bridge                                                             SKIPPED (reserved)
 0.8.0  Bayesian PK (PyMC, CmdStanPy)                                             DEFERRED (extras wired)
 0.9.0  ML surrogate (torch MLP, EXPERIMENTAL)                                    DONE
-1.0.0  stable public release
+1.0.0  stable public release                                                      DONE
+1.1.0  dissolution regulatory toolkit: MSD, model-dependent comparison, RSD check PLANNED
+1.2.0  IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution predict, %PE      PLANNED
+1.3.0  NCA expansion: steady-state, %AUCextrap, CDISC PP output, sparse NCA       PLANNED
+1.4.0  replicate BE designs: RSABE, 2-stage adaptive BE, HVD/HVDP support         PLANNED
+1.5.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping        PLANNED
+2.0.0  Bayesian PK: MAP individual estimation, Bayesian BE (CmdStanPy)            PLANNED
 ```
+
+See `ROADMAP.md` for full milestone detail, scope rationale, and definition of done.
 
 ---
 
