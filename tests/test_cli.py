@@ -16,7 +16,7 @@ def test_version() -> None:
     """openpkflow version prints the package version string."""
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
-    assert "0.9.0" in result.output
+    assert "0.9.1" in result.output
 
 
 def test_similarity_command() -> None:

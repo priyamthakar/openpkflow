@@ -9,6 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.1] — 2026-05-21
+
+### Added
+- `sim/methods.py` — `c_2cmt_iv_infusion()`: 2-compartment constant-rate IV infusion
+  (biexponential rectangular-pulse formula, Gibaldi & Perrier 2nd ed. Eqs. 3-28 to 3-30);
+  wired into `TwoCompartmentModel` (new `iv_infusion` route), `simulate()`, and `sim/__init__.py`
+- `validation/__init__.py` — `pct_bias()`, `rmse()`, `within_pct()` cross-validation utilities
+- `tests/validation/` — 20 new tests: NCA recovers CL/Vz/t1/2/AUCinf within 2% on synthetic
+  IV bolus data; sim verifies Gibaldi & Perrier properties for 1-cmt bolus/oral and 2-cmt
+  bolus/infusion
+- Full mkdocs-material docs site: `mkdocs.yml`, `docs/index.md`, 4 tutorials (dissolution, NCA,
+  sim, pop), 6 reference pages, changelog; `docs.yml` GitHub Actions workflow for auto-deploy
+  to GitHub Pages
+
+### Fixed
+- `__version__` was `"0.1.0"` in `src/openpkflow/__init__.py` but `"0.9.0"` in `pyproject.toml` — corrected
+- CI now installs `.[ml]` extras so torch surrogate tests run in CI (previously skipped)
+- `bayes/__init__.py` docstring now explicitly states no public API in v1.0.0 (planned v1.1.0)
+
 ## [0.9.0] — 2026-05-18
 
 ### Added
