@@ -191,8 +191,9 @@ vpc.report("vpc_report.html")
 | Dissolution model fitting (5 models, AICc) | Stable |
 | HTML, Markdown, PDF, Word reports | Stable |
 | NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.1 |
-| PK simulation (1/2-comp, oral/IV, repeated dosing) | Stable — v0.5.0 |
+| PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
+| Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
 | Stable public release | Planned — v1.0.0 |
@@ -206,13 +207,13 @@ vpc.report("vpc_report.html")
 | Lines of source code (`src/`) | 9,453 |
 | Lines of tests (`tests/`) | 4,166 |
 | Total Python files | 65 (39 src + 26 tests) |
-| Tests | 363 |
+| Tests | 392 |
 | Public functions / methods | 189 |
 | Classes | 21 |
 | HTML report templates | 7 |
 | Bundled example datasets | 4 |
 | Git commits | 23 |
-| Time to build v0.9.0 | 1 day |
+| Time to build v0.9.1 | 2 days |
 
 ---
 
