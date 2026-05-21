@@ -20,6 +20,9 @@ app = typer.Typer(
 dissolution_app = typer.Typer(help="Dissolution similarity commands.")
 app.add_typer(dissolution_app, name="dissolution")
 
+be_app = typer.Typer(help="Bioequivalence analysis commands.")
+app.add_typer(be_app, name="be")
+
 
 @app.command("version")
 def version_command() -> None:
@@ -123,6 +126,70 @@ def dissolution_compare(
             fmt = "docx"
         else:
             fmt = "html"
+        try:
+            result.report(report, format=fmt)
+            typer.echo(f"\nReport written to: {report}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+
+@be_app.command("compare")
+def be_compare(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to a wide-format CSV with columns: subject, reference, test[, sequence].",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    parameter: str = typer.Option("AUCinf", "--parameter", help="PK parameter label."),
+    reference_col: str = typer.Option("reference", help="Column name for reference values."),
+    test_col: str = typer.Option("test", help="Column name for test values."),
+    subject_col: str = typer.Option("subject", help="Column name for subject IDs."),
+    sequence_col: str = typer.Option("sequence", help="Column name for sequence (RT/TR)."),
+    be_lower: float = typer.Option(0.80, help="Lower acceptance limit."),
+    be_upper: float = typer.Option(1.25, help="Upper acceptance limit."),
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write an HTML or Markdown report to this path.",
+    ),
+) -> None:
+    """Run TOST bioequivalence analysis from a CSV file.
+
+    The CSV must have one row per subject with reference and test PK parameter
+    values as separate columns.  An optional sequence column (RT/TR) is used
+    for informational output only.
+
+    Example
+    -------
+    openpkflow be compare be_data.csv --parameter AUCinf
+    """
+    import pandas as pd
+
+    from openpkflow.be import BEStudy
+
+    try:
+        df = pd.read_csv(csv_path)
+        study = BEStudy(
+            df,
+            parameter=parameter,
+            reference_col=reference_col,
+            test_col=test_col,
+            subject_col=subject_col,
+            sequence_col=sequence_col if sequence_col in df.columns else None,
+        )
+        result = study.analyze(be_lower=be_lower, be_upper=be_upper)
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if report is not None:
+        _rp = str(report)
+        fmt = "markdown" if _rp.endswith((".md", ".markdown")) else "html"
         try:
             result.report(report, format=fmt)
             typer.echo(f"\nReport written to: {report}")

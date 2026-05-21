@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openpkflow"
-version = "0.9.1"
+version = "1.0.0"
 description = "Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -90,6 +90,11 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# B008: typer.Argument/typer.Option in defaults is the standard typer pattern
+# B904: raise typer.Exit(n) without chaining is intentional for CLI exit codes
+"src/openpkflow/cli.py" = ["B008", "B904"]
 
 [tool.mypy]
 python_version = "3.10"

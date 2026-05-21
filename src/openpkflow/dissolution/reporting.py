@@ -107,9 +107,11 @@ def render_markdown_report(
     # -- Data table --------------------------------------------------
     lines.append("## Dissolution Profile Data")
     lines.append("")
-    lines.append(f"| Time (min) | {reference_label} Mean (%) | {test_label} Mean (%) | Difference (%) |")
+    lines.append(
+        f"| Time (min) | {reference_label} Mean (%) | {test_label} Mean (%) | Difference (%) |"
+    )
     lines.append("|----------:|------------------:|---------------:|---------------:|")
-    for t, r, ts in zip(time_points, reference_mean, test_mean):
+    for t, r, ts in zip(time_points, reference_mean, test_mean, strict=True):
         lines.append(f"| {t} | {r:.2f} | {ts:.2f} | {ts - r:.2f} |")
     lines.append("")
 

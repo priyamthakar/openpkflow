@@ -141,7 +141,7 @@ def f2(
     if method == "regulatory":
         # FDA guidance: only one timepoint above 85% for both profiles
         cutoff = len(ref)
-        for i, (r, t) in enumerate(zip(ref, tst)):
+        for i, (r, t) in enumerate(zip(ref, tst, strict=True)):
             if r > 85.0 and t > 85.0:
                 cutoff = i + 1  # include this point, exclude all after
                 break
@@ -156,7 +156,7 @@ def f2(
         raise ValueError(f"Unknown method {method!r}. Use 'all_points' or 'regulatory'.")
 
     n = len(ref)
-    mean_sq_diff = sum((r - t) ** 2 for r, t in zip(ref, tst)) / n
+    mean_sq_diff = sum((r - t) ** 2 for r, t in zip(ref, tst, strict=True)) / n
     return 50.0 * math.log10(100.0 / math.sqrt(1.0 + mean_sq_diff))
 
 
@@ -202,4 +202,4 @@ def f1(reference: Sequence[float], test: Sequence[float]) -> float:
             "Sum of reference values is zero; f1 is undefined when the reference "
             "profile is all zeros."
         )
-    return (sum(abs(r - t) for r, t in zip(ref, tst)) / ref_sum) * 100.0
+    return (sum(abs(r - t) for r, t in zip(ref, tst, strict=True)) / ref_sum) * 100.0

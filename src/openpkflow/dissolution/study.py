@@ -404,9 +404,13 @@ class DissolutionStudy:
 
         available = self.formulations()
         if reference not in available:
-            raise ValueError(f"Reference formulation '{reference}' not found. Available: {available}")
+            raise ValueError(
+                f"Reference formulation '{reference}' not found. Available: {available}"
+            )
         if test not in available:
-            raise ValueError(f"Test formulation '{test}' not found. Available: {available}")
+            raise ValueError(
+                f"Test formulation '{test}' not found. Available: {available}"
+            )
 
         cfg = self._config
         df = self._df
@@ -416,7 +420,6 @@ class DissolutionStudy:
                 [cfg.batch_col, cfg.time_col]
             )
             batches = subset[cfg.batch_col].unique()
-            n_batches = len(batches)
             rows = []
             for batch in batches:
                 batch_data = subset[subset[cfg.batch_col] == batch].sort_values(cfg.time_col)

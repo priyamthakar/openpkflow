@@ -9,6 +9,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-05-21
+
+### Added
+- `be/` — Bioequivalence module: `BEStudy`, `BEResult`, `be_tost()`, HTML/Markdown reports
+  - 2x2 crossover TOST (FDA 2003 / EMA guidance): paired log-difference GMR + 90% CI
+  - Parameterised acceptance limits (`be_lower`, `be_upper`; default 80-125%); NTI products
+    use `be_lower=0.90, be_upper=1.1111`
+  - `BEStudy.from_nca_results()` convenience constructor from two `NCASummaryResults` objects
+  - `be_report.html` Jinja2 template with colour-coded verdict banner and CI bar visualisation
+  - `openpkflow be compare <csv>` CLI command
+  - 36 new tests in `tests/be/` covering TOST math, CI width, CV, NTI limits, report output
+- `pyproject.toml` — B008/B904 ruff suppressions for typer CLI patterns
+- `pyproject.toml` — classifier promoted from `2 - Pre-Alpha` to `4 - Beta`
+- `CONTRIBUTING.md` — contribution guide with pharmacometric correctness rules
+- `SECURITY.md` — vulnerability reporting policy
+- `.github/ISSUE_TEMPLATE/` — bug report and feature request templates
+
+### Fixed
+- Pre-existing `zip()` without `strict=` in `dissolution/similarity.py`,
+  `dissolution/reporting.py`, `validation/__init__.py` (B905)
+- Unused `n_batches` variable in `dissolution/study.py` (F841)
+- Import ordering in `tests/dissolution/test_study.py` and `tests/validation/test_nca_validation.py`
+
 ## [0.9.1] — 2026-05-21
 
 ### Added

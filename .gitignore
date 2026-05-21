@@ -57,3 +57,10 @@ dist/
 !src/**/*.html
 !examples/**/*.html
 !docs/**
+
+# MkDocs generated site
+site/
+
+# Uploaded images
+*.png
+!docs/**/*.png

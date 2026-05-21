@@ -20,12 +20,12 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from openpkflow.nca.study import NCAStudy
-from openpkflow.sim.methods import c_1cmt_iv_bolus, c_1cmt_iv_infusion
+from openpkflow.sim.methods import c_1cmt_iv_bolus
 from openpkflow.validation import pct_bias, within_pct
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -37,9 +37,8 @@ def _make_iv_bolus_df(
     dose: float,
     subject: str = "SIM001",
     route: str = "iv",
-) -> "pandas.DataFrame":
+) -> pd.DataFrame:
     """Generate a synthetic NCA-ready DataFrame from a 1-cmt IV bolus."""
-    import pandas as pd
 
     t = np.array([0.0, 0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 12.0, 16.0, 24.0])
     conc = c_1cmt_iv_bolus(t, dose=dose, CL=CL, Vz=Vz)
@@ -50,10 +49,10 @@ def _make_iv_bolus_df(
 
 
 
-def _trapezoid(y: "np.ndarray", x: "np.ndarray") -> float:
+def _trapezoid(y: np.ndarray, x: np.ndarray) -> float:
     """Numpy-version-agnostic trapezoid integration."""
     import numpy as _np
-    fn = getattr(_np, "trapezoid", None) or getattr(_np, "trapz")
+    fn = getattr(_np, "trapezoid", None) or _np.trapz
     return float(fn(y, x))
 
 
@@ -154,7 +153,6 @@ class TestNCAOral:
     @pytest.fixture(scope="class")
     def result(self):
         from openpkflow.sim.methods import c_1cmt_oral
-        import pandas as pd
 
         CL_F, Vz_F, ka, dose = 4.0, 24.0, 0.8, 200.0
         t = np.array([0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0, 18.0, 24.0])

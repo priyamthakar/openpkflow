@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 
 from openpkflow.datasets import example_dissolution_path as _example_path
+from openpkflow.dissolution import DissolutionStudy  # noqa: E402
+from openpkflow.dissolution.loader import load_dissolution_csv  # noqa: E402
+from openpkflow.dissolution.reporting import render_markdown_report  # noqa: E402
+from openpkflow.report.html import render_html_report  # noqa: E402
 
 EXAMPLE_DISSOLUTION_CSV = _example_path()
-from openpkflow.dissolution import DissolutionStudy
-from openpkflow.dissolution.loader import load_dissolution_csv
-from openpkflow.dissolution.reporting import render_markdown_report
-from openpkflow.report.html import render_html_report
 
 # ---------------------------------------------------------------------------
 # Loader tests

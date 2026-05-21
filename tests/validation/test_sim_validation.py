@@ -16,16 +16,14 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from openpkflow.sim.methods import (
     c_1cmt_iv_bolus,
-    c_1cmt_iv_infusion,
     c_1cmt_oral,
     c_2cmt_iv_bolus,
     c_2cmt_iv_infusion,
 )
-from openpkflow.validation import pct_bias, within_pct
+from openpkflow.validation import within_pct
 
 
 class TestGibaldiPerrier1CmtIVBolus:

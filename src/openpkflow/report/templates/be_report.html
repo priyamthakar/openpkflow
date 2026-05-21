@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    .content {
+      padding: 32px 36px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    /* Verdict banner */
+    .verdict-banner {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      border-radius: 6px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+    }
+
+    .verdict-banner.pass {
+      background: #e6f9f0;
+      border-left: 6px solid #1a9e6a;
+    }
+
+    .verdict-banner.fail {
+      background: #fff0f0;
+      border-left: 6px solid #c0392b;
+    }
+
+    .verdict-label {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .verdict-banner.pass .verdict-label { color: #0e7a52; }
+    .verdict-banner.fail .verdict-label { color: #a93226; }
+
+    .verdict-meta {
+      font-size: 13px;
+      color: #555;
+    }
+
+    /* Summary kv grid */
+    .kv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px 24px;
+      margin-bottom: 24px;
+    }
+
+    .kv-item {
+      background: #f4f8fd;
+      border-radius: 5px;
+      padding: 12px 16px;
+    }
+
+    .kv-item .kv-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #7a9ec8;
+      margin-bottom: 2px;
+    }
+
+    .kv-item .kv-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #0d3b66;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* CI bar */
+    .ci-bar-container {
+      background: #f0f4fa;
+      border-radius: 5px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .ci-bar-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #7a9ec8;
+      margin-bottom: 12px;
+    }
+
+    .ci-bar-track {
+      position: relative;
+      height: 28px;
+      background: #e0e8f5;
+      border-radius: 4px;
+      overflow: visible;
+    }
+
+    .ci-bar-window {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: #d0ebd8;
+      border: 1px solid #9ecdb0;
+      border-radius: 3px;
+    }
+
+    .ci-bar-interval {
+      position: absolute;
+      top: 6px;
+      height: 16px;
+      background: #1a78c2;
+      border-radius: 3px;
+      opacity: .9;
+    }
+
+    .ci-bar-gmr {
+      position: absolute;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background: #0d3b66;
+    }
+
+    .ci-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #7a9ec8;
+      margin-top: 4px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: #f7f9fc;
+      border-left: 3px solid #c6d8f0;
+      padding: 12px 16px;
+      font-size: 11.5px;
+      color: #6b7c9a;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #a0aab8;
+      padding: 16px 36px 20px;
+      border-top: 1px solid #e8eef6;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div class="org-label">OpenPKFlow {{ version }}</div>
+    <h1>Bioequivalence Report</h1>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Parameter</strong>{{ result.parameter }}</div>
+      <div class="meta-item"><strong>Subjects</strong>{{ result.n }}</div>
+      <div class="meta-item"><strong>Acceptance Limits</strong>{{ "%.2f"|format(result.be_lower) }} -- {{ "%.2f"|format(result.be_upper) }}</div>
+      <div class="meta-item"><strong>Generated</strong>{{ generated_at }}</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Verdict -->
+    <div class="verdict-banner {{ verdict_class }}">
+      <div>
+        <div class="verdict-label">{{ verdict }}</div>
+        <div class="verdict-meta">
+          GMR = {{ "%.4f"|format(result.gmr) }} &nbsp;|&nbsp;
+          90% CI [{{ "%.4f"|format(result.gmr_lower_90ci) }}, {{ "%.4f"|format(result.gmr_upper_90ci) }}]
+        </div>
+      </div>
+    </div>
+
+    <!-- KV grid -->
+    <section>
+      <h2>Summary</h2>
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-label">GMR (T/R)</div>
+          <div class="kv-value">{{ "%.4f"|format(result.gmr) }}</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">90% CI Lower</div>
+          <div class="kv-value">{{ "%.4f"|format(result.gmr_lower_90ci) }}</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">90% CI Upper</div>
+          <div class="kv-value">{{ "%.4f"|format(result.gmr_upper_90ci) }}</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">CV Intra (%)</div>
+          <div class="kv-value">{{ "%.1f"|format(result.cv_intra_pct) }}%</div>
+        </div>
+      </div>
+
+      <!-- CI bar visualization -->
+      <div class="ci-bar-container">
+        <div class="ci-bar-title">90% Confidence Interval vs. Acceptance Window</div>
+        {% set lo = result.be_lower %}
+        {% set hi = result.be_upper %}
+        {% set span = hi - lo %}
+        {% set pad = span * 0.25 %}
+        {% set x_min = lo - pad %}
+        {% set x_max = hi + pad %}
+        {% set x_span = x_max - x_min %}
+
+        {% macro pct(v) %}{{ ((v - x_min) / x_span * 100) | round(2) }}{% endmacro %}
+
+        <div class="ci-bar-track">
+          <!-- Acceptance window -->
+          <div class="ci-bar-window" style="left:{{ pct(lo) }}%; width:{{ pct(hi) | float - pct(lo) | float }}%;"></div>
+          <!-- 90% CI interval -->
+          {% set ci_l = [result.gmr_lower_90ci, x_min] | max %}
+          {% set ci_r = [result.gmr_upper_90ci, x_max] | min %}
+          <div class="ci-bar-interval" style="left:{{ pct(ci_l) }}%; width:{{ pct(ci_r) | float - pct(ci_l) | float }}%;"></div>
+          <!-- GMR point -->
+          <div class="ci-bar-gmr" style="left:{{ pct(result.gmr) }}%;"></div>
+        </div>
+        <div class="ci-bar-labels">
+          <span>{{ "%.2f"|format(x_min) }}</span>
+          <span>{{ "%.2f"|format(lo) }} (lower limit)</span>
+          <span>GMR {{ "%.3f"|format(result.gmr) }}</span>
+          <span>{{ "%.2f"|format(hi) }} (upper limit)</span>
+          <span>{{ "%.2f"|format(x_max) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Per-subject table -->
+    <section>
+      <h2>Per-Subject Data</h2>
+      <table>
+        <thead>
+          <tr>
+            {% for col in table_cols %}
+            <th>{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table_rows %}
+          <tr>
+            {% for col in table_cols %}
+            <td>{{ row[col] }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">{{ disclaimer }}</div>
+
+  </div>
+
+  <div class="footer">OpenPKFlow v{{ version }} &nbsp;&bull;&nbsp; {{ generated_at }}</div>
+
+</div>
+</body>
+</html>

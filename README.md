@@ -19,8 +19,9 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
+- **Bioequivalence:** 2x2 crossover TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV — v1.0.0
 - **Report generation:** Markdown, HTML, PDF, Word
-- **PK simulation:** 1- and 2-compartment models, oral/IV/infusion, repeated dosing — v0.5.0
+- **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing — v0.5.0
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers — v0.6.0
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles — v0.9.0
 
@@ -149,6 +150,54 @@ result.report("sim_report.pdf", format="pdf")   # requires [reports]
 
 ---
 
+## Quick start: bioequivalence
+
+```python
+import pandas as pd
+from openpkflow.be import BEStudy
+
+# Wide-format DataFrame: one row per subject, reference and test PK parameter values
+be_df = pd.DataFrame({
+    "subject":   ["S01", "S02", "S03", "S04", "S05", "S06"],
+    "sequence":  ["RT",  "RT",  "RT",  "TR",  "TR",  "TR"],
+    "reference": [100.2, 98.7, 105.1, 97.3, 102.8, 99.5],
+    "test":      [95.1,  94.0,  99.8, 92.9,  97.4, 94.8],
+})
+
+study = BEStudy(be_df, parameter="AUCinf")
+result = study.analyze()          # default: 80-125%, alpha=0.05
+print(result.summary())
+result.report("be_report.html")
+
+# NTI products: pass narrower limits
+result_nti = study.analyze(be_lower=0.90, be_upper=1.1111)
+```
+
+### From NCAStudy results (convenience)
+
+```python
+from openpkflow.be import BEStudy
+
+# Run NCA separately on each formulation's PK data
+# reference_nca_summary = NCAStudy.from_csv("ref_pk.csv", ...).analyze()
+# test_nca_summary      = NCAStudy.from_csv("test_pk.csv", ...).analyze()
+
+study = BEStudy.from_nca_results(
+    reference_nca_summary, test_nca_summary, parameter="AUCinf"
+)
+result = study.analyze()
+```
+
+### CLI
+
+```bash
+openpkflow be compare be_data.csv --parameter AUCinf --report be_report.html
+```
+
+CSV format: `subject, sequence, reference, test`
+
+---
+
 ## Quick start: population PK diagnostics
 
 ```python
@@ -195,6 +244,7 @@ vpc.report("vpc_report.html")
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
+| Bioequivalence (2x2 crossover TOST, 80-125%) | Stable -- v1.0.0 |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
 | Stable public release | Planned — v1.0.0 |
 
@@ -207,7 +257,7 @@ vpc.report("vpc_report.html")
 | Lines of source code (`src/`) | 9,453 |
 | Lines of tests (`tests/`) | 4,166 |
 | Total Python files | 65 (39 src + 26 tests) |
-| Tests | 392 |
+| Tests | 428 |
 | Public functions / methods | 189 |
 | Classes | 21 |
 | HTML report templates | 7 |
