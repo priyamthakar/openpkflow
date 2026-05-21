@@ -69,7 +69,12 @@ class BEStudy:
         if missing:
             raise ValueError(f"Missing required columns: {missing!r}")
         if sequence_col is not None and sequence_col not in df.columns:
-            sequence_col = None  # tolerate missing sequence column silently
+            if sequence_col != "sequence":
+                raise ValueError(
+                    f"sequence_col {sequence_col!r} not found in DataFrame columns. "
+                    "Pass sequence_col=None if no sequence column is present."
+                )
+            sequence_col = None  # default 'sequence' column absent -> silently drop
         self._df = df.copy()
         self._parameter = parameter
         self._ref_col = reference_col

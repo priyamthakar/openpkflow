@@ -41,11 +41,13 @@ nav:
     - NCA: tutorials/nca.md
     - PK Simulation: tutorials/sim.md
     - Population Diagnostics: tutorials/pop.md
+    - Bioequivalence: tutorials/be.md
   - Reference:
     - dissolution: reference/dissolution.md
     - nca: reference/nca.md
     - sim: reference/sim.md
     - pop: reference/pop.md
+    - be: reference/be.md
     - ml: reference/ml.md
     - validation: reference/validation.md
   - Changelog: changelog.md

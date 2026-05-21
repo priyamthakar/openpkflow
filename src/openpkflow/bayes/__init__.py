@@ -1,4 +1,4 @@
-"""Bayesian PK module -- no public API in v1.0.0, planned for v1.1.0.
+"""Bayesian PK module -- deferred, no public API yet.
 
 Bayesian NLME estimation (PyMC, CmdStanPy) is deferred. The optional
 dependency extras are wired so ``pip install openpkflow[bayes]`` installs
