@@ -17,6 +17,7 @@ from openpkflow.sim.methods import (
     c_1cmt_iv_infusion,
     c_1cmt_oral,
     c_2cmt_iv_bolus,
+    c_2cmt_iv_infusion,
     c_2cmt_oral,
     superpose,
 )
@@ -236,6 +237,97 @@ class TestC2CmtIVBolus:
         C2 = c_2cmt_iv_bolus(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2)
         C1 = c_1cmt_iv_bolus(t, dose=dose, CL=CL, Vz=V1)
         np.testing.assert_allclose(C2, C1, rtol=1e-4)
+
+
+# ---------------------------------------------------------------------------
+# 2-compartment IV infusion
+# ---------------------------------------------------------------------------
+
+
+class TestC2CmtIVInfusion:
+    """Tests for c_2cmt_iv_infusion."""
+
+    def test_at_t0_is_zero(self) -> None:
+        """C(0) = 0 for constant-rate infusion (no drug yet delivered).
+
+        Reference: Gibaldi & Perrier 2nd ed. (1982), Eqs. 3-28 to 3-30, p. 75.
+        """
+        C = c_2cmt_iv_infusion([0.0], dose=100.0, CL=5.0, V1=20.0, Q=3.0, V2=15.0, t_inf=2.0)
+        assert math.isclose(C[0], 0.0, abs_tol=1e-12)
+
+    def test_during_infusion_formula(self) -> None:
+        """During infusion: matches biexponential ramp formula.
+
+        Reference: Gibaldi & Perrier 2nd ed. (1982), Eqs. 3-28 to 3-30, p. 75.
+        """
+        CL, V1, Q, V2, dose, t_inf = 5.0, 20.0, 3.0, 15.0, 100.0, 4.0
+        k10 = CL / V1
+        k12 = Q / V1
+        k21 = Q / V2
+        s1 = k10 + k12 + k21
+        disc = math.sqrt(s1 * s1 - 4.0 * k10 * k21)
+        alpha = (s1 + disc) / 2.0
+        beta = (s1 - disc) / 2.0
+        R0 = dose / t_inf
+        A_s = (alpha - k21) / (V1 * (alpha - beta))
+        B_s = (k21 - beta) / (V1 * (alpha - beta))
+
+        t_mid = 2.0
+        C = c_2cmt_iv_infusion([t_mid], dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf)
+        expected = R0 * (
+            A_s / alpha * (1.0 - math.exp(-alpha * t_mid))
+            + B_s / beta * (1.0 - math.exp(-beta * t_mid))
+        )
+        assert math.isclose(C[0], expected, rel_tol=1e-10)
+
+    def test_continuity_at_t_inf(self) -> None:
+        """Profile must be continuous at the end of infusion.
+
+        Reference: by construction -- post-infusion formula evaluated at t_inf must
+        equal during-infusion formula at t_inf.
+        """
+        CL, V1, Q, V2, dose, t_inf = 5.0, 20.0, 3.0, 15.0, 100.0, 2.0
+        eps = 1e-7
+        C_before = c_2cmt_iv_infusion(
+            [t_inf - eps], dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf
+        )
+        C_after = c_2cmt_iv_infusion(
+            [t_inf + eps], dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf
+        )
+        assert math.isclose(C_before[0], C_after[0], rel_tol=1e-4)
+
+    def test_steady_state_plateau_equals_r0_over_cl(self) -> None:
+        """At steady-state (t >> half-lives), C_ss -> R0/CL.
+
+        Reference: derived from alpha*beta = k10*k21 for 2-cmt system;
+        C_ss = R0/V1 * k21/(alpha*beta) = R0/CL.
+        """
+        CL, V1, Q, V2, dose, t_inf = 5.0, 20.0, 3.0, 15.0, 100.0, 200.0
+        R0 = dose / t_inf
+        C = c_2cmt_iv_infusion([100.0], dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf)
+        assert math.isclose(C[0], R0 / CL, rel_tol=1e-3)
+
+    def test_short_infusion_approaches_bolus(self) -> None:
+        """Very short infusion converges to IV bolus solution for t >> t_inf.
+
+        Reference: limiting case as t_inf -> 0 (rectangular pulse -> impulse).
+        """
+        CL, V1, Q, V2, dose = 5.0, 20.0, 3.0, 15.0, 100.0
+        t_inf = 1e-4
+        t = np.linspace(1.0, 24.0, 50)
+        C_inf = c_2cmt_iv_infusion(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf)
+        C_bolus = c_2cmt_iv_bolus(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2)
+        np.testing.assert_allclose(C_inf, C_bolus, rtol=5e-3)
+
+    def test_positive_concentrations(self) -> None:
+        """All simulated concentrations must be >= 0."""
+        t = np.linspace(0, 48, 200)
+        C = c_2cmt_iv_infusion(t, dose=100.0, CL=5.0, V1=20.0, Q=3.0, V2=15.0, t_inf=2.0)
+        assert np.all(C >= -1e-12)
+
+    def test_raises_on_invalid_t_inf(self) -> None:
+        with pytest.raises(ValueError, match="t_inf must be > 0"):
+            c_2cmt_iv_infusion([1.0], dose=100.0, CL=5.0, V1=20.0, Q=3.0, V2=15.0, t_inf=0.0)
 
 
 # ---------------------------------------------------------------------------

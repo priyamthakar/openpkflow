@@ -90,8 +90,7 @@ class TwoCompartmentModel:
     Parameters
     ----------
     route : str
-        Route of administration: "iv_bolus" or "oral".
-        IV infusion for 2-cmt is planned for a future release.
+        Route of administration: "iv_bolus", "iv_infusion", or "oral".
     Q : float
         Intercompartmental clearance. Must be > 0.
     V2 : float
@@ -113,7 +112,7 @@ class TwoCompartmentModel:
     IV routes use CL and V1; oral uses CL_F and V1_F.
     """
 
-    route: Literal["iv_bolus", "oral"]
+    route: Literal["iv_bolus", "iv_infusion", "oral"]
     Q: float
     V2: float
     CL: float | None = None
@@ -127,13 +126,13 @@ class TwoCompartmentModel:
             raise ValueError(f"Q must be > 0 (got {self.Q}).")
         if self.V2 <= 0.0:
             raise ValueError(f"V2 must be > 0 (got {self.V2}).")
-        if self.route == "iv_bolus":
+        if self.route in ("iv_bolus", "iv_infusion"):
             if self.CL is None or self.V1 is None:
-                raise ValueError("route='iv_bolus' requires CL and V1.")
+                raise ValueError(f"route={self.route!r} requires CL and V1.")
             if self.CL <= 0.0 or self.V1 <= 0.0:
                 raise ValueError("CL and V1 must be > 0.")
             if any(v is not None for v in (self.CL_F, self.V1_F, self.ka)):
-                raise ValueError("route='iv_bolus' does not accept CL_F, V1_F, or ka.")
+                raise ValueError(f"route={self.route!r} does not accept CL_F, V1_F, or ka.")
         elif self.route == "oral":
             if self.CL_F is None or self.V1_F is None or self.ka is None:
                 raise ValueError("route='oral' requires CL_F, V1_F, and ka.")
@@ -144,14 +143,13 @@ class TwoCompartmentModel:
         else:
             raise ValueError(
                 f"Unknown route {self.route!r}. "
-                "TwoCompartmentModel supports 'iv_bolus' and 'oral'. "
-                "IV infusion for 2-cmt is planned for a future release."
+                "TwoCompartmentModel supports 'iv_bolus', 'iv_infusion', and 'oral'."
             )
 
     def param_dict(self) -> dict[str, float | str]:
         """Return model parameters as a flat dict (for reporting)."""
         d: dict[str, float | str] = {"route": self.route, "Q": self.Q, "V2": self.V2}
-        if self.route == "iv_bolus":
+        if self.route in ("iv_bolus", "iv_infusion"):
             d["CL"] = self.CL  # type: ignore[assignment]
             d["V1"] = self.V1  # type: ignore[assignment]
         else:

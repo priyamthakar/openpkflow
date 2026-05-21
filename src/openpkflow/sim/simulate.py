@@ -10,6 +10,7 @@ from openpkflow.sim.methods import (
     c_1cmt_iv_infusion,
     c_1cmt_oral,
     c_2cmt_iv_bolus,
+    c_2cmt_iv_infusion,
     c_2cmt_oral,
 )
 from openpkflow.sim.models import OneCompartmentModel, TwoCompartmentModel
@@ -123,10 +124,22 @@ def simulate(
                     Q=model.Q, V2=model.V2, ka=model.ka,
                 )
 
+            elif model.route == "iv_infusion":
+                assert model.CL is not None and model.V1 is not None
+                if dose_obj.t_inf is None:
+                    raise ValueError(
+                        f"Dose at t={dose_obj.time} has no t_inf; "
+                        "iv_infusion doses require t_inf."
+                    )
+                C_total[mask] += c_2cmt_iv_infusion(
+                    tr, amount,
+                    CL=model.CL, V1=model.V1, Q=model.Q, V2=model.V2,
+                    t_inf=dose_obj.t_inf,
+                )
+
             else:
                 raise ValueError(
-                    f"TwoCompartmentModel does not support route={model.route!r}. "
-                    "IV infusion for 2-compartment models is planned for a future release."
+                    f"TwoCompartmentModel does not support route={model.route!r}."
                 )
 
         else:

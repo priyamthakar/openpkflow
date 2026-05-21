@@ -290,6 +290,84 @@ def c_2cmt_iv_bolus(
     return A * np.exp(-alpha * t) + B * np.exp(-beta * t)
 
 
+def c_2cmt_iv_infusion(
+    times: list[float] | np.ndarray,
+    dose: float,
+    CL: float,
+    V1: float,
+    Q: float,
+    V2: float,
+    t_inf: float,
+) -> np.ndarray:
+    """Simulate a 2-compartment constant-rate IV infusion concentration-time profile.
+
+    Parameters
+    ----------
+    times : array-like
+        Simulation time points (>= 0, strictly increasing).
+    dose : float
+        Total dose amount infused over t_inf.
+    CL : float
+        Systemic clearance from central compartment. Must be > 0.
+    V1 : float
+        Central compartment volume. Must be > 0.
+    Q : float
+        Intercompartmental clearance. Must be > 0.
+    V2 : float
+        Peripheral compartment volume. Must be > 0.
+    t_inf : float
+        Infusion duration (same time units as times). Must be > 0.
+
+    Returns
+    -------
+    np.ndarray
+        Concentration in the central compartment at each time point.
+
+    Raises
+    ------
+    ValueError
+        If any rate parameter <= 0, dose < 0, t_inf <= 0, or times are invalid.
+
+    Notes
+    -----
+    k10 = CL/V1, k12 = Q/V1, k21 = Q/V2.
+    R0 = dose/t_inf. A_s = (alpha-k21)/(V1*(alpha-beta)), B_s = (k21-beta)/(V1*(alpha-beta)).
+    During infusion: C(t) = R0 * [A_s/alpha*(1-exp(-alpha*t)) + B_s/beta*(1-exp(-beta*t))].
+    After infusion: each term decays from its end-of-infusion value.
+    Derived by convolving the 2-cmt bolus impulse response with a rectangular pulse.
+    Reference: Gibaldi & Perrier, Pharmacokinetics 2nd ed. (1982), Eqs. 3-28 to 3-30, p. 75.
+    """
+    _validate_positive(CL=CL, V1=V1, Q=Q, V2=V2, t_inf=t_inf)
+    _validate_nonneg(dose=dose)
+    t = _prepare_times(times)
+
+    k10 = CL / V1
+    k12 = Q / V1
+    k21 = Q / V2
+    alpha, beta = _2cmt_macro_constants(k10, k12, k21)
+    R0 = dose / t_inf
+
+    A_s = (alpha - k21) / (V1 * (alpha - beta))
+    B_s = (k21 - beta) / (V1 * (alpha - beta))
+
+    during = t <= t_inf
+    C = np.empty_like(t)
+
+    t_d = t[during]
+    C[during] = R0 * (
+        A_s / alpha * (1.0 - np.exp(-alpha * t_d))
+        + B_s / beta * (1.0 - np.exp(-beta * t_d))
+    )
+
+    t_p = t[~during]
+    C[~during] = R0 * (
+        A_s / alpha * (1.0 - np.exp(-alpha * t_inf)) * np.exp(-alpha * (t_p - t_inf))
+        + B_s / beta * (1.0 - np.exp(-beta * t_inf)) * np.exp(-beta * (t_p - t_inf))
+    )
+
+    return C
+
+
 def c_2cmt_oral(
     times: list[float] | np.ndarray,
     dose: float,

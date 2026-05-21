@@ -1,11 +1,12 @@
-"""Bayesian PK module -- optional dependency on PyMC and CmdStanPy.
+"""Bayesian PK module -- no public API in v1.0.0, planned for v1.1.0.
 
-Install the optional extra to enable Bayesian PK fitting:
+Bayesian NLME estimation (PyMC, CmdStanPy) is deferred. The optional
+dependency extras are wired so ``pip install openpkflow[bayes]`` installs
+PyMC >= 5.0 and CmdStanPy >= 1.2 when available, but no estimation functions
+are exported yet.
 
-    pip install openpkflow[bayes]
-
-This installs PyMC and its dependencies. Without it, all imports from this
-module raise ImportError with a clear message.
+To check if the bayes extras are installed:
+    from openpkflow.bayes import _require_pymc; _require_pymc()
 """
 
 from __future__ import annotations

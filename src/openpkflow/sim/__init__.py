@@ -1,7 +1,6 @@
-"""PK/PD simulation module -- v0.5.0.
+"""PK/PD simulation module.
 
 Analytical closed-form solutions for 1- and 2-compartment PK models.
-Population simulation is planned for v0.6.0.
 """
 
 from openpkflow.sim.dosing import Dose, DoseRegimen
@@ -10,6 +9,7 @@ from openpkflow.sim.methods import (
     c_1cmt_iv_infusion,
     c_1cmt_oral,
     c_2cmt_iv_bolus,
+    c_2cmt_iv_infusion,
     c_2cmt_oral,
     superpose,
 )
@@ -28,6 +28,7 @@ __all__ = [
     "c_1cmt_iv_infusion",
     "c_1cmt_oral",
     "c_2cmt_iv_bolus",
+    "c_2cmt_iv_infusion",
     "c_2cmt_oral",
     "superpose",
 ]

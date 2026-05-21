@@ -1,0 +1,70 @@
+site_name: OpenPKFlow
+site_description: Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.
+site_author: Priyam Thakar
+site_url: https://priyamthakar.github.io/openpkflow/
+repo_url: https://github.com/priyamthakar/openpkflow
+repo_name: priyamthakar/openpkflow
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  logo: logo.png
+  favicon: logo.png
+
+nav:
+  - Home: index.md
+  - Tutorials:
+    - Dissolution Similarity: tutorials/dissolution.md
+    - NCA: tutorials/nca.md
+    - PK Simulation: tutorials/sim.md
+    - Population Diagnostics: tutorials/pop.md
+  - Reference:
+    - dissolution: reference/dissolution.md
+    - nca: reference/nca.md
+    - sim: reference/sim.md
+    - pop: reference/pop.md
+    - ml: reference/ml.md
+    - validation: reference/validation.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/priyamthakar/openpkflow
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/openpkflow/

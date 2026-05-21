@@ -122,6 +122,19 @@ class TestSimulate2Cmt:
         result = simulate(model, regimen, _make_times(24))
         assert math.isclose(result.concs[0], 0.0, abs_tol=1e-12)
 
+    def test_iv_infusion_c0_is_zero(self) -> None:
+        """2-cmt IV infusion: C(0) = 0, rises during, decays after."""
+        model = TwoCompartmentModel(route="iv_infusion", CL=5.0, V1=20.0, Q=3.0, V2=15.0)
+        regimen = DoseRegimen((Dose(100.0, 0.0, "iv_infusion", t_inf=2.0),))
+        result = simulate(model, regimen, _make_times(24))
+        assert math.isclose(result.concs[0], 0.0, abs_tol=1e-12)
+        assert result.Cmax > 0.0
+
+    def test_iv_infusion_dose_requires_t_inf(self) -> None:
+        """Dose validation: iv_infusion route requires t_inf > 0."""
+        with pytest.raises(ValueError, match="t_inf"):
+            Dose(100.0, 0.0, "iv_infusion")
+
     def test_biexponential_decline_faster_initially(self) -> None:
         """2-cmt IV bolus shows faster initial decline than terminal (biexponential)."""
         model = TwoCompartmentModel(route="iv_bolus", CL=2.0, V1=10.0, Q=5.0, V2=40.0)
