@@ -1269,3 +1269,162 @@ def render_vpc_pdf_report(
         out.write_bytes(pdf_bytes)
 
     return pdf_bytes
+
+
+def render_ivivc_pdf_report(
+    *,
+    result: object,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render an IVIVC PDF report using ReportLab.
+
+    Parameters
+    ----------
+    result : IVIVCResult
+        IVIVC result to render.
+    output_path : str or Path or None, optional
+        If given, write PDF to this path.
+
+    Returns
+    -------
+    bytes
+        PDF byte content.
+    """
+    try:
+        import reportlab  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "PDF export requires reportlab. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+    from openpkflow import __version__
+
+    lp = result.levy_plot
+    pp = result.predictability
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    title = f"IVIVC Level A Report"
+    if result.study_label:
+        title += f" -- {result.study_label}"
+
+    # Generate base64 plot
+    import base64 as _b64
+    import io as _io
+    import matplotlib as _mpl
+    _mpl.use("Agg")
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+
+    fig, axes = _plt.subplots(2, 2, figsize=(8, 6), dpi=200)
+    ax = axes[0, 0]
+    ax.plot(result.times, result.fa, "o-", color="#003366", linewidth=2, markersize=4)
+    ax.plot(result.ivt_times, result.ivt_fraction, "s--", color="#cc3300", linewidth=1, markersize=3, label="In vitro")
+    ax.set_title("Fraction Absorbed vs Dissolved", fontsize=9)
+    ax.set_xlabel("Time (h)", fontsize=8)
+    ax.set_ylabel("Fraction", fontsize=8)
+    ax.legend(fontsize=7)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, 1.1)
+    ax = axes[0, 1]
+    ax.scatter(lp["x"], lp["y"], color="#003366", s=20, zorder=3)
+    if len(lp.get("x", [])) > 1:
+        x_line = _np.linspace(0, 1, 100)
+        y_line = lp["slope"] * x_line + lp["intercept"]
+        ax.plot(x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}")
+        ax.plot([0, 1], [0, 1], ":", color="#888888", linewidth=1, label="1:1")
+    ax.set_title("Levy Plot", fontsize=9)
+    ax.set_xlabel("In vitro F_d", fontsize=8)
+    ax.set_ylabel("In vivo F_a", fontsize=8)
+    ax.legend(fontsize=6)
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1.05)
+    ax.set_ylim(0, 1.05)
+    ax = axes[1, 0]
+    ax.plot(result.times, result.concentrations, "o-", color="#003366", linewidth=2, markersize=4, label="Observed")
+    ax.plot(result.predicted_times, result.predicted_concs, "--", color="#cc3300", linewidth=1, label="Predicted")
+    ax.set_title("Predicted vs Observed", fontsize=9)
+    ax.set_xlabel("Time (h)", fontsize=8)
+    ax.set_ylabel("Concentration", fontsize=8)
+    ax.legend(fontsize=7)
+    ax.grid(True, alpha=0.3)
+    ax = axes[1, 1]
+    ax.plot(result.ivt_times, result.ivt_fraction * 100, "o-", color="#006699", linewidth=2, markersize=4)
+    ax.set_title("Dissolution Profile", fontsize=9)
+    ax.set_xlabel("Time (min)", fontsize=8)
+    ax.set_ylabel("% Dissolved", fontsize=8)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, 105)
+    fig.tight_layout()
+    plot_buf = _io.BytesIO()
+    fig.savefig(plot_buf, format="png", bbox_inches="tight", dpi=200)
+    _plt.close(fig)
+    plot_buf.seek(0)
+    plot_b64 = _b64.b64encode(plot_buf.read()).decode("utf-8")
+
+    buf = _io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=letter, rightMargin=inch, leftMargin=inch,
+                            topMargin=inch, bottomMargin=inch)
+    styles = getSampleStyleSheet()
+    style_title = ParagraphStyle("IVIVCTitle", parent=styles["Title"], fontSize=18,
+                                  textColor=colors.HexColor(_NAVY), spaceAfter=6)
+    style_meta = ParagraphStyle("IVIVCMeta", parent=styles["Normal"], fontSize=9,
+                                 textColor=colors.HexColor("#555555"), spaceAfter=12)
+    style_heading = ParagraphStyle("IVIVCHeading", parent=styles["Heading2"], fontSize=12,
+                                    textColor=colors.HexColor(_NAVY), spaceBefore=14, spaceAfter=4)
+    style_disclaimer = ParagraphStyle("IVIVCDisc", parent=styles["Normal"], fontSize=8,
+                                       textColor=colors.HexColor("#666666"),
+                                       fontName="Helvetica-Oblique", spaceBefore=16, leading=11)
+    navy = colors.HexColor(_NAVY)
+    light_grey = colors.HexColor(_LIGHT_GREY)
+    _tbl = TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), navy),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ])
+
+    story: list[Any] = []
+    story.append(Paragraph(title, style_title))
+    story.append(Paragraph(f"Generated {generated_at} | OpenPKFlow v{__version__}", style_meta))
+    story.append(Paragraph("Predictability Assessment (FDA 1997)", style_heading))
+    overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
+    pp_data = [
+        ["Metric", "Value", "Criterion", "Status"],
+        ["Cmax %PE", f"{pp.get('%PE_Cmax', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_cmax", False) else "FAIL"],
+        ["AUCinf %PE", f"{pp.get('%PE_AUC', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_auc", False) else "FAIL"],
+        ["Mean abs %PE", f"{pp.get('mean_abs_%PE', 0):.2f}%", "<= 10%", "PASS" if pp.get("passes_mean", False) else "FAIL"],
+        ["Overall", "", "", overall],
+    ]
+    story.append(Table(pp_data, colWidths=[1.8*inch, 1.4*inch, 1.4*inch, 1.4*inch], style=_tbl))
+    story.append(Spacer(1, 0.15*inch))
+    story.append(Paragraph("IVIVC Plots", style_heading))
+    img_data = _b64.b64decode(plot_b64)
+    img = Image(_io.BytesIO(img_data), width=5.5*inch, height=4*inch)
+    story.append(img)
+    story.append(Paragraph("Levy Plot Regression", style_heading))
+    levy_data = [
+        ["Metric", "Value"],
+        ["Slope", f"{lp.get('slope', 0):.4f}"],
+        ["Intercept", f"{lp.get('intercept', 0):.4f}"],
+        ["R-squared", f"{lp.get('r_squared', 0):.4f}"],
+        ["N (0.05-0.95)", str(len(lp.get("x", [])))],
+    ]
+    story.append(Table(levy_data, colWidths=[2.5*inch, 3.5*inch], style=_tbl))
+    story.append(Paragraph(_DISCLAIMER, style_disclaimer))
+    doc.build(story)
+    pdf_bytes = buf.getvalue()
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(pdf_bytes)
+    return pdf_bytes

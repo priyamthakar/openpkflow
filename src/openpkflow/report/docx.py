@@ -720,6 +720,157 @@ def render_sim_docx_report(
     return docx_bytes
 
 
+def render_ivivc_docx_report(
+    *,
+    result: object,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render an IVIVC Word document report.
+
+    Parameters
+    ----------
+    result : IVIVCResult
+        IVIVC result to render.
+    output_path : str or Path or None, optional
+        If given, write DOCX to this path.
+
+    Returns
+    -------
+    bytes
+        DOCX byte content.
+    """
+    try:
+        import docx  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Word export requires python-docx. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from docx import Document
+    from docx.shared import Inches, Pt
+
+    import base64 as _b64
+    import io as _io
+    import matplotlib as _mpl
+    _mpl.use("Agg")
+    import matplotlib.pyplot as _plt
+    import numpy as _np
+
+    from openpkflow import __version__
+
+    lp = result.levy_plot
+    pp = result.predictability
+
+    # Generate plot
+    fig, axes = _plt.subplots(2, 2, figsize=(8, 6), dpi=200)
+    ax = axes[0, 0]
+    ax.plot(result.times, result.fa, "o-", color="#003366", linewidth=2, markersize=4)
+    ax.plot(result.ivt_times, result.ivt_fraction, "s--", color="#cc3300", linewidth=1, markersize=3, label="In vitro")
+    ax.set_title("Fraction Absorbed vs Dissolved", fontsize=9)
+    ax.set_xlabel("Time (h)", fontsize=8)
+    ax.set_ylabel("Fraction", fontsize=8)
+    ax.legend(fontsize=7)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, 1.1)
+    ax = axes[0, 1]
+    ax.scatter(lp["x"], lp["y"], color="#003366", s=20, zorder=3)
+    if len(lp.get("x", [])) > 1:
+        x_line = _np.linspace(0, 1, 100)
+        y_line = lp["slope"] * x_line + lp["intercept"]
+        ax.plot(x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}")
+        ax.plot([0, 1], [0, 1], ":", color="#888888", linewidth=1, label="1:1")
+    ax.set_title("Levy Plot", fontsize=9)
+    ax.set_xlabel("In vitro F_d", fontsize=8)
+    ax.set_ylabel("In vivo F_a", fontsize=8)
+    ax.legend(fontsize=6)
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1.05)
+    ax.set_ylim(0, 1.05)
+    ax = axes[1, 0]
+    ax.plot(result.times, result.concentrations, "o-", color="#003366", linewidth=2, markersize=4, label="Observed")
+    ax.plot(result.predicted_times, result.predicted_concs, "--", color="#cc3300", linewidth=1, label="Predicted")
+    ax.set_title("Predicted vs Observed", fontsize=9)
+    ax.set_xlabel("Time (h)", fontsize=8)
+    ax.set_ylabel("Concentration", fontsize=8)
+    ax.legend(fontsize=7)
+    ax.grid(True, alpha=0.3)
+    ax = axes[1, 1]
+    ax.plot(result.ivt_times, result.ivt_fraction * 100, "o-", color="#006699", linewidth=2, markersize=4)
+    ax.set_title("Dissolution Profile", fontsize=9)
+    ax.set_xlabel("Time (min)", fontsize=8)
+    ax.set_ylabel("% Dissolved", fontsize=8)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, 105)
+    fig.tight_layout()
+    plot_buf = _io.BytesIO()
+    fig.savefig(plot_buf, format="png", bbox_inches="tight", dpi=200)
+    _plt.close(fig)
+    plot_buf.seek(0)
+
+    title = "IVIVC Level A Report"
+    if result.study_label:
+        title += f" -- {result.study_label}"
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    document = Document()
+    document.add_heading(title, level=1)
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
+    meta_para.runs[0].font.size = Pt(9)
+
+    document.add_heading("Predictability Assessment (FDA 1997)", level=2)
+    overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
+    pp_table = document.add_table(rows=1, cols=4)
+    pp_table.style = "Table Grid"
+    for i, h in enumerate(["Metric", "Value", "Criterion", "Status"]):
+        pp_table.rows[0].cells[i].text = h
+        for p in pp_table.rows[0].cells[i].paragraphs:
+            for r in p.runs:
+                r.bold = True
+    for label, value, crit, status in [
+        ("Cmax %PE", f"{pp.get('%PE_Cmax', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_cmax", False) else "FAIL"),
+        ("AUCinf %PE", f"{pp.get('%PE_AUC', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_auc", False) else "FAIL"),
+        ("Mean abs %PE", f"{pp.get('mean_abs_%PE', 0):.2f}%", "<= 10%", "PASS" if pp.get("passes_mean", False) else "FAIL"),
+        ("Overall", "", "", overall),
+    ]:
+        row = pp_table.add_row().cells
+        row[0].text = label
+        row[1].text = value
+        row[2].text = crit
+        row[3].text = status
+
+    document.add_heading("IVIVC Plots", level=2)
+    document.add_picture(plot_buf, width=Inches(5.5))
+    document.add_heading("Levy Plot Regression", level=2)
+    levy_table = document.add_table(rows=1, cols=2)
+    levy_table.style = "Table Grid"
+    for i, h in enumerate(["Metric", "Value"]):
+        levy_table.rows[0].cells[i].text = h
+    for label, value in [
+        ("Slope", f"{lp.get('slope', 0):.4f}"),
+        ("Intercept", f"{lp.get('intercept', 0):.4f}"),
+        ("R-squared", f"{lp.get('r_squared', 0):.4f}"),
+        ("N (0.05-0.95)", str(len(lp.get("x", [])))),
+    ]:
+        row = levy_table.add_row().cells
+        row[0].text = label
+        row[1].text = value
+
+    document.add_paragraph()
+    disclaimer_para = document.add_paragraph(_DISCLAIMER)
+    for run in disclaimer_para.runs:
+        run.italic = True
+        run.font.size = Pt(9)
+
+    report_buf = _io.BytesIO()
+    document.save(report_buf)
+    docx_bytes = report_buf.getvalue()
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(docx_bytes)
+    return docx_bytes
+
+
 def render_gof_docx_report(
     *,
     result: object,

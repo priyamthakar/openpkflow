@@ -23,6 +23,9 @@ app.add_typer(dissolution_app, name="dissolution")
 be_app = typer.Typer(help="Bioequivalence analysis commands.")
 app.add_typer(be_app, name="be")
 
+ivivc_app = typer.Typer(help="IVIVC analysis commands.")
+app.add_typer(ivivc_app, name="ivivc")
+
 
 @app.command("version")
 def version_command() -> None:
@@ -195,3 +198,23 @@ def be_compare(
             typer.echo(f"\nReport written to: {report}")
         except Exception as exc:  # noqa: BLE001
             typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+
+@ivivc_app.command("run")
+def ivivc_run(
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write an HTML or Markdown IVIVC report to this path.",
+    ),
+) -> None:
+    """Run IVIVC Level A analysis.
+
+    This is a placeholder CLI entry point. For full IVIVC analysis,
+    use the Python API: from openpkflow.ivivc import IVIVCStudy.
+    """
+    typer.echo(
+        "IVIVC Level A analysis is available via the Python API.\n"
+        "Use: from openpkflow.ivivc import IVIVCStudy\n\n"
+        "See https://github.com/priyamthakar/openpkflow for documentation."
+    )
