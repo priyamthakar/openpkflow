@@ -18,11 +18,11 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 |---|---|
 | IVIVC (Level A: deconvolution + convolution prediction) | OpenPKFlow ✅ |
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
-| Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | None |
+| Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | OpenPKFlow ✅ |
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
 | Formal RSABE / replicate-design BE | :x: (planned v2.x) |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
-| Sparse NCA (model-informed AUC from 2-5 samples) | Partial (PKNCA R only) |
+| Sparse NCA (model-informed AUC from 2-5 samples) | OpenPKFlow ✅ |
 
 ---
 
@@ -163,10 +163,10 @@ Scope: `bayes/` module. Architecture Decision Record: `V2_ARCHITECTURE_DECISION.
 | High | Fix GitHub Pages 404 | 1 h | ✅ Done |
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
-| Medium | `pytest-benchmark` + perf regression CI job | 2 h | Pending |
+| Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
 | Medium | conda-forge recipe | 3 h | Pending |
 | Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done |
-| Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | Pending |
+| Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 
 ---
 

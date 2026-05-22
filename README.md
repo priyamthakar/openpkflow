@@ -368,15 +368,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~12,500 |
-| Lines of tests (`tests/`) | 5,600 |
-| Total Python files | 82 (45 src + 37 tests) |
-| Tests | 574 |
-| Public functions / methods | 240 |
-| Classes | 31 |
-| HTML report templates | 10 |
+| Lines of source code (`src/`) | ~16,100 |
+| Lines of tests (`tests/`) | ~8,200 |
+| Total Python files | 101 (57 src + 44 tests) |
+| Tests | 648 |
+| Public functions / methods | 195 |
+| Classes | 34 |
+| HTML report templates | 12 |
 | Bundled example datasets | 4 |
-| Git commits | 43 |
+| Git commits | 55 |
 
 ---
 

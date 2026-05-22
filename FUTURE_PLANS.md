@@ -34,13 +34,11 @@ FDA and EMA increasingly require dissolution in 3+ media:
 - SUPAC/MR change level auto-classification (Level 1/2/3)
 - Dissolution safe-space contour plots (dissolution parameters vs. bioequivalence)
 
-### Sparse-sampling NCA
+### Sparse-sampling NCA ✅ DONE (v1.5.0)
 
-Competitors (OpenPKPD, WinNonlin) are moving here:
-
-- Model-informed AUC from 2–5 samples per subject
-- Bayesian priors for population-prior-informed NCA
-- Rich-vs-sparse sampling comparison diagnostics
+- ~~Model-informed AUC from 2-5 samples per subject~~ — **DONE**: `fit_sparse_1cmt_oral()`, `SparseNCAResult`
+- ~~Rich-vs-sparse sampling comparison diagnostics~~ — **DONE**: `sparse_nca_bias_analysis()`
+- Bayesian priors for population-prior-informed NCA — still open
 
 ---
 
@@ -94,11 +92,13 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 
 ## Harder strategic bets (multi-quarter)
 
-### Bayesian PK
+### Bayesian PK ✅ DONE (v2.0.0)
 
-- MAP individual PK estimation from sparse TDM samples (CmdStanPy, 1-cmt oral/IV)
-- Bayesian BE: posterior probability of BE > 0.95 for 2×2 crossover
-- Prior-posterior comparison plots with shrinkage visualization
+- ~~MAP individual PK estimation from sparse TDM samples~~ — **DONE**: `map_individual_pk()` (scipy, 10 diagnostics)
+- ~~Bayesian BE: posterior probability of BE for 2x2 crossover~~ — **DONE**: `bayes_be()` (PyMC NUTS, P(GMR in 80-125))
+- ~~Full posterior sampling~~ — **DONE**: `bayes_individual_pk()` (PyMC Metropolis, shrinkage)
+- Prior-posterior comparison plots with shrinkage visualization — still open
+- Full FOCE-I/SAEM population estimation — deferred to v2.1.0+
 
 ### ML surrogate (experimental)
 
@@ -164,7 +164,8 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 | RSABE / replicate BE | planned | — | — | — | ✅ |
 | PopPK estimation | deferred | ✅ | ✅ | ✅ | — |
 | PK simulation (1-2 cmt) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Bayesian | planned | partial | ✅ (via NONMEM) | — | — |
+| MAP individual PK | ✅ (v2.0.0) | — | — | — | ✅ |
+| Full Bayesian PK + BE | ✅ (v2.0.0) | — | partial | — | — |
 | HTML/PDF/DOCX reports | ✅ | ✅ | ✅ | ✅ | ✅ |
 | GUI | deferred | ✅ | — | — | ✅ |
 | ML surrogate | ✅ (exp.) | — | — | — | — |

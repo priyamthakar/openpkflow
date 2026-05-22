@@ -187,9 +187,9 @@ See `ROADMAP.md` for the full post-1.0.0 ladder.
 1.1.0  dissolution regulatory toolkit: MSD, model-dependent comparison, RSD check  DONE
 1.2.0  IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution predict, %PE      DONE
 1.3.0  NCA expansion: steady-state, urinary excretion, CDISC PP output             DONE
-1.4.0  replicate BE designs: RSABE, 2-stage adaptive BE, HVD/HVDP support         PLANNED
-1.5.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping        PLANNED
-2.0.0  Bayesian PK: MAP individual estimation, Bayesian BE (CmdStanPy)            PLANNED
+1.4.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping         DONE
+1.5.0  Sparse-sampling NCA: model-informed 1-cmt oral from 3-5 data points         DONE
+2.0.0  Bayesian PK: MAP individual estimation + full posterior + Bayesian BE (PyMC) DONE
 ```
 
 See `ROADMAP.md` for full milestone detail, scope rationale, and definition of done.

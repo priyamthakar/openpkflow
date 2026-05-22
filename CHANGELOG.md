@@ -65,6 +65,40 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - README -- added Codecov badge, Docs badge, Bayesian PK quick-start section, updated feature
   comparison and status tables
 
+## [1.5.0] — 2026-05-22
+
+### Added
+- `nca/sparse.py` — `fit_sparse_1cmt_oral()`: model-informed NCA from 3-5 samples; fits a
+  1-compartment oral model via scipy `curve_fit` in log-space; recovers CL_F, Vz_F, ka with
+  standard errors from the covariance matrix; handles non-convergence gracefully
+- `nca/sparse.py` — `SparseNCAResult`: dataclass with MAP PK estimates, derived parameters
+  (AUCinf, AUClast, Cmax, Tmax, half-life, accumulation ratio), standard errors, convergence flag,
+  `summary()`, `to_dict()`, `plot()` methods
+- `nca/sparse.py` — `sparse_nca_bias_analysis()`: computes percent bias and percent error of
+  sparse vs. rich-sampling reference for AUCinf, Cmax, CL_F
+- `nca/__init__.py` — exports `fit_sparse_1cmt_oral`, `SparseNCAResult`, `sparse_nca_bias_analysis`
+- 16 new tests in `tests/nca/test_sparse_nca.py`
+
+---
+
+## [1.4.0] — 2026-05-22
+
+### Added
+- `dissolution/multi_media.py` — `MultiMediaStudy`: accepts `{media_name: csv_path}` or
+  `{media_name: DissolutionStudy}` dict; wraps per-medium `DissolutionStudy` instances; computes
+  f2 in each medium; enforces shared time points across media
+- `dissolution/multi_media.py` — `MultiMediaResult`: per-medium f2 grid, overall PASS/FAIL verdict
+  (all media must achieve f2 >= 50), `summary()`, `report()`, `plot()` methods
+- `report/templates/multi_media_report.html` — summary pass/fail grid + per-medium detail sections
+  + multi-panel dissolution overlay plot; matches existing navy-header template style
+- `dissolution/plotting.py` — `multi_media_plot_b64()`: multi-panel matplotlib figure with one
+  subplot per medium, 85% threshold lines, reference/test overlay
+- HTML, PDF, and DOCX report dispatch for `MultiMediaResult`
+- `dissolution/__init__.py` — exports `MultiMediaStudy`, `MultiMediaResult`
+- 26 new tests in `tests/dissolution/test_multi_media.py`
+
+---
+
 ## [1.3.0] — 2026-05-22
 
 ### Added
