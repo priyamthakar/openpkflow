@@ -49,6 +49,13 @@ dist/
 .env
 *.local
 
+# Claude / CommandCode local files
+.claude/
+.commandcode/
+
+# Session context (auto-generated)
+handout/
+
 # Reports generated during tests (but allow templates and docs)
 *.pdf
 *.html
