@@ -9,22 +9,61 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.0.0] — 2026-05-22
+
 ### Added
+
+**Bayesian PK -- Phase 1 (MAP, no extra dependencies)**
+- `bayes/priors.py` -- `PKPrior`: frozen dataclass with log-normal priors for CL, Vz, ka, sigma;
+  `log_prior_oral()` / `log_prior_iv()` methods; parameter bounds for L-BFGS-B
+- `bayes/map_pk.py` -- `map_individual_pk()`: MAP individual PK estimation via scipy L-BFGS-B in
+  log-space; proportional error model; 3-start multi-start; 10 fail-closed diagnostics including
+  convergence, gradient norm, Hessian PD, condition number, at-bound, multi-start agreement,
+  prior-dominance checks
+- `bayes/results.py` -- `MapPKResult`: dataclass with all MAP estimates, standard errors
+  (delta-method via inverse Hessian), derived parameters (k, t1/2, AUCinf, Cmax, Tmax),
+  diagnostics, `summary()`, `to_dict()`, `plot()`, `report()` methods
+- `bayes/reporting.py` -- `report_map_pk()`: HTML (Jinja2) and Markdown renderers for MAP PK reports
+- `report/templates/map_pk_report.html` -- navy-header template with 4 diagnostic cards,
+  parameter table with SEs, concentration-time profile, observed vs predicted table, disclaimer
+- 35 new tests in `tests/bayes/test_map_pk.py`
+
+**Bayesian PK -- Phase 2 (full posterior, [bayes] extra)**
+- `bayes/bayes_pk.py` -- `bayes_individual_pk()`: full posterior via PyMC 5.x + Metropolis sampler
+  (numpy blackbox wrapped as pytensor `as_op`); shrinkage estimation; ESS check via arviz
+- `bayes/bayes_be.py` -- `bayes_be()`: Bayesian 2x2 crossover BE via PyMC NUTS; log-scale linear
+  mixed model with fixed effects (sequence, period, treatment) and non-centered random subject effect;
+  decision quantity P(0.80 <= GMR <= 1.25); frequentist 90% CI computed side-by-side for comparison;
+  R-hat and ESS convergence diagnostics
+- `bayes/results.py` -- `BayesPKResult`: posterior samples, summary stats, 95% CrI, shrinkage,
+  `summary()`, `to_dict()` methods
+- `bayes/bayes_be.py` -- `BayesBEResult`: P(BE), GMR posterior, variance components (sigma_b, sigma_w),
+  frequentist comparison, `summary()`, `to_dict()`, `report()` methods
+- `bayes/reporting.py` -- `report_bayes_be()`: HTML (Jinja2) + Markdown renderers with GMR posterior
+  histogram (matplotlib), Bayesian vs frequentist comparison table
+- `report/templates/bayes_be_report.html` -- navy-header template with P(BE) decision banner
+  (green/amber/red), GMR posterior plot, variance component cards, comparison table, disclaimer
+- 26 new tests in `tests/bayes/test_bayes_be.py` (non-PyMC tests run without `[bayes]` extra)
+- `V2_ARCHITECTURE_DECISION.md` -- architecture decision record documenting Option A scope,
+  library choice, MAP objective sign convention, 10 diagnostics, Bayesian BE model contract
+
+**Dissolution Excel loader**
 - `dissolution/loader.py` -- `load_dissolution_excel()`: loads and validates dissolution data from
   `.xlsx`/`.xls` files; accepts optional `sheet_name` (str or int); requires `openpyxl` (`[reports]` extra)
-- `dissolution/study.py` -- `DissolutionStudy.from_excel()`: classmethod mirror of `from_csv()` for
-  Excel inputs; forwards `sheet_name` to `load_dissolution_excel()`
-- 13 new tests in `tests/dissolution/test_excel_loader.py`: round-trip, sheet name by string/index,
-  custom config, FileNotFoundError, missing column, negative time, out-of-range percent, compare,
-  parity with from_csv()
+- `dissolution/study.py` -- `DissolutionStudy.from_excel()`: classmethod mirror of `from_csv()`
+- 13 new tests in `tests/dissolution/test_excel_loader.py`
 
 ### Changed
+- `bayes/__init__.py` -- exports `PKPrior`, `MapPKResult`, `BayesPKResult`, `BayesBEResult`,
+  `map_individual_pk`, `bayes_individual_pk`, `bayes_be`
 - `dissolution/loader.py` -- validation logic extracted into `_validate_dissolution_df()` private
   helper; shared by both `load_dissolution_csv()` and `load_dissolution_excel()` (no behavior change)
 - `dissolution/__init__.py` -- exports `load_dissolution_excel`
-- README -- added Codecov badge, Docs badge; added `from_excel` snippet to dissolution quick-start
-
-### Fixed
+- `codecov.yml` -- added `coverage.status` block: project threshold 2%, patch threshold 80%
+- README -- added Codecov badge, Docs badge, Bayesian PK quick-start section, updated feature
+  comparison and status tables
 
 ## [1.3.0] — 2026-05-22
 

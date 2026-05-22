@@ -20,12 +20,13 @@
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas — model-dependent comparison via 90% CI
-- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output
-- **Bioequivalence convenience:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; formal ANOVA/RSABE work belongs in BioEqPy
+- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; sparse NCA from 3-5 samples
+- **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) + full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
+- **Bioequivalence convenience:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV
 - **Report generation:** Markdown, HTML, PDF, Word
-- **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing — v0.5.0
-- **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers — v0.6.0
-- **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles — v0.9.0
+- **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
+- **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
+- **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
 It makes routine analysis faster, cleaner, and more reproducible.
@@ -42,6 +43,12 @@ For PDF and Word reports:
 
 ```bash
 pip install openpkflow[reports]
+```
+
+For full Bayesian PK (PyMC MCMC):
+
+```bash
+pip install openpkflow[bayes]
 ```
 
 ---
@@ -150,6 +157,56 @@ result = simulate(model, regimen, times)
 print(result.summary())
 result.report("sim_report.html")
 result.report("sim_report.pdf", format="pdf")   # requires [reports]
+```
+
+---
+
+## Quick start: Bayesian individual PK (MAP)
+
+```python
+from openpkflow.bayes import map_individual_pk, PKPrior
+import math
+
+# Noiseless 1-cmt oral data (CL_F=5, Vz_F=50, ka=1.2, dose=100)
+times = [0.5, 1.0, 2.0, 4.0, 8.0, 12.0]
+concs = [1.23, 1.85, 1.97, 1.61, 0.89, 0.49]
+
+result = map_individual_pk(times, concs, dose=100.0, route="oral", subject="S01")
+print(result.summary())   # MAP estimates, SEs, diagnostics, disclaimer
+result.report("map_pk_report.html")
+```
+
+For full posterior sampling (requires `pip install openpkflow[bayes]`):
+
+```python
+from openpkflow.bayes.bayes_pk import bayes_individual_pk
+
+result = bayes_individual_pk(times, concs, dose=100.0, route="oral",
+                              n_samples=1000, tune=1000, chains=2)
+print(f"CL_F = {result.cl_mean:.3g}  [95% CrI: {result.cl_95ci[0]:.3g}, {result.cl_95ci[1]:.3g}]")
+print(f"P(shrinkage) = {result.shrinkage_cl:.1%}")
+```
+
+## Quick start: Bayesian bioequivalence (requires `[bayes]`)
+
+```python
+import pandas as pd
+from openpkflow.bayes.bayes_be import bayes_be
+
+# Long-format 2x2 crossover data
+data = pd.DataFrame({
+    "subject":   ["S01","S01","S02","S02","S03","S03","S04","S04"],
+    "sequence":  ["RT", "RT", "TR", "TR", "RT", "RT", "TR", "TR"],
+    "period":    [1,    2,    1,    2,    1,    2,    1,    2   ],
+    "treatment": ["R",  "T",  "T",  "R",  "R",  "T",  "T",  "R" ],
+    "value":     [98.0, 103.0, 95.0, 91.0, 107.0, 112.0, 99.0, 94.0],
+})
+
+result = bayes_be(data, metric="AUC", n_samples=2000, tune=1000, chains=2)
+print(f"P(BE) = {result.p_be:.3f}")
+print(f"GMR = {result.gmr_mean:.4g}  [95% CrI: {result.gmr_95ci[0]:.4g}, {result.gmr_95ci[1]:.4g}]")
+print(f"Frequentist 90% CI: [{result.freq_90ci[0]:.4g}, {result.freq_90ci[1]:.4g}]")
+result.report("bayes_be_report.html")
 ```
 
 ---
@@ -270,11 +327,13 @@ vpc.report("vpc_report.html")
 | Multi-media dissolution | :white_check_mark: (v1.4.0) | :x: | :white_check_mark: | :x: |
 | Sparse-sampling NCA | :white_check_mark: (v1.5.0) | :white_check_mark: | :x: | :x: |
 | Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
+| MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
+| Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
 | Formal BE ANOVA / RSABE / replicate BE | :x: | :x: | :white_check_mark: | :x: |
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), replicate BE.
+Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), replicate BE (planned).
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---
@@ -296,10 +355,12 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
-| Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
+| MAP individual PK (scipy, zero extra deps) | Stable -- v2.0.0 |
+| Full Bayesian PK posterior (PyMC, [bayes] extra) | Stable -- v2.0.0 |
+| Bayesian 2x2 BE with P(GMR in 80-125) (PyMC) | Stable -- v2.0.0 |
 | Bioequivalence convenience (paired TOST) | Stable -- 2x2 crossover TOST, GMR + 90% CI |
-| ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
-| Stable public release | Done — v1.5.0 |
+| ML surrogate (torch MLP, EXPERIMENTAL) | Prototype -- v0.9.0 |
+| Stable public release | Done -- v2.0.0 |
 
 ---
 

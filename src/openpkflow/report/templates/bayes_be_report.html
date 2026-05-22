@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px; line-height: 1.6; color: #1a1a2e; background: #f4f6f9;
+    }
+    .page {
+      max-width: 900px; margin: 32px auto; background: #ffffff;
+      border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,.10); overflow: hidden;
+    }
+    .report-header {
+      background: #0d3b66; color: #ffffff;
+      padding: 28px 36px 24px; border-bottom: 4px solid #1a78c2;
+    }
+    .report-header .org-label {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      color: #90bfe8; margin-bottom: 6px;
+    }
+    .report-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 14px; }
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px 24px;
+    }
+    .meta-item { font-size: 12px; color: #c6ddf0; }
+    .meta-item strong { display: block; font-weight: 600; color: #ffffff; }
+    .body { padding: 32px 36px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #0d3b66; border-bottom: 2px solid #e4e8f0;
+      padding-bottom: 6px; margin-bottom: 16px; margin-top: 28px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    /* Decision banner */
+    .decision-banner {
+      border-radius: 6px; padding: 20px 24px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .decision-banner.ok  { background: #f0fdf4; border: 2px solid #16a34a; }
+    .decision-banner.warn { background: #fffbeb; border: 2px solid #f59e0b; }
+    .decision-banner.fail { background: #fef2f2; border: 2px solid #dc2626; }
+    .decision-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: #6b7280; }
+    .decision-value { font-size: 28px; font-weight: 800; }
+    .ok  .decision-value { color: #16a34a; }
+    .warn .decision-value { color: #d97706; }
+    .fail .decision-value { color: #dc2626; }
+    .p-be-block { text-align: center; min-width: 120px; }
+    .p-be-num { font-size: 36px; font-weight: 800; }
+    .ok  .p-be-num { color: #16a34a; }
+    .warn .p-be-num { color: #d97706; }
+    .fail .p-be-num { color: #dc2626; }
+    .p-be-label { font-size: 11px; color: #6b7280; }
+    .divider { width: 1px; background: #e4e8f0; align-self: stretch; }
+    .gmr-info { flex: 1; }
+    .gmr-info .row { font-size: 13px; color: #374151; margin-bottom: 4px; }
+    .gmr-info .row strong { color: #0d3b66; }
+
+    /* Diagnostic cards */
+    .diag-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 8px;
+    }
+    .diag-card {
+      border-radius: 4px; padding: 12px 16px; border: 1px solid #e4e8f0;
+    }
+    .diag-card .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .08em; }
+    .diag-card .value { font-size: 16px; font-weight: 700; margin-top: 2px; }
+    .diag-card.ok { border-left: 4px solid #16a34a; }
+    .diag-card.warn { border-left: 4px solid #f59e0b; }
+    .diag-card.fail { border-left: 4px solid #dc2626; }
+    .ok .value { color: #16a34a; }
+    .warn .value { color: #d97706; }
+    .fail .value { color: #dc2626; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+    th { background: #f0f4fa; color: #374151; font-weight: 600; padding: 8px 12px; text-align: left; }
+    td { padding: 7px 12px; border-bottom: 1px solid #f0f4fa; color: #374151; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Warnings */
+    .warn-box {
+      background: #fffbeb; border: 1px solid #f59e0b; border-left: 4px solid #f59e0b;
+      border-radius: 4px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .warn-box .warn-title { font-weight: 700; color: #92400e; margin-bottom: 6px; font-size: 13px; }
+    .warn-box ul { margin: 0; padding-left: 20px; }
+    .warn-box li { color: #78350f; font-size: 13px; margin-bottom: 4px; }
+
+    /* Posterior plot */
+    .plot-wrap { text-align: center; margin: 16px 0; }
+    .plot-wrap img { max-width: 100%; border-radius: 4px; border: 1px solid #e4e8f0; }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 32px; padding: 14px 16px; background: #f8fafc;
+      border: 1px solid #e4e8f0; border-radius: 4px;
+      font-size: 12px; color: #6b7280; line-height: 1.5;
+    }
+    footer { text-align: center; font-size: 11px; color: #9ca3af; padding: 12px 0 20px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="report-header">
+    <div class="org-label">OpenPKFlow &mdash; Bayesian Bioequivalence (2&times;2 Crossover)</div>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Metric</strong>{{ result.metric }}</div>
+      <div class="meta-item"><strong>Subjects</strong>{{ result.n_subjects }}</div>
+      <div class="meta-item"><strong>MCMC Samples</strong>{{ result.n_samples }}</div>
+      <div class="meta-item"><strong>Version</strong>v{{ version }}</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- BE Decision Banner -->
+    <div class="section-title">Bioequivalence Decision</div>
+    <div class="decision-banner {{ be_css }}">
+      <div class="p-be-block">
+        <div class="p-be-num">{{ "%.3f"|format(result.p_be) }}</div>
+        <div class="p-be-label">P(0.{{ be_lo|int * 100 }}0 &le; GMR &le; 1.25)</div>
+      </div>
+      <div class="divider"></div>
+      <div class="gmr-info">
+        <div class="decision-label">Bayesian Decision</div>
+        <div class="decision-value">{{ be_verdict }}</div>
+        <div class="row" style="margin-top:8px">
+          <strong>GMR:</strong> {{ fmt(result.gmr_mean) }}
+          &nbsp;&nbsp;[95% CrI: {{ fmt(result.gmr_95ci[0]) }}, {{ fmt(result.gmr_95ci[1]) }}]
+        </div>
+        <div class="row">
+          <strong>log(GMR):</strong> {{ fmt(result.beta_t_mean) }}
+          &nbsp;&nbsp;[95% CrI: {{ fmt(result.beta_t_95ci[0]) }}, {{ fmt(result.beta_t_95ci[1]) }}]
+        </div>
+      </div>
+    </div>
+
+    {% if result.warnings %}
+    <div class="warn-box">
+      <div class="warn-title">Diagnostic Warnings</div>
+      <ul>
+        {% for w in result.warnings %}
+        <li>{{ w }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Bayesian vs Frequentist Comparison -->
+    <div class="section-title">Bayesian vs Frequentist Comparison</div>
+    <table>
+      <thead>
+        <tr><th>Analysis</th><th>GMR</th><th>Lower</th><th>Upper</th><th>Decision</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bayesian (95% CrI)</td>
+          <td>{{ fmt(result.gmr_mean) }}</td>
+          <td>{{ fmt(result.gmr_95ci[0]) }}</td>
+          <td>{{ fmt(result.gmr_95ci[1]) }}</td>
+          <td><strong>P(BE) = {{ "%.3f"|format(result.p_be) }}</strong></td>
+        </tr>
+        <tr>
+          <td>Frequentist (90% CI)</td>
+          <td>{{ fmt(result.freq_gmr) }}</td>
+          <td>{{ fmt(result.freq_90ci[0]) }}</td>
+          <td>{{ fmt(result.freq_90ci[1]) }}</td>
+          <td><strong>{{ freq_be_str }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Variance Components -->
+    <div class="section-title">Variance Components (Posterior Means)</div>
+    <div class="diag-grid">
+      <div class="diag-card ok">
+        <div class="label">Between-Subject SD</div>
+        <div class="value">{{ fmt(result.sigma_b_mean) }}</div>
+      </div>
+      <div class="diag-card ok">
+        <div class="label">Within-Subject SD</div>
+        <div class="value">{{ fmt(result.sigma_w_mean) }}</div>
+      </div>
+      <div class="diag-card ok">
+        <div class="label">CV% (intra, approx)</div>
+        <div class="value">{{ "%.1f"|format((result.sigma_w_mean ** 2) ** 0.5 * 100) }}%</div>
+      </div>
+    </div>
+
+    <!-- Posterior Plot -->
+    <div class="section-title">GMR Posterior Distribution</div>
+    <div class="plot-wrap">
+      <img src="data:image/png;base64,{{ plot_b64 }}" alt="GMR Posterior" />
+    </div>
+
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> {{ disclaimer }}
+    </div>
+  </div>
+
+  <footer>OpenPKFlow v{{ version }} &mdash; Bayesian Bioequivalence Analysis</footer>
+</div>
+</body>
+</html>

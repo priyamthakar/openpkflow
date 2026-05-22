@@ -99,23 +99,34 @@ Scope: model-informed AUC from limited sampling (2-5 samples).
 
 ---
 
-### v2.0.0 -- Bayesian PK (target: multi-quarter; API break possible)
+### v2.0.0 -- Bayesian PK ✅ DONE
 
-Scope: `bayes/` module, currently extras-wired but empty.
+Scope: `bayes/` module. Architecture Decision Record: `V2_ARCHITECTURE_DECISION.md`.
 
-**Decision required before work starts:** implement FOCE-I/SAEM from scratch vs.
-wrap nlmixr2 or Pharmpy. Prior analysis: Pharmpy bridge (v0.7.0) was skipped;
-a Python-to-R bridge (nlmixr2 via rpy2) is likely the faster path to population
-estimation with less implementation risk.
+**Phase 1 -- MAP (scipy, zero new dependencies):**
+- `PKPrior` frozen dataclass: log-normal priors for CL, Vz, ka, sigma with bounds ✅
+- `map_individual_pk()`: L-BFGS-B in log-space, proportional error model, 3-start multi-start ✅
+- 10 fail-closed diagnostics: convergence, gradient norm, Hessian PD, condition number,
+  at-bound, multi-start agreement, prior-dominance ✅
+- `MapPKResult`: MAP estimates + delta-method SEs (inverse Hessian), derived PK parameters ✅
+- HTML report template: 4 diagnostic cards, parameter table, concentration-time profile ✅
+- 35 tests ✅
 
-Tentative scope (pending decision):
-- MAP individual PK estimation from sparse TDM samples (CmdStanPy, 1-cmt oral/IV)
-- Bayesian BE: posterior probability of BE > 0.95 for 2x2 crossover
-- Prior-posterior comparison plots with shrinkage visualization
-- `[bayes]` extra: PyMC >= 5.0 or CmdStanPy >= 1.2 required
+**Phase 2 -- Full posterior + Bayesian BE (`[bayes]` extra, PyMC >= 5.0):**
+- `bayes_individual_pk()`: PyMC Metropolis sampler; numpy PK model wrapped as pytensor `as_op`;
+  shrinkage estimation; ESS check via arviz ✅
+- `bayes_be()`: PyMC NUTS on log-scale linear mixed model (2x2 crossover); fixed effects for
+  sequence/period/treatment; non-centered random subject effect; P(0.80 <= GMR <= 1.25);
+  frequentist 90% CI side-by-side; R-hat + ESS convergence diagnostics ✅
+- HTML report templates: GMR posterior histogram, Bayesian vs frequentist comparison table ✅
+- 26 tests (non-PyMC validation tests run without `[bayes]` extra) ✅
 
-**Not in v2.0.0:** full FOCE-I/SAEM population estimation (reserved for v2.1.0 or
-Pharmpy bridge decision).
+**Also shipped:**
+- `DissolutionStudy.from_excel()` + `load_dissolution_excel()` (openpyxl, `[reports]` extra) ✅
+- Codecov integration with project/patch coverage thresholds ✅
+- GitHub Pages docs site activated ✅
+
+**Not in v2.0.0:** full FOCE-I/SAEM population estimation (reserved for v2.1.0).
 
 ---
 
@@ -147,15 +158,15 @@ Pharmpy bridge decision).
 
 ## Quick wins (single-PR scope, no milestone dependency)
 
-| Priority | Task | Effort |
-|---|---|---|
-| High | Fix GitHub Pages 404 (check `docs.yml` workflow + Pages branch setting) | 1 h |
-| High | `DissolutionStudy.from_excel()` via openpyxl | 2 h |
-| High | Codecov integration (badge + coverage gating) | 1 h |
-| Medium | `pytest-benchmark` + perf regression CI job | 2 h |
-| Medium | conda-forge recipe | 3 h |
-| Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h |
-| Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h |
+| Priority | Task | Effort | Status |
+|---|---|---|---|
+| High | Fix GitHub Pages 404 | 1 h | ✅ Done |
+| High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
+| High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
+| Medium | `pytest-benchmark` + perf regression CI job | 2 h | Pending |
+| Medium | conda-forge recipe | 3 h | Pending |
+| Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done |
+| Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | Pending |
 
 ---
 
