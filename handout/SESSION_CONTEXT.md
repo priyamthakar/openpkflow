@@ -9,14 +9,14 @@ Read this at the start of every new session. It contains the full current state 
 - **Package:** `openpkflow`
 - **Author:** Priyam Thakar, priyamthakar1@gmail.com
 - **GitHub:** https://github.com/priyamthakar/openpkflow (username: `priyamthakar`, not `priyamthakar1`)
-- **PyPI:** https://pypi.org/project/openpkflow/ — v0.4.1 live; v0.9.0 local only (not yet uploaded)
+- **PyPI:** https://pypi.org/project/openpkflow/ — v1.0.0 live; v1.3.0 local
 - **Working directory:** `D:\openpkflow`
 - **Python floor:** 3.10+
 - **Build:** hatchling, `src/` layout
 
 ---
 
-## Current version: 0.9.0 (local) / 0.4.1 (on PyPI)
+## Current version: 1.3.0 (local)
 
 ### Version history
 
@@ -27,13 +27,17 @@ Read this at the start of every new session. It contains the full current state 
 | 0.1.2 | PyPI Trusted Publishing workflow (no code changes) |
 | 0.1.3 | f2(method="regulatory"), CV% warning in compare(), README polish |
 | 0.1.4 | DissolutionStudy.bootstrap_compare(), ComparisonResult.plot(), demo.ipynb rewritten |
-| 0.2.0 | Dissolution model fitting: 5 models, ModelFit, DissolutionFitResults, AICc ranking, HTML fit report |
+| 0.2.0 | Dissolution model fitting: 5 models, ModelFit, DissolutionFitResults, AICc ranking |
 | 0.3.0 | PDF (ReportLab) + Word (python-docx) reports for comparison and model fit |
-| 0.4.0 | NCA engine: AUClast, AUCinf, Cmax, Tmax, lambda_z (BAR2), CL/F, Vz/F; HTML+Markdown reports; Theoph reference dataset; 93 NCA tests |
-| 0.4.1 | NCA PDF (ReportLab) and Word (python-docx) reports; logo added; 26 new tests |
-| 0.5.0 | PK simulation: 1-cmt/2-cmt oral/IV bolus/IV infusion, repeated dosing, superposition; HTML/MD/PDF/DOCX reports |
-| 0.6.0 | Population PK diagnostics: GOF 4-panel plots, simulation-based VPC with percentile bands, NONMEM-style dataset helpers |
-| 0.9.0 | ML surrogate: torch MLP (PKSurrogate) trained on analytical 1-cmt oral data; bayes ImportError guards wired; 363 tests total |
+| 0.4.0 | NCA engine: AUClast, AUCinf, Cmax, Tmax, lambda_z (BAR2), CL/F, Vz/F |
+| 0.4.1 | NCA PDF + DOCX reports; logo added |
+| 0.5.0 | PK simulation: 1-cmt/2-cmt oral/IV bolus/IV infusion, repeated dosing, superposition |
+| 0.6.0 | Population PK diagnostics: GOF 4-panel plots, simulation-based VPC, NONMEM helpers |
+| 0.9.0 | ML surrogate: torch MLP (PKSurrogate); bayes ImportError guards wired |
+| 1.0.0 | BE module: 2x2 crossover TOST, BEResult, HTML/MD reports; stable public release |
+| 1.1.0 | Dissolution regulatory toolkit: MSD, max_deviation, model_dependent_comparison, ICH M13B RSD |
+| 1.2.0 | IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE |
+| 1.3.0 | NCA expansion: steady-state (AUCtau, Cmax_ss, fluctuation, swing), urinary excretion (Ae, CLr) |
 
 v0.7.0 reserved for Pharmpy bridge (deferred). v0.8.0 deferred: PyMC not installed in dev env; [bayes] extras are wired in pyproject.toml with ImportError guards in bayes/__init__.py.
 
@@ -461,15 +465,12 @@ The `if output_path is not None: ... return pdf_bytes` block appears 5 times (on
 
 ---
 
-## Next: v1.0.0 -- stable public release
+## Next: v1.4.0 -- BioEqPy bridge polish
 
-Tasks for v1.0.0:
-- Final API review and any breaking-change cleanup
-- Complete CI matrix (Python 3.10/3.11/3.12/3.13)
-- Upload v0.9.0 to PyPI (or go straight to v1.0.0)
-- MkDocs documentation site at https://priyamthakar.github.io/openpkflow/
-- Bump `Development Status` classifier from `2 - Pre-Alpha` to `4 - Beta` or `5 - Production/Stable`
-- CITATION.cff
+Tasks for v1.4.0:
+- Example notebook: OpenPKFlow NCA -> BioEqPy formal BE report
+- Documentation showing `BEStudy.to_bioeqpy_dataframe()` and BioEqPy bridge helpers
+- Optional dependency note: install BioEqPy only when formal BE analysis is needed
 
 ---
 
@@ -490,3 +491,8 @@ Tasks for v1.0.0:
 - Costa P, Lobo JMS (2001) Eur J Pharm Sci 13:123-133 -- dissolution model fitting
 - Pinheiro JC, Bates DM (2000). Mixed-effects models in S and S-PLUS. Springer -- Theoph dataset source
 - Bacon S et al. (2023). PKNCA: Non-Compartmental Analysis for Pharmacokinetics. CRAN -- BAR2 algorithm reference
+- FDA 1997 Guidance: Extended Release Oral Dosage Forms -- IVIVC predictability criteria
+- Wagner & Nelson (1963) J Pharm Sci 52(6):610-611 -- one-compartment deconvolution
+- Loo & Riegelman (1968) J Pharm Sci 57(6):918-928 -- two-compartment deconvolution
+- Gibaldi & Perrier (1982) Pharmacokinetics 2nd ed. -- IVIVC theory and convolution
+- Rowland & Tozer (2011) Clinical Pharmacokinetics 4th ed. -- steady-state NCA reference

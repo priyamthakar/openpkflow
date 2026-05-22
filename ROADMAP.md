@@ -16,9 +16,10 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 
 | Capability | Status in open-source Python |
 |---|---|
-| IVIVC (Level A: deconvolution + convolution prediction) | None |
+| IVIVC (Level A: deconvolution + convolution prediction) | OpenPKFlow ✅ |
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | None |
+| Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
 | Formal RSABE / replicate-design BE | BioEqPy companion |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse NCA (model-informed AUC from 2-5 samples) | Partial (PKNCA R only) |
@@ -43,34 +44,34 @@ degenerate + reference test, disclaimer in generated reports, mypy strict clean.
 
 ---
 
-### v1.2.0 -- IVIVC Level A (target: ~6 weeks)
+### v1.2.0 -- IVIVC Level A (target: ~6 weeks) ✅ DONE
 
 Scope: new `ivivc/` module. Level A only. Predictability assessment included.
-Level B/C and adaptive IVIVC deferred to v1.3.0.
+Level B/C and adaptive IVIVC deferred.
 
-- `wagner_nelson()` -- deconvolution of in vivo absorption fraction from plasma data
-- `loo_riegelman()` -- two-compartment deconvolution
-- `convolution_predict()` -- predict in vivo profile from in vitro dissolution + unit impulse response
-- `levy_plot()` -- IVIVC correlation plot with regression overlay
-- `ivivc_predictability()` -- %PE for Cmax and AUCinf (<15% FDA acceptance criterion)
-- `IVIVCResult` dataclass with `summary()`, `plot()`, `report()` methods
-- HTML/Markdown/PDF/DOCX reports following existing template style
-- New `openpkflow ivivc` CLI command
-- Tests: ~30 new tests, Wagner-Nelson hand-checked against Gibaldi & Perrier reference
+- `wagner_nelson()` -- deconvolution of in vivo absorption fraction from plasma data ✅
+- `loo_riegelman()` -- two-compartment deconvolution ✅
+- `convolution_predict()` -- predict in vivo profile from in vitro dissolution + unit impulse response ✅
+- `levy_plot()` -- IVIVC correlation plot with regression overlay ✅
+- `ivivc_predictability()` -- %PE for Cmax and AUCinf (<15% FDA acceptance criterion) ✅
+- `IVIVCResult` dataclass with `summary()`, `plot()`, `report()` methods ✅
+- HTML/Markdown/PDF/DOCX reports following existing template style ✅
+- New `openpkflow ivivc` CLI command ✅
+- Tests: 45 new tests, Wagner-Nelson hand-checked against Gibaldi & Perrier reference ✅
 
 ---
 
-### v1.3.0 -- NCA expansion: sparse + steady-state (target: ~4 weeks)
+### v1.3.0 -- NCA expansion: steady-state + urinary excretion ✅ DONE
 
-Scope: expand `nca/` module. No new module.
+Scope: expand `nca/` module. Sparse NCA moved to future milestone.
 
-- Steady-state NCA: `AUCtau`, `Cmax_ss`, `Cmin_ss`, fluctuation, swing, accumulation ratio
+- Steady-state NCA: `AUCtau`, `Cmax_ss`, `Cmin_ss`, `Cavg_ss`, fluctuation, swing, accumulation ratio ✅
+- Urinary excretion PK: `Ae`, `Ae_pct`, `CLr` -- urine volume/concentration column support ✅
 - `%AUCextrap` flag: warn if >20% (FDA criterion), add to `NCAResult` and reports ✅
-- Lambda_z quality metrics: adjusted R2, n points used, visual slope-selector helper ✅ (adj R2 + n_points in NCAResult + HTML reports)
-- Urinary excretion PK: `Ae`, `Ae_pct`, `CLr` -- requires `urine` route support in loader
+- Lambda_z quality metrics: adjusted R2, n points used ✅
 - CDISC PP-format output: `NCASummaryResults.to_cdisc_pp()` -> DataFrame with CDISC PP variable names ✅
 - Dose-normalised parameter tables: DN-AUC, DN-Cmax in summary reports ✅
-- Tests: ~25 new tests
+- Tests: 26 new tests ✅
 
 ---
 

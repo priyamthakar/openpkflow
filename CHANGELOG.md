@@ -10,6 +10,60 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+## [1.3.0] — 2026-05-22
+
+### Added
+- `nca/methods.py` — `steady_state_parameters()`: computes Cmax_ss, Cmin_ss, Cavg_ss, AUCtau,
+  fluctuation_pct, swing from steady-state dosing interval data
+- `nca/methods.py` — `accumulation_ratio()`: AUCTau_ss / AUCTau_sd ratio
+- `nca/methods.py` — `cumulative_urinary_excretion()`: computes Ae from urine volume and
+  concentration data
+- `nca/methods.py` — `renal_clearance()`: CLr = Ae / AUCinf
+- `nca/methods.py` — `percent_excreted()`: 100 * Ae / dose
+- `nca/methods.py` — `auc_tau()`: AUC over a dosing interval with method dispatch
+- `nca/results.py` — steady-state fields: `Cmax_ss`, `Cmin_ss`, `Cavg_ss`, `AUCtau`,
+  `fluctuation_pct`, `swing`, `accumulation_ratio`
+- `nca/results.py` — urinary excretion fields: `Ae`, `Ae_pct`, `CLr`
+- `nca/study.py` — `NCAStudy` accepts `steady_state=True`, `tau`, `urine_volume_col`,
+  `urine_conc_col` parameters; auto-computes steady-state and urine parameters per subject
+- 26 new tests in `tests/nca/test_steady_state_urine.py`
+
+### Changed
+- `nca/__init__.py` — exports all new functions
+- `nca/results.py` — `summary()`, `to_dict()` include new fields when populated
+- `nca/study.py` — `analyze()` computes steady-state and urine parameters when configured
+
+## [1.2.0] — 2026-05-22
+
+### Added
+- `ivivc/` module — In Vitro-In Vivo Correlation Level A (FDA ER Guidance 1997)
+- `ivivc/methods.py` — `wagner_nelson()`: one-compartment oral deconvolution (Wagner & Nelson 1963)
+- `ivivc/methods.py` — `loo_riegelman()`: two-compartment oral deconvolution (Loo & Riegelman 1968)
+- `ivivc/methods.py` — `convolution_predict()`: numerical convolution of dissolution input rate
+  with IV unit impulse response
+- `ivivc/methods.py` — `levy_plot_data()`: IVIVC correlation with linear regression
+- `ivivc/methods.py` — `ivivc_predictability()`: FDA 1997 %PE assessment for Cmax and AUCinf
+  (<=15% individual, <=10% mean abs)
+- `ivivc/study.py` — `IVIVCStudy`: orchestrates full deconvolution → Levy plot → convolution →
+  predictability workflow
+- `ivivc/results.py` — `IVIVCResult` dataclass with `summary()`, `plot()`, `report()`, `to_dict()`
+- `ivivc/reporting.py` — HTML, Markdown, PDF, DOCX report renderers
+- `report/templates/ivivc_report.html` — 4-panel HTML report with Levy plot, predicted vs observed
+  overlay, predictability highlight cards, disclaimer
+- `report/pdf.py` — `render_ivivc_pdf_report()`: ReportLab PDF
+- `report/docx.py` — `render_ivivc_docx_report()`: python-docx Word document
+- CLI: `openpkflow ivivc run` command registered
+- 45 new tests in `tests/ivivc/test_ivivc.py` including Wagner-Nelson, Loo-Riegelman,
+  convolution, Levy plot, predictability, PDF, DOCX
+
+## [1.1.0] — 2026-05-21
+
+### Added
 - `dissolution/similarity.py` — `max_deviation()`: maximum absolute deviation between profiles
   (FDA/SUPAC-IR 1995); accepted alternative when f2 prerequisites cannot be met
 - `dissolution/similarity.py` — `msd()`: Mahalanobis Statistical Distance with chi-squared

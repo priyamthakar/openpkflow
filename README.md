@@ -262,12 +262,13 @@ vpc.report("vpc_report.html")
 | Open-source & free | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
 | Python-native API | :white_check_mark: | :x: | :x: | :white_check_mark: |
 | Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| IVIVC (Level A) | :x: (v1.2.0) | :x: | :white_check_mark: | :x: |
+| IVIVC (Level A) | :white_check_mark: (v1.2.0) | :x: | :white_check_mark: | :x: |
+| Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
 | Formal BE ANOVA / RSABE / replicate BE | BioEqPy companion | :x: | :white_check_mark: | :x: |
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC, MSD/f2 alternatives, multi-media dissolution, sparse NCA, CDISC output, and BioEqPy bridge polish.
+Post-1.0.0 milestones: IVIVC Level A (done), steady-state NCA (done), urinary excretion (done), multi-media dissolution, sparse NCA, BioEqPy bridge polish.
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---
@@ -277,19 +278,20 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Module | Status |
 |---|---|
 | Dissolution f1 / f2 | Stable |
-| MSD / max deviation / model-dependent comparison | Stable -- v1.1.0 |
+| MSD / max deviation / model-dependent comparison | Stable |
 | Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
 | Dissolution model fitting (5 models, AICc) | Stable |
+| IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) | Stable — v1.2.0 |
 | HTML, Markdown, PDF, Word reports | Stable |
-| NCA (AUC, lambda_z, CL/F, reports) | Stable — v0.4.1 |
+| NCA (AUClast, AUCinf, lambda_z, CL/F, steady-state, urinary excretion) | Stable — v1.3.0 |
 | PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
 | Bioequivalence convenience (paired TOST) | Stable -- delegates formal BE positioning to BioEqPy |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
-| Stable public release | Done — v1.0.0 |
+| Stable public release | Done — v1.3.0 |
 
 ---
 
@@ -297,15 +299,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~10,200 |
-| Lines of tests (`tests/`) | 4,800 |
-| Total Python files | 71 (39 src + 32 tests) |
-| Tests | 470 |
-| Public functions / methods | 200 |
-| Classes | 25 |
-| HTML report templates | 8 |
+| Lines of source code (`src/`) | ~11,500 |
+| Lines of tests (`tests/`) | 5,100 |
+| Total Python files | 79 (43 src + 36 tests) |
+| Tests | 526 |
+| Public functions / methods | 220 |
+| Classes | 28 |
+| HTML report templates | 9 |
 | Bundled example datasets | 4 |
-| Git commits | 32 |
+| Git commits | 37 |
 
 ---
 

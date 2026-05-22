@@ -64,9 +64,10 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 ### Module map
 
 ```
-dissolution/   — f1, f2, bootstrap_f2, model fitting, loader, reporting   ← DONE v0.1-v0.2
-nca/           — AUC, lambda_z, PK parameters, reports                    ← DONE v0.4.0
-sim/           — analytical compartment models, dosing, superposition      ← DONE v0.5.0
+dissolution/   -- f1, f2, bootstrap_f2, model fitting, loader, reporting   <- DONE v0.1-v0.2
+nca/           -- AUC, lambda_z, PK parameters, steady-state, urine        <- DONE v0.4.0, v1.3.0
+ivivc/         -- Wagner-Nelson, Loo-Riegelman, convolution, Levy, %PE     <- DONE v1.2.0
+sim/           -- analytical compartment models, dosing, superposition      <- DONE v0.5.0
 pop/           — GOF plots (4-panel), VPC (simulation-based), dataset      ← DONE v0.6.0
 bayes/         — ImportError guards; [bayes] extras wired; PyMC deferred   ← v0.8.0 deferred
 ml/            — PKSurrogate (torch MLP, EXPERIMENTAL)                     ← DONE v0.9.0
@@ -157,7 +158,9 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v1.0.0 is current (BE module, stable public release). All planned milestones through v1.0.0 are complete. Next milestone is v1.1.0: dissolution regulatory toolkit (MSD, model-dependent comparison, RSD check). See `ROADMAP.md` for the full post-1.0.0 ladder.
+v1.3.0 is current (steady-state NCA + urinary excretion). v1.2.0 (IVIVC Level A) is also complete.
+Next milestone is v1.4.0: BioEqPy bridge polish.
+See `ROADMAP.md` for the full post-1.0.0 ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -181,9 +184,9 @@ v1.0.0 is current (BE module, stable public release). All planned milestones thr
 0.8.0  Bayesian PK (PyMC, CmdStanPy)                                             DEFERRED (extras wired)
 0.9.0  ML surrogate (torch MLP, EXPERIMENTAL)                                    DONE
 1.0.0  stable public release                                                      DONE
-1.1.0  dissolution regulatory toolkit: MSD, model-dependent comparison, RSD check PLANNED
-1.2.0  IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution predict, %PE      PLANNED
-1.3.0  NCA expansion: steady-state, %AUCextrap, CDISC PP output, sparse NCA       PLANNED
+1.1.0  dissolution regulatory toolkit: MSD, model-dependent comparison, RSD check  DONE
+1.2.0  IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution predict, %PE      DONE
+1.3.0  NCA expansion: steady-state, urinary excretion, CDISC PP output             DONE
 1.4.0  replicate BE designs: RSABE, 2-stage adaptive BE, HVD/HVDP support         PLANNED
 1.5.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping        PLANNED
 2.0.0  Bayesian PK: MAP individual estimation, Bayesian BE (CmdStanPy)            PLANNED

@@ -28,4 +28,4 @@ All panels at 600 DPI (print quality).
 
 - `simulate_vpc` uses `openpkflow.sim.simulate()` under the hood with proportional + additive residual noise.
 - IWRES uses a proportional error model: IWRES = (OBS - IPRED) / (sigma * IPRED).
-- Population estimation (SAEM/FOCE) is not included in v1.0.0 and is planned for v1.1.0.
+- Population estimation (SAEM/FOCE) is not included in v1.3.0 and is planned for a future milestone (Pharmpy bridge).

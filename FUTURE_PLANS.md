@@ -19,9 +19,9 @@ what others already do well.
 
 ### IVIVC (full toolkit — Level A/B/C)
 
-The single biggest regulatory modeling gap with **zero** open-source Python offerings:
+Level A is now implemented (v1.2.0). Level B/C remain open-source gaps:
 
-- Level A: deconvolution (Wagner-Nelson, Loo-Riegelman), convolution prediction, Levy plot, predictability assessment (%PE < 15 % for Cmax/AUC)
+- Level A: deconvolution (Wagner-Nelson, Loo-Riegelman), convolution prediction, Levy plot, predictability assessment (%PE < 15 % for Cmax/AUC)  **✅ DONE**
 - Level B/C: mean dissolution time vs. mean residence time, disintegration time correlations
 - FDA guidance compliance: IVIVC summary tables matching the FDA ER guidance format
 
@@ -60,9 +60,8 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 - ~~Terminal-phase diagnostics~~ — **DONE** (v1.3.0): adjusted R², n points used
 - ~~CDISC PP / ADPPK output~~ — **DONE** (v1.3.0): `NCASummaryResults.to_cdisc_pp()`
 - ~~Dose-normalised parameter tables (DN-AUC, DN-Cmax)~~ — **DONE** (v1.3.0)
-- Steady-state NCA: AUCτ, Cmax_ss, Cmin_ss, fluctuation, swing, accumulation ratio
-- Urinary excretion: Ae, Ae%, renal clearance
-- Dose-normalised parameter tables (DN-AUC, DN-Cmax)
+- ~~Steady-state NCA: AUCtau, Cmax_ss, Cmin_ss, fluctuation, swing, accumulation ratio~~ — **DONE** (v1.3.0)
+- ~~Urinary excretion: Ae, Ae%, renal clearance~~ — **DONE** (v1.3.0)
 
 ### Bioequivalence
 
@@ -156,10 +155,11 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 | Dissolution model fitting (5 models + AICc) | ✅ | — | — | — | ✅ |
 | Mahalanobis / f2 alternatives | ✅ | — | — | — | ✅ |
 | Multi-media dissolution | planned | — | — | — | ✅ |
-| IVIVC (Level A) | planned | — | — | — | ✅ |
+| IVIVC (Level A) | ✅ | — | — | — | ✅ |
 | NCA | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Steady-state NCA + urine | ✅ | — | — | — | ✅ |
 | Sparse NCA | planned | ✅ | — | — | ✅ |
-| CDISC output | planned | partial | — | — | ✅ |
+| CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2×2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
 | RSABE / replicate BE | planned | — | — | — | ✅ |
 | PopPK estimation | deferred | ✅ | ✅ | ✅ | — |
