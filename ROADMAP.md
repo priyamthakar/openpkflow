@@ -75,17 +75,7 @@ Scope: expand `nca/` module. Sparse NCA moved to future milestone.
 
 ---
 
-### v1.4.0 -- BioEqPy bridge polish (target: ~1 week)
-
-Scope: keep OpenPKFlow BE lightweight and route formal BE work to BioEqPy.
-
-- Example notebook: OpenPKFlow NCA -> BioEqPy formal BE report
-- Documentation showing `BEStudy.to_bioeqpy_dataframe()` and BioEqPy bridge helpers
-- Optional dependency note: install BioEqPy only when formal BE analysis is needed
-
----
-
-### v1.5.0 -- Multi-media dissolution (target: ~3 weeks)
+### v1.4.0 -- Multi-media dissolution (target: ~3 weeks)
 
 Scope: expand `dissolution/` module.
 
@@ -94,6 +84,17 @@ Scope: expand `dissolution/` module.
 - SUPAC/MR change level auto-classification: Level 1/2/3 per dissolution differences
 - ICH M13A/B multi-media report template
 - Tests: ~20 new tests
+
+---
+
+### v1.5.0 -- Sparse NCA (target: ~3 weeks)
+
+Scope: model-informed AUC from limited sampling (2-5 samples).
+
+- `SparseNCAStudy`: accept 2-5 timepoints per subject, fit compartmental model
+- TMDD-informed AUC estimation with 90% CI
+- Comparison table vs. rich-sampling reference (bias/precision)
+- Tests: ~15 new tests
 
 ---
 
