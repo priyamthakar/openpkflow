@@ -308,11 +308,9 @@ def msd(reference: Sequence[float], test: Sequence[float]) -> MSDResult:
     ref, tst = _validate_profiles(reference, test)
     n = len(ref)
 
-    # Pooled variance approximated as the mean squared deviation between
-    # reference and test, divided by 2n. This is a conservative diagonal
-    # estimate for the single-profile case.
+    # Pooled variance approximated as the residual variance of differences
     diff = np.array(ref, dtype=float) - np.array(tst, dtype=float)
-    resid_var = float(np.sum(diff * diff) / (2.0 * n))
+    resid_var = float(np.sum(diff * diff) / (n - 1)) if n > 1 else 1e-12
     s_inv = np.eye(n, dtype=float) / max(resid_var, 1e-12)
 
     msd_sq = float(diff @ s_inv @ diff)
