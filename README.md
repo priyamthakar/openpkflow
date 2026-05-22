@@ -230,6 +230,25 @@ vpc.report("vpc_report.html")
 
 ---
 
+## Feature comparison
+
+| Capability | OpenPKFlow | PKNCA (R) | WinNonlin | Pharmpy |
+|---|---|---|---|---|
+| Dissolution f1 / f2 | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| Bootstrap f2 | :white_check_mark: | :x: | :x: | :x: |
+| Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
+| NCA (AUClast, AUCinf, CL/F, lambda_z) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| Three AUC methods + explicit BLQ handling | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| Bioequivalence (2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| PK simulation (1/2-cmt, oral/IV) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
+| Population PK diagnostics (GOF, VPC) | :white_check_mark: | :x: | :x: | :white_check_mark: |
+| Multi-format reports (HTML, PDF, DOCX) | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| Open-source & free | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
+| Python-native API | :white_check_mark: | :x: | :x: | :white_check_mark: |
+| Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| IVIVC (Level A) | :x: (v1.2.0) | :x: | :white_check_mark: | :x: |
+| RSABE / replicate BE | :x: (v1.4.0) | :x: | :white_check_mark: | :x: |
+
 ## Roadmap
 
 Post-1.0.0 milestones: IVIVC, MSD/f2 alternatives, multi-media dissolution, RSABE, sparse NCA, CDISC output.

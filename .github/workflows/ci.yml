@@ -28,9 +28,40 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev,reports,ml]"
 
-      - name: Run tests
-        run: pytest --tb=short -q
+      - name: Run tests with coverage
+        run: pytest --tb=short -q --cov=openpkflow --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          flags: ${{ matrix.python-version }}
 
       - name: Check types
         run: mypy src/openpkflow --ignore-missing-imports
         continue-on-error: true
+
+  benchmark:
+    name: Benchmark (Python 3.12)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,reports,ml]"
+
+      - name: Run benchmarks
+        run: pytest tests/test_benchmark.py --benchmark-only --benchmark-json=benchmark.json --benchmark-save=ci
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark.json
