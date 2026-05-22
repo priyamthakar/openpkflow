@@ -158,7 +158,7 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 | IVIVC (Level A) | ✅ | — | — | — | ✅ |
 | NCA | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Steady-state NCA + urine | ✅ | — | — | — | ✅ |
-| Sparse NCA | planned | ✅ | — | — | ✅ |
+| Sparse NCA | ✅ | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
 | RSABE / replicate BE | planned | — | — | — | ✅ |

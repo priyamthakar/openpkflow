@@ -264,12 +264,13 @@ vpc.report("vpc_report.html")
 | Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | IVIVC (Level A) | :white_check_mark: (v1.2.0) | :x: | :white_check_mark: | :x: |
 | Multi-media dissolution | :white_check_mark: (v1.4.0) | :x: | :white_check_mark: | :x: |
+| Sparse-sampling NCA | :white_check_mark: (v1.5.0) | :white_check_mark: | :x: | :x: |
 | Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
 | Formal BE ANOVA / RSABE / replicate BE | :x: | :x: | :white_check_mark: | :x: |
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA, replicate BE.
+Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), replicate BE.
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---
@@ -287,13 +288,14 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Multi-media dissolution (f2 across pH, ethanol dose-dumping) | Stable — v1.4.0 |
 | HTML, Markdown, PDF, Word reports | Stable |
 | NCA (AUClast, AUCinf, lambda_z, CL/F, steady-state, urinary excretion) | Stable — v1.3.0 |
+| Sparse NCA (model-informed 1-cmt oral from 3-5 samples) | Stable — v1.5.0 |
 | PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
 | Bioequivalence convenience (paired TOST) | Stable -- 2x2 crossover TOST, GMR + 90% CI |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
-| Stable public release | Done — v1.4.0 |
+| Stable public release | Done — v1.5.0 |
 
 ---
 
@@ -301,15 +303,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~12,000 |
-| Lines of tests (`tests/`) | 5,400 |
-| Total Python files | 80 (44 src + 36 tests) |
-| Tests | 558 |
-| Public functions / methods | 230 |
-| Classes | 30 |
+| Lines of source code (`src/`) | ~12,500 |
+| Lines of tests (`tests/`) | 5,600 |
+| Total Python files | 82 (45 src + 37 tests) |
+| Tests | 574 |
+| Public functions / methods | 240 |
+| Classes | 31 |
 | HTML report templates | 10 |
 | Bundled example datasets | 4 |
-| Git commits | 40 |
+| Git commits | 43 |
 
 ---
 

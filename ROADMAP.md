@@ -87,14 +87,15 @@ Scope: expand `dissolution/` module.
 
 ---
 
-### v1.5.0 -- Sparse NCA (target: ~3 weeks)
+### v1.5.0 -- Sparse NCA ✅ DONE
 
 Scope: model-informed AUC from limited sampling (2-5 samples).
 
-- `SparseNCAStudy`: accept 2-5 timepoints per subject, fit compartmental model
-- TMDD-informed AUC estimation with 90% CI
-- Comparison table vs. rich-sampling reference (bias/precision)
-- Tests: ~15 new tests
+- `fit_sparse_1cmt_oral()` — fits 1-cmt oral model via scipy curve_fit ✅
+- `SparseNCAResult` — CL_F, Vz_F, ka, AUCinf, Cmax, Tmax, half-life, standard errors ✅
+- `sparse_nca_bias_analysis()` — pct bias vs rich-sampling reference ✅
+- Handles 3-data-point minimal sampling, non-convergence gracefully ✅
+- Tests: 16 new tests ✅
 
 ---
 

@@ -158,8 +158,8 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v1.4.0 is current (multi-media dissolution). v1.1.0-v1.3.0 also complete.
-Next milestone is v1.5.0: sparse NCA.
+v1.5.0 is current (sparse-sampling NCA). v1.1.0-v1.4.0 also complete.
+Next milestone is v2.0.0: Bayesian PK.
 See `ROADMAP.md` for the full post-1.0.0 ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
