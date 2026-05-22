@@ -116,6 +116,47 @@ class TestBEStudyAnalyze:
         for _, row in result.subjects_df.iterrows():
             assert row["ratio"] == pytest.approx(row["test"] / row["reference"], rel=1e-6)
 
+    def test_to_bioeqpy_dataframe_returns_long_format(self) -> None:
+        df = pd.DataFrame(
+            {
+                "subject": ["S1", "S2"],
+                "sequence": ["TR", "RT"],
+                "reference": [100.0, 110.0],
+                "test": [95.0, 104.5],
+            }
+        )
+        table = BEStudy(df, parameter="AUCinf").to_bioeqpy_dataframe()
+
+        assert list(table.columns) == ["subject", "sequence", "period", "treatment", "AUCinf"]
+        assert len(table) == 4
+        assert table[table["subject"] == "S1"]["treatment"].tolist() == ["T", "R"]
+        assert table[table["subject"] == "S1"]["AUCinf"].tolist() == [95.0, 100.0]
+        assert table[table["subject"] == "S2"]["treatment"].tolist() == ["R", "T"]
+        assert table[table["subject"] == "S2"]["AUCinf"].tolist() == [110.0, 104.5]
+
+    def test_to_bioeqpy_dataframe_requires_sequence(self) -> None:
+        df = pd.DataFrame({"subject": ["S1"], "reference": [100.0], "test": [95.0]})
+        study = BEStudy(df, parameter="AUCinf", sequence_col=None)
+
+        with pytest.raises(ValueError, match="sequence"):
+            study.to_bioeqpy_dataframe()
+
+    def test_to_bioeqpy_dataframe_rejects_unknown_sequence(self) -> None:
+        df = pd.DataFrame(
+            {"subject": ["S1"], "sequence": ["TT"], "reference": [100.0], "test": [95.0]}
+        )
+
+        with pytest.raises(ValueError, match="TR/RT"):
+            BEStudy(df, parameter="AUCinf").to_bioeqpy_dataframe()
+
+    def test_to_bioeqpy_csv_writes_export(self, tmp_path: Path) -> None:
+        df = pd.DataFrame(
+            {"subject": ["S1"], "sequence": ["TR"], "reference": [100.0], "test": [95.0]}
+        )
+        out = tmp_path / "bioeqpy_input.csv"
+        BEStudy(df, parameter="AUCinf").to_bioeqpy_csv(out)
+
+        assert "period,treatment,AUCinf" in out.read_text(encoding="utf-8")
 
 class TestBEStudySummary:
     def test_summary_contains_gmr(self) -> None:

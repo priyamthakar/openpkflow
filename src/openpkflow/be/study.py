@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import pandas as pd
@@ -18,10 +19,13 @@ _VALID_PARAMETERS = ("AUCinf", "AUClast", "Cmax")
 class BEStudy:
     """2x2 crossover bioequivalence study.
 
+    This is a lightweight convenience layer for paired screening analyses inside
+    OpenPKFlow. For formal regulator-facing BE analysis, export to BioEqPy using
+    :meth:`to_bioeqpy_dataframe` and run BioEqPy's ANOVA/TOST workflow.
+
     Accepts a wide-format DataFrame with one row per subject and one column each
     for reference and test PK parameter values.  The optional sequence column
-    (``"RT"`` or ``"TR"``) is used for informational output only; it does not
-    affect the TOST decision.
+    (``"RT"`` or ``"TR"``) is required only when exporting a formal BioEqPy table.
 
     Parameters
     ----------
@@ -155,6 +159,65 @@ class BEStudy:
         df = pd.DataFrame(rows)
         return cls(df, parameter=parameter, sequence_col=None)
 
+    def to_bioeqpy_dataframe(self) -> pd.DataFrame:
+        """Return a BioEqPy-ready long-format 2x2 crossover table.
+
+        BioEqPy is the formal BE statistics engine for the OpenPKFlow ecosystem.
+        This method keeps OpenPKFlow independent by exporting a plain DataFrame
+        with the columns BioEqPy expects: ``subject``, ``sequence``, ``period``,
+        ``treatment``, and the selected PK parameter.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format table suitable for ``bioeqpy.analyze(...)``.
+
+        Raises
+        ------
+        ValueError
+            If no sequence column was supplied, or if a sequence is not ``TR`` or
+            ``RT``.
+        """
+        if self._seq_col is None:
+            raise ValueError(
+                "A sequence column is required to export BioEqPy long-format BE data."
+            )
+
+        rows: list[dict[str, object]] = []
+        for _, row in self._df.iterrows():
+            subject = row[self._subject_col]
+            sequence = str(row[self._seq_col]).upper()
+            if sequence not in {"TR", "RT"}:
+                raise ValueError(
+                    "BioEqPy export currently supports standard 2x2 TR/RT sequences."
+                )
+
+            reference = float(row[self._ref_col])
+            test = float(row[self._test_col])
+            if sequence == "TR":
+                plan = [(1, "T", test), (2, "R", reference)]
+            else:
+                plan = [(1, "R", reference), (2, "T", test)]
+
+            for period, treatment, value in plan:
+                rows.append(
+                    {
+                        "subject": subject,
+                        "sequence": sequence,
+                        "period": period,
+                        "treatment": treatment,
+                        self._parameter: value,
+                    }
+                )
+
+        return pd.DataFrame(
+            rows,
+            columns=["subject", "sequence", "period", "treatment", self._parameter],
+        )
+
+    def to_bioeqpy_csv(self, path: str | Path) -> None:
+        """Write a BioEqPy-ready long-format CSV file."""
+        self.to_bioeqpy_dataframe().to_csv(path, index=False)
     def analyze(
         self,
         *,
