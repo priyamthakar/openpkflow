@@ -326,7 +326,7 @@ When adding new tests, follow this format:
 ```python
 def test_function_name():
     """Test description.
-    
+
     Reference:
     - FDA Guidance (Year): Section/page
     - Gibaldi & Perrier (1982): Equation X-Y
@@ -344,5 +344,5 @@ All validation tests should include:
 
 ---
 
-**Last Updated:** 2026-05-22  
+**Last Updated:** 2026-05-22
 **Maintainer:** Priyam Thakar (priyamthakar1@gmail.com)

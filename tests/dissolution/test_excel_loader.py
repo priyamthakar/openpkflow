@@ -9,7 +9,6 @@ import pytest
 
 pytest.importorskip("openpyxl", reason="openpyxl required for Excel tests")
 
-import openpyxl  # noqa: E402 (after importorskip)
 import pandas as pd  # noqa: E402
 
 from openpkflow.dissolution import (  # noqa: E402

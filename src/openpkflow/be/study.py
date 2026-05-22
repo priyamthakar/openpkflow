@@ -120,17 +120,13 @@ class BEStudy:
             parameter is unavailable for any subject.
         """
         if parameter not in _VALID_PARAMETERS:
-            raise ValueError(
-                f"parameter must be one of {_VALID_PARAMETERS!r} (got {parameter!r})."
-            )
+            raise ValueError(f"parameter must be one of {_VALID_PARAMETERS!r} (got {parameter!r}).")
 
         ref_map = {r.subject: r for r in reference_results.results}
         tst_map = {t.subject: t for t in test_results.results}
         common = sorted(set(ref_map) & set(tst_map))
         if not common:
-            raise ValueError(
-                "No subjects are shared between reference_results and test_results."
-            )
+            raise ValueError("No subjects are shared between reference_results and test_results.")
 
         def _extract(result: object, param: str) -> float:
             from openpkflow.nca.results import NCAResult
@@ -143,9 +139,7 @@ class BEStudy:
             else:  # Cmax
                 v = r.Cmax
             if v is None:
-                raise ValueError(
-                    f"Subject {r.subject!r} has no value for parameter {param!r}."
-                )
+                raise ValueError(f"Subject {r.subject!r} has no value for parameter {param!r}.")
             return float(v)
 
         rows = [
@@ -179,18 +173,14 @@ class BEStudy:
             ``RT``.
         """
         if self._seq_col is None:
-            raise ValueError(
-                "A sequence column is required to export BioEqPy long-format BE data."
-            )
+            raise ValueError("A sequence column is required to export BioEqPy long-format BE data.")
 
         rows: list[dict[str, object]] = []
         for _, row in self._df.iterrows():
             subject = row[self._subject_col]
             sequence = str(row[self._seq_col]).upper()
             if sequence not in {"TR", "RT"}:
-                raise ValueError(
-                    "BioEqPy export currently supports standard 2x2 TR/RT sequences."
-                )
+                raise ValueError("BioEqPy export currently supports standard 2x2 TR/RT sequences.")
 
             reference = float(row[self._ref_col])
             test = float(row[self._test_col])

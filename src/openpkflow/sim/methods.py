@@ -209,9 +209,7 @@ def c_1cmt_oral(
 # ---------------------------------------------------------------------------
 
 
-def _2cmt_macro_constants(
-    k10: float, k12: float, k21: float
-) -> tuple[float, float]:
+def _2cmt_macro_constants(k10: float, k12: float, k21: float) -> tuple[float, float]:
     """Compute macro-constants alpha and beta for a 2-compartment model.
 
     Parameters
@@ -355,8 +353,7 @@ def c_2cmt_iv_infusion(
 
     t_d = t[during]
     C[during] = R0 * (
-        A_s / alpha * (1.0 - np.exp(-alpha * t_d))
-        + B_s / beta * (1.0 - np.exp(-beta * t_d))
+        A_s / alpha * (1.0 - np.exp(-alpha * t_d)) + B_s / beta * (1.0 - np.exp(-beta * t_d))
     )
 
     t_p = t[~during]

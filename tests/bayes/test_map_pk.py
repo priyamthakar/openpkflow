@@ -25,7 +25,6 @@ from openpkflow.bayes.map_pk import (
 from openpkflow.bayes.priors import _log_normal_logpdf
 from openpkflow.sim.methods import c_1cmt_iv_bolus, c_1cmt_oral
 
-
 # ---------------------------------------------------------------------------
 # Synthetic ground truth: oral 1-cmt
 # TRUE: CL_F=5, Vz_F=50, ka=1.2, dose=100mg, sigma=0.1
@@ -68,10 +67,9 @@ class TestPKPrior:
     def test_log_prior_iv_sums_two_normals(self):
         p = PKPrior()
         lp = p.log_prior_iv(p.log_cl_mean, p.log_v_mean)
-        expected = (
-            _log_normal_logpdf(p.log_cl_mean, p.log_cl_mean, p.log_cl_sd)
-            + _log_normal_logpdf(p.log_v_mean, p.log_v_mean, p.log_v_sd)
-        )
+        expected = _log_normal_logpdf(
+            p.log_cl_mean, p.log_cl_mean, p.log_cl_sd
+        ) + _log_normal_logpdf(p.log_v_mean, p.log_v_mean, p.log_v_sd)
         assert lp == pytest.approx(expected)
 
 
@@ -91,20 +89,18 @@ class TestObjectiveSign:
     def test_objective_is_negated_log_posterior(self):
         """Objective equals -(log_prior + log_likelihood) at any point."""
         prior = PKPrior()
-        obj = _make_objective(
-            np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior
-        )
+        obj = _make_objective(np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior)
         x = np.array([math.log(_TRUE_CL_F), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         lp = _log_prior(x, prior, "oral")
-        ll = _log_likelihood(x, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior.sigma_mean)
+        ll = _log_likelihood(
+            x, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior.sigma_mean
+        )
         assert obj(x) == pytest.approx(-(lp + ll), rel=1e-6)
 
     def test_objective_lower_at_true_than_at_bad_params(self):
         """Objective at true parameters must be lower than at deliberately bad params."""
         prior = PKPrior()
-        obj = _make_objective(
-            np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior
-        )
+        obj = _make_objective(np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior)
         x_true = np.array([math.log(_TRUE_CL_F), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         x_bad_low = np.array([math.log(0.001), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         x_bad_high = np.array([math.log(1000.0), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
@@ -113,11 +109,14 @@ class TestObjectiveSign:
 
     def test_log_likelihood_higher_at_true_than_at_bad_params(self):
         """Log-likelihood is higher (less negative) at the true parameters."""
-        prior = PKPrior()
         x_true = np.array([math.log(_TRUE_CL_F), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         x_bad = np.array([math.log(0.001), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
-        ll_true = _log_likelihood(x_true, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", 0.2)
-        ll_bad = _log_likelihood(x_bad, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", 0.2)
+        ll_true = _log_likelihood(
+            x_true, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", 0.2
+        )
+        ll_bad = _log_likelihood(
+            x_bad, np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", 0.2
+        )
         assert ll_true > ll_bad
 
 
@@ -134,7 +133,7 @@ class TestMapOral:
         )
         result = map_individual_pk(_TIMES_ORAL, _TRUE_ORAL, _DOSE, "oral", prior)
         assert result.converged
-        assert result.CL_F == pytest.approx(_TRUE_CL_F, rel=0.10)
+        assert pytest.approx(_TRUE_CL_F, rel=0.10) == result.CL_F
         assert result.Vz_F == pytest.approx(_TRUE_VZ_F, rel=0.10)
         assert result.ka == pytest.approx(_TRUE_KA, rel=0.10)
 
@@ -188,7 +187,7 @@ class TestMapIV:
         )
         result = map_individual_pk(_TIMES_IV, _TRUE_IV, _DOSE, "iv_bolus", prior)
         assert result.converged
-        assert result.CL == pytest.approx(_TRUE_CL, rel=0.10)
+        assert pytest.approx(_TRUE_CL, rel=0.10) == result.CL
         assert result.Vz == pytest.approx(_TRUE_VZ, rel=0.10)
 
     def test_route_fields_populated(self):
@@ -271,9 +270,7 @@ class TestNumericalHessian:
             log_v_mean=math.log(_TRUE_VZ_F),
             log_ka_mean=math.log(_TRUE_KA),
         )
-        obj = _make_objective(
-            np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior
-        )
+        obj = _make_objective(np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior)
         x = np.array([math.log(_TRUE_CL_F), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         H = _numerical_hessian(obj, x)
         assert H.shape == (3, 3)
@@ -285,9 +282,7 @@ class TestNumericalHessian:
             log_v_mean=math.log(_TRUE_VZ_F),
             log_ka_mean=math.log(_TRUE_KA),
         )
-        obj = _make_objective(
-            np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior
-        )
+        obj = _make_objective(np.array(_TIMES_ORAL), np.array(_TRUE_ORAL), _DOSE, "oral", prior)
         x = np.array([math.log(_TRUE_CL_F), math.log(_TRUE_VZ_F), math.log(_TRUE_KA)])
         H = _numerical_hessian(obj, x)
         eigvals = np.linalg.eigvalsh(H)

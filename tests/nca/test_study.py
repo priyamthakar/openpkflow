@@ -17,16 +17,18 @@ def _make_df(rows: list[dict]) -> pd.DataFrame:
 
 
 def _oral_df() -> pd.DataFrame:
-    return _make_df([
-        {"subject": "1", "time": 0.0, "conc": 0.0,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 0.5, "conc": 4.0,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 1.0, "conc": 8.0,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 2.0, "conc": 6.0,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 4.0, "conc": 3.0,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 8.0, "conc": 1.5,  "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 12.0, "conc": 0.75, "dose": 320.0, "route": "oral"},
-        {"subject": "1", "time": 24.0, "conc": 0.2,  "dose": 320.0, "route": "oral"},
-    ])
+    return _make_df(
+        [
+            {"subject": "1", "time": 0.0, "conc": 0.0, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 0.5, "conc": 4.0, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 1.0, "conc": 8.0, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 2.0, "conc": 6.0, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 4.0, "conc": 3.0, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 8.0, "conc": 1.5, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 12.0, "conc": 0.75, "dose": 320.0, "route": "oral"},
+            {"subject": "1", "time": 24.0, "conc": 0.2, "dose": 320.0, "route": "oral"},
+        ]
+    )
 
 
 class TestNCAStudyInit:
@@ -84,12 +86,14 @@ class TestNCAStudyAnalyze:
 
     def test_lambda_z_none_when_insufficient_tail_points(self) -> None:
         # Only 2 post-Cmax positive points → lambda_z should fail gracefully
-        df = _make_df([
-            {"subject": "1", "time": 0.0, "conc": 0.0,  "dose": 100.0, "route": "oral"},
-            {"subject": "1", "time": 1.0, "conc": 5.0,  "dose": 100.0, "route": "oral"},
-            {"subject": "1", "time": 2.0, "conc": 3.0,  "dose": 100.0, "route": "oral"},
-            {"subject": "1", "time": 4.0, "conc": 0.0,  "dose": 100.0, "route": "oral"},
-        ])
+        df = _make_df(
+            [
+                {"subject": "1", "time": 0.0, "conc": 0.0, "dose": 100.0, "route": "oral"},
+                {"subject": "1", "time": 1.0, "conc": 5.0, "dose": 100.0, "route": "oral"},
+                {"subject": "1", "time": 2.0, "conc": 3.0, "dose": 100.0, "route": "oral"},
+                {"subject": "1", "time": 4.0, "conc": 0.0, "dose": 100.0, "route": "oral"},
+            ]
+        )
         study = NCAStudy(df, auc_method="linear", blq_method="none")
         result = study.analyze().results[0]
         assert result.lambda_z is None
@@ -171,11 +175,26 @@ class TestNCAResult:
     def test_to_dict_has_all_required_keys(self) -> None:
         d = self._result().to_dict()
         required_keys = [
-            "subject", "route", "dose", "auc_method", "blq_method",
-            "AUClast", "AUCinf_obs", "AUC_percent_extrapolated",
-            "Cmax", "Tmax", "lambda_z", "half_life", "lambda_z_method",
-            "selected_lambda_z_times", "selected_lambda_z_concs",
-            "CL_F", "Vz_F", "CL", "Vz", "warnings",
+            "subject",
+            "route",
+            "dose",
+            "auc_method",
+            "blq_method",
+            "AUClast",
+            "AUCinf_obs",
+            "AUC_percent_extrapolated",
+            "Cmax",
+            "Tmax",
+            "lambda_z",
+            "half_life",
+            "lambda_z_method",
+            "selected_lambda_z_times",
+            "selected_lambda_z_concs",
+            "CL_F",
+            "Vz_F",
+            "CL",
+            "Vz",
+            "warnings",
         ]
         for key in required_keys:
             assert key in d, f"Missing key: {key}"

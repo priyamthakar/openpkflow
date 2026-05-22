@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
@@ -57,8 +57,7 @@ def _validate_profiles(
 
     if len(ref) != len(tst):
         raise ValueError(
-            f"reference and test must have the same length "
-            f"(got {len(ref)} and {len(tst)})."
+            f"reference and test must have the same length (got {len(ref)} and {len(tst)})."
         )
 
     if len(ref) == 0:
@@ -78,8 +77,7 @@ def _validate_profiles(
                 )
             if val < 0.0 or val > 100.0:
                 raise ValueError(
-                    f"{label}[{i}] = {val} is outside [0, 100].  "
-                    "Values must be percent released."
+                    f"{label}[{i}] = {val} is outside [0, 100].  Values must be percent released."
                 )
 
     return ref, tst
@@ -324,7 +322,7 @@ def msd(reference: Sequence[float], test: Sequence[float]) -> MSDResult:
         msd_squared=msd_sq,
         n_timepoints=n,
         chi2_05_critical=chi2_crit,
-        is_similar = msd_sq <= chi2_crit,
+        is_similar=msd_sq <= chi2_crit,
     )
 
 

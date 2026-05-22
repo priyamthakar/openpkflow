@@ -158,12 +158,16 @@ class TestGibaldiPerrier2CmtIVInfusion:
         """
         CL, V1, Q, V2, dose = 5.0, 20.0, 3.0, 15.0, 100.0
         t = np.linspace(0, 300, 100000)
-        aucinf_short = float(np.trapezoid(
-            c_2cmt_iv_infusion(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=0.5),
-            t,
-        ))
-        aucinf_long = float(np.trapezoid(
-            c_2cmt_iv_infusion(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=5.0),
-            t,
-        ))
+        aucinf_short = float(
+            np.trapezoid(
+                c_2cmt_iv_infusion(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=0.5),
+                t,
+            )
+        )
+        aucinf_long = float(
+            np.trapezoid(
+                c_2cmt_iv_infusion(t, dose=dose, CL=CL, V1=V1, Q=Q, V2=V2, t_inf=5.0),
+                t,
+            )
+        )
         assert within_pct(aucinf_short, aucinf_long, pct=1.0)

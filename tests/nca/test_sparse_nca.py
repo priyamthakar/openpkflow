@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 
 from openpkflow.nca.sparse import (
-    SparseNCAResult,
     fit_sparse_1cmt_oral,
     sparse_nca_bias_analysis,
 )
@@ -23,7 +22,7 @@ class TestFitSparse1cmtOral:
         result = fit_sparse_1cmt_oral(times, conc, dose)
 
         assert result.converged
-        assert result.CL_F == pytest.approx(CL_F_true, rel=0.15)
+        assert pytest.approx(CL_F_true, rel=0.15) == result.CL_F
         assert result.Vz_F == pytest.approx(Vz_F_true, rel=0.25)
         assert result.ka == pytest.approx(ka_true, rel=0.30)
 

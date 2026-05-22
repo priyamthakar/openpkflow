@@ -222,6 +222,7 @@ class MapPKResult:
             If True, calls plt.show(). Default False.
         """
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 

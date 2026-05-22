@@ -3,6 +3,7 @@
 PDF magic bytes: b"%PDF" (ISO 32000)
 DOCX magic bytes: b"PK" (ZIP container, OOXML)
 """
+
 from __future__ import annotations
 
 import pytest
@@ -12,6 +13,7 @@ from openpkflow.nca.results import NCAResult, NCASummaryResults
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
+
 
 def _make_result(lambda_z: float | None = 0.088, warnings: list[str] | None = None) -> NCAResult:
     return NCAResult(

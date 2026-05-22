@@ -3,6 +3,7 @@
 Reference: openpkflow[reports] optional extra (reportlab >= 4.0).
 PDF magic bytes: b"%PDF-"  (ISO 32000)
 """
+
 from __future__ import annotations
 
 import pytest
@@ -225,6 +226,7 @@ class TestPDFImportGuard:
             import importlib
 
             import openpkflow.report.pdf as pdf_mod
+
             importlib.reload(pdf_mod)
             with pytest.raises(ImportError, match="pip install openpkflow\\[reports\\]"):
                 pdf_mod.render_comparison_pdf_report(

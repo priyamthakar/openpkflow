@@ -39,9 +39,7 @@ def render_html_report(
 ) -> str:
     """Render a dissolution comparison HTML report."""
     if f2_value >= 50:
-        interpretation = (
-            "f2 >= 50 supports similarity between the reference and test profiles."
-        )
+        interpretation = "f2 >= 50 supports similarity between the reference and test profiles."
     else:
         interpretation = "f2 < 50 does not support similarity."
 

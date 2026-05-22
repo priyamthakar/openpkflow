@@ -28,8 +28,10 @@ def test_similarity_command() -> None:
         app,
         [
             "similarity",
-            "--reference", "20,40,60,80,90",
-            "--test", "20,40,60,80,90",
+            "--reference",
+            "20,40,60,80,90",
+            "--test",
+            "20,40,60,80,90",
         ],
     )
     assert result.exit_code == 0
@@ -45,8 +47,10 @@ def test_similarity_similar_profiles() -> None:
         app,
         [
             "similarity",
-            "--reference", "20,40,60,80,90",
-            "--test", "21,39,61,79,88",
+            "--reference",
+            "20,40,60,80,90",
+            "--test",
+            "21,39,61,79,88",
         ],
     )
     assert result.exit_code == 0
@@ -61,8 +65,10 @@ def test_similarity_invalid_input() -> None:
         app,
         [
             "similarity",
-            "--reference", "20,40",
-            "--test", "20,40,60",
+            "--reference",
+            "20,40",
+            "--test",
+            "20,40,60",
         ],
     )
     assert result.exit_code == 1
@@ -74,8 +80,10 @@ def test_similarity_non_numeric_input() -> None:
         app,
         [
             "similarity",
-            "--reference", "20,abc,60",
-            "--test", "20,40,60",
+            "--reference",
+            "20,abc,60",
+            "--test",
+            "20,40,60",
         ],
     )
     assert result.exit_code == 1
@@ -106,10 +114,13 @@ def test_dissolution_compare(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
         [
-            "dissolution", "compare",
+            "dissolution",
+            "compare",
             str(csv_file),
-            "--reference", "reference",
-            "--test", "test",
+            "--reference",
+            "reference",
+            "--test",
+            "test",
         ],
     )
     assert result.exit_code == 0
@@ -127,10 +138,13 @@ def test_dissolution_compare_missing_formulation(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
         [
-            "dissolution", "compare",
+            "dissolution",
+            "compare",
             str(csv_file),
-            "--reference", "reference",
-            "--test", "placebo",
+            "--reference",
+            "reference",
+            "--test",
+            "placebo",
         ],
     )
     assert result.exit_code == 1
@@ -145,10 +159,13 @@ def test_dissolution_compare_missing_file() -> None:
     result = runner.invoke(
         app,
         [
-            "dissolution", "compare",
+            "dissolution",
+            "compare",
             "nonexistent_file.csv",
-            "--reference", "reference",
-            "--test", "test",
+            "--reference",
+            "reference",
+            "--test",
+            "test",
         ],
     )
     assert result.exit_code != 0
@@ -173,10 +190,13 @@ def test_dissolution_compare_mismatched_timepoints(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
         [
-            "dissolution", "compare",
+            "dissolution",
+            "compare",
             str(csv_file),
-            "--reference", "reference",
-            "--test", "test",
+            "--reference",
+            "reference",
+            "--test",
+            "test",
         ],
     )
     assert result.exit_code == 1

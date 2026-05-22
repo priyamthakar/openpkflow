@@ -64,9 +64,7 @@ def _validate_dissolution_df(
     df = df.copy()
     df[time_col] = pd.to_numeric(df[time_col], errors="coerce")
     if df[time_col].isna().any():
-        raise ValueError(
-            f"Column '{time_col}' contains non-numeric values. Time must be numeric."
-        )
+        raise ValueError(f"Column '{time_col}' contains non-numeric values. Time must be numeric.")
     if (df[time_col] < 0).any():
         raise ValueError(
             f"Column '{time_col}' contains negative values. Time must be non-negative."
@@ -80,9 +78,7 @@ def _validate_dissolution_df(
     out_of_range = df[(df[pct_col] < 0) | (df[pct_col] > 100)]
     if not out_of_range.empty:
         bad_vals = out_of_range[pct_col].tolist()
-        raise ValueError(
-            f"Column '{pct_col}' contains values outside [0, 100]: {bad_vals}"
-        )
+        raise ValueError(f"Column '{pct_col}' contains values outside [0, 100]: {bad_vals}")
 
     formulations = df[form_col].unique()
     empty_formulations = [str(f) for f in formulations if df[df[form_col] == f].shape[0] == 0]
@@ -212,11 +208,7 @@ def get_formulation_means(
         A tuple of (time_points, mean_percent_released), each sorted by time.
     """
     subset = df[df[formulation_col] == formulation]
-    means = (
-        subset.groupby(time_col, sort=True)[pct_col]
-        .mean()
-        .reset_index()
-    )
+    means = subset.groupby(time_col, sort=True)[pct_col].mean().reset_index()
     time_points = means[time_col].tolist()
     mean_pct = means[pct_col].tolist()
     return time_points, mean_pct

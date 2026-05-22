@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Identity
 
-**Package:** `openpkflow`  
-**Author:** Priyam Thakar <priyamthakar1@gmail.com>  
-**GitHub:** https://github.com/priyamthakar/openpkflow  
-**PyPI target:** `pip install openpkflow`  
-**License:** MIT  
+**Package:** `openpkflow`
+**Author:** Priyam Thakar <priyamthakar1@gmail.com>
+**GitHub:** https://github.com/priyamthakar/openpkflow
+**PyPI target:** `pip install openpkflow`
+**License:** MIT
 **Philosophy:** Transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. Does not replace expert regulatory judgement or validated commercial platforms.
 
 ---

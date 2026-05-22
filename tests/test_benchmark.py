@@ -13,13 +13,35 @@ import math
 import numpy as np
 import pytest
 
+from openpkflow.bayes import map_individual_pk
+from openpkflow.be.methods import be_tost
+from openpkflow.dissolution import bootstrap_f2
+from openpkflow.dissolution.models import fit_dissolution_models
+from openpkflow.dissolution.similarity import f1, f2
+from openpkflow.ivivc.methods import convolution_predict, wagner_nelson
+from openpkflow.nca.methods import auc_linear, auc_linear_up_log_down, lambda_z
+from openpkflow.nca.sparse import fit_sparse_1cmt_oral
+from openpkflow.sim.dosing import DoseRegimen
+from openpkflow.sim.methods import c_1cmt_iv_bolus, c_1cmt_oral, c_2cmt_iv_bolus
+from openpkflow.sim.models import OneCompartmentModel, TwoCompartmentModel
+from openpkflow.sim.simulate import simulate
+
+# ---------------------------------------------------------------------------
+# Shared fixtures
+# ---------------------------------------------------------------------------
+
+_TIMES_DENSE = np.linspace(0, 72, 500)
+_IV_T = np.linspace(0.5, 24, 20)
+_IV_C = 3.0 * np.exp(-0.15 * _IV_T)
+_MAP_TIMES = [0.5, 1.0, 2.0, 4.0, 8.0, 12.0]
+_MAP_CONCS = [1.23, 1.85, 1.97, 1.61, 0.89, 0.49]
+_SPARSE_T = [0.5, 2.0, 8.0, 24.0]
+_SPARSE_C = [1.2, 2.3, 1.5, 0.4]
+_DOSE = 100.0
+
 # ---------------------------------------------------------------------------
 # Dissolution
 # ---------------------------------------------------------------------------
-
-from openpkflow.dissolution.similarity import f1, f2
-from openpkflow.dissolution.models import fit_dissolution_models
-from openpkflow.dissolution import bootstrap_f2
 
 
 @pytest.mark.benchmark(group="dissolution")
@@ -65,8 +87,6 @@ def test_fit_models_benchmark(benchmark):
 # NCA
 # ---------------------------------------------------------------------------
 
-from openpkflow.nca.methods import auc_linear, auc_linear_up_log_down, lambda_z
-
 
 @pytest.mark.benchmark(group="nca")
 def test_auc_linear_benchmark(benchmark):
@@ -93,18 +113,16 @@ def test_lambda_z_benchmark(benchmark):
     benchmark(lambda_z, t.tolist(), conc.tolist())
 
 
+@pytest.mark.benchmark(group="nca")
+def test_sparse_nca_benchmark(benchmark):
+    """fit_sparse_1cmt_oral on a 4-sample minimal dataset."""
+    result = benchmark(fit_sparse_1cmt_oral, _SPARSE_T, _SPARSE_C, _DOSE)
+    assert result.AUCinf > 0
+
+
 # ---------------------------------------------------------------------------
 # PK simulation
 # ---------------------------------------------------------------------------
-
-from openpkflow.sim.methods import c_1cmt_oral, c_1cmt_iv_bolus, c_2cmt_iv_bolus
-from openpkflow.sim.simulate import simulate
-from openpkflow.sim.models import OneCompartmentModel, TwoCompartmentModel
-from openpkflow.sim.dosing import DoseRegimen
-
-
-_TIMES_DENSE = np.linspace(0, 72, 500)
-_TIMES_SPARSE = np.linspace(0, 72, 50)
 
 
 @pytest.mark.benchmark(group="sim")
@@ -145,32 +163,21 @@ def test_simulate_2cmt_iv_repeated_benchmark(benchmark):
 # IVIVC
 # ---------------------------------------------------------------------------
 
-from openpkflow.ivivc.methods import wagner_nelson, convolution_predict
-
-
 _ORAL_T = np.array([0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 12.0, 16.0, 24.0])
 _ORAL_C = np.array([0.8, 1.5, 2.1, 2.4, 2.0, 1.6, 1.0, 0.6, 0.25])
-_IV_T = np.linspace(0.5, 24, 20)
-_IV_C = 3.0 * np.exp(-0.15 * _IV_T)
 
 
 @pytest.mark.benchmark(group="ivivc")
 def test_wagner_nelson_benchmark(benchmark):
     """Wagner-Nelson deconvolution on 9-point oral profile."""
-    benchmark(
-        wagner_nelson,
-        _ORAL_T.tolist(),
-        _ORAL_C.tolist(),
-        kel=0.15,
-    )
+    benchmark(wagner_nelson, _ORAL_T.tolist(), _ORAL_C.tolist(), kel=0.15)
 
 
 @pytest.mark.benchmark(group="ivivc")
 def test_convolution_predict_benchmark(benchmark):
-    """Convolution prediction with 9-point dissolution input and IV impulse response."""
+    """Convolution prediction with 50-point dissolution input and IV impulse response."""
     fa_times = np.linspace(0, 24, 50)
     fa_values = 1 - np.exp(-0.3 * fa_times)
-
     benchmark(
         convolution_predict,
         fa_times.tolist(),
@@ -181,41 +188,14 @@ def test_convolution_predict_benchmark(benchmark):
 
 
 # ---------------------------------------------------------------------------
-# Sparse NCA
-# ---------------------------------------------------------------------------
-
-from openpkflow.nca.sparse import fit_sparse_1cmt_oral
-
-
-_SPARSE_T = [0.5, 2.0, 8.0, 24.0]
-_SPARSE_C = [1.2, 2.3, 1.5, 0.4]
-_DOSE = 100.0
-
-
-@pytest.mark.benchmark(group="nca")
-def test_sparse_nca_benchmark(benchmark):
-    """fit_sparse_1cmt_oral on a 4-sample minimal dataset."""
-    result = benchmark(fit_sparse_1cmt_oral, _SPARSE_T, _SPARSE_C, _DOSE)
-    assert result.AUCinf > 0
-
-
-# ---------------------------------------------------------------------------
 # MAP Bayesian PK
 # ---------------------------------------------------------------------------
-
-from openpkflow.bayes import map_individual_pk
-
-
-_MAP_TIMES = [0.5, 1.0, 2.0, 4.0, 8.0, 12.0]
-_MAP_CONCS = [1.23, 1.85, 1.97, 1.61, 0.89, 0.49]
 
 
 @pytest.mark.benchmark(group="bayes")
 def test_map_pk_oral_benchmark(benchmark):
     """MAP individual PK estimation on a 6-point oral profile."""
-    result = benchmark(
-        map_individual_pk, _MAP_TIMES, _MAP_CONCS, 100.0, "oral"
-    )
+    result = benchmark(map_individual_pk, _MAP_TIMES, _MAP_CONCS, 100.0, "oral")
     assert result.converged
 
 
@@ -231,8 +211,6 @@ def test_map_pk_iv_benchmark(benchmark):
 # ---------------------------------------------------------------------------
 # Bioequivalence
 # ---------------------------------------------------------------------------
-
-from openpkflow.be.methods import be_tost
 
 
 @pytest.mark.benchmark(group="be")

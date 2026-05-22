@@ -52,9 +52,7 @@ class TestSimulate1Cmt:
     def test_repeated_iv_bolus_accumulation(self) -> None:
         """Multiple IV bolus doses accumulate: Cmax after dose 5 > Cmax after dose 1."""
         model = OneCompartmentModel(route="iv_bolus", CL=2.0, Vz=20.0)
-        regimen = DoseRegimen.from_repeated(
-            amount=50.0, route="iv_bolus", tau=8.0, n_doses=5
-        )
+        regimen = DoseRegimen.from_repeated(amount=50.0, route="iv_bolus", tau=8.0, n_doses=5)
         t = list(np.linspace(0, 40, 400))
         result = simulate(model, regimen, t)
         # Conc just after dose 5 (t=32+eps) should exceed conc just after dose 1 (t=eps)
@@ -82,8 +80,7 @@ class TestSimulate1Cmt:
         regimen = DoseRegimen((Dose(100.0, 2.0, "iv_bolus"),))
         result = simulate(model, regimen, _make_times(24))
         assert any(
-            "pre-dose" in w.lower() or "before first dose" in w.lower()
-            for w in result.warnings
+            "pre-dose" in w.lower() or "before first dose" in w.lower() for w in result.warnings
         )
 
     def test_half_life_matches_model(self) -> None:

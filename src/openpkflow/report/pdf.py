@@ -376,8 +376,6 @@ def render_multi_media_pdf_report(
 
     navy = colors.HexColor(_NAVY)
     light_grey = colors.HexColor(_LIGHT_GREY)
-    green_bg = colors.HexColor("#d4edda")
-    red_bg = colors.HexColor("#f8d7da")
 
     story: list[Any] = []
 
@@ -391,10 +389,8 @@ def render_multi_media_pdf_report(
 
     # Overall verdict
     if overall_pass:
-        vcolor = colors.HexColor("#155724")
         verdict_text = "Overall Verdict: PASS — all media satisfy f2 >= 50"
     else:
-        vcolor = colors.HexColor("#721c24")
         verdict_text = "Overall Verdict: FAIL — one or more media fall below f2 >= 50"
     story.append(Paragraph(verdict_text, style_verdict))
 
@@ -408,34 +404,38 @@ def render_multi_media_pdf_report(
             continue
         f2 = cr.get("f2_value", 0)
         status = "PASS" if f2 >= 50 else "FAIL"
-        summary_data.append([
-            medium,
-            f"{f2:.2f}",
-            f"{cr.get('f1_value', 0):.2f}",
-            str(cr.get("n_timepoints", 0)),
-            status,
-        ])
+        summary_data.append(
+            [
+                medium,
+                f"{f2:.2f}",
+                f"{cr.get('f1_value', 0):.2f}",
+                str(cr.get("n_timepoints", 0)),
+                status,
+            ]
+        )
 
     col_widths = [1.5 * inch, 0.8 * inch, 0.8 * inch, 1.0 * inch, 0.9 * inch]
     summary_table = Table(summary_data, colWidths=col_widths)
     summary_table.setStyle(
-        TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), navy),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, 0), 9),
-            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-            ("ALIGN", (1, 0), (3, -1), "CENTER"),
-            ("ALIGN", (4, 0), (4, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTSIZE", (0, 1), (-1, -1), 9),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-            ("TOPPADDING", (0, 0), (-1, -1), 5),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-            ("LEFTPADDING", (0, 0), (-1, -1), 8),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ])
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), navy),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 9),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("ALIGN", (1, 0), (3, -1), "CENTER"),
+                ("ALIGN", (4, 0), (4, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTSIZE", (0, 1), (-1, -1), 9),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
     )
     story.append(summary_table)
 
@@ -593,9 +593,7 @@ def render_model_fit_pdf_report(
     best_row_index: int | None = None
 
     for i, row in enumerate(converged_rows):
-        params_str = ", ".join(
-            f"{k}={v:.4g}" for k, v in row.get("params", {}).items()
-        )
+        params_str = ", ".join(f"{k}={v:.4g}" for k, v in row.get("params", {}).items())
         r_sq = row.get("r_squared", float("nan"))
         aicc = row.get("aicc", float("nan"))
         bic = row.get("bic", float("nan"))
@@ -616,8 +614,13 @@ def render_model_fit_pdf_report(
         )
 
     col_widths = [
-        0.5 * inch, 1.3 * inch, 0.5 * inch,
-        0.65 * inch, 0.65 * inch, 0.65 * inch, 2.65 * inch,
+        0.5 * inch,
+        1.3 * inch,
+        0.5 * inch,
+        0.65 * inch,
+        0.65 * inch,
+        0.65 * inch,
+        2.65 * inch,
     ]
     fit_table = Table(fit_table_data, colWidths=col_widths)
 
@@ -639,9 +642,7 @@ def render_model_fit_pdf_report(
         ("RIGHTPADDING", (0, 0), (-1, -1), 5),
     ]
     if best_row_index is not None:
-        table_style_cmds.append(
-            ("BACKGROUND", (0, best_row_index), (-1, best_row_index), gold)
-        )
+        table_style_cmds.append(("BACKGROUND", (0, best_row_index), (-1, best_row_index), gold))
         table_style_cmds.append(
             ("FONTNAME", (0, best_row_index), (-1, best_row_index), "Helvetica-Bold")
         )
@@ -796,9 +797,7 @@ def render_nca_single_pdf_report(
 
     story: list[Any] = []
     story.append(Paragraph(title, style_title))
-    story.append(
-        Paragraph(f"Generated {generated_at} | OpenPKFlow v{__version__}", style_meta)
-    )
+    story.append(Paragraph(f"Generated {generated_at} | OpenPKFlow v{__version__}", style_meta))
 
     story.append(Paragraph("Study Parameters", style_heading))
     study_data = [
@@ -811,22 +810,24 @@ def render_nca_single_pdf_report(
     ]
     study_table = Table(study_data, colWidths=[2.5 * inch, 4.0 * inch])
     study_table.setStyle(
-        TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), navy),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, 0), 10),
-            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 1), (-1, -1), 9),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-            ("TOPPADDING", (0, 0), (-1, -1), 5),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-            ("LEFTPADDING", (0, 0), (-1, -1), 8),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ])
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), navy),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 10),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 1), (-1, -1), 9),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
     )
     story.append(study_table)
 
@@ -846,22 +847,24 @@ def render_nca_single_pdf_report(
     ]
     pk_table = Table(pk_data, colWidths=[2.5 * inch, 4.0 * inch])
     pk_table.setStyle(
-        TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), navy),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, 0), 10),
-            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 1), (-1, -1), 9),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-            ("TOPPADDING", (0, 0), (-1, -1), 5),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-            ("LEFTPADDING", (0, 0), (-1, -1), 8),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ])
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), navy),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 10),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 1), (-1, -1), 9),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
     )
     story.append(pk_table)
 
@@ -985,9 +988,7 @@ def render_nca_summary_pdf_report(
 
     story: list[Any] = []
     story.append(Paragraph("NCA Summary Report", style_title))
-    story.append(
-        Paragraph(f"Generated {generated_at} | OpenPKFlow v{__version__}", style_meta)
-    )
+    story.append(Paragraph(f"Generated {generated_at} | OpenPKFlow v{__version__}", style_meta))
 
     if summary.study_label:
         story.append(Paragraph("Study Parameters", style_heading))
@@ -999,22 +1000,24 @@ def render_nca_summary_pdf_report(
         ]
         study_table = Table(study_data, colWidths=[2.5 * inch, 4.0 * inch])
         study_table.setStyle(
-            TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), navy),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, 0), 10),
-                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 1), (-1, -1), 9),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-                ("LEFTPADDING", (0, 0), (-1, -1), 8),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-            ])
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), navy),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 10),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 1), (-1, -1), 9),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ]
+            )
         )
         story.append(study_table)
         story.append(Spacer(1, 0.1 * inch))
@@ -1022,45 +1025,63 @@ def render_nca_summary_pdf_report(
     story.append(Paragraph("PK Parameters by Subject", style_heading))
 
     col_headers = [
-        "Subject", "AUClast", "AUCinf_obs", "AUC%Extr",
-        "Cmax", "Tmax", "Half-life", "CL/CL_F", "Vz/Vz_F",
+        "Subject",
+        "AUClast",
+        "AUCinf_obs",
+        "AUC%Extr",
+        "Cmax",
+        "Tmax",
+        "Half-life",
+        "CL/CL_F",
+        "Vz/Vz_F",
     ]
     table_data: list[list[str]] = [col_headers]
     for r in summary.results:
-        table_data.append([
-            str(r.subject),
-            _fmt(r.AUClast),
-            _fmt(r.AUCinf_obs),
-            _fmt(r.AUC_percent_extrapolated),
-            _fmt(r.Cmax),
-            _fmt(r.Tmax),
-            _fmt(r.half_life),
-            _cl_val(r),
-            _vz_val(r),
-        ])
+        table_data.append(
+            [
+                str(r.subject),
+                _fmt(r.AUClast),
+                _fmt(r.AUCinf_obs),
+                _fmt(r.AUC_percent_extrapolated),
+                _fmt(r.Cmax),
+                _fmt(r.Tmax),
+                _fmt(r.half_life),
+                _cl_val(r),
+                _vz_val(r),
+            ]
+        )
 
     col_widths = [
-        0.75 * inch, 0.72 * inch, 0.78 * inch, 0.72 * inch,
-        0.65 * inch, 0.60 * inch, 0.72 * inch, 0.72 * inch, 0.72 * inch,
+        0.75 * inch,
+        0.72 * inch,
+        0.78 * inch,
+        0.72 * inch,
+        0.65 * inch,
+        0.60 * inch,
+        0.72 * inch,
+        0.72 * inch,
+        0.72 * inch,
     ]
     summary_table = Table(table_data, colWidths=col_widths)
     summary_table.setStyle(
-        TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), navy),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, 0), 7),
-            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-            ("ALIGN", (0, 1), (0, -1), "LEFT"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTSIZE", (0, 1), (-1, -1), 8),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-            ("LEFTPADDING", (0, 0), (-1, -1), 4),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-        ])
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), navy),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 7),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("ALIGN", (0, 1), (0, -1), "LEFT"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("FONTSIZE", (0, 1), (-1, -1), 8),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
     )
     story.append(summary_table)
 
@@ -1124,40 +1145,51 @@ def render_sim_pdf_report(
 
     from openpkflow import __version__
     from openpkflow.sim.plotting import pk_profile_plot_b64
+
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     report_buf = io.BytesIO()
-    doc = SimpleDocTemplate(report_buf, pagesize=A4,
-                            leftMargin=20 * mm, rightMargin=20 * mm,
-                            topMargin=20 * mm, bottomMargin=20 * mm)
+    doc = SimpleDocTemplate(
+        report_buf,
+        pagesize=A4,
+        leftMargin=20 * mm,
+        rightMargin=20 * mm,
+        topMargin=20 * mm,
+        bottomMargin=20 * mm,
+    )
 
     styles = getSampleStyleSheet()
     _NAVY_COLOR = colors.HexColor(_NAVY)
     _LIGHT_GREY_COLOR = colors.HexColor(_LIGHT_GREY)
 
-    style_h1 = ParagraphStyle("SH1", parent=styles["Heading1"],
-                               textColor=_NAVY_COLOR, fontSize=16, spaceAfter=6)
-    style_h2 = ParagraphStyle("SH2", parent=styles["Heading2"],
-                               textColor=_NAVY_COLOR, fontSize=12, spaceAfter=4)
+    style_h1 = ParagraphStyle(
+        "SH1", parent=styles["Heading1"], textColor=_NAVY_COLOR, fontSize=16, spaceAfter=6
+    )
+    style_h2 = ParagraphStyle(
+        "SH2", parent=styles["Heading2"], textColor=_NAVY_COLOR, fontSize=12, spaceAfter=4
+    )
     style_normal = ParagraphStyle("SNorm", parent=styles["Normal"], fontSize=9)
-    style_disclaimer = ParagraphStyle("SDisc", parent=styles["Normal"],
-                                      fontSize=8, textColor=colors.grey)
+    style_disclaimer = ParagraphStyle(
+        "SDisc", parent=styles["Normal"], fontSize=8, textColor=colors.grey
+    )
 
     model_name = type(result.model).__name__
     label = result.label or "N/A"
     route = result.regimen.route
     n_doses = len(result.regimen.doses)
 
-    _tbl_style = TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), _NAVY_COLOR),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_LIGHT_GREY_COLOR, colors.white]),
-        ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#cccccc")),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-    ])
+    _tbl_style = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), _NAVY_COLOR),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_LIGHT_GREY_COLOR, colors.white]),
+            ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#cccccc")),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ]
+    )
 
     story: list[Any] = [
         Paragraph(f"PK Simulation Report -- {label}", style_h1),
@@ -1183,9 +1215,12 @@ def render_sim_pdf_report(
 
     story.append(Paragraph("Concentration-Time Profile", style_h2))
     b64 = pk_profile_plot_b64(
-        times=result.times, concs=result.concs,
-        dose_times=result.regimen.dose_times, label=result.label,
-        time_unit=time_unit, conc_unit=conc_unit,
+        times=result.times,
+        concs=result.concs,
+        dose_times=result.regimen.dose_times,
+        label=result.label,
+        time_unit=time_unit,
+        conc_unit=conc_unit,
     )
     img_bytes = base64.b64decode(b64)
     story.append(Image(io.BytesIO(img_bytes), width=160 * mm, height=80 * mm))
@@ -1194,8 +1229,7 @@ def render_sim_pdf_report(
     story.append(Paragraph("Model Parameters", style_h2))
     params = result.model.param_dict()
     param_data = [["Parameter", "Value"]] + [
-        [str(k), f"{v:.4g}" if isinstance(v, float) else str(v)]
-        for k, v in params.items()
+        [str(k), f"{v:.4g}" if isinstance(v, float) else str(v)] for k, v in params.items()
     ]
     story.append(Table(param_data, colWidths=[80 * mm, 80 * mm], style=_tbl_style))
     story.append(Spacer(1, 4 * mm))
@@ -1272,6 +1306,7 @@ def render_gof_pdf_report(
     story_gof: list[Any] = []
 
     from reportlab.lib.styles import getSampleStyleSheet
+
     gof_styles = getSampleStyleSheet()
     gof_normal = gof_styles["Normal"]
     gof_disclaimer = gof_styles["Normal"]
@@ -1279,25 +1314,29 @@ def render_gof_pdf_report(
     gof_h1 = gof_styles["Heading1"]
     gof_h2 = gof_styles["Heading2"]
 
-    G_tbl = TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(_NAVY)),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D0D6DE")),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor(_LIGHT_GREY)]),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-    ])
+    G_tbl = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(_NAVY)),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D0D6DE")),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor(_LIGHT_GREY)]),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]
+    )
 
     title = "Population PK GOF Report"
     if result.study_label:
         title += f" -- {result.study_label}"
     story_gof.append(Paragraph(title, gof_h1))
-    story_gof.append(Paragraph(
-        f"Generated by OpenPKFlow | "
-        f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
-        gof_normal,
-    ))
+    story_gof.append(
+        Paragraph(
+            f"Generated by OpenPKFlow | "
+            f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
+            gof_normal,
+        )
+    )
     story_gof.append(Spacer(1, 6 * mm))
 
     pm = result.pred_metrics()
@@ -1311,9 +1350,7 @@ def render_gof_pdf_report(
         ["R2", f"{pm['R2']:.4f}", f"{im['R2']:.4f}"],
     ]
     story_gof.append(Paragraph("GOF Metrics", gof_h2))
-    story_gof.append(
-        Table(metrics_data, colWidths=[60 * mm, 55 * mm, 55 * mm], style=G_tbl)
-    )
+    story_gof.append(Table(metrics_data, colWidths=[60 * mm, 55 * mm, 55 * mm], style=G_tbl))
     story_gof.append(Spacer(1, 6 * mm))
 
     story_gof.append(Paragraph("GOF Diagnostic Plots", gof_h2))
@@ -1388,6 +1425,7 @@ def render_vpc_pdf_report(
     story_vpc: list[Any] = []
 
     from reportlab.lib.styles import getSampleStyleSheet
+
     vpc_styles = getSampleStyleSheet()
     vpc_normal = vpc_styles["Normal"]
     vpc_disclaimer = vpc_styles["Normal"]
@@ -1395,25 +1433,29 @@ def render_vpc_pdf_report(
     vpc_h1 = vpc_styles["Heading1"]
     vpc_h2 = vpc_styles["Heading2"]
 
-    V_tbl = TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(_NAVY)),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D0D6DE")),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor(_LIGHT_GREY)]),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-    ])
+    V_tbl = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(_NAVY)),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D0D6DE")),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor(_LIGHT_GREY)]),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]
+    )
 
     title = "Visual Predictive Check (VPC)"
     if result.study_label:
         title += f" -- {result.study_label}"
     story_vpc.append(Paragraph(title, vpc_h1))
-    story_vpc.append(Paragraph(
-        f"Generated by OpenPKFlow | "
-        f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
-        vpc_normal,
-    ))
+    story_vpc.append(
+        Paragraph(
+            f"Generated by OpenPKFlow | "
+            f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
+            vpc_normal,
+        )
+    )
     story_vpc.append(Spacer(1, 6 * mm))
 
     pi = result.pi
@@ -1437,17 +1479,29 @@ def render_vpc_pdf_report(
     def _fv(v: float) -> str:
         return f"{v:.3g}" if not math.isnan(v) else "---"
 
-    band_data = [[
-        "Bin Mid",
-        f"Obs {pi[0]:.0f}th", f"Obs {pi[1]:.0f}th", f"Obs {pi[2]:.0f}th",
-        f"Sim {pi[0]:.0f}th", f"Sim {pi[1]:.0f}th", f"Sim {pi[2]:.0f}th",
-    ]]
+    band_data = [
+        [
+            "Bin Mid",
+            f"Obs {pi[0]:.0f}th",
+            f"Obs {pi[1]:.0f}th",
+            f"Obs {pi[2]:.0f}th",
+            f"Sim {pi[0]:.0f}th",
+            f"Sim {pi[1]:.0f}th",
+            f"Sim {pi[2]:.0f}th",
+        ]
+    ]
     for i, mid in enumerate(result.bin_mids):
-        band_data.append([
-            f"{mid:.2f}",
-            _fv(result.obs_lower[i]), _fv(result.obs_median[i]), _fv(result.obs_upper[i]),
-            _fv(result.sim_lower[i]), _fv(result.sim_median[i]), _fv(result.sim_upper[i]),
-        ])
+        band_data.append(
+            [
+                f"{mid:.2f}",
+                _fv(result.obs_lower[i]),
+                _fv(result.obs_median[i]),
+                _fv(result.obs_upper[i]),
+                _fv(result.sim_lower[i]),
+                _fv(result.sim_median[i]),
+                _fv(result.sim_upper[i]),
+            ]
+        )
 
     story_vpc.append(Table(band_data, colWidths=[25 * mm] * 7, style=V_tbl))
 
@@ -1508,14 +1562,16 @@ def render_ivivc_pdf_report(
     lp = result.levy_plot
     pp = result.predictability
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    title = f"IVIVC Level A Report"
+    title = "IVIVC Level A Report"
     if result.study_label:
         title += f" -- {result.study_label}"
 
     # Generate base64 plot
     import base64 as _b64
     import io as _io
+
     import matplotlib as _mpl
+
     _mpl.use("Agg")
     import matplotlib.pyplot as _plt
     import numpy as _np
@@ -1523,7 +1579,15 @@ def render_ivivc_pdf_report(
     fig, axes = _plt.subplots(2, 2, figsize=(8, 6), dpi=200)
     ax = axes[0, 0]
     ax.plot(result.times, result.fa, "o-", color="#003366", linewidth=2, markersize=4)
-    ax.plot(result.ivt_times, result.ivt_fraction, "s--", color="#cc3300", linewidth=1, markersize=3, label="In vitro")
+    ax.plot(
+        result.ivt_times,
+        result.ivt_fraction,
+        "s--",
+        color="#cc3300",
+        linewidth=1,
+        markersize=3,
+        label="In vitro",
+    )
     ax.set_title("Fraction Absorbed vs Dissolved", fontsize=9)
     ax.set_xlabel("Time (h)", fontsize=8)
     ax.set_ylabel("Fraction", fontsize=8)
@@ -1535,7 +1599,9 @@ def render_ivivc_pdf_report(
     if len(lp.get("x", [])) > 1:
         x_line = _np.linspace(0, 1, 100)
         y_line = lp["slope"] * x_line + lp["intercept"]
-        ax.plot(x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}")
+        ax.plot(
+            x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}"
+        )
         ax.plot([0, 1], [0, 1], ":", color="#888888", linewidth=1, label="1:1")
     ax.set_title("Levy Plot", fontsize=9)
     ax.set_xlabel("In vitro F_d", fontsize=8)
@@ -1545,15 +1611,37 @@ def render_ivivc_pdf_report(
     ax.set_xlim(0, 1.05)
     ax.set_ylim(0, 1.05)
     ax = axes[1, 0]
-    ax.plot(result.times, result.concentrations, "o-", color="#003366", linewidth=2, markersize=4, label="Observed")
-    ax.plot(result.predicted_times, result.predicted_concs, "--", color="#cc3300", linewidth=1, label="Predicted")
+    ax.plot(
+        result.times,
+        result.concentrations,
+        "o-",
+        color="#003366",
+        linewidth=2,
+        markersize=4,
+        label="Observed",
+    )
+    ax.plot(
+        result.predicted_times,
+        result.predicted_concs,
+        "--",
+        color="#cc3300",
+        linewidth=1,
+        label="Predicted",
+    )
     ax.set_title("Predicted vs Observed", fontsize=9)
     ax.set_xlabel("Time (h)", fontsize=8)
     ax.set_ylabel("Concentration", fontsize=8)
     ax.legend(fontsize=7)
     ax.grid(True, alpha=0.3)
     ax = axes[1, 1]
-    ax.plot(result.ivt_times, result.ivt_fraction * 100, "o-", color="#006699", linewidth=2, markersize=4)
+    ax.plot(
+        result.ivt_times,
+        result.ivt_fraction * 100,
+        "o-",
+        color="#006699",
+        linewidth=2,
+        markersize=4,
+    )
     ax.set_title("Dissolution Profile", fontsize=9)
     ax.set_xlabel("Time (min)", fontsize=8)
     ax.set_ylabel("% Dissolved", fontsize=8)
@@ -1567,31 +1655,56 @@ def render_ivivc_pdf_report(
     plot_b64 = _b64.b64encode(plot_buf.read()).decode("utf-8")
 
     buf = _io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=letter, rightMargin=inch, leftMargin=inch,
-                            topMargin=inch, bottomMargin=inch)
+    doc = SimpleDocTemplate(
+        buf, pagesize=letter, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch
+    )
     styles = getSampleStyleSheet()
-    style_title = ParagraphStyle("IVIVCTitle", parent=styles["Title"], fontSize=18,
-                                  textColor=colors.HexColor(_NAVY), spaceAfter=6)
-    style_meta = ParagraphStyle("IVIVCMeta", parent=styles["Normal"], fontSize=9,
-                                 textColor=colors.HexColor("#555555"), spaceAfter=12)
-    style_heading = ParagraphStyle("IVIVCHeading", parent=styles["Heading2"], fontSize=12,
-                                    textColor=colors.HexColor(_NAVY), spaceBefore=14, spaceAfter=4)
-    style_disclaimer = ParagraphStyle("IVIVCDisc", parent=styles["Normal"], fontSize=8,
-                                       textColor=colors.HexColor("#666666"),
-                                       fontName="Helvetica-Oblique", spaceBefore=16, leading=11)
+    style_title = ParagraphStyle(
+        "IVIVCTitle",
+        parent=styles["Title"],
+        fontSize=18,
+        textColor=colors.HexColor(_NAVY),
+        spaceAfter=6,
+    )
+    style_meta = ParagraphStyle(
+        "IVIVCMeta",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.HexColor("#555555"),
+        spaceAfter=12,
+    )
+    style_heading = ParagraphStyle(
+        "IVIVCHeading",
+        parent=styles["Heading2"],
+        fontSize=12,
+        textColor=colors.HexColor(_NAVY),
+        spaceBefore=14,
+        spaceAfter=4,
+    )
+    style_disclaimer = ParagraphStyle(
+        "IVIVCDisc",
+        parent=styles["Normal"],
+        fontSize=8,
+        textColor=colors.HexColor("#666666"),
+        fontName="Helvetica-Oblique",
+        spaceBefore=16,
+        leading=11,
+    )
     navy = colors.HexColor(_NAVY)
     light_grey = colors.HexColor(_LIGHT_GREY)
-    _tbl = TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), navy),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-        ("TOPPADDING", (0, 0), (-1, -1), 4),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-    ])
+    _tbl = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), navy),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ]
+    )
 
     story: list[Any] = []
     story.append(Paragraph(title, style_title))
@@ -1600,16 +1713,33 @@ def render_ivivc_pdf_report(
     overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
     pp_data = [
         ["Metric", "Value", "Criterion", "Status"],
-        ["Cmax %PE", f"{pp.get('%PE_Cmax', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_cmax", False) else "FAIL"],
-        ["AUCinf %PE", f"{pp.get('%PE_AUC', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_auc", False) else "FAIL"],
-        ["Mean abs %PE", f"{pp.get('mean_abs_%PE', 0):.2f}%", "<= 10%", "PASS" if pp.get("passes_mean", False) else "FAIL"],
+        [
+            "Cmax %PE",
+            f"{pp.get('%PE_Cmax', 0):.2f}%",
+            "<= 15%",
+            "PASS" if pp.get("passes_cmax", False) else "FAIL",
+        ],
+        [
+            "AUCinf %PE",
+            f"{pp.get('%PE_AUC', 0):.2f}%",
+            "<= 15%",
+            "PASS" if pp.get("passes_auc", False) else "FAIL",
+        ],
+        [
+            "Mean abs %PE",
+            f"{pp.get('mean_abs_%PE', 0):.2f}%",
+            "<= 10%",
+            "PASS" if pp.get("passes_mean", False) else "FAIL",
+        ],
         ["Overall", "", "", overall],
     ]
-    story.append(Table(pp_data, colWidths=[1.8*inch, 1.4*inch, 1.4*inch, 1.4*inch], style=_tbl))
-    story.append(Spacer(1, 0.15*inch))
+    story.append(
+        Table(pp_data, colWidths=[1.8 * inch, 1.4 * inch, 1.4 * inch, 1.4 * inch], style=_tbl)
+    )
+    story.append(Spacer(1, 0.15 * inch))
     story.append(Paragraph("IVIVC Plots", style_heading))
     img_data = _b64.b64decode(plot_b64)
-    img = Image(_io.BytesIO(img_data), width=5.5*inch, height=4*inch)
+    img = Image(_io.BytesIO(img_data), width=5.5 * inch, height=4 * inch)
     story.append(img)
     story.append(Paragraph("Levy Plot Regression", style_heading))
     levy_data = [
@@ -1619,7 +1749,7 @@ def render_ivivc_pdf_report(
         ["R-squared", f"{lp.get('r_squared', 0):.4f}"],
         ["N (0.05-0.95)", str(len(lp.get("x", [])))],
     ]
-    story.append(Table(levy_data, colWidths=[2.5*inch, 3.5*inch], style=_tbl))
+    story.append(Table(levy_data, colWidths=[2.5 * inch, 3.5 * inch], style=_tbl))
     story.append(Paragraph(_DISCLAIMER, style_disclaimer))
     doc.build(story)
     pdf_bytes = buf.getvalue()

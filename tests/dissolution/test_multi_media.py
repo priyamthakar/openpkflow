@@ -1,11 +1,7 @@
 """Tests for multi-media dissolution comparison (v1.4.0)."""
 
-import io
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
-import numpy as np
 import pytest
 
 from openpkflow.dissolution import MultiMediaResult, MultiMediaStudy
@@ -169,6 +165,7 @@ class TestMultiMediaStudy:
         b64 = result._plot_b64()
         assert len(b64) > 100
         import base64
+
         data = base64.b64decode(b64)
         assert data[:4] == b"\x89PNG"
 
@@ -234,8 +231,10 @@ class TestMultiMediaStudy:
     def test_run_preserves_media_order(self, tmp_path):
         ref = [5, 15, 30, 45, 60, 80, 95]
         tst = [6, 16, 31, 44, 58, 78, 93]
-        csvs = {name: _make_csv(_sim_csv({"reference": ref, "test": tst}), tmp_path, f"{name}.csv")
-                for name in ["C_third", "A_first", "B_second"]}
+        csvs = {
+            name: _make_csv(_sim_csv({"reference": ref, "test": tst}), tmp_path, f"{name}.csv")
+            for name in ["C_third", "A_first", "B_second"]
+        }
         mm = MultiMediaStudy(csvs)
         result = mm.run()
         assert result.media_names == list(csvs.keys())
@@ -248,6 +247,7 @@ class TestMultiMediaStudy:
         mm = MultiMediaStudy({"pH 1.2": p1, "pH 6.8": p2})
         result = mm.run()
         import matplotlib.pyplot as plt
+
         fig = _build_multi_media_figure(result.media_names, result.per_media_results)
         assert len(fig.axes) == 2
         plt.close(fig)
@@ -261,6 +261,7 @@ class TestMultiMediaStudy:
         mm = MultiMediaStudy({"A": p1, "B": p2, "C": p3})
         result = mm.run()
         import matplotlib.pyplot as plt
+
         fig = _build_multi_media_figure(result.media_names, result.per_media_results)
         assert len(fig.axes) == 3
         plt.close(fig)
@@ -273,6 +274,7 @@ class TestMultiMediaStudy:
         mm = MultiMediaStudy({"pH 1.2": p1, "pH 6.8": p2})
         result = mm.run()
         import matplotlib.pyplot as plt
+
         fig = _build_multi_media_figure(result.media_names, result.per_media_results)
         ax_titles = [ax.get_title() for ax in fig.axes]
         assert any("pH 1.2" in t for t in ax_titles)

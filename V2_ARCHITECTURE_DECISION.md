@@ -1,7 +1,7 @@
 # v2.0.0 Architecture Decision: Bayesian PK
 
-**Date:** 2026-05-22  
-**Author:** Priyam T.  
+**Date:** 2026-05-22
+**Author:** Priyam T.
 **Status:** DECIDED
 
 ---

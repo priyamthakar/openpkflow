@@ -267,8 +267,11 @@ class TestLambdaZManual:
         concs = [8.0, 4.0, 2.0, 1.0]
         with pytest.raises(ValueError, match="not both"):
             lambda_z(
-                times, concs, method="manual",
-                time_range=(1.0, 3.0), time_points=[1.0, 2.0, 3.0],
+                times,
+                concs,
+                method="manual",
+                time_range=(1.0, 3.0),
+                time_points=[1.0, 2.0, 3.0],
             )
 
     def test_raises_neither_specified(self) -> None:

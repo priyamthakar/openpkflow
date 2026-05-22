@@ -46,9 +46,7 @@ class OneCompartmentModel:
             if self.CL <= 0.0 or self.Vz <= 0.0:
                 raise ValueError("CL and Vz must be > 0.")
             if any(v is not None for v in (self.CL_F, self.Vz_F, self.ka)):
-                raise ValueError(
-                    f"route={self.route!r} does not accept CL_F, Vz_F, or ka."
-                )
+                raise ValueError(f"route={self.route!r} does not accept CL_F, Vz_F, or ka.")
         elif self.route == "oral":
             if self.CL_F is None or self.Vz_F is None or self.ka is None:
                 raise ValueError("route='oral' requires CL_F, Vz_F, and ka.")

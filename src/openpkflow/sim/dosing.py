@@ -36,9 +36,7 @@ class Dose:
             if self.t_inf is None or self.t_inf <= 0.0:
                 raise ValueError("iv_infusion requires t_inf > 0.")
         elif self.t_inf is not None:
-            raise ValueError(
-                f"t_inf is only valid for iv_infusion (got route={self.route!r})."
-            )
+            raise ValueError(f"t_inf is only valid for iv_infusion (got route={self.route!r}).")
         if self.route not in ("iv_bolus", "iv_infusion", "oral"):
             raise ValueError(
                 f"route must be 'iv_bolus', 'iv_infusion', or 'oral' (got {self.route!r})."
@@ -62,9 +60,7 @@ class DoseRegimen:
             raise ValueError("DoseRegimen must contain at least one dose.")
         routes = {d.route for d in self.doses}
         if len(routes) > 1:
-            raise ValueError(
-                f"All doses must share the same route (got {sorted(routes)})."
-            )
+            raise ValueError(f"All doses must share the same route (got {sorted(routes)}).")
 
     @property
     def route(self) -> str:

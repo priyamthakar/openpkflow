@@ -30,9 +30,7 @@ def render_markdown_report(
     generated_at = datetime.now(timezone.utc).isoformat()
 
     if f2_value >= 50:
-        interpretation = (
-            "f2 >= 50 supports similarity between the reference and test profiles."
-        )
+        interpretation = "f2 >= 50 supports similarity between the reference and test profiles."
         f2_status = "PASS"
     else:
         interpretation = "f2 < 50 does not support similarity."
@@ -61,12 +59,8 @@ def render_markdown_report(
     lines.append("")
     lines.append("| Parameter | Value | Criterion | Status |")
     lines.append("|-----------|------:|-----------|--------|")
-    lines.append(
-        f"| f1 (Difference Factor) | {f1_value:.2f} | 0 - 15 (acceptable) | {f1_status} |"
-    )
-    lines.append(
-        f"| f2 (Similarity Factor) | {f2_value:.2f} | >= 50 (acceptable) | {f2_status} |"
-    )
+    lines.append(f"| f1 (Difference Factor) | {f1_value:.2f} | 0 - 15 (acceptable) | {f1_status} |")
+    lines.append(f"| f2 (Similarity Factor) | {f2_value:.2f} | >= 50 (acceptable) | {f2_status} |")
     lines.append("")
     lines.append(f"**Interpretation:** {interpretation}")
     lines.append("")

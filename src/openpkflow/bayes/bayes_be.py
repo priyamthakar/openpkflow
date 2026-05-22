@@ -175,7 +175,7 @@ class BayesBEResult:
         """
         from openpkflow.bayes.reporting import report_bayes_be
 
-        return report_bayes_be(self, output_path=output_path, format=format)  # type: ignore[return-value]
+        return report_bayes_be(self, output_path=output_path, format=format)
 
 
 def _validate_be_data(data: object) -> None:
@@ -197,11 +197,10 @@ def _validate_be_data(data: object) -> None:
         )
 
 
-def _complete_pairs(data: object) -> object:
+def _complete_pairs(data: pd.DataFrame) -> tuple[pd.DataFrame, list[object]]:
     """Return DataFrame with only subjects having exactly one T and one R observation."""
-    import pandas as pd
 
-    df = data.copy()  # type: ignore[attr-defined]
+    df = data.copy()
     trt_upper = df["treatment"].astype(str).str.upper()
     df["_trt_norm"] = trt_upper.map(lambda x: "T" if x in ("T", "TEST") else "R")
 
@@ -216,10 +215,10 @@ def _complete_pairs(data: object) -> object:
             dropped.append(subj)
     df = df[df["subject"].isin(keep)].copy()
     df["_trt_norm"] = df["_trt_norm"]  # keep normalized column
-    return df, dropped  # type: ignore[return-value]
+    return df, dropped
 
 
-def _frequentist_90ci(data: object) -> tuple[float, tuple[float, float]]:
+def _frequentist_90ci(data: pd.DataFrame) -> tuple[float, tuple[float, float]]:
     """Compute frequentist GMR and 90% CI via paired log-scale differences.
 
     Uses a paired t-test on within-subject log(Y_T) - log(Y_R) differences.
@@ -237,9 +236,7 @@ def _frequentist_90ci(data: object) -> tuple[float, tuple[float, float]]:
     """
     from scipy.stats import t as t_dist
 
-    import pandas as pd
-
-    df = data  # type: ignore[assignment]
+    df = data
     diffs: list[float] = []
     for _subj, grp in df.groupby("subject"):
         t_row = grp[grp["_trt_norm"] == "T"]
@@ -345,7 +342,7 @@ def bayes_be(
     subjects = sorted(df["subject"].unique())
     sub_map = {s: i for i, s in enumerate(subjects)}
 
-    sub_codes = np.array([sub_map[s] for s in df["subject"]], dtype=int)
+    sub_codes = np.array([sub_map[s] for s in df["subject"]], dtype=np.intp)
     seq_arr = (df["sequence"].astype(str).str.upper() == "TR").astype(float).values
     per_arr = (df["period"].astype(int) == 2).astype(float).values
     trt_arr = (df["_trt_norm"] == "T").astype(float).values

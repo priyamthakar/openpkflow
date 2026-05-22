@@ -32,7 +32,7 @@ Ranked by AICc (small-sample-corrected). Pass `models=["weibull", "first_order"]
 
 ## Report formats
 
-`.report("out.html")` — HTML  
-`.report("out.md")` — Markdown  
-`.report("out.pdf")` — PDF (requires `openpkflow[reports]`)  
+`.report("out.html")` — HTML
+`.report("out.md")` — Markdown
+`.report("out.pdf")` — PDF (requires `openpkflow[reports]`)
 `.report("out.docx")` — Word (requires `openpkflow[reports]`)

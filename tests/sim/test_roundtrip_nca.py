@@ -29,13 +29,15 @@ def _simulate_to_nca_df(model: OneCompartmentModel, dose: float, route: str) -> 
     result = simulate(model, regimen, t)
 
     # NCA loader expects: subject, time, conc, dose, route
-    df = pd.DataFrame({
-        "subject": "S1",
-        "time": result.times,
-        "conc": result.concs,
-        "dose": dose,
-        "route": route,
-    })
+    df = pd.DataFrame(
+        {
+            "subject": "S1",
+            "time": result.times,
+            "conc": result.concs,
+            "dose": dose,
+            "route": route,
+        }
+    )
     return df
 
 

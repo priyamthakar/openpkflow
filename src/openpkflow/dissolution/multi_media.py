@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,12 +41,12 @@ class MultiMediaResult:
 
     def summary(self) -> str:
         lines = [
-            f"Multi-Media Dissolution Comparison",
+            "Multi-Media Dissolution Comparison",
             f"{'=' * 40}",
             f"Reference: {self.reference_label}",
             f"Test:      {self.test_label}",
             f"Media:     {', '.join(self.media_names)}",
-            f"",
+            "",
             f"{'Medium':<12} {'f2':>8}  {'Status'}",
             f"{'-' * 12} {'-' * 8}  {'-' * 8}",
         ]
@@ -55,7 +55,7 @@ class MultiMediaResult:
                 f2 = self.per_media_results[medium].f2_value
                 status = "PASS" if f2 >= 50.0 else "FAIL"
                 lines.append(f"{medium:<12} {f2:>8.2f}  {status}")
-        lines.append(f"")
+        lines.append("")
         lines.append(f"Overall: {'PASS' if self.overall_pass else 'FAIL'}")
         return "\n".join(lines)
 
@@ -64,9 +64,7 @@ class MultiMediaResult:
             "reference_label": self.reference_label,
             "test_label": self.test_label,
             "media_names": self.media_names,
-            "per_media_results": {
-                m: r.to_dict() for m, r in self.per_media_results.items()
-            },
+            "per_media_results": {m: r.to_dict() for m, r in self.per_media_results.items()},
             "f2_summary": self.f2_summary,
             "overall_pass": self.overall_pass,
         }
@@ -74,9 +72,7 @@ class MultiMediaResult:
     def plot(self, output_path=None, show=False) -> None:
         _multi_media_plot(self.media_names, self.per_media_results, output_path, show)
 
-    def report(
-        self, output_path, format: Literal["html", "pdf", "docx"] = "html"
-    ) -> str | bytes:
+    def report(self, output_path, format: Literal["html", "pdf", "docx"] = "html") -> str | bytes:
         from openpkflow.dissolution.reporting import report_multi_media
 
         return report_multi_media(
@@ -84,9 +80,7 @@ class MultiMediaResult:
             reference_label=self.reference_label,
             test_label=self.test_label,
             media_names=self.media_names,
-            per_media_results={
-                m: r.to_dict() for m, r in self.per_media_results.items()
-            },
+            per_media_results={m: r.to_dict() for m, r in self.per_media_results.items()},
             f2_summary=self.f2_summary,
             overall_pass=self.overall_pass,
             plot_b64=self._plot_b64(),
@@ -129,7 +123,9 @@ def _build_multi_media_figure(media_names, per_media_results):
         f2 = cr.f2_value
         status = "PASS" if f2 >= 50 else "FAIL"
         color = "#2d7d46" if f2 >= 50 else "#c0392b"
-        ax.set_title(f"{medium}\nf2={f2:.1f} [{status}]", fontsize=10, fontweight="bold", color=color)
+        ax.set_title(
+            f"{medium}\nf2={f2:.1f} [{status}]", fontsize=10, fontweight="bold", color=color
+        )
         ax.set_xlabel("Time (min)")
         ax.set_ylabel("% Released")
         ax.legend(fontsize=8, loc="lower right")
@@ -196,9 +192,7 @@ class MultiMediaStudy:
                     f"Reference formulation '{reference_label}' not found in medium '{medium}'"
                 )
             if test_label not in formulations:
-                raise ValueError(
-                    f"Test formulation '{test_label}' not found in medium '{medium}'"
-                )
+                raise ValueError(f"Test formulation '{test_label}' not found in medium '{medium}'")
             self._media_names.append(medium)
             self._studies[medium] = study
 
@@ -219,9 +213,7 @@ class MultiMediaStudy:
         per_media: dict[str, ComparisonResult] = {}
         for medium in self._media_names:
             study = self._studies[medium]
-            per_media[medium] = study.compare(
-                self._reference_label, self._test_label
-            )
+            per_media[medium] = study.compare(self._reference_label, self._test_label)
         return MultiMediaResult(
             reference_label=self._reference_label,
             test_label=self._test_label,

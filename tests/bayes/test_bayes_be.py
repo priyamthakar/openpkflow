@@ -17,18 +17,18 @@ import numpy as np
 import pytest
 
 from openpkflow.bayes.bayes_be import (
-    BayesBEResult,
     _BE_HI,
     _BE_LO,
+    BayesBEResult,
     _complete_pairs,
     _frequentist_90ci,
     _validate_be_data,
 )
 
-
 # ---------------------------------------------------------------------------
 # Synthetic 2x2 crossover data generator
 # ---------------------------------------------------------------------------
+
 
 def _make_2x2_data(
     n: int,
@@ -43,7 +43,7 @@ def _make_2x2_data(
     import pandas as pd
 
     rng = np.random.default_rng(seed)
-    sigma_w = math.sqrt(math.log(cv ** 2 + 1))
+    sigma_w = math.sqrt(math.log(cv**2 + 1))
     sigma_b = 0.3
 
     records = []
@@ -74,6 +74,7 @@ def _make_2x2_data(
 # ---------------------------------------------------------------------------
 # Validation tests (no PyMC needed)
 # ---------------------------------------------------------------------------
+
 
 class TestValidation:
     def test_missing_column_raises(self):
@@ -125,6 +126,7 @@ class TestValidation:
 # Complete pairs filter
 # ---------------------------------------------------------------------------
 
+
 class TestCompletePairs:
     def test_incomplete_subject_dropped(self):
         pytest.importorskip("pandas")
@@ -154,6 +156,7 @@ class TestCompletePairs:
 # Frequentist 90% CI (no PyMC needed)
 # ---------------------------------------------------------------------------
 
+
 class TestFrequentistCI:
     def test_perfect_equivalence_gmr_near_one(self):
         """When T and R values are identical per subject, GMR = 1.0."""
@@ -165,7 +168,15 @@ class TestFrequentistCI:
             seq = "RT" if i % 2 == 0 else "TR"
             v = float(100 + i)
             for trt, per in [("R", 1), ("T", 2)] if seq == "RT" else [("T", 1), ("R", 2)]:
-                records.append({"subject": f"S{i}", "sequence": seq, "period": per, "treatment": trt, "value": v})
+                records.append(
+                    {
+                        "subject": f"S{i}",
+                        "sequence": seq,
+                        "period": per,
+                        "treatment": trt,
+                        "value": v,
+                    }
+                )
         df = pd.DataFrame(records)
         df["_trt_norm"] = df["treatment"]  # same as treatment
         gmr, ci = _frequentist_90ci(df)
@@ -211,6 +222,7 @@ class TestFrequentistCI:
 # BayesBEResult data class (no PyMC needed — construct manually)
 # ---------------------------------------------------------------------------
 
+
 class TestBayesBEResultClass:
     def _make_result(self, p_be: float = 0.97, gmr: float = 1.05) -> BayesBEResult:
         rng = np.random.default_rng(0)
@@ -237,9 +249,21 @@ class TestBayesBEResultClass:
     def test_to_dict_keys(self):
         r = self._make_result()
         d = r.to_dict()
-        for k in ("metric", "n_subjects", "n_samples", "gmr_mean", "gmr_95ci",
-                   "p_be", "beta_t_mean", "sigma_b_mean", "sigma_w_mean",
-                   "freq_gmr", "freq_90ci", "freq_be", "warnings"):
+        for k in (
+            "metric",
+            "n_subjects",
+            "n_samples",
+            "gmr_mean",
+            "gmr_95ci",
+            "p_be",
+            "beta_t_mean",
+            "sigma_b_mean",
+            "sigma_w_mean",
+            "freq_gmr",
+            "freq_90ci",
+            "freq_be",
+            "warnings",
+        ):
             assert k in d
 
     def test_summary_contains_p_be(self):
@@ -275,6 +299,7 @@ class TestBayesBEResultClass:
 # Report tests (no PyMC needed — use manually constructed result)
 # ---------------------------------------------------------------------------
 
+
 class TestBayesBEReport:
     def _make_result(self) -> BayesBEResult:
         rng = np.random.default_rng(99)
@@ -289,7 +314,10 @@ class TestBayesBEReport:
             p_be=0.97,
             beta_t_posterior=np.log(gp),
             beta_t_mean=float(np.mean(np.log(gp))),
-            beta_t_95ci=(float(np.percentile(np.log(gp), 2.5)), float(np.percentile(np.log(gp), 97.5))),
+            beta_t_95ci=(
+                float(np.percentile(np.log(gp), 2.5)),
+                float(np.percentile(np.log(gp), 97.5)),
+            ),
             sigma_b_mean=0.30,
             sigma_w_mean=0.15,
             freq_gmr=1.05,
@@ -341,6 +369,7 @@ class TestBayesBEReport:
 # Full Bayesian analysis (requires PyMC)
 # ---------------------------------------------------------------------------
 
+
 class TestBayesBEFull:
     """Full MCMC tests. Skipped when PyMC is not installed."""
 
@@ -372,9 +401,7 @@ class TestBayesBEFull:
 
         df = _make_2x2_data(24, gmr=1.35, cv=0.15, seed=20)
         result = bayes_be(df, metric="AUC", n_samples=500, tune=500, chains=2)
-        assert result.p_be < 0.30, (
-            f"Expected P(BE) < 0.30 for GMR=1.35, got {result.p_be:.3f}"
-        )
+        assert result.p_be < 0.30, f"Expected P(BE) < 0.30 for GMR=1.35, got {result.p_be:.3f}"
 
     def test_result_fields_populated(self):
         from openpkflow.bayes.bayes_be import bayes_be
@@ -406,8 +433,18 @@ class TestBayesBEFull:
         df = _make_2x2_data(12, gmr=1.00, cv=0.15, seed=50)
         result = bayes_be(df, n_samples=200, tune=200, chains=2)
         d = result.to_dict()
-        for k in ("metric", "n_subjects", "n_samples", "gmr_mean", "gmr_95ci",
-                   "p_be", "freq_gmr", "freq_90ci", "freq_be", "warnings"):
+        for k in (
+            "metric",
+            "n_subjects",
+            "n_samples",
+            "gmr_mean",
+            "gmr_95ci",
+            "p_be",
+            "freq_gmr",
+            "freq_90ci",
+            "freq_be",
+            "warnings",
+        ):
             assert k in d
 
     def test_warnings_is_list(self):

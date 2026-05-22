@@ -9,9 +9,9 @@ Or without installing (editable source on sys.path)::
 
     python -c "import sys; sys.path.insert(0, 'src')" && python examples/dissolution_basic.py
 """
+
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 

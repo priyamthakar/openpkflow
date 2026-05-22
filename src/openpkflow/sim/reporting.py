@@ -60,9 +60,11 @@ def report_simulation(
         return _sim_html(result, **kw)
     if format == "pdf":
         from openpkflow.report.pdf import render_sim_pdf_report
+
         return render_sim_pdf_report(result=result, **kw)
     if format == "docx":
         from openpkflow.report.docx import render_sim_docx_report
+
         return render_sim_docx_report(result=result, **kw)
     raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
@@ -205,7 +207,7 @@ def _sim_markdown(
     ]
     for i, d in enumerate(result.regimen.doses):
         t_inf_str = f" (t_inf={d.t_inf:.4g})" if d.t_inf is not None else ""
-        lines.append(f"| {i+1} | {d.time:.4g} | {d.amount:.4g}{t_inf_str} |")
+        lines.append(f"| {i + 1} | {d.time:.4g} | {d.amount:.4g}{t_inf_str} |")
 
     lines += [
         "",

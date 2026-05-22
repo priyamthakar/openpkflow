@@ -1,4 +1,5 @@
 """Dissolution profile plots — comparison and model fit overlays."""
+
 from __future__ import annotations
 
 import base64
@@ -38,6 +39,7 @@ def dissolution_profile_plot_b64(
         ASCII base64-encoded PNG image string.
     """
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
@@ -47,10 +49,8 @@ def dissolution_profile_plot_b64(
     ref = np.array(reference_mean)
     tst = np.array(test_mean)
 
-    ax.plot(tp, ref, "o-", color="#003366", linewidth=2, markersize=6,
-            label=reference_label)
-    ax.plot(tp, tst, "s--", color="#cc3300", linewidth=2, markersize=6,
-            label=test_label)
+    ax.plot(tp, ref, "o-", color="#003366", linewidth=2, markersize=6, label=reference_label)
+    ax.plot(tp, tst, "s--", color="#cc3300", linewidth=2, markersize=6, label=test_label)
 
     ax.set_xlabel("Time (min)", fontsize=11)
     ax.set_ylabel("Mean % Dissolved", fontsize=11)
@@ -97,6 +97,7 @@ def dissolution_fit_plot_b64(
         ASCII base64-encoded PNG image string.
     """
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
@@ -105,13 +106,18 @@ def dissolution_fit_plot_b64(
 
     fig, ax = plt.subplots(figsize=(8, 5), dpi=600)
     ax.scatter(
-        time_points, observed_mean,
-        color="#003366", s=55, zorder=5, label="Observed mean",
+        time_points,
+        observed_mean,
+        color="#003366",
+        s=55,
+        zorder=5,
+        label="Observed mean",
     )
     for i, (name, t_dense, Q_pred, aicc) in enumerate(fit_curves):
         label = f"{name} (AICc={aicc:.1f})"
         ax.plot(
-            t_dense, Q_pred,
+            t_dense,
+            Q_pred,
             color=colors[i % len(colors)],
             linestyle=linestyles[i % len(linestyles)],  # type: ignore[arg-type]
             linewidth=1.8,

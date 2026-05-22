@@ -72,9 +72,11 @@ def report_map_pk(
 def _plot_b64(result: MapPKResult) -> str:
     """Return a base64-encoded PNG of the MAP profile plot."""
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import numpy as np
+
     from openpkflow.sim.methods import c_1cmt_iv_bolus, c_1cmt_oral
 
     t = np.array(result.time_points)
@@ -91,8 +93,14 @@ def _plot_b64(result: MapPKResult) -> str:
                 ax.plot(t_dense, c_pred, "-", color="#0d3b66", linewidth=1.8, label="MAP fit")
         except Exception:
             pass
-    ax.scatter(result.time_points, result.observed_conc, color="#cc3300", s=40, zorder=5,
-               label=f"Observed (n={result.n_observations})")
+    ax.scatter(
+        result.time_points,
+        result.observed_conc,
+        color="#cc3300",
+        s=40,
+        zorder=5,
+        label=f"Observed (n={result.n_observations})",
+    )
     ax.set_xlabel("Time (h)", fontsize=10)
     ax.set_ylabel("Concentration", fontsize=10)
     title = f"MAP Individual PK{' -- ' + result.subject if result.subject else ''}"
@@ -122,7 +130,9 @@ def _map_pk_html(result: MapPKResult) -> str:
             return "N/A"
         return f"{v:.{decimals}g}"
 
-    obs_pred_rows = list(zip(result.time_points, result.observed_conc, result.predicted_conc))
+    obs_pred_rows = list(
+        zip(result.time_points, result.observed_conc, result.predicted_conc, strict=False)
+    )
 
     title = (
         f"MAP Individual PK -- {result.subject}"
@@ -130,15 +140,17 @@ def _map_pk_html(result: MapPKResult) -> str:
         else "MAP Individual PK Estimation"
     )
 
-    return tmpl.render(
-        title=title,
-        result=result,
-        plot_b64=plot_b64,
-        fmt=_fmt,
-        obs_pred_rows=obs_pred_rows,
-        disclaimer=_DISCLAIMER,
-        version=__version__,
-        is_oral=result.route == "oral",
+    return str(
+        tmpl.render(
+            title=title,
+            result=result,
+            plot_b64=plot_b64,
+            fmt=_fmt,
+            obs_pred_rows=obs_pred_rows,
+            disclaimer=_DISCLAIMER,
+            version=__version__,
+            is_oral=result.route == "oral",
+        )
     )
 
 
@@ -211,7 +223,9 @@ def _map_pk_markdown(result: MapPKResult) -> str:
         "| Time (h) | Observed | Predicted | Residual |",
         "|---|---|---|---|",
     ]
-    for t, obs, pred in zip(result.time_points, result.observed_conc, result.predicted_conc):
+    for t, obs, pred in zip(
+        result.time_points, result.observed_conc, result.predicted_conc, strict=False
+    ):
         lines.append(f"| {t:.2f} | {obs:.4g} | {pred:.4g} | {obs - pred:.4g} |")
 
     lines += [
@@ -275,15 +289,23 @@ def report_bayes_be(
 def _gmr_posterior_b64(result: BayesBEResult) -> str:
     """Return base64-encoded PNG histogram of the GMR posterior."""
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import matplotlib.patches as mpatches
 
     fig, ax = plt.subplots(figsize=(6, 3.5), dpi=150)
-    ax.hist(result.gmr_posterior, bins=60, color="#1a78c2", alpha=0.75, density=True, label="Posterior")
+    ax.hist(
+        result.gmr_posterior, bins=60, color="#1a78c2", alpha=0.75, density=True, label="Posterior"
+    )
     ax.axvline(0.80, color="#dc2626", linewidth=1.5, linestyle="--", label="BE limits (0.80, 1.25)")
     ax.axvline(1.25, color="#dc2626", linewidth=1.5, linestyle="--")
-    ax.axvline(result.gmr_mean, color="#0d3b66", linewidth=1.8, linestyle="-", label=f"Mean = {result.gmr_mean:.4g}")
+    ax.axvline(
+        result.gmr_mean,
+        color="#0d3b66",
+        linewidth=1.8,
+        linestyle="-",
+        label=f"Mean = {result.gmr_mean:.4g}",
+    )
     lo, hi = result.gmr_95ci
     ax.axvspan(lo, hi, alpha=0.12, color="#1a78c2", label=f"95% CrI [{lo:.3g}, {hi:.3g}]")
     ax.set_xlabel("GMR (Test/Reference)", fontsize=10)
@@ -325,19 +347,21 @@ def _bayes_be_html(result: BayesBEResult) -> str:
 
     title = f"Bayesian BE -- {result.metric}"
 
-    return tmpl.render(
-        title=title,
-        result=result,
-        plot_b64=plot_b64,
-        fmt=_fmt,
-        be_verdict=be_verdict,
-        be_css=be_css,
-        freq_be_str="PASS" if result.freq_be else "FAIL",
-        freq_be_css="ok" if result.freq_be else "fail",
-        disclaimer=_DISCLAIMER,
-        version=__version__,
-        be_lo=0.80,
-        be_hi=1.25,
+    return str(
+        tmpl.render(
+            title=title,
+            result=result,
+            plot_b64=plot_b64,
+            fmt=_fmt,
+            be_verdict=be_verdict,
+            be_css=be_css,
+            freq_be_str="PASS" if result.freq_be else "FAIL",
+            freq_be_css="ok" if result.freq_be else "fail",
+            disclaimer=_DISCLAIMER,
+            version=__version__,
+            be_lo=0.80,
+            be_hi=1.25,
+        )
     )
 
 
@@ -364,7 +388,7 @@ def _bayes_be_markdown(result: BayesBEResult) -> str:
         "",
         "## Bayesian Decision",
         "",
-        f"| Quantity | Value |",
+        "| Quantity | Value |",
         "|---|---|",
         f"| P(BE) = P(0.80 <= GMR <= 1.25) | {result.p_be:.3f} |",
         f"| Decision | {decision} |",

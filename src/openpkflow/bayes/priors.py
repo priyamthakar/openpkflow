@@ -83,9 +83,8 @@ class PKPrior:
         float
             Sum of log-normal log-density values (<= 0).
         """
-        return (
-            _log_normal_logpdf(log_cl, self.log_cl_mean, self.log_cl_sd)
-            + _log_normal_logpdf(log_v, self.log_v_mean, self.log_v_sd)
+        return _log_normal_logpdf(log_cl, self.log_cl_mean, self.log_cl_sd) + _log_normal_logpdf(
+            log_v, self.log_v_mean, self.log_v_sd
         )
 
 

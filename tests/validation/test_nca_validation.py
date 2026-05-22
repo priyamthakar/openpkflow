@@ -31,6 +31,7 @@ from openpkflow.validation import pct_bias, within_pct
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_iv_bolus_df(
     CL: float,
     Vz: float,
@@ -42,16 +43,13 @@ def _make_iv_bolus_df(
 
     t = np.array([0.0, 0.5, 1.0, 2.0, 4.0, 6.0, 8.0, 12.0, 16.0, 24.0])
     conc = c_1cmt_iv_bolus(t, dose=dose, CL=CL, Vz=Vz)
-    return pd.DataFrame(
-        {"subject": subject, "time": t, "conc": conc, "dose": dose, "route": route}
-    )
-
-
+    return pd.DataFrame({"subject": subject, "time": t, "conc": conc, "dose": dose, "route": route})
 
 
 def _trapezoid(y: np.ndarray, x: np.ndarray) -> float:
     """Numpy-version-agnostic trapezoid integration."""
     import numpy as _np
+
     fn = getattr(_np, "trapezoid", None) or _np.trapz
     return float(fn(y, x))
 
@@ -59,6 +57,7 @@ def _trapezoid(y: np.ndarray, x: np.ndarray) -> float:
 # ---------------------------------------------------------------------------
 # IV bolus: recover CL and Vz from NCA
 # ---------------------------------------------------------------------------
+
 
 class TestNCAIVBolus:
     """Verify that NCA on a synthetic IV bolus dataset recovers true CL and Vz.
@@ -83,8 +82,7 @@ class TestNCAIVBolus:
         r, CL, Vz, dose = result
         assert r.CL is not None, "CL must not be None for IV route"
         assert within_pct(r.CL, CL, pct=2.0), (
-            f"CL={r.CL:.4f} deviates from true CL={CL} by "
-            f"{pct_bias(r.CL, CL):.2f}%"
+            f"CL={r.CL:.4f} deviates from true CL={CL} by {pct_bias(r.CL, CL):.2f}%"
         )
 
     def test_vz_recovered_within_2pct(self, result) -> None:
@@ -95,8 +93,7 @@ class TestNCAIVBolus:
         r, CL, Vz, dose = result
         assert r.Vz is not None, "Vz must not be None for IV route"
         assert within_pct(r.Vz, Vz, pct=2.0), (
-            f"Vz={r.Vz:.4f} deviates from true Vz={Vz} by "
-            f"{pct_bias(r.Vz, Vz):.2f}%"
+            f"Vz={r.Vz:.4f} deviates from true Vz={Vz} by {pct_bias(r.Vz, Vz):.2f}%"
         )
 
     def test_half_life_recovered_within_2pct(self, result) -> None:
@@ -143,6 +140,7 @@ class TestNCAIVBolus:
 # Oral route: CL_F from AUCinf
 # ---------------------------------------------------------------------------
 
+
 class TestNCAOral:
     """Verify NCA on a synthetic oral dataset recovers CL_F = CL/F.
 
@@ -171,8 +169,7 @@ class TestNCAOral:
         r, CL_F, Vz_F, dose = result
         assert r.CL_F is not None
         assert within_pct(r.CL_F, CL_F, pct=5.0), (
-            f"CL_F={r.CL_F:.4f} deviates from true {CL_F} by "
-            f"{pct_bias(r.CL_F, CL_F):.2f}%"
+            f"CL_F={r.CL_F:.4f} deviates from true {CL_F} by {pct_bias(r.CL_F, CL_F):.2f}%"
         )
 
     def test_route_is_oral(self, result) -> None:
@@ -185,6 +182,7 @@ class TestNCAOral:
 # ---------------------------------------------------------------------------
 # pct_bias and within_pct utility tests
 # ---------------------------------------------------------------------------
+
 
 class TestValidationUtilities:
     def test_pct_bias_exact_match(self) -> None:

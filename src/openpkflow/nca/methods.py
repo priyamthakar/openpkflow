@@ -120,7 +120,8 @@ def _validate_time_conc(
     for i in range(len(t) - 1):
         if t[i + 1] <= t[i]:
             raise ValueError(
-                f"times must be strictly increasing; times[{i}]={t[i]} >= times[{i + 1}]={t[i + 1]}."
+                f"times must be strictly increasing; "
+                f"times[{i}]={t[i]} >= times[{i + 1}]={t[i + 1]}."
             )
     for i, cv in enumerate(c):
         if cv < 0.0:

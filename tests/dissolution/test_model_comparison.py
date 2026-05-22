@@ -68,8 +68,8 @@ class TestModelDependentComparison:
         """model_dependent_comparison works with Weibull model (2-param)."""
         np.random.seed(123)
         t = np.linspace(5, 120, 15)
-        Qr = 100.0 * (1.0 - np.exp(-(t / 30.0) ** 1.5)) + np.random.normal(0, 0.5, 15)
-        Qt = 100.0 * (1.0 - np.exp(-(t / 32.0) ** 1.5)) + np.random.normal(0, 0.5, 15)
+        Qr = 100.0 * (1.0 - np.exp(-((t / 30.0) ** 1.5))) + np.random.normal(0, 0.5, 15)
+        Qt = 100.0 * (1.0 - np.exp(-((t / 32.0) ** 1.5))) + np.random.normal(0, 0.5, 15)
         result = model_dependent_comparison(t, Qr, t, Qt, "weibull", param_index=1)
         assert result.model_name == "weibull"
         assert result.ratio_pct > 0.0
@@ -80,7 +80,12 @@ class TestModelDependentComparison:
         Qr = _first_order_profile(t, 0.04)
         Qt = _first_order_profile(t, 0.035)
         result = model_dependent_comparison(
-            t, Qr, t, Qt, "first_order", ci_range=(90.0, 111.11),
+            t,
+            Qr,
+            t,
+            Qt,
+            "first_order",
+            ci_range=(90.0, 111.11),
         )
         # The stricter window may or may not pass depending on fit, but it should complete
         assert isinstance(result.is_similar, bool)

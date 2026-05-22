@@ -343,9 +343,7 @@ class TestC2CmtOral:
 
         Reference: Gibaldi & Perrier 2nd ed. (1982), Eq. 4-4.
         """
-        C = c_2cmt_oral(
-            [0.0], dose=100.0, CL_F=5.0, V1_F=20.0, Q=3.0, V2=15.0, ka=1.5
-        )
+        C = c_2cmt_oral([0.0], dose=100.0, CL_F=5.0, V1_F=20.0, Q=3.0, V2=15.0, ka=1.5)
         assert math.isclose(C[0], 0.0, abs_tol=1e-12)
 
     def test_three_exponential_coefficients_sum_to_zero(self) -> None:
@@ -355,6 +353,7 @@ class TestC2CmtOral:
         Laplace transform partial fractions.
         """
         import math as _math
+
         CL_F, V1_F, Q, V2, ka = 5.0, 20.0, 3.0, 15.0, 1.5
         k10 = CL_F / V1_F
         k12 = Q / V1_F

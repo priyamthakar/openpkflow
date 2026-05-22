@@ -37,6 +37,7 @@ def pk_profile_plot_b64(
         ASCII base64-encoded PNG image string.
     """
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import numpy as np

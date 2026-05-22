@@ -1,4 +1,5 @@
 """Example datasets for OpenPKFlow."""
+
 from __future__ import annotations
 
 from importlib.resources import files

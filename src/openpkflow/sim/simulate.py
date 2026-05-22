@@ -96,8 +96,7 @@ def simulate(
                 assert model.CL is not None and model.Vz is not None
                 if dose_obj.t_inf is None:
                     raise ValueError(
-                        f"Dose at t={dose_obj.time} has no t_inf; "
-                        "iv_infusion doses require t_inf."
+                        f"Dose at t={dose_obj.time} has no t_inf; iv_infusion doses require t_inf."
                     )
                 C_total[mask] += c_1cmt_iv_infusion(
                     tr, amount, CL=model.CL, Vz=model.Vz, t_inf=dose_obj.t_inf
@@ -119,28 +118,33 @@ def simulate(
             elif model.route == "oral":
                 assert model.CL_F is not None and model.V1_F is not None and model.ka is not None
                 C_total[mask] += c_2cmt_oral(
-                    tr, amount,
-                    CL_F=model.CL_F, V1_F=model.V1_F,
-                    Q=model.Q, V2=model.V2, ka=model.ka,
+                    tr,
+                    amount,
+                    CL_F=model.CL_F,
+                    V1_F=model.V1_F,
+                    Q=model.Q,
+                    V2=model.V2,
+                    ka=model.ka,
                 )
 
             elif model.route == "iv_infusion":
                 assert model.CL is not None and model.V1 is not None
                 if dose_obj.t_inf is None:
                     raise ValueError(
-                        f"Dose at t={dose_obj.time} has no t_inf; "
-                        "iv_infusion doses require t_inf."
+                        f"Dose at t={dose_obj.time} has no t_inf; iv_infusion doses require t_inf."
                     )
                 C_total[mask] += c_2cmt_iv_infusion(
-                    tr, amount,
-                    CL=model.CL, V1=model.V1, Q=model.Q, V2=model.V2,
+                    tr,
+                    amount,
+                    CL=model.CL,
+                    V1=model.V1,
+                    Q=model.Q,
+                    V2=model.V2,
                     t_inf=dose_obj.t_inf,
                 )
 
             else:
-                raise ValueError(
-                    f"TwoCompartmentModel does not support route={model.route!r}."
-                )
+                raise ValueError(f"TwoCompartmentModel does not support route={model.route!r}.")
 
         else:
             raise TypeError(

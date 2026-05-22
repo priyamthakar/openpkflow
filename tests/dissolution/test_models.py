@@ -6,6 +6,7 @@ Validation discipline per CLAUDE.md:
   2. Reference: Costa P, Lobo JMS (2001) Eur J Pharm Sci, 13(2):123-133.
      DOI: 10.1016/S0928-0987(01)00095-1
 """
+
 from __future__ import annotations
 
 import math
@@ -30,9 +31,8 @@ from openpkflow.dissolution.models import (
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _assert_params_close(
-    fit: ModelFit, expected: dict[str, float], rel_tol: float = 1e-3
-) -> None:
+
+def _assert_params_close(fit: ModelFit, expected: dict[str, float], rel_tol: float = 1e-3) -> None:
     assert fit.converged, f"Model '{fit.model_name}' did not converge"
     for name, exp_val in expected.items():
         got = fit.params[name]
@@ -47,6 +47,7 @@ def _assert_params_close(
 # Reference: Costa & Lobo (2001) — each model section validates the functional
 # form by confirming the fitter recovers the generating parameters.
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 class TestZeroOrderDegenerate:
     """Zero-order model: Q(t) = k0 * t.  Degenerate recovery test."""
@@ -183,6 +184,7 @@ class TestWeibullDegenerate:
 # Cross-model AICc ranking
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 class TestAICcRanking:
     """AICc-based model selection.
 
@@ -196,7 +198,9 @@ class TestAICcRanking:
         Q = _weibull(t, alpha, beta)
 
         results = fit_dissolution_models(
-            t.tolist(), Q.tolist(), "test",
+            t.tolist(),
+            Q.tolist(),
+            "test",
             models=["zero_order", "first_order", "higuchi", "korsmeyer_peppas", "weibull"],
         )
 
@@ -207,7 +211,9 @@ class TestAICcRanking:
         Q = _first_order(t, 0.06)
 
         results = fit_dissolution_models(
-            t.tolist(), Q.tolist(), "test",
+            t.tolist(),
+            Q.tolist(),
+            "test",
             models=["first_order", "higuchi", "zero_order"],
         )
         assert results.best.model_name == "first_order"
@@ -217,7 +223,9 @@ class TestAICcRanking:
         Q = _higuchi(t, 8.5)
 
         results = fit_dissolution_models(
-            t.tolist(), Q.tolist(), "test",
+            t.tolist(),
+            Q.tolist(),
+            "test",
             models=["first_order", "higuchi", "zero_order"],
         )
         assert results.best.model_name == "higuchi"
@@ -226,6 +234,7 @@ class TestAICcRanking:
 # ──────────────────────────────────────────────────────────────────────────────
 # DissolutionFitResults API
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 class TestDissolutionFitResults:
     def _make_results(self) -> DissolutionFitResults:
@@ -333,6 +342,7 @@ class TestDissolutionFitResults:
 # fit_dissolution_models() validation
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 class TestFitDissolutionModelsValidation:
     def test_unknown_model_raises(self) -> None:
         t = [10.0, 20.0, 30.0, 40.0, 50.0]
@@ -381,6 +391,7 @@ class TestFitDissolutionModelsValidation:
 # ──────────────────────────────────────────────────────────────────────────────
 # DissolutionStudy.fit_models() integration
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 class TestStudyFitModels:
     def test_fit_models_from_csv(self) -> None:

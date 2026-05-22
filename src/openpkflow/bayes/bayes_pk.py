@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Literal
 
 import numpy as np
+
+from openpkflow.bayes.priors import PKPrior
 
 
 @dataclass
@@ -99,7 +100,8 @@ class BayesPKResult:
             f" | MCMC samples: {self.n_samples}",
             "",
             "Posterior Estimates (mean [95% CI]):",
-            f"  {cl_name:5s} = {self.cl_mean:.4g}  [{self.cl_95ci[0]:.4g}, {self.cl_95ci[1]:.4g}] L/h",
+            f"  {cl_name:5s} = {self.cl_mean:.4g}"
+            f"  [{self.cl_95ci[0]:.4g}, {self.cl_95ci[1]:.4g}] L/h",
             f"  {v_name:5s} = {self.v_mean:.4g}  [{self.v_95ci[0]:.4g}, {self.v_95ci[1]:.4g}] L",
         ]
         if self.route == "oral" and self.ka_mean is not None:
@@ -153,7 +155,7 @@ def bayes_individual_pk(
     concentrations: list[float] | np.ndarray,
     dose: float,
     route: Literal["oral", "iv_bolus"],
-    prior: object | None = None,
+    prior: PKPrior | None = None,
     *,
     n_samples: int = 1000,
     tune: int = 1000,
@@ -234,25 +236,28 @@ def bayes_individual_pk(
 
     # Wrap PK log-likelihood as a PyTensor blackbox op (no gradient -> Metropolis)
     if route == "oral":
+
         @as_op(itypes=[pt.dscalar, pt.dscalar, pt.dscalar], otypes=[pt.dscalar])
-        def _pk_ll(log_cl, log_v, log_ka):
+        def _pk_ll(log_cl, log_v, log_ka):  # type: ignore[no-untyped-def]
             try:
-                c_pred = c_1cmt_oral(t, dose, float(np.exp(log_cl)),
-                                     float(np.exp(log_v)), float(np.exp(log_ka)))
+                c_pred = c_1cmt_oral(
+                    t, dose, float(np.exp(log_cl)), float(np.exp(log_v)), float(np.exp(log_ka))
+                )
                 ll = 0.0
-                for obs, pred in zip(c, c_pred):
+                for obs, pred in zip(c, c_pred, strict=False):
                     sd = sigma_fixed * abs(float(pred)) + 1e-9
                     ll += -0.5 * ((float(obs) - float(pred)) / sd) ** 2 - math.log(sd)
                 return np.float64(ll)
             except Exception:
                 return np.float64(-1e12)
     else:
+
         @as_op(itypes=[pt.dscalar, pt.dscalar], otypes=[pt.dscalar])
-        def _pk_ll(log_cl, log_v):
+        def _pk_ll(log_cl, log_v):  # type: ignore[no-untyped-def]
             try:
                 c_pred = c_1cmt_iv_bolus(t, dose, float(np.exp(log_cl)), float(np.exp(log_v)))
                 ll = 0.0
-                for obs, pred in zip(c, c_pred):
+                for obs, pred in zip(c, c_pred, strict=False):
                     sd = sigma_fixed * abs(float(pred)) + 1e-9
                     ll += -0.5 * ((float(obs) - float(pred)) / sd) ** 2 - math.log(sd)
                 return np.float64(ll)
@@ -273,6 +278,7 @@ def bayes_individual_pk(
             pm.Potential("pk_ll", _pk_ll(log_cl, log_v))
 
         import warnings as _w
+
         with _w.catch_warnings():
             _w.simplefilter("ignore")
             trace = pm.sample(
@@ -288,11 +294,7 @@ def bayes_individual_pk(
     post = trace.posterior
     cl_samples = np.exp(post["log_cl"].values.flatten()).astype(float)
     v_samples = np.exp(post["log_v"].values.flatten()).astype(float)
-    ka_samples = (
-        np.exp(post["log_ka"].values.flatten()).astype(float)
-        if route == "oral"
-        else None
-    )
+    ka_samples = np.exp(post["log_ka"].values.flatten()).astype(float) if route == "oral" else None
 
     def _ci95(arr: np.ndarray) -> tuple[float, float]:
         return (float(np.percentile(arr, 2.5)), float(np.percentile(arr, 97.5)))
@@ -314,6 +316,7 @@ def bayes_individual_pk(
     # Check effective sample size
     try:
         import arviz as az
+
         ess = az.ess(trace)
         min_ess = float(min(ess["log_cl"].values.min(), ess["log_v"].values.min()))
         if min_ess < 100 * chains:

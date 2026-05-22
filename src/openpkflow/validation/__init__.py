@@ -52,6 +52,7 @@ def rmse(observed: list[float], reference: list[float]) -> float:
             f"(got {len(observed)} vs {len(reference)})."
         )
     import math
+
     return math.sqrt(
         sum((o - r) ** 2 for o, r in zip(observed, reference, strict=True)) / len(observed)
     )

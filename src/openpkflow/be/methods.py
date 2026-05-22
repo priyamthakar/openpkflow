@@ -109,9 +109,7 @@ def be_tost(
     n = len(ref)
 
     if len(tst) != n:
-        raise ValueError(
-            f"reference and test must have the same length (got {n} vs {len(tst)})."
-        )
+        raise ValueError(f"reference and test must have the same length (got {n} vs {len(tst)}).")
     if n < 2:
         raise ValueError(f"at least 2 subjects are required (got {n}).")
     if any(v <= 0.0 for v in ref):
@@ -126,11 +124,7 @@ def be_tost(
     log_diffs = [math.log(t / r) for r, t in zip(ref, tst, strict=True)]
     d_bar = sum(log_diffs) / n
 
-    s_d = (
-        0.0
-        if n == 1
-        else math.sqrt(sum((d - d_bar) ** 2 for d in log_diffs) / (n - 1))
-    )
+    s_d = 0.0 if n == 1 else math.sqrt(sum((d - d_bar) ** 2 for d in log_diffs) / (n - 1))
 
     se = s_d / math.sqrt(n)
 
@@ -147,7 +141,7 @@ def be_tost(
 
     # Intra-subject CV%: back-transformed from within-subject log-difference SD
     # CV% = sqrt(exp(s_d^2) - 1) * 100  (Chow & Liu 2008, eq. 3.3.4)
-    cv_intra = math.sqrt(math.exp(s_d ** 2) - 1.0) * 100.0
+    cv_intra = math.sqrt(math.exp(s_d**2) - 1.0) * 100.0
 
     return BETOSTResult(
         n=n,

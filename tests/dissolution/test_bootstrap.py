@@ -3,6 +3,7 @@
 References:
     Shah VP et al. (1998) Pharm Res, 15(6):889-896. Bootstrap f2 methodology.
 """
+
 import warnings
 
 import numpy as np
@@ -11,68 +12,100 @@ import pytest
 from openpkflow.dissolution.bootstrap import BootstrapF2Result, bootstrap_f2
 
 # Similar profiles: ref and test very close -> high f2, CI lower bound >= 50
-REF_SIMILAR = np.array([
-    [20, 40, 60, 75, 88],
-    [19, 41, 59, 76, 87],
-    [21, 39, 61, 74, 89],
-    [20, 40, 60, 75, 88],
-    [19, 40, 60, 75, 87],
-    [20, 41, 61, 76, 88],
-], dtype=float)
+REF_SIMILAR = np.array(
+    [
+        [20, 40, 60, 75, 88],
+        [19, 41, 59, 76, 87],
+        [21, 39, 61, 74, 89],
+        [20, 40, 60, 75, 88],
+        [19, 40, 60, 75, 87],
+        [20, 41, 61, 76, 88],
+    ],
+    dtype=float,
+)
 
-TST_SIMILAR = np.array([
-    [21, 41, 61, 76, 89],
-    [20, 40, 60, 75, 88],
-    [22, 42, 62, 77, 90],
-    [21, 41, 61, 76, 89],
-    [20, 40, 60, 75, 88],
-    [21, 41, 61, 76, 89],
-], dtype=float)
+TST_SIMILAR = np.array(
+    [
+        [21, 41, 61, 76, 89],
+        [20, 40, 60, 75, 88],
+        [22, 42, 62, 77, 90],
+        [21, 41, 61, 76, 89],
+        [20, 40, 60, 75, 88],
+        [21, 41, 61, 76, 89],
+    ],
+    dtype=float,
+)
 
 # Dissimilar profiles: large systematic difference -> low f2
-REF_DISSIMILAR = np.array([
-    [20, 40, 60, 75, 88],
-    [19, 41, 59, 76, 87],
-    [21, 39, 61, 74, 89],
-], dtype=float)
+REF_DISSIMILAR = np.array(
+    [
+        [20, 40, 60, 75, 88],
+        [19, 41, 59, 76, 87],
+        [21, 39, 61, 74, 89],
+    ],
+    dtype=float,
+)
 
-TST_DISSIMILAR = np.array([
-    [5,  15, 28, 42, 60],
-    [6,  14, 27, 41, 59],
-    [5,  15, 28, 43, 61],
-], dtype=float)
+TST_DISSIMILAR = np.array(
+    [
+        [5, 15, 28, 42, 60],
+        [6, 14, 27, 41, 59],
+        [5, 15, 28, 43, 61],
+    ],
+    dtype=float,
+)
 
 
 class TestBootstrapF2Result:
     def test_is_similar_true(self):
         r = BootstrapF2Result(
-            f2_observed=65.0, ci_lower=55.0, ci_upper=72.0,
-            n_replicates=5000, confidence_level=0.90,
-            n_timepoints=5, n_reference_vessels=6, n_test_vessels=6,
+            f2_observed=65.0,
+            ci_lower=55.0,
+            ci_upper=72.0,
+            n_replicates=5000,
+            confidence_level=0.90,
+            n_timepoints=5,
+            n_reference_vessels=6,
+            n_test_vessels=6,
         )
         assert r.is_similar is True
 
     def test_is_similar_false(self):
         r = BootstrapF2Result(
-            f2_observed=45.0, ci_lower=38.0, ci_upper=52.0,
-            n_replicates=5000, confidence_level=0.90,
-            n_timepoints=5, n_reference_vessels=3, n_test_vessels=3,
+            f2_observed=45.0,
+            ci_lower=38.0,
+            ci_upper=52.0,
+            n_replicates=5000,
+            confidence_level=0.90,
+            n_timepoints=5,
+            n_reference_vessels=3,
+            n_test_vessels=3,
         )
         assert r.is_similar is False
 
     def test_is_similar_boundary(self):
         r = BootstrapF2Result(
-            f2_observed=55.0, ci_lower=50.0, ci_upper=60.0,
-            n_replicates=5000, confidence_level=0.90,
-            n_timepoints=5, n_reference_vessels=3, n_test_vessels=3,
+            f2_observed=55.0,
+            ci_lower=50.0,
+            ci_upper=60.0,
+            n_replicates=5000,
+            confidence_level=0.90,
+            n_timepoints=5,
+            n_reference_vessels=3,
+            n_test_vessels=3,
         )
         assert r.is_similar is True
 
     def test_summary_contains_key_fields(self):
         r = BootstrapF2Result(
-            f2_observed=65.0, ci_lower=55.0, ci_upper=72.0,
-            n_replicates=5000, confidence_level=0.90,
-            n_timepoints=5, n_reference_vessels=6, n_test_vessels=6,
+            f2_observed=65.0,
+            ci_lower=55.0,
+            ci_upper=72.0,
+            n_replicates=5000,
+            confidence_level=0.90,
+            n_timepoints=5,
+            n_reference_vessels=6,
+            n_test_vessels=6,
         )
         s = r.summary()
         assert "65.00" in s
@@ -122,15 +155,18 @@ class TestBootstrapF2:
         assert result.n_replicates == 123
 
     def test_confidence_level_stored(self):
-        result = bootstrap_f2(REF_SIMILAR, TST_SIMILAR, n_replicates=100,
-                               confidence_level=0.95, seed=0)
+        result = bootstrap_f2(
+            REF_SIMILAR, TST_SIMILAR, n_replicates=100, confidence_level=0.95, seed=0
+        )
         assert result.confidence_level == 0.95
 
     def test_95_ci_wider_than_90_ci(self):
-        r90 = bootstrap_f2(REF_SIMILAR, TST_SIMILAR, n_replicates=2000,
-                           confidence_level=0.90, seed=42)
-        r95 = bootstrap_f2(REF_SIMILAR, TST_SIMILAR, n_replicates=2000,
-                           confidence_level=0.95, seed=42)
+        r90 = bootstrap_f2(
+            REF_SIMILAR, TST_SIMILAR, n_replicates=2000, confidence_level=0.90, seed=42
+        )
+        r95 = bootstrap_f2(
+            REF_SIMILAR, TST_SIMILAR, n_replicates=2000, confidence_level=0.95, seed=42
+        )
         width90 = r90.ci_upper - r90.ci_lower
         width95 = r95.ci_upper - r95.ci_lower
         assert width95 >= width90

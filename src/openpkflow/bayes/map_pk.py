@@ -88,8 +88,7 @@ def map_individual_pk(
         raise ValueError("dose must be > 0.")
     if len(t) < _MIN_OBS[route]:
         raise ValueError(
-            f"Route '{route}' requires >= {_MIN_OBS[route]} observations; "
-            f"got {len(t)}."
+            f"Route '{route}' requires >= {_MIN_OBS[route]} observations; got {len(t)}."
         )
     if len(t) != len(c):
         raise ValueError("times and concentrations must have the same length.")
@@ -103,16 +102,20 @@ def map_individual_pk(
     if route == "oral":
         x0_list = [
             np.array([prior.log_cl_mean, prior.log_v_mean, prior.log_ka_mean]),
-            np.array([
-                prior.log_cl_mean + prior.log_cl_sd,
-                prior.log_v_mean + prior.log_v_sd,
-                prior.log_ka_mean + prior.log_ka_sd,
-            ]),
-            np.array([
-                prior.log_cl_mean - prior.log_cl_sd,
-                prior.log_v_mean - prior.log_v_sd,
-                prior.log_ka_mean - prior.log_ka_sd,
-            ]),
+            np.array(
+                [
+                    prior.log_cl_mean + prior.log_cl_sd,
+                    prior.log_v_mean + prior.log_v_sd,
+                    prior.log_ka_mean + prior.log_ka_sd,
+                ]
+            ),
+            np.array(
+                [
+                    prior.log_cl_mean - prior.log_cl_sd,
+                    prior.log_v_mean - prior.log_v_sd,
+                    prior.log_ka_mean - prior.log_ka_sd,
+                ]
+            ),
         ]
         bounds = [
             prior.log_cl_bounds,
@@ -179,11 +182,11 @@ def map_individual_pk(
     CL = math.exp(log_cl)
     V = math.exp(log_v)
 
+    cl_se: float | None = None
+    v_se: float | None = None
     if uncertainty_reliable and H_inv is not None:
         cl_se = CL * math.sqrt(max(H_inv[0, 0], 0.0))
         v_se = V * math.sqrt(max(H_inv[1, 1], 0.0))
-    else:
-        cl_se = v_se = None
 
     if route == "oral":
         log_ka = x_opt[2]
@@ -278,13 +281,14 @@ def map_individual_pk(
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_objective(
     t: np.ndarray,
     c: np.ndarray,
     dose: float,
     route: str,
     prior: PKPrior,
-) -> "Callable[[np.ndarray], float]":
+) -> Callable[[np.ndarray], float]:
     sigma = prior.sigma_mean
 
     def objective(x: np.ndarray) -> float:
@@ -322,14 +326,14 @@ def _log_likelihood(
         return -1e12
 
     ll = 0.0
-    for obs, pred in zip(c_obs, c_pred):
+    for obs, pred in zip(c_obs, c_pred, strict=False):
         sd = sigma * abs(pred) + 1e-9
         ll += -0.5 * ((obs - pred) / sd) ** 2 - math.log(sd) - 0.5 * math.log(2 * math.pi)
     return ll
 
 
 def _run_minimize(
-    obj: "Callable[[np.ndarray], float]",
+    obj: Callable[[np.ndarray], float],
     x0: np.ndarray,
     bounds: list[tuple[float, float]],
 ) -> OptimizeResult:
@@ -344,7 +348,7 @@ def _run_minimize(
         )
 
 
-def _numerical_hessian(f: "Callable[[np.ndarray], float]", x: np.ndarray) -> np.ndarray:
+def _numerical_hessian(f: Callable[[np.ndarray], float], x: np.ndarray) -> np.ndarray:
     n = len(x)
     eps = 1e-4
     H = np.zeros((n, n))
@@ -354,13 +358,13 @@ def _numerical_hessian(f: "Callable[[np.ndarray], float]", x: np.ndarray) -> np.
         ei[i] = eps
         grad_plus = approx_fprime(x + ei, f, eps)
         H[i] = (grad_plus - grad0) / eps
-    return 0.5 * (H + H.T)
+    return np.asarray(0.5 * (H + H.T))
 
 
 def _check_hessian(
     H: np.ndarray,
     warn_list: list[str],
-) -> "tuple[bool, float, np.ndarray | None]":
+) -> tuple[bool, float, np.ndarray | None]:
     try:
         eigvals = np.linalg.eigvalsh(H)
         cond_num = float(np.max(np.abs(eigvals)) / (np.min(np.abs(eigvals)) + 1e-300))
@@ -403,7 +407,7 @@ def _check_at_bounds(
 
 
 def _check_multistart_agreement(
-    converged_results: "list[OptimizeResult]",
+    converged_results: list[OptimizeResult],
     best_x: np.ndarray,
     warn_list: list[str],
 ) -> None:
@@ -423,4 +427,4 @@ def _check_multistart_agreement(
 
 
 # Type alias for callable -- avoid importing Callable at runtime
-from typing import Callable  # noqa: E402 (module-level at end is fine)
+from collections.abc import Callable  # noqa: E402 (module-level at end is fine)

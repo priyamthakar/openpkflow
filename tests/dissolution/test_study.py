@@ -50,9 +50,7 @@ def test_load_missing_columns_raises(tmp_path: Path) -> None:
 def test_load_out_of_range_values_raises(tmp_path: Path) -> None:
     """ValueError is raised when percent_released exceeds 100."""
     bad_csv = tmp_path / "bad.csv"
-    bad_csv.write_text(
-        "formulation,batch,time,percent_released\nreference,R1,5,110\n"
-    )
+    bad_csv.write_text("formulation,batch,time,percent_released\nreference,R1,5,110\n")
     with pytest.raises(ValueError, match="outside"):
         load_dissolution_csv(bad_csv)
 
@@ -109,8 +107,14 @@ def test_study_compare_to_dict() -> None:
     result = study.compare(reference="reference", test="test")
     d = result.to_dict()
     assert set(d.keys()) == {
-        "reference_label", "test_label", "f1_value", "f2_value",
-        "n_timepoints", "reference_mean", "test_mean", "time_points",
+        "reference_label",
+        "test_label",
+        "f1_value",
+        "f2_value",
+        "n_timepoints",
+        "reference_mean",
+        "test_mean",
+        "time_points",
     }
 
 
@@ -236,6 +240,7 @@ class TestCVWarning:
 
     def test_low_cv_no_warning(self):
         from openpkflow.datasets import example_dissolution_path
+
         study = DissolutionStudy.from_csv(example_dissolution_path())
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

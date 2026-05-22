@@ -21,7 +21,7 @@ def _make_df(
     import random
 
     random.seed(42)
-    subjects = [f"S{i+1:02d}" for i in range(n)]
+    subjects = [f"S{i + 1:02d}" for i in range(n)]
     sequences = (["RT"] * (n // 2) + ["TR"] * (n // 2)) if seq_balanced else ["RT"] * n
 
     rows = []
@@ -158,6 +158,7 @@ class TestBEStudyAnalyze:
 
         assert "period,treatment,AUCinf" in out.read_text(encoding="utf-8")
 
+
 class TestBEStudySummary:
     def test_summary_contains_gmr(self) -> None:
         df = _make_df()
@@ -278,11 +279,7 @@ class TestBEStudyFromNCA:
                 warnings=[],
             )
 
-        ref_res = NCASummaryResults(
-            results=[_minimal("A")], auc_method="linear", blq_method="none"
-        )
-        tst_res = NCASummaryResults(
-            results=[_minimal("B")], auc_method="linear", blq_method="none"
-        )
+        ref_res = NCASummaryResults(results=[_minimal("A")], auc_method="linear", blq_method="none")
+        tst_res = NCASummaryResults(results=[_minimal("B")], auc_method="linear", blq_method="none")
         with pytest.raises(ValueError, match="No subjects"):
             BEStudy.from_nca_results(ref_res, tst_res, parameter="AUCinf")

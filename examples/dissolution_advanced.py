@@ -12,6 +12,7 @@ Run from the repo root after installing the package::
     pip install -e .
     python examples/dissolution_advanced.py
 """
+
 from __future__ import annotations
 
 import math
@@ -44,6 +45,7 @@ print()
 # ---------------------------------------------------------------------------
 try:
     import pandas as pd  # type: ignore[import]
+
     _HAS_PANDAS = True
 except ImportError:
     _HAS_PANDAS = False
@@ -68,6 +70,7 @@ else:
 def _read_csv_rows(path: Path) -> list[dict[str, str]]:
     """Read a CSV file into a list of row dicts (stdlib only)."""
     import csv
+
     with path.open(newline="") as fh:
         return list(csv.DictReader(fh))
 
@@ -131,7 +134,7 @@ def f1(ref: list[float], test: list[float]) -> float:
     den = sum(ref)
     if den == 0:
         raise ValueError("Sum of reference values is zero; cannot compute f1.")
-    return 100.0 * sum(abs(r - t) for r, t in zip(ref, test)) / den
+    return 100.0 * sum(abs(r - t) for r, t in zip(ref, test, strict=False)) / den
 
 
 def f2(ref: list[float], test: list[float]) -> float:
@@ -157,7 +160,7 @@ def f2(ref: list[float], test: list[float]) -> float:
     if len(ref) != len(test):
         raise ValueError(f"Length mismatch: ref has {len(ref)}, test has {len(test)}.")
     n = len(ref)
-    mse = sum((r - t) ** 2 for r, t in zip(ref, test)) / n
+    mse = sum((r - t) ** 2 for r, t in zip(ref, test, strict=False)) / n
     return 50.0 * math.log10(100.0 / math.sqrt(1.0 + mse))
 
 

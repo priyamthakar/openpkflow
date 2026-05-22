@@ -11,12 +11,9 @@ CDER. Section on Mahalanobis distance methodology.
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from openpkflow.dissolution.similarity import MSDResult, max_deviation, msd
-
 
 # ---------------------------------------------------------------------------
 # max_deviation — degenerate / sanity
@@ -113,7 +110,7 @@ class TestMSD:
 
     def test_msd_squared_equals_msd_squared(self) -> None:
         result = msd([10, 20, 30, 40, 50], [12, 21, 33, 38, 48])
-        assert result.msd_squared == pytest.approx(result.msd ** 2, rel=1e-9)
+        assert result.msd_squared == pytest.approx(result.msd**2, rel=1e-9)
 
     # Error cases
     def test_raises_on_different_lengths(self) -> None:

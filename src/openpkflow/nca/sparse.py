@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Literal
 
 import numpy as np
 from scipy.optimize import curve_fit
@@ -75,9 +73,7 @@ def fit_sparse_1cmt_oral(
         return c_1cmt_oral(t_eval, dose, CL_F, Vz_F, ka)
 
     try:
-        popt, pcov = curve_fit(
-            _model, t, c, p0=p0, bounds=bounds, maxfev=20_000, ftol=1e-8
-        )
+        popt, pcov = curve_fit(_model, t, c, p0=p0, bounds=bounds, maxfev=20_000, ftol=1e-8)
         converged = True
         CL_F, Vz_F, ka = popt[0], popt[1], popt[2]
     except (RuntimeError, ValueError):
@@ -101,7 +97,7 @@ def fit_sparse_1cmt_oral(
     fitted_conc = pred.tolist()
 
     # AUClast from trapezoidal integration of predicted profile
-    AUClast = float(np.trapezoid(pred[0:len(t)], t[0:len(t)]))
+    AUClast = float(np.trapezoid(pred[0 : len(t)], t[0 : len(t)]))
 
     # Cmax and Tmax from model-predicted profile (dense grid)
     t_dense = np.linspace(0, t[-1] * 1.5, 500)
@@ -209,8 +205,8 @@ class SparseNCAResult:
             f"{'=' * 50}",
             f"Route: {self.route} | Dose: {self.dose:.4g} mg | Samples: {self.n_samples}",
             f"Converged: {'Yes' if self.converged else 'No'}",
-            f"",
-            f"Fitted Parameters (1-cmt oral):",
+            "",
+            "Fitted Parameters (1-cmt oral):",
             f"  CL_F  = {self.CL_F:.4g} L/h",
             f"  Vz_F  = {self.Vz_F:.4g} L",
             f"  ka    = {self.ka:.4g} 1/h",
@@ -218,23 +214,25 @@ class SparseNCAResult:
             f"  t1/2  = {self.half_life:.4g} h",
         ]
         if self.CL_F_se is not None:
-            lines.append(f"")
-            lines.append(f"Standard Errors:")
+            lines.append("")
+            lines.append("Standard Errors:")
             lines.append(f"  CL_F  = {self.CL_F_se:.4g} L/h")
             lines.append(f"  Vz_F  = {self.Vz_F_se:.4g} L")
             lines.append(f"  ka    = {self.ka_se:.4g} 1/h")
-        lines.append(f"")
-        lines.append(f"Derived Parameters:")
+        lines.append("")
+        lines.append("Derived Parameters:")
         lines.append(f"  AUClast  = {self.AUClast:.4g} h*ng/mL")
         lines.append(f"  AUCinf   = {self.AUCinf:.4g} h*ng/mL")
         lines.append(f"  Cmax     = {self.Cmax:.4g} ng/mL")
         lines.append(f"  Tmax     = {self.Tmax:.4g} h")
 
         if self.time_points and self.observed_conc:
-            lines.append(f"")
-            lines.append(f"Observed vs Fitted:")
+            lines.append("")
+            lines.append("Observed vs Fitted:")
             lines.append(f"{'Time':>8} {'Obs':>12} {'Fit':>12} {'Resid':>12}")
-            for t, obs, fit in zip(self.time_points, self.observed_conc, self.fitted_conc or []):
+            for t, obs, fit in zip(
+                self.time_points, self.observed_conc, self.fitted_conc or [], strict=False
+            ):
                 lines.append(f"{t:>8.2f} {obs:>12.4g} {fit:>12.4g} {obs - fit:>12.4g}")
         return "\n".join(lines)
 
@@ -264,6 +262,7 @@ class SparseNCAResult:
 
     def plot(self, output_path=None, show=False) -> None:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -317,6 +316,7 @@ def sparse_nca_bias_analysis(
     dict
         Dictionary with pct_bias for each parameter.
     """
+
     def _pct_bias(sparse_val, rich_val):
         if rich_val is None or rich_val == 0:
             return None
@@ -324,11 +324,17 @@ def sparse_nca_bias_analysis(
 
     return {
         "biased_parameters": {
-            "AUClast_pct_bias": _pct_bias(sparse_result.AUClast, getattr(rich_result, "AUClast", None)),
-            "AUCinf_pct_bias": _pct_bias(sparse_result.AUCinf, getattr(rich_result, "AUCinf_obs", None)),
+            "AUClast_pct_bias": _pct_bias(
+                sparse_result.AUClast, getattr(rich_result, "AUClast", None)
+            ),
+            "AUCinf_pct_bias": _pct_bias(
+                sparse_result.AUCinf, getattr(rich_result, "AUCinf_obs", None)
+            ),
             "Cmax_pct_bias": _pct_bias(sparse_result.Cmax, getattr(rich_result, "Cmax", None)),
             "Tmax_pct_bias": _pct_bias(sparse_result.Tmax, getattr(rich_result, "Tmax", None)),
-            "half_life_pct_bias": _pct_bias(sparse_result.half_life, getattr(rich_result, "half_life", None)),
+            "half_life_pct_bias": _pct_bias(
+                sparse_result.half_life, getattr(rich_result, "half_life", None)
+            ),
             "CL_F_pct_bias": _pct_bias(sparse_result.CL_F, getattr(rich_result, "CL_F", None)),
             "Vz_F_pct_bias": _pct_bias(sparse_result.Vz_F, getattr(rich_result, "Vz_F", None)),
         }

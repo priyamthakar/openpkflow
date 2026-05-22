@@ -9,7 +9,12 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv, load_dissolution_excel
+from .loader import (
+    DissolutionCSVConfig,
+    get_formulation_means,
+    load_dissolution_csv,
+    load_dissolution_excel,
+)
 from .similarity import f1, f2
 
 if TYPE_CHECKING:
@@ -137,16 +142,31 @@ class ComparisonResult:
             If True, calls plt.show() to display interactively. Default False.
         """
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import numpy as np
 
         tp = np.array(self.time_points)
         fig, ax = plt.subplots(figsize=(7, 4), dpi=600)
-        ax.plot(tp, self.reference_mean, "o-", color="#003366", linewidth=2,
-                markersize=6, label=self.reference_label)
-        ax.plot(tp, self.test_mean, "s--", color="#cc3300", linewidth=2,
-                markersize=6, label=self.test_label)
+        ax.plot(
+            tp,
+            self.reference_mean,
+            "o-",
+            color="#003366",
+            linewidth=2,
+            markersize=6,
+            label=self.reference_label,
+        )
+        ax.plot(
+            tp,
+            self.test_mean,
+            "s--",
+            color="#cc3300",
+            linewidth=2,
+            markersize=6,
+            label=self.test_label,
+        )
         ax.axhline(85, color="#888888", linestyle=":", linewidth=1, label="85% threshold")
         verdict = "SIMILAR" if self.f2_value >= 50.0 else "NOT SIMILAR"
         ax.set_title(
@@ -387,14 +407,10 @@ class DissolutionStudy:
 
         if reference not in available:
             raise ValueError(
-                f"Reference formulation '{reference}' not found. "
-                f"Available: {available}"
+                f"Reference formulation '{reference}' not found. Available: {available}"
             )
         if test not in available:
-            raise ValueError(
-                f"Test formulation '{test}' not found. "
-                f"Available: {available}"
-            )
+            raise ValueError(f"Test formulation '{test}' not found. Available: {available}")
 
         ref_times, ref_means = get_formulation_means(self._df, reference)
         tst_times, tst_means = get_formulation_means(self._df, test)
@@ -496,17 +512,13 @@ class DissolutionStudy:
                 f"Reference formulation '{reference}' not found. Available: {available}"
             )
         if test not in available:
-            raise ValueError(
-                f"Test formulation '{test}' not found. Available: {available}"
-            )
+            raise ValueError(f"Test formulation '{test}' not found. Available: {available}")
 
         cfg = self._config
         df = self._df
 
         def _vessel_matrix(label: str) -> np.ndarray:
-            subset = df[df[cfg.formulation_col] == label].sort_values(
-                [cfg.batch_col, cfg.time_col]
-            )
+            subset = df[df[cfg.formulation_col] == label].sort_values([cfg.batch_col, cfg.time_col])
             batches = subset[cfg.batch_col].unique()
             rows = []
             for batch in batches:
@@ -556,9 +568,7 @@ class DissolutionStudy:
 
         available = self.formulations()
         if formulation not in available:
-            raise ValueError(
-                f"Formulation '{formulation}' not found. Available: {available}"
-            )
+            raise ValueError(f"Formulation '{formulation}' not found. Available: {available}")
 
         times, means = get_formulation_means(self._df, formulation)
         return fit_dissolution_models(

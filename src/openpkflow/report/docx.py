@@ -99,9 +99,7 @@ def render_comparison_docx_report(
     document.add_heading(title, level=1)
 
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    meta_para = document.add_paragraph(
-        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
-    )
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
     meta_para.runs[0].font.size = Pt(9)
 
     document.add_heading("Summary", level=2)
@@ -231,16 +229,12 @@ def render_multi_media_docx_report(
     document.add_heading(title, level=1)
 
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    meta_para = document.add_paragraph(
-        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
-    )
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
     meta_para.runs[0].font.size = Pt(9)
 
     # Overall verdict
     verdict_para = document.add_paragraph()
-    verdict_run = verdict_para.add_run(
-        "Overall: PASS" if overall_pass else "Overall: FAIL"
-    )
+    verdict_run = verdict_para.add_run("Overall: PASS" if overall_pass else "Overall: FAIL")
     verdict_run.bold = True
     verdict_run.font.size = Pt(12)
 
@@ -353,9 +347,7 @@ def render_model_fit_docx_report(
     document.add_heading(title, level=1)
 
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    meta_para = document.add_paragraph(
-        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
-    )
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
     meta_para.runs[0].font.size = Pt(9)
 
     document.add_heading("Model Fit Results", level=2)
@@ -497,9 +489,7 @@ def render_nca_single_docx_report(
     document = Document()
     document.add_heading(f"NCA Report - Subject {result.subject}", level=1)
 
-    meta_para = document.add_paragraph(
-        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
-    )
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
     meta_para.runs[0].font.size = Pt(9)
 
     document.add_heading("Study Parameters", level=2)
@@ -625,9 +615,7 @@ def render_nca_summary_docx_report(
     document = Document()
     document.add_heading("NCA Summary Report", level=1)
 
-    meta_para = document.add_paragraph(
-        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
-    )
+    meta_para = document.add_paragraph(f"Generated: {generated_at}  |  OpenPKFlow v{__version__}")
     meta_para.runs[0].font.size = Pt(9)
 
     if summary.study_label:
@@ -653,8 +641,15 @@ def render_nca_summary_docx_report(
     document.add_heading("PK Parameters by Subject", level=2)
 
     col_headers = [
-        "Subject", "AUClast", "AUCinf_obs", "AUC%Extr",
-        "Cmax", "Tmax", "Half-life", "CL/CL_F", "Vz/Vz_F",
+        "Subject",
+        "AUClast",
+        "AUCinf_obs",
+        "AUC%Extr",
+        "Cmax",
+        "Tmax",
+        "Half-life",
+        "CL/CL_F",
+        "Vz/Vz_F",
     ]
     tbl = document.add_table(rows=1, cols=len(col_headers))
     tbl.style = "Table Grid"
@@ -669,17 +664,19 @@ def render_nca_summary_docx_report(
 
     for r in summary.results:
         row_cells = tbl.add_row().cells
-        for i, val in enumerate([
-            str(r.subject),
-            _fmt(r.AUClast),
-            _fmt(r.AUCinf_obs),
-            _fmt(r.AUC_percent_extrapolated),
-            _fmt(r.Cmax),
-            _fmt(r.Tmax),
-            _fmt(r.half_life),
-            _cl_val(r),
-            _vz_val(r),
-        ]):
+        for i, val in enumerate(
+            [
+                str(r.subject),
+                _fmt(r.AUClast),
+                _fmt(r.AUCinf_obs),
+                _fmt(r.AUC_percent_extrapolated),
+                _fmt(r.Cmax),
+                _fmt(r.Tmax),
+                _fmt(r.half_life),
+                _cl_val(r),
+                _vz_val(r),
+            ]
+        ):
             row_cells[i].text = val
             for para in row_cells[i].paragraphs:
                 for run in para.runs:
@@ -740,6 +737,7 @@ def render_sim_docx_report(
 
     from openpkflow import __version__
     from openpkflow.sim.plotting import pk_profile_plot_b64
+
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     document = Document()
@@ -782,9 +780,12 @@ def render_sim_docx_report(
 
     document.add_heading("Concentration-Time Profile", 1)
     b64 = pk_profile_plot_b64(
-        times=result.times, concs=result.concs,
-        dose_times=result.regimen.dose_times, label=result.label,
-        time_unit=time_unit, conc_unit=conc_unit,
+        times=result.times,
+        concs=result.concs,
+        dose_times=result.regimen.dose_times,
+        label=result.label,
+        time_unit=time_unit,
+        conc_unit=conc_unit,
     )
     img_bytes = base64.b64decode(b64)
     document.add_picture(io.BytesIO(img_bytes))
@@ -864,12 +865,12 @@ def render_ivivc_docx_report(
             "Word export requires python-docx. Install with: pip install openpkflow[reports]"
         ) from exc
 
+    import io as _io
+
+    import matplotlib as _mpl
     from docx import Document
     from docx.shared import Inches, Pt
 
-    import base64 as _b64
-    import io as _io
-    import matplotlib as _mpl
     _mpl.use("Agg")
     import matplotlib.pyplot as _plt
     import numpy as _np
@@ -883,7 +884,15 @@ def render_ivivc_docx_report(
     fig, axes = _plt.subplots(2, 2, figsize=(8, 6), dpi=200)
     ax = axes[0, 0]
     ax.plot(result.times, result.fa, "o-", color="#003366", linewidth=2, markersize=4)
-    ax.plot(result.ivt_times, result.ivt_fraction, "s--", color="#cc3300", linewidth=1, markersize=3, label="In vitro")
+    ax.plot(
+        result.ivt_times,
+        result.ivt_fraction,
+        "s--",
+        color="#cc3300",
+        linewidth=1,
+        markersize=3,
+        label="In vitro",
+    )
     ax.set_title("Fraction Absorbed vs Dissolved", fontsize=9)
     ax.set_xlabel("Time (h)", fontsize=8)
     ax.set_ylabel("Fraction", fontsize=8)
@@ -895,7 +904,9 @@ def render_ivivc_docx_report(
     if len(lp.get("x", [])) > 1:
         x_line = _np.linspace(0, 1, 100)
         y_line = lp["slope"] * x_line + lp["intercept"]
-        ax.plot(x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}")
+        ax.plot(
+            x_line, y_line, "-", color="#cc3300", linewidth=1, label=f"R2={lp['r_squared']:.3f}"
+        )
         ax.plot([0, 1], [0, 1], ":", color="#888888", linewidth=1, label="1:1")
     ax.set_title("Levy Plot", fontsize=9)
     ax.set_xlabel("In vitro F_d", fontsize=8)
@@ -905,15 +916,37 @@ def render_ivivc_docx_report(
     ax.set_xlim(0, 1.05)
     ax.set_ylim(0, 1.05)
     ax = axes[1, 0]
-    ax.plot(result.times, result.concentrations, "o-", color="#003366", linewidth=2, markersize=4, label="Observed")
-    ax.plot(result.predicted_times, result.predicted_concs, "--", color="#cc3300", linewidth=1, label="Predicted")
+    ax.plot(
+        result.times,
+        result.concentrations,
+        "o-",
+        color="#003366",
+        linewidth=2,
+        markersize=4,
+        label="Observed",
+    )
+    ax.plot(
+        result.predicted_times,
+        result.predicted_concs,
+        "--",
+        color="#cc3300",
+        linewidth=1,
+        label="Predicted",
+    )
     ax.set_title("Predicted vs Observed", fontsize=9)
     ax.set_xlabel("Time (h)", fontsize=8)
     ax.set_ylabel("Concentration", fontsize=8)
     ax.legend(fontsize=7)
     ax.grid(True, alpha=0.3)
     ax = axes[1, 1]
-    ax.plot(result.ivt_times, result.ivt_fraction * 100, "o-", color="#006699", linewidth=2, markersize=4)
+    ax.plot(
+        result.ivt_times,
+        result.ivt_fraction * 100,
+        "o-",
+        color="#006699",
+        linewidth=2,
+        markersize=4,
+    )
     ax.set_title("Dissolution Profile", fontsize=9)
     ax.set_xlabel("Time (min)", fontsize=8)
     ax.set_ylabel("% Dissolved", fontsize=8)
@@ -945,9 +978,24 @@ def render_ivivc_docx_report(
             for r in p.runs:
                 r.bold = True
     for label, value, crit, status in [
-        ("Cmax %PE", f"{pp.get('%PE_Cmax', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_cmax", False) else "FAIL"),
-        ("AUCinf %PE", f"{pp.get('%PE_AUC', 0):.2f}%", "<= 15%", "PASS" if pp.get("passes_auc", False) else "FAIL"),
-        ("Mean abs %PE", f"{pp.get('mean_abs_%PE', 0):.2f}%", "<= 10%", "PASS" if pp.get("passes_mean", False) else "FAIL"),
+        (
+            "Cmax %PE",
+            f"{pp.get('%PE_Cmax', 0):.2f}%",
+            "<= 15%",
+            "PASS" if pp.get("passes_cmax", False) else "FAIL",
+        ),
+        (
+            "AUCinf %PE",
+            f"{pp.get('%PE_AUC', 0):.2f}%",
+            "<= 15%",
+            "PASS" if pp.get("passes_auc", False) else "FAIL",
+        ),
+        (
+            "Mean abs %PE",
+            f"{pp.get('mean_abs_%PE', 0):.2f}%",
+            "<= 10%",
+            "PASS" if pp.get("passes_mean", False) else "FAIL",
+        ),
         ("Overall", "", "", overall),
     ]:
         row = pp_table.add_row().cells
@@ -1024,8 +1072,7 @@ def render_gof_docx_report(
     for run in title_para.runs:
         run.font.color.rgb = _NAVY_RGB
     document.add_paragraph(
-        f"Generated by OpenPKFlow | "
-        f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+        f"Generated by OpenPKFlow | {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
     )
 
     document.add_heading("GOF Metrics", 1)
@@ -1113,8 +1160,7 @@ def render_vpc_docx_report(
     for run in title_para.runs:
         run.font.color.rgb = _NAVY_RGB_VPC
     document.add_paragraph(
-        f"Generated by OpenPKFlow | "
-        f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+        f"Generated by OpenPKFlow | {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
     )
 
     document.add_heading("VPC Settings", 1)
@@ -1147,11 +1193,17 @@ def render_vpc_docx_report(
     b_tbl = document.add_table(rows=1, cols=7)
     b_tbl.style = "Table Grid"
     b_hdr = b_tbl.rows[0].cells
-    for i, h in enumerate([
-        "Bin Mid",
-        f"Obs {pi[0]:.0f}th", f"Obs {pi[1]:.0f}th", f"Obs {pi[2]:.0f}th",
-        f"Sim {pi[0]:.0f}th", f"Sim {pi[1]:.0f}th", f"Sim {pi[2]:.0f}th",
-    ]):
+    for i, h in enumerate(
+        [
+            "Bin Mid",
+            f"Obs {pi[0]:.0f}th",
+            f"Obs {pi[1]:.0f}th",
+            f"Obs {pi[2]:.0f}th",
+            f"Sim {pi[0]:.0f}th",
+            f"Sim {pi[1]:.0f}th",
+            f"Sim {pi[2]:.0f}th",
+        ]
+    ):
         b_hdr[i].text = h
 
     for i, mid in enumerate(result.bin_mids):

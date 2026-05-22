@@ -3,6 +3,7 @@
 Reference: openpkflow[reports] optional extra (python-docx >= 1.1).
 DOCX magic bytes: b"PK\\x03\\x04"  (ZIP local file header, per ECMA-376)
 """
+
 from __future__ import annotations
 
 import pytest
@@ -234,6 +235,7 @@ class TestDOCXImportGuard:
             import importlib
 
             import openpkflow.report.docx as docx_mod
+
             importlib.reload(docx_mod)
             with pytest.raises(ImportError, match="pip install openpkflow\\[reports\\]"):
                 docx_mod.render_comparison_docx_report(

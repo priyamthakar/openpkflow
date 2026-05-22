@@ -8,6 +8,7 @@ Reference:
     Eur J Pharm Sci, 13(2):123-133.
     https://doi.org/10.1016/S0928-0987(01)00095-1
 """
+
 from __future__ import annotations
 
 import math
@@ -22,6 +23,7 @@ from scipy.optimize import OptimizeWarning, curve_fit
 # ──────────────────────────────────────────────────────────────────────────────
 # Model callables
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def _zero_order(t: np.ndarray, k0: float) -> np.ndarray:
     return k0 * t
@@ -47,6 +49,7 @@ def _weibull(t: np.ndarray, alpha: float, beta: float) -> np.ndarray:
 # Per-model initial-guess + bounds helpers
 # Each returns (p0: list[float], (lower_bounds, upper_bounds))
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def _p0_bounds_zero_order(
     t: np.ndarray, Q: np.ndarray
@@ -179,9 +182,7 @@ class ModelFit:
             If the model did not converge.
         """
         if not self.converged:
-            raise RuntimeError(
-                f"Model '{self.model_name}' did not converge; cannot predict."
-            )
+            raise RuntimeError(f"Model '{self.model_name}' did not converge; cannot predict.")
         func, param_names, _ = _REGISTRY[self.model_name]
         pvals = [self.params[k] for k in param_names]
         return func(np.asarray(t_new, dtype=float), *pvals)
@@ -268,9 +269,7 @@ class DissolutionFitResults:
             lines.append("No models converged.")
             return "\n".join(lines)
 
-        lines.append(
-            f"{'Model':<22} {'R2':>6}  {'AICc':>8}  {'BIC':>8}  {'Params':<38}  Rank"
-        )
+        lines.append(f"{'Model':<22} {'R2':>6}  {'AICc':>8}  {'BIC':>8}  {'Params':<38}  Rank")
         lines.append("-" * 92)
         for rank, fit in enumerate(converged, 1):
             param_str = "  ".join(f"{k}={v:.4g}" for k, v in fit.params.items())
@@ -307,6 +306,7 @@ class DissolutionFitResults:
             If True, call ``plt.show()`` to display interactively. Default False.
         """
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -319,18 +319,21 @@ class DissolutionFitResults:
 
         fig, ax = plt.subplots(figsize=(8, 5), dpi=600)
         ax.scatter(
-            t_obs, Q_obs,
-            color="#003366", s=55, zorder=5, label="Observed mean",
+            t_obs,
+            Q_obs,
+            color="#003366",
+            s=55,
+            zorder=5,
+            label="Observed mean",
         )
 
-        converged = sorted(
-            [f for f in self.fits if f.converged], key=lambda m: m.aicc
-        )
+        converged = sorted([f for f in self.fits if f.converged], key=lambda m: m.aicc)
         for i, fit in enumerate(converged):
             Q_fit = fit.predict(t_dense)
             label = f"{fit.model_name} (AICc={fit.aicc:.1f})"
             ax.plot(
-                t_dense, Q_fit,
+                t_dense,
+                Q_fit,
                 color=colors[i % len(colors)],
                 linestyle=linestyles[i % len(linestyles)],
                 linewidth=1.8,
@@ -341,7 +344,8 @@ class DissolutionFitResults:
         ax.set_ylabel("Mean % Dissolved", fontsize=11)
         ax.set_title(
             f"Dissolution Model Fit  —  {self.formulation_label}",
-            fontsize=12, fontweight="bold",
+            fontsize=12,
+            fontweight="bold",
         )
         ax.set_ylim(0, 110)
         ax.legend(fontsize=9, loc="lower right")
@@ -375,9 +379,7 @@ class DissolutionFitResults:
             If format is not a recognised format string.
         """
         if format not in {"html", "pdf", "docx"}:
-            raise ValueError(
-                f"format must be 'html', 'pdf', or 'docx', got {format!r}."
-            )
+            raise ValueError(f"format must be 'html', 'pdf', or 'docx', got {format!r}.")
 
         from openpkflow.dissolution.plotting import dissolution_fit_plot_b64
 
@@ -399,9 +401,7 @@ class DissolutionFitResults:
             formulation_label=self.formulation_label,
         )
 
-        converged_sorted = sorted(
-            [f for f in self.fits if f.converged], key=lambda m: m.aicc
-        )
+        converged_sorted = sorted([f for f in self.fits if f.converged], key=lambda m: m.aicc)
         fit_rows: list[dict[str, object]] = []
         for rank, fit in enumerate(converged_sorted, 1):
             fit_rows.append(
@@ -448,13 +448,16 @@ class DissolutionFitResults:
 
         if format == "html":
             from openpkflow.report.html import render_model_fit_html_report
+
             return render_model_fit_html_report(**render_kwargs)  # type: ignore[arg-type]
 
         if format == "pdf":
             from openpkflow.report.pdf import render_model_fit_pdf_report
+
             return render_model_fit_pdf_report(**render_kwargs)  # type: ignore[arg-type]
 
         from openpkflow.report.docx import render_model_fit_docx_report
+
         return render_model_fit_docx_report(**render_kwargs)  # type: ignore[arg-type]
 
     def to_dict(self) -> dict[str, object]:
@@ -593,10 +596,7 @@ def fit_dissolution_models(
 
     unknown = [m for m in models if m not in _REGISTRY]
     if unknown:
-        raise ValueError(
-            f"Unknown model(s): {unknown}. "
-            f"Valid models: {sorted(_REGISTRY.keys())}"
-        )
+        raise ValueError(f"Unknown model(s): {unknown}. Valid models: {sorted(_REGISTRY.keys())}")
 
     t = np.asarray(time_points, dtype=float)
     Q = np.asarray(observed_mean, dtype=float)
@@ -605,13 +605,10 @@ def fit_dissolution_models(
         raise ValueError("time_points and observed_mean must be 1-D arrays.")
     if len(t) != len(Q):
         raise ValueError(
-            f"time_points and observed_mean must have the same length, "
-            f"got {len(t)} and {len(Q)}."
+            f"time_points and observed_mean must have the same length, got {len(t)} and {len(Q)}."
         )
     if len(t) < 3:
-        raise ValueError(
-            "At least 3 timepoints are required for dissolution model fitting."
-        )
+        raise ValueError("At least 3 timepoints are required for dissolution model fitting.")
 
     if "korsmeyer_peppas" in models:
         n_above_60 = int(np.sum(Q > 60.0))
@@ -752,9 +749,7 @@ def model_dependent_comparison(
     import scipy.stats as st
 
     if model not in _REGISTRY:
-        raise ValueError(
-            f"Unknown model '{model}'. Valid models: {sorted(_REGISTRY.keys())}"
-        )
+        raise ValueError(f"Unknown model '{model}'. Valid models: {sorted(_REGISTRY.keys())}")
 
     t_ref = np.asarray(ref_time_points, dtype=float)
     Q_ref = np.asarray(ref_observed_mean, dtype=float)
@@ -781,10 +776,16 @@ def model_dependent_comparison(
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", OptimizeWarning)
             popt_ref, pcov_ref = curve_fit(
-                func_model, t_ref, Q_ref, maxfev=10_000,
+                func_model,
+                t_ref,
+                Q_ref,
+                maxfev=10_000,
             )
             popt_tst, pcov_tst = curve_fit(
-                func_model, t_tst, Q_tst, maxfev=10_000,
+                func_model,
+                t_tst,
+                Q_tst,
+                maxfev=10_000,
             )
     except (RuntimeError, ValueError) as exc:
         raise RuntimeError(f"Failed to estimate parameter covariance: {exc}") from exc
@@ -802,7 +803,7 @@ def model_dependent_comparison(
     # Standard errors
     se_ref = math.sqrt(max(pcov_ref[param_index, param_index], 1e-12))
     se_tst = math.sqrt(max(pcov_tst[param_index, param_index], 1e-12))
-    se_diff = math.sqrt(se_ref ** 2 + se_tst ** 2)
+    se_diff = math.sqrt(se_ref**2 + se_tst**2)
 
     # 90% CI around ratio_pct using delta method: SE(ratio) = (1/ref) * se(tst - ref)
     ratio_pct = (tst_val / ref_val) * 100.0 if abs(ref_val) > 1e-12 else 100.0
