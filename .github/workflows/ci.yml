@@ -41,9 +41,24 @@ jobs:
         run: mypy src/openpkflow --ignore-missing-imports
         continue-on-error: true
 
+  lint:
+    name: pre-commit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: pre-commit/action@v3.0.1
+
   benchmark:
     name: Benchmark (Python 3.12)
     runs-on: ubuntu-latest
+    # Only run on pushes to main and on PRs; skip draft PRs
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
 
     steps:
       - uses: actions/checkout@v4
@@ -58,10 +73,30 @@ jobs:
           pip install -e ".[dev,reports,ml]"
 
       - name: Run benchmarks
-        run: pytest tests/test_benchmark.py --benchmark-only --benchmark-json=benchmark.json --benchmark-save=ci
+        run: |
+          pytest tests/test_benchmark.py \
+            --benchmark-only \
+            --benchmark-json=benchmark.json \
+            --benchmark-sort=mean \
+            --benchmark-columns=min,mean,stddev,rounds,iterations
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-results
+          name: benchmark-results-${{ github.sha }}
           path: benchmark.json
+          retention-days: 90
+
+      - name: Store benchmark result (main only)
+        if: github.ref == 'refs/heads/main'
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: pytest
+          output-file-path: benchmark.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Alert when a benchmark is 20% slower than the stored baseline
+          alert-threshold: "120%"
+          comment-on-alert: true
+          fail-on-alert: false
+          benchmark-data-dir-path: dev/bench
