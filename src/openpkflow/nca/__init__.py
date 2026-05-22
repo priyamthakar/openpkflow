@@ -21,6 +21,11 @@ from openpkflow.nca.methods import (
     tmax,
 )
 from openpkflow.nca.results import NCAResult, NCASummaryResults
+from openpkflow.nca.sparse import (
+    SparseNCAResult,
+    fit_sparse_1cmt_oral,
+    sparse_nca_bias_analysis,
+)
 from openpkflow.nca.study import NCAStudy
 
 __all__ = [
@@ -48,4 +53,8 @@ __all__ = [
     "NCAStudy",
     "NCAResult",
     "NCASummaryResults",
+    # Sparse NCA
+    "fit_sparse_1cmt_oral",
+    "sparse_nca_bias_analysis",
+    "SparseNCAResult",
 ]
