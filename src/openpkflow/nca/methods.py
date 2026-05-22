@@ -114,23 +114,17 @@ def _validate_time_conc(
     c = [float(x) for x in concs]
 
     if len(t) != len(c):
-        raise ValueError(
-            f"times and concs must have the same length (got {len(t)} and {len(c)})."
-        )
+        raise ValueError(f"times and concs must have the same length (got {len(t)} and {len(c)}).")
     if len(t) < min_points:
-        raise ValueError(
-            f"At least {min_points} points are required (got {len(t)})."
-        )
+        raise ValueError(f"At least {min_points} points are required (got {len(t)}).")
     for i in range(len(t) - 1):
         if t[i + 1] <= t[i]:
             raise ValueError(
-                f"times must be strictly increasing; times[{i}]={t[i]} >= times[{i+1}]={t[i+1]}."
+                f"times must be strictly increasing; times[{i}]={t[i]} >= times[{i + 1}]={t[i + 1]}."
             )
     for i, cv in enumerate(c):
         if cv < 0.0:
-            raise ValueError(
-                f"concs[{i}] = {cv} is negative; concentrations must be >= 0."
-            )
+            raise ValueError(f"concs[{i}] = {cv} is negative; concentrations must be >= 0.")
 
     return t, c
 
@@ -201,7 +195,7 @@ def auc_log(times: list[float], concs: list[float]) -> AUCResult:
         if c1 <= 0.0 or c2 <= 0.0 or c1 == c2:
             # Log rule is invalid; fall back to linear
             warnings.append(
-                f"interval [{t[i]}, {t[i+1]}]: c1 or c2 non-positive or equal,"
+                f"interval [{t[i]}, {t[i + 1]}]: c1 or c2 non-positive or equal,"
                 " fell back to linear trapezoidal"
             )
             total += (c1 + c2) / 2.0 * dt
@@ -248,7 +242,7 @@ def auc_linear_up_log_down(times: list[float], concs: list[float]) -> AUCResult:
             # Declining: use log rule if valid
             if c1 <= 0.0 or c2 <= 0.0 or c1 == c2:
                 warnings.append(
-                    f"interval [{t[i]}, {t[i+1]}]: c1 or c2 non-positive or equal"
+                    f"interval [{t[i]}, {t[i + 1]}]: c1 or c2 non-positive or equal"
                     " during declining phase, fell back to linear trapezoidal"
                 )
                 total += (c1 + c2) / 2.0 * dt
@@ -328,9 +322,7 @@ def tmax(times: list[float], concs: list[float]) -> float:
 # ---------------------------------------------------------------------------
 
 
-def _ols_fit(
-    t: np.ndarray, log_c: np.ndarray
-) -> tuple[float, float, float, float]:
+def _ols_fit(t: np.ndarray, log_c: np.ndarray) -> tuple[float, float, float, float]:
     """Fit log(conc) = slope * time + intercept by OLS.
 
     Parameters
@@ -509,9 +501,7 @@ def lambda_z(
             sel_t = t_arr[indices_sorted]
             sel_c = c_arr[indices_sorted]
         else:
-            raise ValueError(
-                "method='manual' requires either time_range or time_points."
-            )
+            raise ValueError("method='manual' requires either time_range or time_points.")
 
         # Require positive concentrations for log-linear regression
         pos_mask = sel_c > 0.0
@@ -593,13 +583,9 @@ def auc_inf_obs(
         If lambda_z <= 0 or clast_obs < 0.
     """
     if lambda_z_result.lambda_z <= 0.0:
-        raise ValueError(
-            f"lambda_z must be positive (got {lambda_z_result.lambda_z})."
-        )
+        raise ValueError(f"lambda_z must be positive (got {lambda_z_result.lambda_z}).")
     if clast_obs < 0.0:
-        raise ValueError(
-            f"clast_obs must be >= 0 (got {clast_obs})."
-        )
+        raise ValueError(f"clast_obs must be >= 0 (got {clast_obs}).")
     return auclast + clast_obs / lambda_z_result.lambda_z
 
 
@@ -664,17 +650,11 @@ def clearance_volume_parameters(
     """
     valid_routes = ("oral", "iv_bolus", "iv_infusion")
     if route not in valid_routes:
-        raise ValueError(
-            f"route must be one of {valid_routes!r} (got {route!r})."
-        )
+        raise ValueError(f"route must be one of {valid_routes!r} (got {route!r}).")
     if aucinf <= 0.0:
-        raise ValueError(
-            f"aucinf must be positive (got {aucinf})."
-        )
+        raise ValueError(f"aucinf must be positive (got {aucinf}).")
     if lambda_z_result.lambda_z <= 0.0:
-        raise ValueError(
-            f"lambda_z must be positive (got {lambda_z_result.lambda_z})."
-        )
+        raise ValueError(f"lambda_z must be positive (got {lambda_z_result.lambda_z}).")
 
     lz = lambda_z_result.lambda_z
     if route == "oral":
@@ -687,3 +667,256 @@ def clearance_volume_parameters(
             "CL": dose / aucinf,
             "Vz": dose / (aucinf * lz),
         }
+
+
+# ---------------------------------------------------------------------------
+# Urinary excretion PK parameters
+# ---------------------------------------------------------------------------
+
+
+def cumulative_urinary_excretion(
+    times: list[float],
+    urine_volumes: list[float],
+    urine_concentrations: list[float],
+) -> np.ndarray:
+    """Compute cumulative amount excreted (Ae) from urine data.
+
+    Parameters
+    ----------
+    times : list[float]
+        Urine collection midpoint times, strictly increasing.
+    urine_volumes : list[float]
+        Urine volume collected per interval (mL or L).
+    urine_concentrations : list[float]
+        Drug concentration in each urine sample.
+
+    Returns
+    -------
+    np.ndarray
+        Cumulative amount excreted at each time point.
+        Shape (n,), same length as the input arrays.
+
+    Raises
+    ------
+    ValueError
+        If lengths differ, any volume or concentration is negative.
+    """
+    t = np.asarray(times, dtype=float)
+    v = np.asarray(urine_volumes, dtype=float)
+    conc = np.asarray(urine_concentrations, dtype=float)
+
+    if len(t) != len(v) or len(t) != len(conc):
+        raise ValueError("times, urine_volumes, and urine_concentrations must be the same length.")
+    if np.any(v < 0):
+        raise ValueError("Urine volumes must be non-negative.")
+    if np.any(conc < 0):
+        raise ValueError("Urine concentrations must be non-negative.")
+
+    amount_per_interval = v * conc
+    return np.cumsum(amount_per_interval)
+
+
+def renal_clearance(
+    total_ae: float,
+    auc_inf: float,
+) -> float:
+    """Compute renal clearance (CLr) from total urinary excretion and AUC.
+
+    Parameters
+    ----------
+    total_ae : float
+        Total cumulative amount excreted in urine (Ae).
+    auc_inf : float
+        AUC extrapolated to infinity (same time units as Ae).
+
+    Returns
+    -------
+    float
+        Renal clearance = Ae / AUCinf.
+
+    Raises
+    ------
+    ValueError
+        If auc_inf <= 0 or total_ae < 0.
+    """
+    if total_ae < 0:
+        raise ValueError(f"total_ae must be >= 0 (got {total_ae}).")
+    if auc_inf <= 0:
+        raise ValueError(f"auc_inf must be positive (got {auc_inf}).")
+    return total_ae / auc_inf
+
+
+def percent_excreted(
+    total_ae: float,
+    dose: float,
+) -> float:
+    """Compute percent of dose excreted unchanged in urine.
+
+    Parameters
+    ----------
+    total_ae : float
+        Total cumulative amount excreted in urine.
+    dose : float
+        Administered dose.
+
+    Returns
+    -------
+    float
+        Percent excreted = 100 * Ae / dose.
+
+    Raises
+    ------
+    ValueError
+        If dose <= 0 or total_ae < 0.
+    """
+    if total_ae < 0:
+        raise ValueError(f"total_ae must be >= 0 (got {total_ae}).")
+    if dose <= 0:
+        raise ValueError(f"dose must be positive (got {dose}).")
+    return 100.0 * total_ae / dose
+
+
+# ---------------------------------------------------------------------------
+# Steady-state NCA parameters
+# ---------------------------------------------------------------------------
+
+
+def auc_tau(
+    times: list[float],
+    concs: list[float],
+    *,
+    tau: float,
+    method: Literal["linear", "log", "linear_up_log_down"] = "linear_up_log_down",
+) -> float:
+    """Compute AUC over one steady-state dosing interval (AUCtau).
+
+    Parameters
+    ----------
+    times : list[float]
+        Sample times within one steady-state interval [0, tau].
+    concs : list[float]
+        Observed concentrations at each time point.
+    tau : float
+        Dosing interval length.
+    method : {"linear", "log", "linear_up_log_down"}, optional
+        AUC integration method. Default "linear_up_log_down".
+
+    Returns
+    -------
+    float
+        AUCtau value.
+
+    Raises
+    ------
+    ValueError
+        If tau <= 0, or standard time/conc validation fails.
+    """
+    if tau <= 0:
+        raise ValueError(f"tau must be positive (got {tau}).")
+    t, c = _validate_time_conc(times, concs, min_points=2)
+
+    # Force times to stay within [0, tau]
+    t_arr = np.asarray(t, dtype=float)
+    c_arr = np.asarray(c, dtype=float)
+
+    if method == "linear":
+        return auc_linear(t_arr.tolist(), c_arr.tolist())
+    elif method == "log":
+        return auc_log(t_arr.tolist(), c_arr.tolist()).value
+    else:
+        return auc_linear_up_log_down(t_arr.tolist(), c_arr.tolist()).value
+
+
+def steady_state_parameters(
+    times: list[float],
+    concs: list[float],
+    *,
+    tau: float,
+    auc_method: Literal["linear", "log", "linear_up_log_down"] = "linear_up_log_down",
+) -> dict[str, float | None]:
+    """Compute steady-state NCA parameters from a single-dose PK profile
+    projected to steady state via linear superposition.
+
+    For multi-dose data (steady state directly observed), this function
+    computes the parameters from within the steady-state dosing interval.
+
+    Parameters
+    ----------
+    times : list[float]
+        Sample times within a dosing interval [0, tau] at steady state.
+    concs : list[float]
+        Concentrations at each time point at steady state.
+    tau : float
+        Dosing interval length.
+    auc_method : {"linear", "log", "linear_up_log_down"}, optional
+        AUC integration method.
+
+    Returns
+    -------
+    dict[str, float or None]
+        ``Cmax_ss``, ``Cmin_ss``, ``Cavg_ss``, ``AUCtau``, ``fluctuation_pct``,
+        ``swing``, ``accumulation_ratio`` (None if not computable).
+    """
+    t_arr = np.asarray(times, dtype=float)
+    c_arr = np.asarray(concs, dtype=float)
+
+    cmax_ss = float(np.max(c_arr))
+    cmin_ss = float(np.min(c_arr))
+
+    # AUCtau
+    if auc_method == "linear":
+        auctau = auc_linear(t_arr.tolist(), c_arr.tolist())
+    elif auc_method == "log":
+        auctau = auc_log(t_arr.tolist(), c_arr.tolist()).value
+    else:
+        auctau = auc_linear_up_log_down(t_arr.tolist(), c_arr.tolist()).value
+
+    # Average concentration at steady state
+    cavg_ss = auctau / tau if tau > 0 else None
+
+    # Fluctuation: (Cmax - Cmin) / Cavg * 100
+    fluctuation_pct: float | None = None
+    swing: float | None = None
+    if cavg_ss is not None and cavg_ss > 0:
+        fluctuation_pct = (cmax_ss - cmin_ss) / cavg_ss * 100.0
+        swing = (cmax_ss - cmin_ss) / cmin_ss if cmin_ss > 0 else None
+
+    # Accumulation ratio is typically computed with single-dose data for
+    # comparison; here it returns None unless the caller provides both.
+    return {
+        "Cmax_ss": cmax_ss,
+        "Cmin_ss": cmin_ss,
+        "Cavg_ss": cavg_ss,
+        "AUCtau": auctau,
+        "fluctuation_pct": fluctuation_pct,
+        "swing": swing,
+        "accumulation_ratio": None,
+    }
+
+
+def accumulation_ratio(
+    auctau_ss: float,
+    auctau_sd: float,
+) -> float:
+    """Compute accumulation ratio: AUCtau_ss / AUCtau_sd.
+
+    Parameters
+    ----------
+    auctau_ss : float
+        AUC over a dosing interval at steady state.
+    auctau_sd : float
+        AUC over the first dosing interval after a single dose.
+
+    Returns
+    -------
+    float
+        Accumulation ratio. Values > 1 indicate accumulation.
+
+    Raises
+    ------
+    ValueError
+        If auctau_sd <= 0.
+    """
+    if auctau_sd <= 0:
+        raise ValueError(f"auctau_sd must be positive (got {auctau_sd}).")
+    return auctau_ss / auctau_sd

@@ -17,7 +17,11 @@ from openpkflow.nca.methods import (
     auc_percent_extrapolated,
     clearance_volume_parameters,
     cmax,
+    cumulative_urinary_excretion,
     lambda_z,
+    percent_excreted,
+    renal_clearance,
+    steady_state_parameters,
     tmax,
 )
 from openpkflow.nca.results import NCAResult, NCASummaryResults
@@ -43,6 +47,10 @@ class NCAStudy:
         dose_col: str = "dose",
         route_col: str = "route",
         lloq: float | None = None,
+        steady_state: bool = False,
+        tau: float | None = None,
+        urine_volume_col: str | None = None,
+        urine_conc_col: str | None = None,
     ) -> None:
         """Initialise an NCAStudy from a validated DataFrame.
 
@@ -67,15 +75,31 @@ class NCAStudy:
             Column name for route of administration. Default ``"route"``.
         lloq : float or None, optional
             Lower limit of quantification. Reserved for future BLQ handling. Default None.
+        steady_state : bool, optional
+            If True, compute steady-state parameters (AUCtau, Cmax_ss, Cmin_ss,
+            fluctuation, swing). Requires tau. Default False.
+        tau : float or None, optional
+            Dosing interval length for steady-state analysis. Required if
+            steady_state is True.
+        urine_volume_col : str or None, optional
+            Column name for urine volume if urinary excretion parameters are needed.
+        urine_conc_col : str or None, optional
+            Column name for urine concentration if urinary excretion parameters are needed.
 
         Raises
         ------
         ValueError
-            If auc_method is not one of the valid choices.
+            If auc_method is not one of the valid choices, or steady_state is True
+            but tau is not provided.
         """
         if auc_method not in _VALID_AUC_METHODS:
             raise ValueError(
                 f"auc_method must be one of {_VALID_AUC_METHODS!r} (got {auc_method!r})."
+            )
+        if steady_state and tau is None:
+            raise ValueError(
+                "tau is required when steady_state=True for computing"
+                " steady-state parameters (AUCtau, Cmax_ss, Cmin_ss, etc.)."
             )
         self._df = df
         self._auc_method = auc_method
@@ -86,6 +110,10 @@ class NCAStudy:
         self._dose_col = dose_col
         self._route_col = route_col
         self._lloq = lloq
+        self._steady_state = steady_state
+        self._tau = tau
+        self._urine_volume_col = urine_volume_col
+        self._urine_conc_col = urine_conc_col
 
     @classmethod
     def from_csv(
@@ -100,6 +128,10 @@ class NCAStudy:
         dose_col: str = "dose",
         route_col: str = "route",
         lloq: float | None = None,
+        steady_state: bool = False,
+        tau: float | None = None,
+        urine_volume_col: str | None = None,
+        urine_conc_col: str | None = None,
     ) -> NCAStudy:
         """Load an NCAStudy from a CSV file.
 
@@ -123,6 +155,14 @@ class NCAStudy:
             Column name for route of administration. Default ``"route"``.
         lloq : float or None, optional
             Lower limit of quantification. Default None.
+        steady_state : bool, optional
+            If True, compute steady-state parameters. Requires tau.
+        tau : float or None, optional
+            Dosing interval length for steady-state analysis.
+        urine_volume_col : str or None, optional
+            Column name for urine volume.
+        urine_conc_col : str or None, optional
+            Column name for urine concentration.
 
         Returns
         -------
@@ -158,6 +198,10 @@ class NCAStudy:
             dose_col=dose_col,
             route_col=route_col,
             lloq=lloq,
+            steady_state=steady_state,
+            tau=tau,
+            urine_volume_col=urine_volume_col,
+            urine_conc_col=urine_conc_col,
         )
 
     def analyze(self) -> NCASummaryResults:
@@ -251,6 +295,49 @@ class NCAStudy:
             lz_adj_r2 = lz_result.adj_r_squared if lz_result is not None else None
             lz_n_points = lz_result.n_points if lz_result is not None else None
 
+            # Steady-state parameters
+            cmax_ss: float | None = None
+            cmin_ss: float | None = None
+            cavg_ss: float | None = None
+            auctau: float | None = None
+            fluct_pct: float | None = None
+            swing: float | None = None
+            accum_ratio: float | None = None
+
+            if self._steady_state and self._tau is not None:
+                ss_params = steady_state_parameters(
+                    t, c, tau=self._tau, auc_method=self._auc_method
+                )
+                cmax_ss = ss_params["Cmax_ss"]
+                cmin_ss = ss_params["Cmin_ss"]
+                cavg_ss = ss_params["Cavg_ss"]
+                auctau = ss_params["AUCtau"]
+                fluct_pct = ss_params["fluctuation_pct"]
+                swing = ss_params["swing"]
+                accum_ratio = ss_params["accumulation_ratio"]
+
+            # Urinary excretion parameters
+            ae: float | None = None
+            ae_pct: float | None = None
+            clr: float | None = None
+
+            if self._urine_volume_col is not None and self._urine_conc_col is not None:
+                has_urine = (
+                    self._urine_volume_col in group_sorted.columns
+                    and self._urine_conc_col in group_sorted.columns
+                )
+                if has_urine:
+                    u_vol = group_sorted[self._urine_volume_col].tolist()
+                    u_conc = group_sorted[self._urine_conc_col].tolist()
+                    try:
+                        cum_ae = cumulative_urinary_excretion(t, u_vol, u_conc)
+                        ae = float(cum_ae[-1]) if len(cum_ae) > 0 else 0.0
+                        ae_pct = percent_excreted(ae, dose) if ae is not None else None
+                        if aucinf is not None and aucinf > 0:
+                            clr = renal_clearance(ae, aucinf)
+                    except ValueError:
+                        pass
+
             result = NCAResult(
                 subject=subject_str,
                 route=route,
@@ -276,6 +363,16 @@ class NCAStudy:
                 DN_AUClast=dn_auclast,
                 DN_AUCinf_obs=dn_aucinf,
                 DN_Cmax=dn_cmax,
+                Cmax_ss=cmax_ss,
+                Cmin_ss=cmin_ss,
+                Cavg_ss=cavg_ss,
+                AUCtau=auctau,
+                fluctuation_pct=fluct_pct,
+                swing=swing,
+                accumulation_ratio=accum_ratio,
+                Ae=ae,
+                Ae_pct=ae_pct,
+                CLr=clr,
                 warnings=nca_warnings,
             )
             results.append(result)

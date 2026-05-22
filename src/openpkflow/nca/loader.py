@@ -76,9 +76,7 @@ def load_nca_csv(
             f"{sorted(_VALID_BLQ_METHODS)} (aliases: m1->drop, m2->zero)."
         )
     if normalised_method in ("half_lloq", "lloq") and lloq is None:
-        raise ValueError(
-            f"blq_method={blq_method!r} requires lloq to be specified (got None)."
-        )
+        raise ValueError(f"blq_method={blq_method!r} requires lloq to be specified (got None).")
 
     # --- 2. Load CSV as strings to capture "<0.5" patterns ---
     df = pd.read_csv(path, dtype=str)
@@ -104,9 +102,7 @@ def load_nca_csv(
 
     # Validate blq_col exists if specified
     if blq_col is not None and blq_col not in df.columns:
-        raise ValueError(
-            f"blq_col={blq_col!r} not found in CSV columns: {list(df.columns)}."
-        )
+        raise ValueError(f"blq_col={blq_col!r} not found in CSV columns: {list(df.columns)}.")
 
     # --- 5. Parse numeric types for non-conc columns ---
     df["time"] = pd.to_numeric(df["time"], errors="coerce").astype(float)

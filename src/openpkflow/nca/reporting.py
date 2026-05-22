@@ -88,9 +88,11 @@ def report_nca_single(
         return _single_html(result, output_path=output_path)
     if format == "pdf":
         from openpkflow.report.pdf import render_nca_single_pdf_report
+
         return render_nca_single_pdf_report(result=result, output_path=output_path)
     if format == "docx":
         from openpkflow.report.docx import render_nca_single_docx_report
+
         return render_nca_single_docx_report(result=result, output_path=output_path)
     raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
@@ -134,9 +136,11 @@ def report_nca_summary(
         return _summary_html(summary, output_path=output_path)
     if format == "pdf":
         from openpkflow.report.pdf import render_nca_summary_pdf_report
+
         return render_nca_summary_pdf_report(summary=summary, output_path=output_path)
     if format == "docx":
         from openpkflow.report.docx import render_nca_summary_docx_report
+
         return render_nca_summary_docx_report(summary=summary, output_path=output_path)
     raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
@@ -335,13 +339,15 @@ def _summary_html(
     for r in summary.results:
         cl_lbl, cl_val = _cl_label(r)
         vz_lbl, vz_val = _vz_label(r)
-        rows.append({
-            "result": r,
-            "cl_label": cl_lbl,
-            "cl_value": cl_val,
-            "vz_label": vz_lbl,
-            "vz_value": vz_val,
-        })
+        rows.append(
+            {
+                "result": r,
+                "cl_label": cl_lbl,
+                "cl_value": cl_val,
+                "vz_label": vz_lbl,
+                "vz_value": vz_val,
+            }
+        )
 
     rendered = template.render(
         title="NCA Summary Report",

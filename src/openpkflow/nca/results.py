@@ -79,10 +79,10 @@ class NCAResult:
     selected_lambda_z_concs: list[float] = field(default_factory=list)
 
     # Clearance/Volume -- exactly one pair is populated depending on route
-    CL_F: float | None = None   # oral apparent clearance
-    Vz_F: float | None = None   # oral apparent volume
-    CL: float | None = None     # IV absolute clearance
-    Vz: float | None = None     # IV absolute volume
+    CL_F: float | None = None  # oral apparent clearance
+    Vz_F: float | None = None  # oral apparent volume
+    CL: float | None = None  # IV absolute clearance
+    Vz: float | None = None  # IV absolute volume
 
     # Lambda_z quality metrics
     lambda_z_adj_r2: float | None = None
@@ -92,6 +92,20 @@ class NCAResult:
     DN_AUClast: float | None = None
     DN_AUCinf_obs: float | None = None
     DN_Cmax: float | None = None
+
+    # Steady-state parameters
+    Cmax_ss: float | None = None
+    Cmin_ss: float | None = None
+    Cavg_ss: float | None = None
+    AUCtau: float | None = None
+    fluctuation_pct: float | None = None
+    swing: float | None = None
+    accumulation_ratio: float | None = None
+
+    # Urinary excretion parameters
+    Ae: float | None = None
+    Ae_pct: float | None = None
+    CLr: float | None = None
 
     warnings: list[str] = field(default_factory=list)
 
@@ -103,6 +117,7 @@ class NCAResult:
         str
             Multi-line summary of all PK parameters.
         """
+
         def _fmt(v: float | None) -> str:
             return f"{v:.4g}" if v is not None else "N/A"
 
@@ -135,6 +150,26 @@ class NCAResult:
             f"DN_AUCinf_obs           : {_fmt(self.DN_AUCinf_obs)}",
             f"DN_Cmax                 : {_fmt(self.DN_Cmax)}",
         ]
+
+        if self.AUCtau is not None or self.Cmax_ss is not None:
+            lines.append("")
+            lines.append("Steady-State Parameters")
+            lines.append("-----------------------")
+            lines.append(f"Cmax_ss                 : {_fmt(self.Cmax_ss)}")
+            lines.append(f"Cmin_ss                 : {_fmt(self.Cmin_ss)}")
+            lines.append(f"Cavg_ss                 : {_fmt(self.Cavg_ss)}")
+            lines.append(f"AUCtau                  : {_fmt(self.AUCtau)}")
+            lines.append(f"Fluctuation (%)         : {_fmt(self.fluctuation_pct)}")
+            lines.append(f"Swing                   : {_fmt(self.swing)}")
+            lines.append(f"Accumulation Ratio      : {_fmt(self.accumulation_ratio)}")
+
+        if self.Ae is not None:
+            lines.append("")
+            lines.append("Urinary Excretion Parameters")
+            lines.append("----------------------------")
+            lines.append(f"Ae (amount excreted)    : {_fmt(self.Ae)}")
+            lines.append(f"Ae (% of dose)          : {_fmt(self.Ae_pct)}")
+            lines.append(f"CLr (renal clearance)   : {_fmt(self.CLr)}")
 
         if self.warnings:
             lines.append("")
@@ -178,6 +213,16 @@ class NCAResult:
             "DN_AUClast": self.DN_AUClast,
             "DN_AUCinf_obs": self.DN_AUCinf_obs,
             "DN_Cmax": self.DN_Cmax,
+            "Cmax_ss": self.Cmax_ss,
+            "Cmin_ss": self.Cmin_ss,
+            "Cavg_ss": self.Cavg_ss,
+            "AUCtau": self.AUCtau,
+            "fluctuation_pct": self.fluctuation_pct,
+            "swing": self.swing,
+            "accumulation_ratio": self.accumulation_ratio,
+            "Ae": self.Ae,
+            "Ae_pct": self.Ae_pct,
+            "CLr": self.CLr,
             "warnings": self.warnings,
         }
 
@@ -236,6 +281,7 @@ class NCASummaryResults:
         str
             Fixed-width table with one row per subject.
         """
+
         def _fmt(v: float | None) -> str:
             return f"{v:.4g}" if v is not None else "N/A"
 
@@ -325,17 +371,19 @@ class NCASummaryResults:
         for r in self.results:
             for attr, (pptestcd, pptest, unit) in pp_map.items():
                 val = getattr(r, attr, None)
-                pp_rows.append({
-                    "USUBJID": r.subject,
-                    "PPTESTCD": pptestcd,
-                    "PPTEST": pptest,
-                    "PPORRES": _fmt_val(val),
-                    "PPORRESU": unit,
-                    "PPSTRESU": unit,
-                    "PPSPEC": "PLASMA",
-                    "PPDTC": "",
-                    "VISITNUM": 1,
-                })
+                pp_rows.append(
+                    {
+                        "USUBJID": r.subject,
+                        "PPTESTCD": pptestcd,
+                        "PPTEST": pptest,
+                        "PPORRES": _fmt_val(val),
+                        "PPORRESU": unit,
+                        "PPSTRESU": unit,
+                        "PPSPEC": "PLASMA",
+                        "PPDTC": "",
+                        "VISITNUM": 1,
+                    }
+                )
 
         return pd.DataFrame(pp_rows)
 
