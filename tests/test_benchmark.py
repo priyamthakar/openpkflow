@@ -8,7 +8,7 @@ import pytest
 from openpkflow.be.methods import be_tost
 from openpkflow.dissolution.similarity import f2
 from openpkflow.dissolution.models import fit_dissolution_models
-from openpkflow.nca.methods import auc_trapezoid
+from openpkflow.nca.methods import auc_linear
 
 
 @pytest.mark.benchmark(group="dissolution")
@@ -39,7 +39,7 @@ def test_auc_trapezoid_benchmark(benchmark):
     ])
     conc = np.exp(-0.3 * t) * 50
     conc[0] = 0
-    benchmark(auc_trapezoid, t.tolist(), conc.tolist())
+    benchmark(auc_linear, t.tolist(), conc.tolist())
 
 
 @pytest.mark.benchmark(group="be")
@@ -52,4 +52,4 @@ def test_tost_benchmark(benchmark):
     sigma_w = 0.2
     log_ref = np.random.normal(mu_r, sigma_w, n)
     log_test = np.random.normal(mu_t, sigma_w, n)
-    benchmark(be_tost, log_test, log_ref, alpha=0.05, theta_lo=0.80, theta_hi=1.25)
+    benchmark(be_tost, log_ref, log_test, alpha=0.05, be_lower=0.80, be_upper=1.25)

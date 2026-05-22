@@ -7,6 +7,9 @@ dissolution -> IVIVC -> NCA -> BE -> reports. Not another NLME engine — those 
 The gap we fill is the CRO/CDMO bench scientist who needs clean, auditable, shareable outputs
 without WinNonlin or a SAS programmer.
 
+Formal bioequivalence statistics live in the companion BioEqPy package. OpenPKFlow
+keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
+
 ---
 
 ## Greenfield differentiators (near-zero open-source Python competition)
@@ -16,7 +19,7 @@ without WinNonlin or a SAS programmer.
 | IVIVC (Level A: deconvolution + convolution prediction) | None |
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | None |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | None |
-| RSABE / replicate-design BE (HVD/HVDP products) | None |
+| Formal RSABE / replicate-design BE | BioEqPy companion |
 | CDISC PP / ADPPK-compliant PK parameter output | None |
 | Sparse NCA (model-informed AUC from 2-5 samples) | Partial (PKNCA R only) |
 
@@ -71,16 +74,13 @@ Scope: expand `nca/` module. No new module.
 
 ---
 
-### v1.4.0 -- RSABE and replicate BE designs (target: ~4 weeks)
+### v1.4.0 -- BioEqPy bridge polish (target: ~1 week)
 
-Scope: expand `be/` module. No new module.
+Scope: keep OpenPKFlow BE lightweight and route formal BE work to BioEqPy.
 
-- `rsabe_tost()` -- Reference-Scaled Average BE (FDA Progesterone guidance; TRTR/RTRT designs)
-- `two_stage_be()` -- adaptive 2-stage design (Potvin method B/C; interim alpha = 0.0294)
-- `replicate_design_cv()` -- within-subject CV decomposition for HVD/HVDP products
-- HVD auto-detection: if CVwr > 30%, recommend RSABE; raise `UserWarning`
-- `BEStudy.from_replicate_csv()` loader for 4-period replicate data
-- Tests: ~25 new tests citing FDA 2011 Progesterone guidance and Potvin 2008
+- Example notebook: OpenPKFlow NCA -> BioEqPy formal BE report
+- Documentation showing `BEStudy.to_bioeqpy_dataframe()` and BioEqPy bridge helpers
+- Optional dependency note: install BioEqPy only when formal BE analysis is needed
 
 ---
 

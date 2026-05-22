@@ -19,7 +19,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
-- **Bioequivalence:** 2x2 crossover TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV — v1.0.0
+- **Bioequivalence convenience:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; formal ANOVA/RSABE work belongs in BioEqPy
 - **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing — v0.5.0
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers — v0.6.0
@@ -188,6 +188,21 @@ study = BEStudy.from_nca_results(
 result = study.analyze()
 ```
 
+### Formal BE with BioEqPy
+
+OpenPKFlow deliberately keeps `openpkflow.be` as a lightweight convenience layer.
+For regulator-facing BE analysis with long-format crossover data, ANOVA source
+tables, NTI, ABEL/RSABE, and validation fixtures, export a BioEqPy-ready table:
+
+```python
+from openpkflow.be import BEStudy
+from bioeqpy import analyze
+
+study = BEStudy(be_df, parameter="AUCinf")
+bioeqpy_input = study.to_bioeqpy_dataframe()
+formal_results = analyze(bioeqpy_input, parameters=["AUCinf"])
+```
+
 ### CLI
 
 ```bash
@@ -239,7 +254,7 @@ vpc.report("vpc_report.html")
 | Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
 | NCA (AUClast, AUCinf, CL/F, lambda_z) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | Three AUC methods + explicit BLQ handling | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| Bioequivalence (2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| Bioequivalence convenience (paired 2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | PK simulation (1/2-cmt, oral/IV) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
 | Population PK diagnostics (GOF, VPC) | :white_check_mark: | :x: | :x: | :white_check_mark: |
 | Multi-format reports (HTML, PDF, DOCX) | :white_check_mark: | :x: | :white_check_mark: | :x: |
@@ -247,11 +262,11 @@ vpc.report("vpc_report.html")
 | Python-native API | :white_check_mark: | :x: | :x: | :white_check_mark: |
 | Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | IVIVC (Level A) | :x: (v1.2.0) | :x: | :white_check_mark: | :x: |
-| RSABE / replicate BE | :x: (v1.4.0) | :x: | :white_check_mark: | :x: |
+| Formal BE ANOVA / RSABE / replicate BE | BioEqPy companion | :x: | :white_check_mark: | :x: |
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC, MSD/f2 alternatives, multi-media dissolution, RSABE, sparse NCA, CDISC output.
+Post-1.0.0 milestones: IVIVC, MSD/f2 alternatives, multi-media dissolution, sparse NCA, CDISC output, and BioEqPy bridge polish.
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---
@@ -270,7 +285,7 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Population PK diagnostics (GOF, VPC, NONMEM helpers) | Stable — v0.6.0 |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | Bayesian PK (PyMC, CmdStanPy) | Deferred — [bayes] extras wired, PyMC optional |
-| Bioequivalence (2x2 crossover TOST, 80-125%) | Stable -- v1.0.0 |
+| Bioequivalence convenience (paired TOST) | Stable -- delegates formal BE positioning to BioEqPy |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype — v0.9.0 |
 | Stable public release | Done — v1.0.0 |
 

@@ -1,6 +1,8 @@
 # openpkflow.be
 
-Bioequivalence analysis: 2x2 crossover TOST, GMR + 90% CI, intra-subject CV.
+Bioequivalence convenience analysis: paired 2x2 TOST, GMR + 90% CI,
+intra-subject CV. For formal ANOVA-based BE, NTI, ABEL/RSABE, replicate
+designs, and validation fixtures, export to BioEqPy.
 
 ## Public API
 
@@ -10,6 +12,8 @@ Bioequivalence analysis: 2x2 crossover TOST, GMR + 90% CI, intra-subject CV.
 | `BEResult` | dataclass | Analysis result: `gmr`, `gmr_lower_90ci`, `gmr_upper_90ci`, `bioequivalent`, `cv_intra_pct`, `subjects_df`, `.summary()`, `.report()` |
 | `BETOSTResult` | dataclass | Low-level TOST output from `be_tost()` |
 | `be_tost(reference, test, ...)` | function | Core TOST computation |
+| `BEStudy.to_bioeqpy_dataframe()` | method | Export BioEqPy-ready long-format BE input |
+| `BEStudy.to_bioeqpy_csv(path)` | method | Write BioEqPy-ready CSV input |
 
 ## BEStudy
 
@@ -55,6 +59,23 @@ BEStudy.from_nca_results(
 ```
 
 Matches subjects by ID. Raises `ValueError` if no common subjects are found.
+
+### `.to_bioeqpy_dataframe()`
+
+```python
+from bioeqpy import analyze
+
+table = study.to_bioeqpy_dataframe()
+results = analyze(table, parameters=["AUCinf"])
+```
+
+Exports long-format columns expected by BioEqPy: `subject`, `sequence`, `period`,
+`treatment`, and the selected PK parameter. The current export supports standard
+`TR`/`RT` 2x2 crossover studies and requires a sequence column.
+
+### `.to_bioeqpy_csv(path)`
+
+Writes the same BioEqPy-ready long-format table to CSV.
 
 ## BEResult
 

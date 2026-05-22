@@ -1,7 +1,8 @@
-# Tutorial: Bioequivalence (2x2 Crossover TOST)
+# Tutorial: Bioequivalence Convenience Layer
 
-This tutorial demonstrates a standard 2x2 crossover bioequivalence analysis
-using the FDA/EMA 80-125% acceptance limits (Schuirmann TOST, 90% CI).
+This tutorial demonstrates OpenPKFlow's lightweight paired TOST convenience
+layer. For formal regulator-facing BE analysis with ANOVA tables, replicate
+designs, NTI, ABEL/RSABE, and validation fixtures, export to BioEqPy.
 
 ---
 
@@ -26,8 +27,7 @@ print(result.summary())
 ```
 
 Required columns: `subject`, `reference`, `test`.
-The `sequence` column (`"RT"` / `"TR"`) is optional — it appears in the per-subject
-table but does not affect the TOST decision.
+The `sequence` column (`"RT"` / `"TR"`) is optional for paired TOST, but required when exporting to BioEqPy.
 
 ---
 
@@ -89,7 +89,26 @@ Subjects are matched by ID. Only subjects present in both result sets are used.
 
 ---
 
-## 6. CLI
+## 6. Export to BioEqPy for formal BE
+
+```python
+from bioeqpy import analyze
+
+bioeqpy_table = study.to_bioeqpy_dataframe()
+formal_results = analyze(
+    bioeqpy_table,
+    parameters=["AUCinf"],
+    report="bioeqpy_formal_be_report.html",
+)
+```
+
+`to_bioeqpy_dataframe()` returns the long-format columns BioEqPy expects:
+`subject`, `sequence`, `period`, `treatment`, and the selected PK parameter.
+The export requires `TR`/`RT` sequence labels.
+
+---
+
+## 7. CLI
 
 ```bash
 openpkflow be compare be_data.csv --parameter AUCinf

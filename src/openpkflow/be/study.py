@@ -218,6 +218,7 @@ class BEStudy:
     def to_bioeqpy_csv(self, path: str | Path) -> None:
         """Write a BioEqPy-ready long-format CSV file."""
         self.to_bioeqpy_dataframe().to_csv(path, index=False)
+
     def analyze(
         self,
         *,
