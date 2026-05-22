@@ -260,6 +260,206 @@ def render_comparison_pdf_report(
     return pdf_bytes
 
 
+def render_multi_media_pdf_report(
+    *,
+    title: str,
+    reference_label: str,
+    test_label: str,
+    media_names: list[str],
+    per_media_results: dict[str, dict[str, Any]],
+    f2_summary: dict[str, float],
+    overall_pass: bool,
+    plot_b64: str,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render a multi-media dissolution PDF report.
+
+    Parameters
+    ----------
+    title :
+        Report title.
+    reference_label :
+        Label for the reference formulation.
+    test_label :
+        Label for the test formulation.
+    media_names :
+        Ordered list of medium names.
+    per_media_results :
+        Dict mapping medium name to its ComparisonResult.to_dict() output.
+    f2_summary :
+        Dict mapping medium name to its f2 value.
+    overall_pass :
+        True if all media have f2 >= 50.
+    plot_b64 :
+        Base64-encoded PNG of the multi-media panel plot.
+    output_path :
+        If given, write PDF bytes to this path.
+
+    Returns
+    -------
+    bytes
+        Raw PDF bytes.
+    """
+    try:
+        import reportlab  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "PDF export requires reportlab. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.platypus import (
+        Image,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
+    )
+
+    from openpkflow import __version__
+
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=letter,
+        rightMargin=inch,
+        leftMargin=inch,
+        topMargin=inch,
+        bottomMargin=inch,
+    )
+
+    styles = getSampleStyleSheet()
+    style_title = ParagraphStyle(
+        "MMTitle",
+        parent=styles["Title"],
+        fontSize=18,
+        textColor=colors.HexColor(_NAVY),
+        spaceAfter=6,
+    )
+    style_meta = ParagraphStyle(
+        "MMMeta",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.HexColor("#555555"),
+        spaceAfter=12,
+    )
+    style_heading = ParagraphStyle(
+        "MMHeading",
+        parent=styles["Heading2"],
+        fontSize=12,
+        textColor=colors.HexColor(_NAVY),
+        spaceBefore=14,
+        spaceAfter=4,
+    )
+    style_verdict = ParagraphStyle(
+        "MMVerdict",
+        parent=styles["Normal"],
+        fontSize=11,
+        spaceBefore=6,
+        spaceAfter=12,
+    )
+    style_disclaimer = ParagraphStyle(
+        "MMDisclaimer",
+        parent=styles["Normal"],
+        fontSize=8,
+        textColor=colors.HexColor("#666666"),
+        fontName="Helvetica-Oblique",
+        spaceBefore=16,
+        leading=11,
+    )
+
+    navy = colors.HexColor(_NAVY)
+    light_grey = colors.HexColor(_LIGHT_GREY)
+    green_bg = colors.HexColor("#d4edda")
+    red_bg = colors.HexColor("#f8d7da")
+
+    story: list[Any] = []
+
+    story.append(Paragraph(title, style_title))
+    story.append(
+        Paragraph(
+            f"Generated {generated_at} | OpenPKFlow v{__version__}",
+            style_meta,
+        )
+    )
+
+    # Overall verdict
+    if overall_pass:
+        vcolor = colors.HexColor("#155724")
+        verdict_text = "Overall Verdict: PASS — all media satisfy f2 >= 50"
+    else:
+        vcolor = colors.HexColor("#721c24")
+        verdict_text = "Overall Verdict: FAIL — one or more media fall below f2 >= 50"
+    story.append(Paragraph(verdict_text, style_verdict))
+
+    story.append(Paragraph("Multi-Media f2 Summary", style_heading))
+
+    summary_header = ["Medium", "f2", "f1", "Timepoints", "Status"]
+    summary_data = [summary_header]
+    for medium in media_names:
+        cr = per_media_results.get(medium, {})
+        if not cr:
+            continue
+        f2 = cr.get("f2_value", 0)
+        status = "PASS" if f2 >= 50 else "FAIL"
+        summary_data.append([
+            medium,
+            f"{f2:.2f}",
+            f"{cr.get('f1_value', 0):.2f}",
+            str(cr.get("n_timepoints", 0)),
+            status,
+        ])
+
+    col_widths = [1.5 * inch, 0.8 * inch, 0.8 * inch, 1.0 * inch, 0.9 * inch]
+    summary_table = Table(summary_data, colWidths=col_widths)
+    summary_table.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), navy),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 9),
+            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+            ("ALIGN", (1, 0), (3, -1), "CENTER"),
+            ("ALIGN", (4, 0), (4, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("FONTSIZE", (0, 1), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, light_grey]),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ])
+    )
+    story.append(summary_table)
+
+    # Plot
+    story.append(Spacer(1, 0.2 * inch))
+    story.append(Paragraph("Multi-Media Profile Plot", style_heading))
+    img_data = base64.b64decode(plot_b64)
+    img_buf = io.BytesIO(img_data)
+    img = Image(img_buf, width=6.5 * inch, height=2.5 * inch)
+    story.append(img)
+
+    story.append(Paragraph(_DISCLAIMER, style_disclaimer))
+
+    doc.build(story)
+    pdf_bytes = buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(pdf_bytes)
+
+    return pdf_bytes
+
+
 def render_model_fit_pdf_report(
     *,
     formulation_label: str,

@@ -158,8 +158,8 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ## Current focus
 
-v1.3.0 is current (steady-state NCA + urinary excretion). v1.2.0 (IVIVC Level A) is also complete.
-Next milestone is v1.4.0: BioEqPy bridge polish.
+v1.4.0 is current (multi-media dissolution). v1.1.0-v1.3.0 also complete.
+Next milestone is v1.5.0: sparse NCA.
 See `ROADMAP.md` for the full post-1.0.0 ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.

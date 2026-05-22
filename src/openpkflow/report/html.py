@@ -37,37 +37,7 @@ def render_html_report(
     test_mean: list[float],
     output_path: str | Path | None = None,
 ) -> str:
-    """Render a dissolution comparison HTML report.
-
-    Parameters
-    ----------
-    title :
-        Report title.
-    reference_label :
-        Label for the reference formulation.
-    test_label :
-        Label for the test formulation.
-    f1_value :
-        Computed f1 difference factor.
-    f2_value :
-        Computed f2 similarity factor.
-    n_timepoints :
-        Number of matched timepoints used in the calculation.
-    time_points :
-        Timepoint values for the data table.
-    reference_mean :
-        Mean percent dissolved values for the reference at each timepoint.
-    test_mean :
-        Mean percent dissolved values for the test at each timepoint.
-    output_path :
-        If given, write the rendered HTML to this path (parent dirs created
-        automatically).
-
-    Returns
-    -------
-    str
-        The rendered HTML string.
-    """
+    """Render a dissolution comparison HTML report."""
     if f2_value >= 50:
         interpretation = (
             "f2 >= 50 supports similarity between the reference and test profiles."
@@ -123,30 +93,7 @@ def render_model_fit_html_report(
     plot_b64: str,
     output_path: str | Path | None = None,
 ) -> str:
-    """Render a dissolution model fit HTML report.
-
-    Parameters
-    ----------
-    formulation_label :
-        Label of the fitted formulation.
-    time_points :
-        Observed time points (minutes).
-    observed_mean :
-        Mean percent dissolved at each observed time point.
-    fit_rows :
-        Pre-processed fit data rows (one dict per model). Each dict must have:
-        ``model_name``, ``params``, ``r_squared``, ``aic``, ``aicc``, ``bic``,
-        ``n_points``, ``n_params``, ``converged``, ``rank``, ``is_best``.
-    plot_b64 :
-        Base64-encoded PNG of the model fit overlay plot.
-    output_path :
-        If given, write the rendered HTML to this path.
-
-    Returns
-    -------
-    str
-        The rendered HTML string.
-    """
+    """Render a dissolution model fit HTML report."""
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=True,
@@ -167,6 +114,49 @@ def render_model_fit_html_report(
         plot_b64=plot_b64,
         disclaimer=_DISCLAIMER,
         fit_disclaimer=_FIT_DISCLAIMER,
+    )
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered, encoding="utf-8")
+
+    return rendered
+
+
+def render_multi_media_html_report(
+    *,
+    title: str,
+    reference_label: str,
+    test_label: str,
+    media_names: list[str],
+    per_media_results: dict[str, dict[str, Any]],
+    f2_summary: dict[str, float],
+    overall_pass: bool,
+    plot_b64: str,
+    output_path: str | Path | None = None,
+) -> str:
+    """Render a multi-media dissolution HTML report."""
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=True,
+    )
+    env.globals["zip"] = zip
+
+    template = env.get_template("multi_media_report.html")
+
+    rendered = template.render(
+        title=title,
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        openpkflow_version=__version__,
+        reference_label=reference_label,
+        test_label=test_label,
+        media_names=media_names,
+        per_media_results=per_media_results,
+        f2_summary=f2_summary,
+        overall_pass=overall_pass,
+        plot_b64=plot_b64,
+        disclaimer=_DISCLAIMER,
     )
 
     if output_path is not None:

@@ -20,7 +20,7 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | None |
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
-| Formal RSABE / replicate-design BE | BioEqPy companion |
+| Formal RSABE / replicate-design BE | :x: (planned v2.x) |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse NCA (model-informed AUC from 2-5 samples) | Partial (PKNCA R only) |
 
@@ -75,15 +75,15 @@ Scope: expand `nca/` module. Sparse NCA moved to future milestone.
 
 ---
 
-### v1.4.0 -- Multi-media dissolution (target: ~3 weeks)
+### v1.4.0 -- Multi-media dissolution ✅ DONE
 
 Scope: expand `dissolution/` module.
 
-- `MultiMediaStudy` -- simultaneous f2 across pH 1.2, 4.5, 6.8 with summary table
-- Alcohol dose-dumping panel: f2 at 0%, 5%, 20%, 40% ethanol vs. control
-- SUPAC/MR change level auto-classification: Level 1/2/3 per dissolution differences
-- ICH M13A/B multi-media report template
-- Tests: ~20 new tests
+- `MultiMediaStudy` — accepts `{media_name: csv_path}` dict, wraps `DissolutionStudy` instances ✅
+- `MultiMediaResult` — per-medium f2 grid, overall PASS/FAIL verdict, `.summary()`, `.report()`, `.plot()` ✅
+- `multi_media_report.html` — summary grid + per-medium detail sections + multi-panel plot ✅
+- HTML/PDF/DOCX reports following existing template style ✅
+- Tests: 26 new tests ✅
 
 ---
 

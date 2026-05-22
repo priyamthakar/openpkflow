@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    .content {
+      padding: 32px 36px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .badge-pass  { background: #d4edda; color: #155724; border: 1px solid #b8dac2; }
+    .badge-fail  { background: #f8d7da; color: #721c24; border: 1px solid #e8b4b8; }
+
+    .summary-card {
+      background: #f0f6ff;
+      border-left: 4px solid #1a78c2;
+      border-radius: 0 4px 4px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      color: #1a3a5c;
+      margin-bottom: 24px;
+    }
+
+    .summary-card strong {
+      color: #0d3b66;
+    }
+
+    .media-plot {
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .media-plot img {
+      max-width: 100%;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    .disclaimer-box {
+      background: #f7f7f7;
+      border: 1px solid #dde1e7;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #666c74;
+      line-height: 1.55;
+    }
+
+    .disclaimer-box strong {
+      color: #444c55;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .overall-banner {
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .overall-banner.pass { background: #d4edda; color: #155724; }
+    .overall-banner.fail { background: #f8d7da; color: #721c24; }
+
+    .report-footer {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #8a95a3;
+    }
+
+    .report-footer a {
+      color: #1a78c2;
+      text-decoration: none;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; }
+      .report-footer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="report-header">
+    <p class="org-label">OpenPKFlow &mdash; Multi-Media Dissolution Report</p>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated</strong>
+        {{ generated_at }}
+      </div>
+      <div class="meta-item">
+        <strong>Software</strong>
+        OpenPKFlow {{ openpkflow_version }}
+      </div>
+      <div class="meta-item">
+        <strong>Reference</strong>
+        {{ reference_label }}
+      </div>
+      <div class="meta-item">
+        <strong>Test</strong>
+        {{ test_label }}
+      </div>
+      <div class="meta-item">
+        <strong>Media</strong>
+        {{ media_names|join(", ") }}
+      </div>
+      <div class="meta-item">
+        <strong>Media Count</strong>
+        {{ media_names|length }}
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- Overall verdict -->
+    <section>
+      {% if overall_pass %}
+      <div class="overall-banner pass">Overall Verdict: PASS &mdash; all media satisfy f2 >= 50</div>
+      {% else %}
+      <div class="overall-banner fail">Overall Verdict: FAIL &mdash; one or more media fall below f2 >= 50</div>
+      {% endif %}
+    </section>
+
+    <!-- Summary Grid -->
+    <section>
+      <h2>Multi-Media f2 Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Medium</th>
+            <th class="num">f2</th>
+            <th class="num">f1</th>
+            <th class="num">Timepoints</th>
+            <th>Criterion</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for medium in media_names %}
+          {% set r = per_media_results[medium] %}
+          <tr>
+            <td>{{ medium }}</td>
+            <td class="num">{{ "%.2f"|format(r.f2_value) }}</td>
+            <td class="num">{{ "%.2f"|format(r.f1_value) }}</td>
+            <td class="num">{{ r.n_timepoints }}</td>
+            <td>f2 &ge; 50</td>
+            <td>
+              {% if r.f2_value >= 50 %}
+              <span class="badge badge-pass">PASS</span>
+              {% else %}
+              <span class="badge badge-fail">FAIL</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="summary-card">
+        <strong>Interpretation:</strong>
+        Multi-media dissolution comparison across {{ media_names|length }} conditions.
+        f2 &ge; 50 indicates similarity between {{ reference_label }} and {{ test_label }}
+        at the given pH/medium condition per FDA guidance for
+        immediate-release oral solid dosage forms.
+      </div>
+    </section>
+
+    <!-- Multi-media plot -->
+    <section>
+      <h2>Dissolution Profiles by Medium</h2>
+      <div class="media-plot">
+        <img src="data:image/png;base64,{{ plot_b64 }}"
+             alt="Multi-media dissolution comparison plot" />
+      </div>
+    </section>
+
+    <!-- Per-medium detail sections -->
+    {% for medium in media_names %}
+    {% set r = per_media_results[medium] %}
+    <section>
+      <h2>{{ medium }} &mdash; Detailed Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th class="num">Value</th>
+            <th>Criterion</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>f1 (Difference Factor)</td>
+            <td class="num">{{ "%.2f"|format(r.f1_value) }}</td>
+            <td>0 &ndash; 15</td>
+            <td>
+              {% if r.f1_value <= 15 %}
+              <span class="badge badge-pass">PASS</span>
+              {% else %}
+              <span class="badge badge-fail">FAIL</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>f2 (Similarity Factor)</td>
+            <td class="num">{{ "%.2f"|format(r.f2_value) }}</td>
+            <td>&ge; 50</td>
+            <td>
+              {% if r.f2_value >= 50 %}
+              <span class="badge badge-pass">PASS</span>
+              {% else %}
+              <span class="badge badge-fail">FAIL</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <br />
+      <table>
+        <thead>
+          <tr>
+            <th>Time (min)</th>
+            <th class="num">{{ reference_label }} Mean (%)</th>
+            <th class="num">{{ test_label }} Mean (%)</th>
+            <th class="num">Difference (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t, ref, tst in zip(r.time_points, r.reference_mean, r.test_mean) %}
+          <tr>
+            <td>{{ t }}</td>
+            <td class="num">{{ "%.2f"|format(ref) }}</td>
+            <td class="num">{{ "%.2f"|format(tst) }}</td>
+            <td class="num">{{ "%.2f"|format(tst - ref) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endfor %}
+
+    <!-- Disclaimer -->
+    <section>
+      <h2>Disclaimer</h2>
+      <div class="disclaimer-box">
+        <strong>Regulatory Notice</strong>
+        {{ disclaimer }}
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="report-footer">
+    <span>
+      Generated by <strong>OpenPKFlow {{ openpkflow_version }}</strong>
+      &mdash; <a href="https://github.com/priyamthakar/openpkflow">github.com/priyamthakar/openpkflow</a>
+    </span>
+    <span>{{ generated_at }}</span>
+  </footer>
+
+</div>
+</body>
+</html>

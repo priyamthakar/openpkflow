@@ -154,13 +154,13 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 | Bootstrap f2 CI | ✅ | — | — | — | ✅ |
 | Dissolution model fitting (5 models + AICc) | ✅ | — | — | — | ✅ |
 | Mahalanobis / f2 alternatives | ✅ | — | — | — | ✅ |
-| Multi-media dissolution | planned | — | — | — | ✅ |
+| Multi-media dissolution | ✅ | — | — | — | ✅ |
 | IVIVC (Level A) | ✅ | — | — | — | ✅ |
 | NCA | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Steady-state NCA + urine | ✅ | — | — | — | ✅ |
 | Sparse NCA | planned | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
-| BE (2×2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
+| BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
 | RSABE / replicate BE | planned | — | — | — | ✅ |
 | PopPK estimation | deferred | ✅ | ✅ | ✅ | — |
 | PK simulation (1-2 cmt) | ✅ | ✅ | ✅ | ✅ | ✅ |

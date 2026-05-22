@@ -174,6 +174,124 @@ def render_comparison_docx_report(
     return docx_bytes
 
 
+def render_multi_media_docx_report(
+    *,
+    title: str,
+    reference_label: str,
+    test_label: str,
+    media_names: list[str],
+    per_media_results: dict[str, dict[str, Any]],
+    f2_summary: dict[str, float],
+    overall_pass: bool,
+    plot_b64: str,
+    output_path: str | Path | None = None,
+) -> bytes:
+    """Render a multi-media dissolution report as a Word document.
+
+    Parameters
+    ----------
+    title :
+        Report title.
+    reference_label :
+        Label for the reference formulation.
+    test_label :
+        Label for the test formulation.
+    media_names :
+        Ordered list of medium names.
+    per_media_results :
+        Dict mapping medium name to its ComparisonResult.to_dict() output.
+    f2_summary :
+        Dict mapping medium name to its f2 value.
+    overall_pass :
+        True if all media have f2 >= 50.
+    plot_b64 :
+        Base64-encoded PNG of the multi-media panel plot.
+    output_path :
+        If given, write the DOCX bytes to this path.
+
+    Returns
+    -------
+    bytes
+        DOCX file contents as bytes.
+    """
+    try:
+        import docx  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "Word export requires python-docx. Install with: pip install openpkflow[reports]"
+        ) from exc
+
+    from docx import Document
+    from docx.shared import Inches, Pt
+
+    from openpkflow import __version__
+
+    document = Document()
+
+    document.add_heading(title, level=1)
+
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    meta_para = document.add_paragraph(
+        f"Generated: {generated_at}  |  OpenPKFlow v{__version__}"
+    )
+    meta_para.runs[0].font.size = Pt(9)
+
+    # Overall verdict
+    verdict_para = document.add_paragraph()
+    verdict_run = verdict_para.add_run(
+        "Overall: PASS" if overall_pass else "Overall: FAIL"
+    )
+    verdict_run.bold = True
+    verdict_run.font.size = Pt(12)
+
+    document.add_heading("Multi-Media f2 Summary", level=2)
+
+    summary_table = document.add_table(rows=1, cols=5)
+    summary_table.style = "Table Grid"
+    hdr = summary_table.rows[0].cells
+    for i, heading in enumerate(["Medium", "f2", "f1", "Timepoints", "Status"]):
+        hdr[i].text = heading
+        for run in hdr[i].paragraphs[0].runs:
+            run.bold = True
+
+    for medium in media_names:
+        cr = per_media_results.get(medium, {})
+        if not cr:
+            continue
+        f2 = cr.get("f2_value", 0)
+        row = summary_table.add_row().cells
+        row[0].text = medium
+        row[1].text = f"{f2:.2f}"
+        row[2].text = f"{cr.get('f1_value', 0):.2f}"
+        row[3].text = str(cr.get("n_timepoints", 0))
+        row[4].text = "PASS" if f2 >= 50 else "FAIL"
+
+    document.add_paragraph()
+
+    document.add_heading("Multi-Media Profile Plot", level=2)
+    img_data = base64.b64decode(plot_b64)
+    img_buf = io.BytesIO(img_data)
+    document.add_picture(img_buf, width=Inches(6))
+
+    document.add_paragraph()
+
+    disclaimer_para = document.add_paragraph(_DISCLAIMER)
+    for run in disclaimer_para.runs:
+        run.italic = True
+        run.font.size = Pt(9)
+
+    buf = io.BytesIO()
+    document.save(buf)
+    docx_bytes = buf.getvalue()
+
+    if output_path is not None:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(docx_bytes)
+
+    return docx_bytes
+
+
 def render_model_fit_docx_report(
     *,
     formulation_label: str,

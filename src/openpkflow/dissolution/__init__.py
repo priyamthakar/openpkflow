@@ -9,6 +9,7 @@ from .models import (
     fit_dissolution_models,
     model_dependent_comparison,
 )
+from .multi_media import MultiMediaResult, MultiMediaStudy
 from .similarity import MSDResult, f1, f2, max_deviation, msd
 from .study import ComparisonResult, DissolutionStudy
 
@@ -30,4 +31,6 @@ __all__ = [
     "ModelComparisonResult",
     "ModelFit",
     "DissolutionFitResults",
+    "MultiMediaStudy",
+    "MultiMediaResult",
 ]

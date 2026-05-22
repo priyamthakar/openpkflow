@@ -24,37 +24,7 @@ def render_markdown_report(
     test_mean: list[float],
     output_path: str | Path | None = None,
 ) -> str:
-    """Render a dissolution comparison Markdown report.
-
-    Parameters
-    ----------
-    title :
-        Report title.
-    reference_label :
-        Label for the reference formulation.
-    test_label :
-        Label for the test formulation.
-    f1_value :
-        Computed f1 difference factor.
-    f2_value :
-        Computed f2 similarity factor.
-    n_timepoints :
-        Number of matched timepoints used in the calculation.
-    time_points :
-        Timepoint values for the data table.
-    reference_mean :
-        Mean percent dissolved values for the reference at each timepoint.
-    test_mean :
-        Mean percent dissolved values for the test at each timepoint.
-    output_path :
-        If given, write the rendered Markdown to this path (parent dirs
-        created automatically).
-
-    Returns
-    -------
-    str
-        The rendered Markdown string.
-    """
+    """Render a dissolution comparison Markdown report."""
     from datetime import datetime, timezone
 
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -72,14 +42,12 @@ def render_markdown_report(
 
     lines: list[str] = []
 
-    # -- Title and metadata ------------------------------------------
     lines.append(f"# {title}")
     lines.append("")
     lines.append(f"**Generated:** {generated_at}  ")
     lines.append(f"**OpenPKFlow version:** {__version__}")
     lines.append("")
 
-    # -- Study parameters --------------------------------------------
     lines.append("## Study Parameters")
     lines.append("")
     lines.append("| Parameter | Value |")
@@ -89,7 +57,6 @@ def render_markdown_report(
     lines.append(f"| Timepoints (n) | {n_timepoints} |")
     lines.append("")
 
-    # -- Results -----------------------------------------------------
     lines.append("## Similarity Factor Results")
     lines.append("")
     lines.append("| Parameter | Value | Criterion | Status |")
@@ -104,7 +71,6 @@ def render_markdown_report(
     lines.append(f"**Interpretation:** {interpretation}")
     lines.append("")
 
-    # -- Data table --------------------------------------------------
     lines.append("## Dissolution Profile Data")
     lines.append("")
     lines.append(
@@ -115,7 +81,6 @@ def render_markdown_report(
         lines.append(f"| {t} | {r:.2f} | {ts:.2f} | {ts - r:.2f} |")
     lines.append("")
 
-    # -- Disclaimer --------------------------------------------------
     lines.append("## Disclaimer")
     lines.append("")
     lines.append(f"> {_DISCLAIMER}")
@@ -137,27 +102,7 @@ def report_dissolution(
     format: str = "html",
     **kwargs: object,
 ) -> str | bytes:
-    """Generate a dissolution comparison report in the specified format.
-
-    Parameters
-    ----------
-    output_path :
-        Where to save the report file.
-    format :
-        Output format: ``"html"``, ``"markdown"``, ``"pdf"``, or ``"docx"``.
-    **kwargs :
-        Keyword arguments forwarded to the underlying renderer.
-
-    Returns
-    -------
-    str | bytes
-        The rendered report content (str for html/markdown, bytes for pdf/docx).
-
-    Raises
-    ------
-    ValueError
-        If ``format`` is not a recognised format string.
-    """
+    """Generate a dissolution comparison report in the specified format."""
     if format == "html":
         from openpkflow.report.html import render_html_report
 
@@ -177,3 +122,28 @@ def report_dissolution(
         return render_comparison_docx_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
 
     raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
+
+
+def report_multi_media(
+    *,
+    output_path: str | Path,
+    format: str = "html",
+    **kwargs: object,
+) -> str | bytes:
+    """Generate a multi-media dissolution report in the specified format."""
+    if format == "html":
+        from openpkflow.report.html import render_multi_media_html_report
+
+        return render_multi_media_html_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
+
+    if format == "pdf":
+        from openpkflow.report.pdf import render_multi_media_pdf_report
+
+        return render_multi_media_pdf_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
+
+    if format == "docx":
+        from openpkflow.report.docx import render_multi_media_docx_report
+
+        return render_multi_media_docx_report(output_path=output_path, **kwargs)  # type: ignore[arg-type]
+
+    raise ValueError(f"Unknown format {format!r}. Choose 'html', 'pdf', or 'docx'.")
