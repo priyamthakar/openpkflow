@@ -245,8 +245,17 @@
             <td>lambda_z method</td>
             <td>{{ result.lambda_z_method if result.lambda_z_method is not none else "N/A" }}</td>
           </tr>
+          {% if result.lambda_z_n_points is not none %}
+          <tr><td>lambda_z n points</td><td class="num">{{ result.lambda_z_n_points }}</td></tr>
+          <tr><td>lambda_z adj R<sup>2</sup></td><td class="num">{{ fmt(result.lambda_z_adj_r2) }}</td></tr>
+          {% endif %}
           <tr><td>{{ cl_label }}</td><td class="num">{{ cl_value }}</td></tr>
           <tr><td>{{ vz_label }}</td><td class="num">{{ vz_value }}</td></tr>
+          {% if result.DN_AUClast is not none %}
+          <tr><td>DN_AUClast</td><td class="num">{{ fmt(result.DN_AUClast) }}</td></tr>
+          <tr><td>DN_AUCinf_obs</td><td class="num">{{ fmt(result.DN_AUCinf_obs) }}</td></tr>
+          <tr><td>DN_Cmax</td><td class="num">{{ fmt(result.DN_Cmax) }}</td></tr>
+          {% endif %}
         </tbody>
       </table>
     </section>

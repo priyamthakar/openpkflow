@@ -235,6 +235,22 @@ class NCAStudy:
                     cl = cl_params.get("CL")
                     vz = cl_params.get("Vz")
 
+            # %AUCextrap FDA flag (>20% criterion)
+            if pct_extrap is not None and pct_extrap > 20.0:
+                nca_warnings.append(
+                    f"%AUCextrap = {pct_extrap:.1f}% exceeds FDA 20% threshold. "
+                    "The estimate may be unreliable; consider extending the sampling schedule."
+                )
+
+            # Dose-normalised parameters
+            dn_auclast = auclast_val / dose if dose > 0 else None
+            dn_aucinf = aucinf / dose if aucinf is not None and dose > 0 else None
+            dn_cmax = cmax_val / dose if dose > 0 else None
+
+            # Lambda_z quality metrics
+            lz_adj_r2 = lz_result.adj_r_squared if lz_result is not None else None
+            lz_n_points = lz_result.n_points if lz_result is not None else None
+
             result = NCAResult(
                 subject=subject_str,
                 route=route,
@@ -255,6 +271,11 @@ class NCAStudy:
                 Vz_F=vz_f,
                 CL=cl,
                 Vz=vz,
+                lambda_z_adj_r2=lz_adj_r2,
+                lambda_z_n_points=lz_n_points,
+                DN_AUClast=dn_auclast,
+                DN_AUCinf_obs=dn_aucinf,
+                DN_Cmax=dn_cmax,
                 warnings=nca_warnings,
             )
             results.append(result)

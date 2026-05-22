@@ -216,6 +216,45 @@ def _check_cv(
     return warnings_out
 
 
+def _check_ich_m13b_rsd(
+    df: pd.DataFrame,
+    formulation: str,
+    config: DissolutionCSVConfig,
+) -> list[str]:
+    """Check ICH M13B RSD constraint at early time points (RSD <= 8%).
+
+    ICH M13B requires RSD <= 8% at time points with mean percent released
+    <= 60%. This is stricter than the legacy FDA CV limits.
+
+    Returns
+    -------
+    list[str]
+        Warning strings for timepoints where RSD exceeds the ICH M13B threshold.
+    """
+    col_form = config.formulation_col
+    col_time = config.time_col
+    col_pct = config.percent_released_col
+
+    subset = df[df[col_form] == formulation]
+    warnings_out: list[str] = []
+
+    for time_val, group in subset.groupby(col_time):
+        vals = group[col_pct].values
+        if len(vals) < 2:
+            continue
+        mean_val = float(vals.mean())
+        if mean_val <= 0.0 or mean_val > 60.0:
+            continue
+        rsd = float(vals.std(ddof=1) / abs(mean_val) * 100.0)
+        if rsd > 8.0:
+            warnings_out.append(
+                f"{formulation} at t={time_val}: RSD={rsd:.1f}% exceeds "
+                f"ICH M13B limit of 8% (mean {mean_val:.1f}%)"
+            )
+
+    return warnings_out
+
+
 class DissolutionStudy:
     """High-level dissolution study object.
 
@@ -349,6 +388,18 @@ class DissolutionStudy:
                 "High CV detected - FDA guidance recommends CV <= 20% at early "
                 "timepoints (<=15 min) and CV <= 10% at later timepoints:\n  "
                 + "\n  ".join(cv_issues),
+                UserWarning,
+                stacklevel=2,
+            )
+
+        # ICH M13B RSD constraint check: RSD > 8% at early time points (mean <= 60%)
+        rsd_issues: list[str] = []
+        rsd_issues.extend(_check_ich_m13b_rsd(self._df, reference, self._config))
+        rsd_issues.extend(_check_ich_m13b_rsd(self._df, test, self._config))
+        if rsd_issues:
+            warnings.warn(
+                "ICH M13B RSD constraint violated - RSD should be <= 8% at time points "
+                "with mean percent released <= 60%:\n  " + "\n  ".join(rsd_issues),
                 UserWarning,
                 stacklevel=2,
             )

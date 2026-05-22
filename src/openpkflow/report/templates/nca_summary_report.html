@@ -234,6 +234,8 @@
             <th class="num">half_life</th>
             <th class="num">CL / CL_F</th>
             <th class="num">Vz / Vz_F</th>
+            <th class="num">DN_AUClast</th>
+            <th class="num">DN_Cmax</th>
           </tr>
         </thead>
         <tbody>
@@ -253,6 +255,8 @@
             <td class="num">{{ fmt(row.result.half_life) }}</td>
             <td class="num">{{ row.cl_value }}</td>
             <td class="num">{{ row.vz_value }}</td>
+            <td class="num">{{ fmt(row.result.DN_AUClast) }}</td>
+            <td class="num">{{ fmt(row.result.DN_Cmax) }}</td>
           </tr>
           {% endfor %}
         </tbody>

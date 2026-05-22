@@ -84,6 +84,15 @@ class NCAResult:
     CL: float | None = None     # IV absolute clearance
     Vz: float | None = None     # IV absolute volume
 
+    # Lambda_z quality metrics
+    lambda_z_adj_r2: float | None = None
+    lambda_z_n_points: int | None = None
+
+    # Dose-normalised parameters
+    DN_AUClast: float | None = None
+    DN_AUCinf_obs: float | None = None
+    DN_Cmax: float | None = None
+
     warnings: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
@@ -116,10 +125,15 @@ class NCAResult:
             f"lambda_z                : {_fmt(self.lambda_z)}",
             f"half_life               : {_fmt(self.half_life)}",
             f"lambda_z_method         : {self.lambda_z_method or 'N/A'}",
+            f"lambda_z n points       : {self.lambda_z_n_points or 'N/A'}",
+            f"lambda_z adj_R2         : {_fmt(self.lambda_z_adj_r2)}",
             f"CL_F                    : {_fmt(self.CL_F)}",
             f"Vz_F                    : {_fmt(self.Vz_F)}",
             f"CL                      : {_fmt(self.CL)}",
             f"Vz                      : {_fmt(self.Vz)}",
+            f"DN_AUClast              : {_fmt(self.DN_AUClast)}",
+            f"DN_AUCinf_obs           : {_fmt(self.DN_AUCinf_obs)}",
+            f"DN_Cmax                 : {_fmt(self.DN_Cmax)}",
         ]
 
         if self.warnings:
@@ -159,6 +173,11 @@ class NCAResult:
             "Vz_F": self.Vz_F,
             "CL": self.CL,
             "Vz": self.Vz,
+            "lambda_z_adj_r2": self.lambda_z_adj_r2,
+            "lambda_z_n_points": self.lambda_z_n_points,
+            "DN_AUClast": self.DN_AUClast,
+            "DN_AUCinf_obs": self.DN_AUCinf_obs,
+            "DN_Cmax": self.DN_Cmax,
             "warnings": self.warnings,
         }
 
@@ -236,7 +255,8 @@ class NCASummaryResults:
 
         header = (
             f"{'Subject':<12} {'AUClast':>10} {'AUCinf_obs':>12} {'Cmax':>10} "
-            f"{'Tmax':>8} {'half_life':>10} {'CL/CL_F':>10} {'Vz/Vz_F':>10}"
+            f"{'Tmax':>8} {'half_life':>10} {'CL/CL_F':>10} {'Vz/Vz_F':>10} "
+            f"{'AUCextrap%':>11} {'DN_AUClast':>11} {'DN_Cmax':>10}"
         )
         sep = "-" * len(header)
         lines = [header, sep]
@@ -245,7 +265,9 @@ class NCASummaryResults:
             lines.append(
                 f"{r.subject:<12} {_fmt(r.AUClast):>10} {_fmt(r.AUCinf_obs):>12} "
                 f"{_fmt(r.Cmax):>10} {_fmt(r.Tmax):>8} {_fmt(r.half_life):>10} "
-                f"{_cl(r):>10} {_vz(r):>10}"
+                f"{_cl(r):>10} {_vz(r):>10} "
+                f"{_fmt(r.AUC_percent_extrapolated):>11} {_fmt(r.DN_AUClast):>11} "
+                f"{_fmt(r.DN_Cmax):>10}"
             )
 
         if self.study_label:
@@ -266,6 +288,56 @@ class NCASummaryResults:
 
         rows = [r.to_dict() for r in self.results]
         return pd.DataFrame(rows)
+
+    def to_cdisc_pp(self) -> pd.DataFrame:
+        """Export results as a CDISC PP-format DataFrame.
+
+        Returns a DataFrame with CDISC variable names (PPTESTCD, PPORRES, etc.)
+        suitable for SDTM/ADaM-compliant PK parameter datasets.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format table with columns: USUBJID, PPTESTCD, PPTEST, PPORRES,
+            PPORRESU, PPSTRESU, PPSPEC, PPDTC, VISITNUM.
+
+        Notes
+        -----
+        This is a convenience mapping. Units and visit numbers are placeholders;
+        users should adjust for their specific study design.
+        """
+        import pandas as pd
+
+        def _fmt_val(v: float | None) -> str | None:
+            return f"{v:.6g}" if v is not None else None
+
+        pp_map = {
+            "AUClast": ("AUCLST", "AUC from 0 to Tlast", "h*ng/mL"),
+            "AUCinf_obs": ("AUCIFO", "AUC Infinity Observed", "h*ng/mL"),
+            "AUC_percent_extrapolated": ("AUCPEP", "AUC % Extrapolated", "%"),
+            "Cmax": ("CMAX", "Maximum Observed Concentration", "ng/mL"),
+            "Tmax": ("TMAX", "Time to Cmax", "h"),
+            "lambda_z": ("LAMZ", "Terminal Elimination Rate Constant", "1/h"),
+            "half_life": ("LAMZHL", "Terminal Half-Life", "h"),
+        }
+
+        pp_rows: list[dict[str, object]] = []
+        for r in self.results:
+            for attr, (pptestcd, pptest, unit) in pp_map.items():
+                val = getattr(r, attr, None)
+                pp_rows.append({
+                    "USUBJID": r.subject,
+                    "PPTESTCD": pptestcd,
+                    "PPTEST": pptest,
+                    "PPORRES": _fmt_val(val),
+                    "PPORRESU": unit,
+                    "PPSTRESU": unit,
+                    "PPSPEC": "PLASMA",
+                    "PPDTC": "",
+                    "VISITNUM": 1,
+                })
+
+        return pd.DataFrame(pp_rows)
 
     def report(
         self,
