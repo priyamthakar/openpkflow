@@ -1,15 +1,20 @@
-"""Bayesian PK module -- deferred, no public API yet.
+"""Bayesian PK module.
 
-Bayesian NLME estimation (PyMC, CmdStanPy) is deferred. The optional
-dependency extras are wired so ``pip install openpkflow[bayes]`` installs
-PyMC >= 5.0 and CmdStanPy >= 1.2 when available, but no estimation functions
-are exported yet.
+Phase 1 (v2.0.0): MAP individual PK estimation via scipy L-BFGS-B.
+No additional dependencies required beyond the base install.
+
+Phase 2 (v2.0.0, [bayes] extra): full posterior sampling and Bayesian BE
+via PyMC. Requires: pip install openpkflow[bayes]
 
 To check if the bayes extras are installed:
     from openpkflow.bayes import _require_pymc; _require_pymc()
 """
 
 from __future__ import annotations
+
+from .map_pk import map_individual_pk
+from .priors import PKPrior
+from .results import MapPKResult
 
 
 def _require_pymc() -> None:
@@ -31,4 +36,8 @@ def _require_cmdstanpy() -> None:
         ) from exc
 
 
-__all__: list[str] = []
+__all__ = [
+    "PKPrior",
+    "MapPKResult",
+    "map_individual_pk",
+]

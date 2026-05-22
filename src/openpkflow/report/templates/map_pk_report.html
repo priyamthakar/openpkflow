@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px; line-height: 1.6; color: #1a1a2e; background: #f4f6f9;
+    }
+    .page {
+      max-width: 900px; margin: 32px auto; background: #ffffff;
+      border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,.10); overflow: hidden;
+    }
+    .report-header {
+      background: #0d3b66; color: #ffffff;
+      padding: 28px 36px 24px; border-bottom: 4px solid #1a78c2;
+    }
+    .report-header .org-label {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      color: #90bfe8; margin-bottom: 6px;
+    }
+    .report-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 14px; }
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px 24px;
+    }
+    .meta-item { font-size: 12px; color: #c6ddf0; }
+    .meta-item strong { display: block; font-weight: 600; color: #ffffff; }
+    .body { padding: 32px 36px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #0d3b66; border-bottom: 2px solid #e4e8f0;
+      padding-bottom: 6px; margin-bottom: 16px; margin-top: 28px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    /* Diagnostic cards */
+    .diag-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 8px;
+    }
+    .diag-card {
+      border-radius: 4px; padding: 12px 16px; border: 1px solid #e4e8f0;
+    }
+    .diag-card .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .08em; }
+    .diag-card .value { font-size: 16px; font-weight: 700; margin-top: 2px; }
+    .diag-card.ok { border-left: 4px solid #16a34a; }
+    .diag-card.warn { border-left: 4px solid #f59e0b; }
+    .diag-card.fail { border-left: 4px solid #dc2626; }
+    .ok .value { color: #16a34a; }
+    .warn .value { color: #d97706; }
+    .fail .value { color: #dc2626; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+    th { background: #f0f4fa; color: #374151; font-weight: 600; padding: 8px 12px; text-align: left; }
+    td { padding: 7px 12px; border-bottom: 1px solid #f0f4fa; color: #374151; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Warnings */
+    .warn-box {
+      background: #fffbeb; border: 1px solid #f59e0b; border-left: 4px solid #f59e0b;
+      border-radius: 4px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .warn-box .warn-title { font-weight: 700; color: #92400e; margin-bottom: 6px; font-size: 13px; }
+    .warn-box ul { margin: 0; padding-left: 20px; }
+    .warn-box li { color: #78350f; font-size: 13px; margin-bottom: 4px; }
+
+    .fail-box {
+      background: #fef2f2; border: 1px solid #dc2626; border-left: 4px solid #dc2626;
+      border-radius: 4px; padding: 16px; margin-bottom: 16px;
+    }
+    .fail-box .fail-title { font-weight: 700; color: #991b1b; margin-bottom: 8px; }
+    .fail-box p { color: #7f1d1d; font-size: 13px; }
+
+    /* Profile plot */
+    .plot-wrap { text-align: center; margin: 16px 0; }
+    .plot-wrap img { max-width: 100%; border-radius: 4px; border: 1px solid #e4e8f0; }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 32px; padding: 14px 16px; background: #f8fafc;
+      border: 1px solid #e4e8f0; border-radius: 4px;
+      font-size: 12px; color: #6b7280; line-height: 1.5;
+    }
+    footer { text-align: center; font-size: 11px; color: #9ca3af; padding: 12px 0 20px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="report-header">
+    <div class="org-label">OpenPKFlow &mdash; MAP Individual PK Estimation</div>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Route</strong>{{ result.route }}</div>
+      <div class="meta-item"><strong>Dose</strong>{{ fmt(result.dose) }}</div>
+      <div class="meta-item"><strong>Observations</strong>{{ result.n_observations }}</div>
+      <div class="meta-item"><strong>Version</strong>v{{ version }}</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Diagnostics -->
+    <div class="section-title">Estimation Diagnostics</div>
+    <div class="diag-grid">
+      <div class="diag-card {{ 'ok' if result.converged else 'fail' }}">
+        <div class="label">Converged</div>
+        <div class="value">{{ 'Yes' if result.converged else 'No' }}</div>
+      </div>
+      <div class="diag-card {{ 'ok' if result.uncertainty_reliable else 'warn' }}">
+        <div class="label">Uncertainty Reliable</div>
+        <div class="value">{{ 'Yes' if result.uncertainty_reliable else 'No' }}</div>
+      </div>
+      <div class="diag-card {{ 'ok' if result.gradient_norm < 1e-3 else 'warn' }}">
+        <div class="label">Gradient Norm</div>
+        <div class="value">{{ "%.2e"|format(result.gradient_norm) }}</div>
+      </div>
+      <div class="diag-card {{ 'ok' if result.condition_number < 1e6 else 'warn' }}">
+        <div class="label">Hessian Condition</div>
+        <div class="value">{{ "%.2e"|format(result.condition_number) }}</div>
+      </div>
+    </div>
+
+    {% if not result.converged %}
+    <div class="fail-box">
+      <div class="fail-title">[!] Optimizer did not converge</div>
+      <p>The MAP estimates below are NOT reliable. Do not interpret these as
+      pharmacokinetically meaningful parameters. Review the data and prior, then retry.</p>
+    </div>
+    {% endif %}
+
+    {% if result.warnings %}
+    <div class="warn-box">
+      <div class="warn-title">Diagnostic Warnings</div>
+      <ul>
+        {% for w in result.warnings %}
+        <li>{{ w }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- MAP Parameters -->
+    <div class="section-title">MAP Parameter Estimates</div>
+    {% if result.converged and result.uncertainty_reliable %}
+    <p style="font-size:12px;color:#6b7280;margin-bottom:12px;">
+      Standard errors from inverse Hessian (delta method, natural scale).
+    </p>
+    {% elif result.converged %}
+    <p style="font-size:12px;color:#d97706;margin-bottom:12px;">
+      Hessian not positive-definite: standard errors suppressed.
+    </p>
+    {% endif %}
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th><th>Estimate</th><th>SE</th><th>Units</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if is_oral %}
+        <tr><td>CL_F (apparent clearance)</td><td>{{ fmt(result.CL_F) }}</td><td>{{ fmt(result.CL_F_se) }}</td><td>L/h</td></tr>
+        <tr><td>Vz_F (apparent volume)</td><td>{{ fmt(result.Vz_F) }}</td><td>{{ fmt(result.Vz_F_se) }}</td><td>L</td></tr>
+        <tr><td>ka (absorption rate)</td><td>{{ fmt(result.ka) }}</td><td>{{ fmt(result.ka_se) }}</td><td>1/h</td></tr>
+        {% else %}
+        <tr><td>CL (systemic clearance)</td><td>{{ fmt(result.CL) }}</td><td>{{ fmt(result.CL_se) }}</td><td>L/h</td></tr>
+        <tr><td>Vz (volume of distribution)</td><td>{{ fmt(result.Vz) }}</td><td>{{ fmt(result.Vz_se) }}</td><td>L</td></tr>
+        {% endif %}
+        <tr><td>k (elimination rate)</td><td>{{ fmt(result.k) }}</td><td>N/A</td><td>1/h</td></tr>
+        <tr><td>t&#189; (half-life)</td><td>{{ fmt(result.half_life) }}</td><td>N/A</td><td>h</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Derived PK Parameters</div>
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th><th>Units</th></tr></thead>
+      <tbody>
+        <tr><td>AUCinf</td><td>{{ fmt(result.AUCinf) }}</td><td>h * conc</td></tr>
+        <tr><td>Cmax</td><td>{{ fmt(result.Cmax) }}</td><td>conc</td></tr>
+        <tr><td>Tmax</td><td>{{ fmt(result.Tmax) }}</td><td>h</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Profile plot -->
+    <div class="section-title">Concentration-Time Profile</div>
+    <div class="plot-wrap">
+      <img src="data:image/png;base64,{{ plot_b64 }}" alt="MAP PK Profile" />
+    </div>
+
+    <!-- Observed vs Predicted -->
+    <div class="section-title">Observed vs MAP-Predicted</div>
+    <table>
+      <thead><tr><th>Time (h)</th><th>Observed</th><th>Predicted</th><th>Residual</th></tr></thead>
+      <tbody>
+        {% for t, obs, pred in obs_pred_rows %}
+        <tr>
+          <td>{{ "%.2f"|format(t) }}</td>
+          <td>{{ "%.4g"|format(obs) }}</td>
+          <td>{{ "%.4g"|format(pred) }}</td>
+          <td>{{ "%.4g"|format(obs - pred) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> {{ disclaimer }}
+    </div>
+  </div>
+
+  <footer>OpenPKFlow v{{ version }} &mdash; MAP Individual PK Estimation</footer>
+</div>
+</body>
+</html>
