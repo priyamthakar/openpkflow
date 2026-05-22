@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv
+from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv, load_dissolution_excel
 from .similarity import f1, f2
 
 if TYPE_CHECKING:
@@ -306,6 +306,43 @@ class DissolutionStudy:
             If the CSV data fails validation.
         """
         df = load_dissolution_csv(path, config)
+        return cls(df, config)
+
+    @classmethod
+    def from_excel(
+        cls,
+        path: str | Path,
+        config: DissolutionCSVConfig | None = None,
+        sheet_name: str | int = 0,
+    ) -> DissolutionStudy:
+        """Load a DissolutionStudy from an Excel file (.xlsx or .xls).
+
+        Requires ``openpyxl`` (included in ``pip install openpkflow[reports]``).
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to an Excel file (.xlsx or .xls).
+        config : DissolutionCSVConfig | None, optional
+            Column name configuration. Uses defaults if None.
+        sheet_name : str or int, optional
+            Sheet name or zero-based index. Defaults to the first sheet (0).
+
+        Returns
+        -------
+        DissolutionStudy
+            Loaded and validated study object.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the Excel file does not exist.
+        ImportError
+            If openpyxl is not installed (pip install openpkflow[reports]).
+        ValueError
+            If the data fails validation.
+        """
+        df = load_dissolution_excel(path, config, sheet_name=sheet_name)
         return cls(df, config)
 
     def formulations(self) -> list[str]:

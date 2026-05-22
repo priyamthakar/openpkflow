@@ -10,8 +10,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- `dissolution/loader.py` -- `load_dissolution_excel()`: loads and validates dissolution data from
+  `.xlsx`/`.xls` files; accepts optional `sheet_name` (str or int); requires `openpyxl` (`[reports]` extra)
+- `dissolution/study.py` -- `DissolutionStudy.from_excel()`: classmethod mirror of `from_csv()` for
+  Excel inputs; forwards `sheet_name` to `load_dissolution_excel()`
+- 13 new tests in `tests/dissolution/test_excel_loader.py`: round-trip, sheet name by string/index,
+  custom config, FileNotFoundError, missing column, negative time, out-of-range percent, compare,
+  parity with from_csv()
 
 ### Changed
+- `dissolution/loader.py` -- validation logic extracted into `_validate_dissolution_df()` private
+  helper; shared by both `load_dissolution_csv()` and `load_dissolution_excel()` (no behavior change)
+- `dissolution/__init__.py` -- exports `load_dissolution_excel`
+- README -- added Codecov badge, Docs badge; added `from_excel` snippet to dissolution quick-start
 
 ### Fixed
 

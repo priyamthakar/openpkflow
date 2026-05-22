@@ -7,9 +7,11 @@
 **A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/priyamthakar/openpkflow/branch/main/graph/badge.svg)](https://codecov.io/gh/priyamthakar/openpkflow)
 [![PyPI version](https://img.shields.io/pypi/v/openpkflow)](https://pypi.org/project/openpkflow/)
 [![Python](https://img.shields.io/pypi/pyversions/openpkflow)](https://pypi.org/project/openpkflow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-live-brightgreen)](https://priyamthakar.github.io/openpkflow/)
 
 ---
 
@@ -62,6 +64,8 @@ print(f"f2 = {f2(reference, test):.2f}")
 from openpkflow.dissolution import DissolutionStudy
 
 study = DissolutionStudy.from_csv("dissolution.csv")
+# or load directly from Excel (requires pip install openpkflow[reports]):
+# study = DissolutionStudy.from_excel("dissolution.xlsx", sheet_name="Data")
 
 result = study.compare(reference="reference", test="test")
 result.summary()

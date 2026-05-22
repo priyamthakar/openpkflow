@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .bootstrap import BootstrapF2Result, bootstrap_f2
-from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv
+from .loader import DissolutionCSVConfig, get_formulation_means, load_dissolution_csv, load_dissolution_excel
 from .models import (
     DissolutionFitResults,
     ModelComparisonResult,
@@ -23,6 +23,7 @@ __all__ = [
     "BootstrapF2Result",
     "DissolutionCSVConfig",
     "load_dissolution_csv",
+    "load_dissolution_excel",
     "get_formulation_means",
     "DissolutionStudy",
     "ComparisonResult",
