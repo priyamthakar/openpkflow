@@ -8,6 +8,11 @@ Dissolution similarity analysis: f1/f2, bootstrap, model fitting, CSV loading, s
 |--------|------|-------------|
 | `f1(reference, test)` | function | Difference factor |
 | `f2(reference, test, method)` | function | Similarity factor; `method="regulatory"` applies FDA 85% rule |
+| `max_deviation(reference, test)` | function | Maximum absolute deviation (FDA/SUPAC-IR 1995) |
+| `msd(reference, test)` | function | Mahalanobis Statistical Distance (FDA PSA 1999) |
+| `MSDResult` | dataclass | MSD result: `.msd`, `.msd_squared`, `.is_similar`, `.summary()` |
+| `model_dependent_comparison(ref_t, ref_Q, tst_t, tst_Q, model)` | function | Compare fitted dissolution model parameters via 90% CI |
+| `ModelComparisonResult` | dataclass | Model comparison result: `.ratio_pct`, `.ci_lo`, `.ci_hi`, `.is_similar` |
 | `bootstrap_f2(reference, test, ...)` | function | Bootstrap CI for f2 |
 | `BootstrapF2Result` | dataclass | Bootstrap result container |
 | `DissolutionStudy` | class | Multi-batch study; `.compare()`, `.fit_models()`, `.bootstrap_compare()` |

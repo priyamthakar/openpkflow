@@ -15,8 +15,9 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 | Module | What it covers |
 |--------|---------------|
-| `dissolution` | f1, f2, bootstrap f2, Weibull/Higuchi/KP/first-order/zero-order model fitting |
-| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ |
+| `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, Weibull/Higuchi/KP/first-order/zero-order model fitting |
+| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, DN params, CDISC PP |
+| `be` | 2x2 crossover TOST (convenience layer), GMR + 90% CI, intra-subject CV, BioEqPy export |
 | `sim` | 1- and 2-compartment IV bolus/infusion/oral, repeated dosing, superposition |
 | `pop` | GOF plots (4-panel), VPC with percentile bands, NONMEM-style dataset helpers |
 | `report` | Markdown, HTML, PDF (ReportLab), Word (python-docx) |

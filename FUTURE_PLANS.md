@@ -48,17 +48,18 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 
 ### Dissolution
 
-- Mahalanobis distance (MSD) — FDA's preferred f2 alternative; nearly zero Python implementations
-- Model-dependent comparison: fit regression models, compare parameters via 90 % CI
-- Maximum deviation method — another FDA-accepted alternative
-- f2 with RSD constraints (ICH M13B: RSD ≤ 8 % at early time points)
+- ~~Mahalanobis distance (MSD)~~ — **DONE** (v1.1.0): FDA's preferred f2 alternative with chi-squared significance test
+- ~~Model-dependent comparison~~ — **DONE** (v1.1.0): fit regression models, compare parameters via 90% CI
+- ~~Maximum deviation method~~ — **DONE** (v1.1.0): another FDA-accepted alternative
+- ~~f2 with RSD constraints~~ — **DONE** (v1.1.0): ICH M13B RSD ≤ 8% at early time points
 - Multivariate statistical distance per FDA/EMA guidance
 
 ### NCA
 
-- %AUCextrap flag (FDA criterion >20 %), quality metrics
-- Terminal-phase diagnostics: adjusted R², n points used, visual slope selector
-- CDISC PP / ADPPK output: SDTM/ADaM-compliant PK parameter datasets
+- ~~%AUCextrap flag (FDA criterion >20%)~~ — **DONE** (v1.3.0): quality metrics with auto-warning
+- ~~Terminal-phase diagnostics~~ — **DONE** (v1.3.0): adjusted R², n points used
+- ~~CDISC PP / ADPPK output~~ — **DONE** (v1.3.0): `NCASummaryResults.to_cdisc_pp()`
+- ~~Dose-normalised parameter tables (DN-AUC, DN-Cmax)~~ — **DONE** (v1.3.0)
 - Steady-state NCA: AUCτ, Cmax_ss, Cmin_ss, fluctuation, swing, accumulation ratio
 - Urinary excretion: Ae, Ae%, renal clearance
 - Dose-normalised parameter tables (DN-AUC, DN-Cmax)
@@ -153,7 +154,7 @@ Competitors (OpenPKPD, WinNonlin) are moving here:
 | Dissolution f1/f2 | ✅ | — | — | — | ✅ |
 | Bootstrap f2 CI | ✅ | — | — | — | ✅ |
 | Dissolution model fitting (5 models + AICc) | ✅ | — | — | — | ✅ |
-| Mahalanobis / f2 alternatives | planned | — | — | — | ✅ |
+| Mahalanobis / f2 alternatives | ✅ | — | — | — | ✅ |
 | Multi-media dissolution | planned | — | — | — | ✅ |
 | IVIVC (Level A) | planned | — | — | — | ✅ |
 | NCA | ✅ | ✅ | ✅ | ✅ | ✅ |

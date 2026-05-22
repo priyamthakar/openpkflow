@@ -17,10 +17,10 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 | Capability | Status in open-source Python |
 |---|---|
 | IVIVC (Level A: deconvolution + convolution prediction) | None |
-| Mahalanobis Statistical Distance (MSD) / f2 alternatives | None |
+| Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | None |
 | Formal RSABE / replicate-design BE | BioEqPy companion |
-| CDISC PP / ADPPK-compliant PK parameter output | None |
+| CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse NCA (model-informed AUC from 2-5 samples) | Partial (PKNCA R only) |
 
 ---
@@ -31,10 +31,10 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 
 Scope: expand `dissolution/` with FDA/EMA-accepted f2 alternatives. No new module.
 
-- `msd()` -- Mahalanobis Statistical Distance (FDA PSA guidance 1999)
-- `model_dependent_comparison()` -- compare fitted dissolution model parameters via 90% CI
-- `maximum_deviation()` -- another FDA-accepted alternative metric
-- ICH M13B RSD constraint check: RSD > 8% at early time points -> `UserWarning`
+- `msd()` -- Mahalanobis Statistical Distance (FDA PSA guidance 1999) ✅
+- `model_dependent_comparison()` -- compare fitted dissolution model parameters via 90% CI ✅
+- `maximum_deviation()` -- another FDA-accepted alternative metric ✅
+- ICH M13B RSD constraint check: RSD > 8% at early time points -> `UserWarning` ✅
 - New tests: degenerate + published-reference citations for each metric (~20 tests)
 - Report: `MSDResult` object, `report()` dispatch added to `dissolution/reporting.py`
 
@@ -65,11 +65,11 @@ Level B/C and adaptive IVIVC deferred to v1.3.0.
 Scope: expand `nca/` module. No new module.
 
 - Steady-state NCA: `AUCtau`, `Cmax_ss`, `Cmin_ss`, fluctuation, swing, accumulation ratio
-- `%AUCextrap` flag: warn if >20% (FDA criterion), add to `NCAResult` and reports
-- Lambda_z quality metrics: adjusted R2, n points used, visual slope-selector helper
+- `%AUCextrap` flag: warn if >20% (FDA criterion), add to `NCAResult` and reports ✅
+- Lambda_z quality metrics: adjusted R2, n points used, visual slope-selector helper ✅ (adj R2 + n_points in NCAResult + HTML reports)
 - Urinary excretion PK: `Ae`, `Ae_pct`, `CLr` -- requires `urine` route support in loader
-- CDISC PP-format output: `NCASummaryResults.to_cdisc_pp()` -> DataFrame with CDISC PP variable names
-- Dose-normalised parameter tables: DN-AUC, DN-Cmax in summary reports
+- CDISC PP-format output: `NCASummaryResults.to_cdisc_pp()` -> DataFrame with CDISC PP variable names ✅
+- Dose-normalised parameter tables: DN-AUC, DN-Cmax in summary reports ✅
 - Tests: ~25 new tests
 
 ---

@@ -7,8 +7,8 @@ Non-Compartmental Analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F.
 | Symbol | Type | Description |
 |--------|------|-------------|
 | `NCAStudy` | class | Entry point: `.from_csv()`, `.analyze() -> NCASummaryResults` |
-| `NCAResult` | dataclass | Per-subject result: `AUClast`, `AUCinf_obs`, `Cmax`, `Tmax`, `lambda_z`, `half_life`, `CL`/`CL_F`, `Vz`/`Vz_F`, `warnings` |
-| `NCASummaryResults` | dataclass | Multi-subject container: `.to_dataframe()`, `.report()` |
+| `NCAResult` | dataclass | Per-subject result: `AUClast`, `AUCinf_obs`, `Cmax`, `Tmax`, `lambda_z`, `half_life`, `CL`/`CL_F`, `Vz`/`Vz_F`, `AUC_percent_extrapolated`, `DN_AUClast`, `DN_Cmax`, `lambda_z_adj_r2`, `lambda_z_n_points`, `warnings` |
+| `NCASummaryResults` | dataclass | Multi-subject container: `.to_dataframe()`, `.to_cdisc_pp()`, `.report()` |
 | `load_nca_csv(path, config)` | function | CSV loader with BLQ handling |
 | `auc_linear(times, concs)` | function | Linear trapezoidal AUC |
 | `auc_log(times, concs)` | function | Log-linear trapezoidal AUC |

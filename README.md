@@ -17,8 +17,8 @@
 
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
-- **Dissolution similarity:** f1, f2, bootstrap f2, model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas
-- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling
+- **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas — model-dependent comparison via 90% CI
+- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output
 - **Bioequivalence convenience:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; formal ANOVA/RSABE work belongs in BioEqPy
 - **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing — v0.5.0
@@ -252,8 +252,9 @@ vpc.report("vpc_report.html")
 | Dissolution f1 / f2 | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | Bootstrap f2 | :white_check_mark: | :x: | :x: | :x: |
 | Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
+| MSD / max deviation / model-dependent comparison | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | NCA (AUClast, AUCinf, CL/F, lambda_z) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| Three AUC methods + explicit BLQ handling | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| %AUCextrap flag, dose-normalised params, CDISC PP | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | Bioequivalence convenience (paired 2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | PK simulation (1/2-cmt, oral/IV) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
 | Population PK diagnostics (GOF, VPC) | :white_check_mark: | :x: | :x: | :white_check_mark: |
@@ -276,6 +277,7 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Module | Status |
 |---|---|
 | Dissolution f1 / f2 | Stable |
+| MSD / max deviation / model-dependent comparison | Stable -- v1.1.0 |
 | Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
 | Dissolution model fitting (5 models, AICc) | Stable |
@@ -295,16 +297,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | 9,453 |
-| Lines of tests (`tests/`) | 4,166 |
-| Total Python files | 65 (39 src + 26 tests) |
-| Tests | 428 |
-| Public functions / methods | 189 |
-| Classes | 21 |
-| HTML report templates | 7 |
+| Lines of source code (`src/`) | ~10,000 |
+| Lines of tests (`tests/`) | 4,500 |
+| Total Python files | 68 (39 src + 29 tests) |
+| Tests | 432 |
+| Public functions / methods | 195 |
+| Classes | 23 |
+| HTML report templates | 8 |
 | Bundled example datasets | 4 |
-| Git commits | 23 |
-| Time to build v0.9.1 | 2 days |
+| Git commits | 30 |
 
 ---
 
@@ -313,7 +314,7 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 All formula implementations are validated against published FDA/EMA guidance examples.
 Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
 NCA results are validated against the R nlme Theoph reference dataset.
-See `tests/` for details.
+See [VALIDATION.md](VALIDATION.md) for the full regulatory test traceability matrix.
 
 ---
 

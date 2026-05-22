@@ -10,6 +10,7 @@ Reference:
 """
 from __future__ import annotations
 
+import math
 import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -630,4 +631,199 @@ def fit_dissolution_models(
         time_points=t.tolist(),
         observed_mean=Q.tolist(),
         fits=fits,
+    )
+
+
+@dataclass(frozen=True)
+class ModelComparisonResult:
+    """Result of model-dependent dissolution profile comparison.
+
+    FDA 1997 dissolution guidance recognises model-dependent approaches
+    as alternatives to f2.  When a dissolution model fits both reference
+    and test profiles, the similarity can be assessed by comparing fitted
+    parameters via 90% confidence intervals.
+
+    Parameters
+    ----------
+    model_name : str
+        Name of the model used for comparison.
+    param_name : str
+        Parameter name being compared (e.g., ``"weibull_beta"``).
+    ref_value : float
+        Fitted parameter value for the reference profile.
+    test_value : float
+        Fitted parameter value for the test profile.
+    se_diff : float
+        Standard error of the difference (ref - test).
+    ratio_pct : float
+        Ratio of test to reference in percent (test / ref * 100).
+    ci_lo : float
+        Lower bound of the 90% confidence interval (percent scale).
+    ci_hi : float
+        Upper bound of the 90% confidence interval (percent scale).
+    is_similar : bool
+        True if the CI falls within a prescribed similarity window (default 80-125%).
+    """
+
+    model_name: str
+    param_name: str
+    ref_value: float
+    test_value: float
+    se_diff: float
+    ratio_pct: float
+    ci_lo: float
+    ci_hi: float
+    is_similar: bool
+
+    def summary(self) -> str:
+        """Return a textual summary of the model comparison.
+
+        Returns
+        -------
+        str
+            Single-line summary of parameter ratio and verdict.
+        """
+        verdict = "SIMILAR" if self.is_similar else "NOT SIMILAR"
+        return (
+            f"Model: {self.model_name}  Param: {self.param_name}  "
+            f"Ratio: {self.ratio_pct:.1f}%  90% CI: "
+            f"[{self.ci_lo:.1f}%, {self.ci_hi:.1f}%]  Verdict: {verdict}"
+        )
+
+
+def model_dependent_comparison(
+    ref_time_points: list[float] | np.ndarray,
+    ref_observed_mean: list[float] | np.ndarray,
+    tst_time_points: list[float] | np.ndarray,
+    tst_observed_mean: list[float] | np.ndarray,
+    model: str,
+    param_index: int = 0,
+    *,
+    ci_range: tuple[float, float] = (80.0, 125.0),
+) -> ModelComparisonResult:
+    """Compare fitted dissolution model parameters between two profiles via 90% CI.
+
+    Fits the requested model to each profile independently, then tests
+    whether the ratio of a selected fitted parameter falls within a
+    similarity acceptance window (e.g., 80-125%).
+
+    Parameters
+    ----------
+    ref_time_points : array-like
+        Time points for the reference profile (minutes).
+    ref_observed_mean : array-like
+        Mean percent released for the reference profile.
+    tst_time_points : array-like
+        Time points for the test profile (minutes).
+    tst_observed_mean : array-like
+        Mean percent released for the test profile.
+    model : str
+        Model to fit (``"weibull"``, ``"first_order"``, etc.).
+    param_index : int, optional
+        Zero-based index of the parameter to compare (default 0).
+    ci_range : tuple[float, float], optional
+        Acceptance window in percent. Default (80, 125) per FDA standards.
+
+    Returns
+    -------
+    ModelComparisonResult
+        Comparison result with ratio, 90% CI bounds, and similarity verdict.
+
+    Raises
+    ------
+    ValueError
+        If the model is unknown, parameter index is out of range,
+        or fewer than 3 timepoints are supplied.
+
+    Notes
+    -----
+    Standard errors are estimated by propagating the per-profile fit standard
+    errors (output of scipy.optimize.curve_fit).  The 90% CI uses a t(0.95, df)
+    with df approximated by the combined sample degrees of freedom.
+
+    This is an FDA-acknowledged alternative metric when f2 prerequisites
+    (CV constraints, 85% rule) cannot be met.
+
+    References
+    ----------
+    FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid
+    Oral Dosage Forms (1997). CDER. Section on model-dependent approaches.
+    """
+    import scipy.stats as st
+
+    if model not in _REGISTRY:
+        raise ValueError(
+            f"Unknown model '{model}'. Valid models: {sorted(_REGISTRY.keys())}"
+        )
+
+    t_ref = np.asarray(ref_time_points, dtype=float)
+    Q_ref = np.asarray(ref_observed_mean, dtype=float)
+    t_tst = np.asarray(tst_time_points, dtype=float)
+    Q_tst = np.asarray(tst_observed_mean, dtype=float)
+
+    if len(t_ref) < 3 or len(t_tst) < 3:
+        raise ValueError("At least 3 timepoints required for each profile.")
+
+    # Fit each profile
+    ref_fit = _fit_single_model(model, *_REGISTRY[model], t_ref, Q_ref)
+    tst_fit = _fit_single_model(model, *_REGISTRY[model], t_tst, Q_tst)
+
+    if not ref_fit.converged:
+        raise RuntimeError(f"Reference profile: model '{model}' did not converge.")
+    if not tst_fit.converged:
+        raise RuntimeError(f"Test profile: model '{model}' did not converge.")
+
+    func_model, param_names, _p0_fn = _REGISTRY[model]
+    n_ref = len(t_ref)
+    n_tst = len(t_tst)
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", OptimizeWarning)
+            popt_ref, pcov_ref = curve_fit(
+                func_model, t_ref, Q_ref, maxfev=10_000,
+            )
+            popt_tst, pcov_tst = curve_fit(
+                func_model, t_tst, Q_tst, maxfev=10_000,
+            )
+    except (RuntimeError, ValueError) as exc:
+        raise RuntimeError(f"Failed to estimate parameter covariance: {exc}") from exc
+
+    if param_index >= len(popt_ref):
+        raise ValueError(
+            f"Param index {param_index} out of range. "
+            f"Available params ({len(popt_ref)}): {popt_ref.tolist()}"
+        )
+
+    ref_val = float(popt_ref[param_index])
+    tst_val = float(popt_tst[param_index])
+    param_name = param_names[param_index]
+
+    # Standard errors
+    se_ref = math.sqrt(max(pcov_ref[param_index, param_index], 1e-12))
+    se_tst = math.sqrt(max(pcov_tst[param_index, param_index], 1e-12))
+    se_diff = math.sqrt(se_ref ** 2 + se_tst ** 2)
+
+    # 90% CI around ratio_pct using delta method: SE(ratio) = (1/ref) * se(tst - ref)
+    ratio_pct = (tst_val / ref_val) * 100.0 if abs(ref_val) > 1e-12 else 100.0
+    se_ratio_pct = (1.0 / abs(ref_val)) * se_diff * 100.0 if abs(ref_val) > 1e-12 else 0.0
+
+    # degrees of freedom
+    df = n_ref + n_tst - 2
+    t_crit = float(st.t.ppf(0.95, df))
+
+    ci_lo = ratio_pct - t_crit * se_ratio_pct
+    ci_hi = ratio_pct + t_crit * se_ratio_pct
+    is_similar = ci_lo >= ci_range[0] and ci_hi <= ci_range[1]
+
+    return ModelComparisonResult(
+        model_name=model,
+        param_name=param_name,
+        ref_value=ref_val,
+        test_value=tst_val,
+        se_diff=se_diff,
+        ratio_pct=ratio_pct,
+        ci_lo=ci_lo,
+        ci_hi=ci_hi,
+        is_similar=is_similar,
     )

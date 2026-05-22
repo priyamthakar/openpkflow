@@ -9,6 +9,55 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `dissolution/similarity.py` — `max_deviation()`: maximum absolute deviation between profiles
+  (FDA/SUPAC-IR 1995); accepted alternative when f2 prerequisites cannot be met
+- `dissolution/similarity.py` — `msd()`: Mahalanobis Statistical Distance with chi-squared
+  significance test (FDA PSA guidance 1999); returns `MSDResult` dataclass
+- `dissolution/models.py` — `model_dependent_comparison()`: compare fitted dissolution model
+  parameters via 90% CI (FDA 1997 model-dependent approach); `ModelComparisonResult` dataclass
+- `dissolution/study.py` — ICH M13B RSD constraint: warns when RSD > 8% at time points with
+  mean <= 60% (stricter than legacy FDA CV limits)
+- `nca/results.py` — `lambda_z_adj_r2` and `lambda_z_n_points` quality metric fields added to
+  `NCAResult`; displayed in HTML single-subject reports
+- `nca/results.py` — dose-normalised parameters: `DN_AUClast`, `DN_AUCinf_obs`, `DN_Cmax`
+  (dose-normalised by mg); shown in summary(), summary reports, and HTML templates
+- `nca/results.py` — `NCASummaryResults.to_cdisc_pp()`: export CDISC PP-format long-format
+  DataFrame with PPTESTCD, PPORRES, PPORRESU, PPSPEC columns
+- `nca/study.py` — %AUCextrap FDA flag: auto-warns when `AUC_percent_extrapolated > 20%`
+  with message suggesting extended sampling schedule
+- `be/study.py` — `BEStudy.to_bioeqpy_dataframe()` and `to_bioeqpy_csv()`: export BioEqPy-ready
+  long-format crossover data with subject, sequence, period, treatment columns
+- `.github/dependabot.yml` — weekly automated dependency updates for pip and GitHub Actions
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR template with pharmacometric correctness checklist
+- `.pre-commit-config.yaml` — ruff, ruff-format, mypy, and general hooks
+- `codecov.yml` — Codecov configuration with per-Python-version flags
+- `CODE_OF_CONDUCT.md` — Contributor Covenant v2.0
+- `VALIDATION.md` — regulatory test traceability matrix mapping every test to FDA/EMA guidance
+  sections and published DOIs
+- `FUTURE_PLANS.md` — strategic roadmap with competitive landscape analysis
+- `tests/test_benchmark.py` — performance benchmarks for dissolution, NCA, and BE operations
+
+### Changed
+- `nca/results.py` — `NCASummaryResults.summary()` now includes %AUCextrap, DN_AUClast, DN_Cmax
+- `report/templates/nca_single_report.html` — added lambda_z quality metrics and DN parameter rows
+- `report/templates/nca_summary_report.html` — added DN_AUClast and DN_Cmax columns
+- `dissolution/__init__.py` — exports `max_deviation`, `msd`, `MSDResult`,
+  `model_dependent_comparison`, `ModelComparisonResult`
+- README — feature comparison table updated; added MSD/max-deviation/model-dependent rows;
+  added %AUCextrap/CDISC PP row; linked VALIDATION.md; updated counts
+- ROADMAP — RSABE milestone replaced with BioEqPy bridge polish (v1.4.0)
+- docs — BE tutorial/reference updated to position as convenience layer with BioEqPy exports
+
+### Fixed
+- `SECURITY.md` — supported version updated from 0.9.x to 1.0.x
+- `tests/test_benchmark.py` — fixed non-existent `auc_trapezoid` import (now `auc_linear`);
+  fixed `be_tost` parameter names (`theta_lo` -> `be_lower`)
+
+### Removed
+- Generated outputs and artifacts from repository root (sample HTML/PDF reports,
+  chat image, handout files)
+
 ## [1.0.0] — 2026-05-21
 
 ### Added
