@@ -26,6 +26,9 @@ app.add_typer(be_app, name="be")
 ivivc_app = typer.Typer(help="IVIVC analysis commands.")
 app.add_typer(ivivc_app, name="ivivc")
 
+pop_app = typer.Typer(help="Population PK estimation and diagnostics.")
+app.add_typer(pop_app, name="pop")
+
 
 @app.command("version")
 def version_command() -> None:
@@ -218,3 +221,159 @@ def ivivc_run(
         "Use: from openpkflow.ivivc import IVIVCStudy\n\n"
         "See https://github.com/priyamthakar/openpkflow for documentation."
     )
+
+
+@pop_app.command("foce-i")
+def pop_foce_i(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to NONMEM-style dataset CSV.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    route: str = typer.Option(..., "--route", help="'oral' or 'iv_bolus'."),
+    cl_init: float = typer.Option(5.0, "--cl", help="Initial CL or CL_F."),
+    v_init: float = typer.Option(50.0, "--v", help="Initial Vz or Vz_F."),
+    ka_init: float = typer.Option(1.0, "--ka", help="Initial ka (oral only)."),
+    omega_cl: float = typer.Option(0.1, "--omega-cl", help="Initial omega^2 for CL."),
+    omega_v: float = typer.Option(0.1, "--omega-v", help="Initial omega^2 for V."),
+    omega_ka: float = typer.Option(0.1, "--omega-ka", help="Initial omega^2 for ka (oral)."),
+    sigma_prop: float = typer.Option(0.15, "--sigma-prop", help="Initial proportional error."),
+    sigma_add: float = typer.Option(0.0, "--sigma-add", help="Initial additive error."),
+    dose_col: str = typer.Option("AMT", "--dose-col"),
+    time_col: str = typer.Option("TIME", "--time-col"),
+    dv_col: str = typer.Option("DV", "--dv-col"),
+    id_col: str = typer.Option("ID", "--id-col"),
+    evid_col: str = typer.Option("EVID", "--evid-col"),
+    report: Path | None = typer.Option(None, "--report", help="Write report file."),
+) -> None:
+    """Run FOCE-I population PK estimation."""
+    import pandas as pd
+
+    from openpkflow.pop import run_foce_i
+    from openpkflow.pop.estimation.model import PopPKModel
+
+    try:
+        df = pd.read_csv(csv_path)
+        if route == "oral":
+            fixed = {"CL_F": cl_init, "Vz_F": v_init, "ka": ka_init}
+            omega = {"CL_F": omega_cl, "Vz_F": omega_v, "ka": omega_ka}
+        elif route == "iv_bolus":
+            fixed = {"CL": cl_init, "Vz": v_init}
+            omega = {"CL": omega_cl, "Vz": omega_v}
+        else:
+            typer.echo(f"Error: Unsupported route '{route}'", err=True)
+            raise typer.Exit(1)
+
+        model = PopPKModel(
+            route=route,
+            fixed_effects=fixed,
+            omega_diag=omega,
+            sigma_prop=sigma_prop,
+            sigma_add=sigma_add,
+        )
+        result = run_foce_i(
+            df,
+            model,
+            dose_col=dose_col,
+            time_col=time_col,
+            dv_col=dv_col,
+            id_col=id_col,
+            evid_col=evid_col,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if report is not None:
+        _rp = str(report)
+        fmt = "markdown" if _rp.endswith((".md", ".markdown")) else "html"
+        try:
+            result.report(report, fmt=fmt)
+            typer.echo(f"\nReport written to: {report}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+
+@pop_app.command("saem")
+def pop_saem(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to NONMEM-style dataset CSV.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    route: str = typer.Option(..., "--route", help="'oral' or 'iv_bolus'."),
+    cl_init: float = typer.Option(5.0, "--cl", help="Initial CL or CL_F."),
+    v_init: float = typer.Option(50.0, "--v", help="Initial Vz or Vz_F."),
+    ka_init: float = typer.Option(1.0, "--ka", help="Initial ka (oral only)."),
+    omega_cl: float = typer.Option(0.1, "--omega-cl", help="Initial omega^2 for CL."),
+    omega_v: float = typer.Option(0.1, "--omega-v", help="Initial omega^2 for V."),
+    omega_ka: float = typer.Option(0.1, "--omega-ka", help="Initial omega^2 for ka (oral)."),
+    sigma_prop: float = typer.Option(0.15, "--sigma-prop", help="Initial proportional error."),
+    sigma_add: float = typer.Option(0.0, "--sigma-add", help="Initial additive error."),
+    n_iterations: int = typer.Option(500, "--n-iter", help="Total SAEM iterations."),
+    n_burn_in: int = typer.Option(200, "--n-burn-in", help="Burn-in iterations."),
+    dose_col: str = typer.Option("AMT", "--dose-col"),
+    time_col: str = typer.Option("TIME", "--time-col"),
+    dv_col: str = typer.Option("DV", "--dv-col"),
+    id_col: str = typer.Option("ID", "--id-col"),
+    evid_col: str = typer.Option("EVID", "--evid-col"),
+    report: Path | None = typer.Option(None, "--report", help="Write report file."),
+) -> None:
+    """Run SAEM population PK estimation. Requires openpkflow[bayes]."""
+    import pandas as pd
+
+    from openpkflow.pop import run_saem
+    from openpkflow.pop.estimation.model import PopPKModel
+
+    try:
+        df = pd.read_csv(csv_path)
+        if route == "oral":
+            fixed = {"CL_F": cl_init, "Vz_F": v_init, "ka": ka_init}
+            omega = {"CL_F": omega_cl, "Vz_F": omega_v, "ka": omega_ka}
+        elif route == "iv_bolus":
+            fixed = {"CL": cl_init, "Vz": v_init}
+            omega = {"CL": omega_cl, "Vz": omega_v}
+        else:
+            typer.echo(f"Error: Unsupported route '{route}'", err=True)
+            raise typer.Exit(1)
+
+        model = PopPKModel(
+            route=route,
+            fixed_effects=fixed,
+            omega_diag=omega,
+            sigma_prop=sigma_prop,
+            sigma_add=sigma_add,
+        )
+        result = run_saem(
+            df,
+            model,
+            dose_col=dose_col,
+            time_col=time_col,
+            dv_col=dv_col,
+            id_col=id_col,
+            evid_col=evid_col,
+            n_iterations=n_iterations,
+            n_burn_in=n_burn_in,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if report is not None:
+        _rp = str(report)
+        fmt = "markdown" if _rp.endswith((".md", ".markdown")) else "html"
+        try:
+            result.report(report, fmt=fmt)
+            typer.echo(f"\nReport written to: {report}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)

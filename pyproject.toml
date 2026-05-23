@@ -96,6 +96,10 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # B008: typer.Argument/typer.Option in defaults is the standard typer pattern
 # B904: raise typer.Exit(n) without chaining is intentional for CLI exit codes
 "src/openpkflow/cli.py" = ["B008", "B904"]
+# E501: CSS strings and template lines in report/result files
+"src/openpkflow/pop/estimation/reporting.py" = ["E501"]
+"src/openpkflow/pop/estimation/result.py" = ["E501"]
+"src/openpkflow/pop/estimation/foce_i.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.10"
