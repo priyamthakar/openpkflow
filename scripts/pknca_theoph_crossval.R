@@ -89,17 +89,19 @@ intervals <- data.frame(
 # We set the dose for each subject manually.
 # The dose column in the CSV is constant per subject, so we take the first value.
 
-# PKNCA expects dose in a separate data.frame or as a formula.
-# For oral data, we specify dose in the PKNCAdata call:
-dose_df <- data %>%
-  group_by(subject) %>%
-  summarise(dose = first(dose), .groups = "drop")
+# PKNCA 0.12.x: dose must be a PKNCAdose object with time=0 rows
+dose_df <- data.frame(
+  subject = unique(data$subject),
+  time    = 0,
+  dose    = sapply(unique(data$subject), function(s) data$dose[data$subject == s][1]),
+  stringsAsFactors = FALSE
+)
+dose_obj <- PKNCAdose(dose_df, dose ~ time | subject)
 
-# PKNCA 0.10.x: provide dose via dose argument with a formula
 data_obj <- PKNCAdata(
-  conc_obj,
-  intervals = intervals,
-  dose      = dose ~ dose | subject
+  data.conc  = conc_obj,
+  data.dose  = dose_obj,
+  intervals  = intervals
 )
 
 # Run NCA
@@ -110,39 +112,34 @@ results <- pk.nca(data_obj)
 # Extract AUClast and Cmax per subject
 # ---------------------------------------------------------------------------
 
-# pk.nca() returns an object with $result containing the numerical results
-# The structure is a data.frame with columns for each parameter.
-# We extract AUClast and Cmax for each subject.
+# pk.nca() in v0.12.x returns a data.frame with CDISC-style columns:
+#   subject, start, end, PPTESTCD, PPORRES, exclude
+# PPTESTCD = parameter name (e.g. "auclast", "cmax")
+# PPORRES  = numeric result
 
 result_df <- as.data.frame(results)
 
-# PKNCA names parameters with a prefix indicating the parameter type
-# and the interval.  For AUClast from interval 0-Inf:
-#   "auclast" is the column name pattern
-# For Cmax:
-#   "cmax" is the column name pattern
+cat(sprintf("# Result columns: %s\n", paste(names(result_df), collapse = ", ")))
+cat(sprintf("# Parameters found: %s\n",
+            paste(unique(result_df$PPTESTCD), collapse = ", ")))
 
-# Find the exact column names (PKNCA may prefix them)
-auclast_col <- grep("auclast", names(result_df), ignore.case = TRUE, value = TRUE)
-cmax_col    <- grep("^cmax$|^cmax\\b", names(result_df), ignore.case = TRUE, value = TRUE)
+# Extract AUClast and Cmax rows, reshape to wide per-subject
+auc_rows <- subset(result_df, PPTESTCD == "auclast")
+cmax_rows <- subset(result_df, PPTESTCD == "cmax")
 
-if (length(auclast_col) == 0) {
-  stop("Could not find auclast column in PKNCA results. Columns: ",
-       paste(names(result_df), collapse = ", "))
-}
-if (length(cmax_col) == 0) {
-  stop("Could not find cmax column in PKNCA results. Columns: ",
-       paste(names(result_df), collapse = ", "))
+if (nrow(auc_rows) == 0) {
+  stop("No auclast rows found. Parameters: ",
+       paste(unique(result_df$PPTESTCD), collapse = ", "))
 }
 
-cat(sprintf("# AUClast column: %s\n", auclast_col[1]))
-cat(sprintf("# Cmax column:    %s\n", cmax_col[1]))
+cat(sprintf("# AUClast rows: %d\n", nrow(auc_rows)))
+cat(sprintf("# Cmax rows:    %d\n", nrow(cmax_rows)))
 
 # Build the reference table
 ref <- data.frame(
-  subject  = result_df$subject,
-  AUClast  = result_df[[auclast_col[1]]],
-  Cmax     = result_df[[cmax_col[1]]],
+  subject  = auc_rows$subject,
+  AUClast  = auc_rows$PPORRES,
+  Cmax     = cmax_rows$PPORRES,
   stringsAsFactors = FALSE
 )
 

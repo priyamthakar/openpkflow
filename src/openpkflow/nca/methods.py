@@ -123,7 +123,16 @@ def _validate_time_conc(
                 f"times must be strictly increasing; "
                 f"times[{i}]={t[i]} >= times[{i + 1}]={t[i + 1]}."
             )
+    for i, tv in enumerate(t):
+        if not math.isfinite(tv):
+            raise ValueError(
+                f"times[{i}] = {tv} is non-finite (NaN/Inf); all values must be finite."
+            )
     for i, cv in enumerate(c):
+        if not math.isfinite(cv):
+            raise ValueError(
+                f"concs[{i}] = {cv} is non-finite (NaN/Inf); all values must be finite."
+            )
         if cv < 0.0:
             raise ValueError(f"concs[{i}] = {cv} is negative; concentrations must be >= 0.")
 

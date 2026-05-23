@@ -404,3 +404,75 @@ class TestClearanceVolumeParameters:
         lz = self._mock_lz()
         with pytest.raises(ValueError, match="positive"):
             clearance_volume_parameters(320.0, 0.0, lz, route="oral")
+
+
+# ---------------------------------------------------------------------------
+# Edge-case tests: all-zero, NaN, trailing zero, degenerate profiles
+# ---------------------------------------------------------------------------
+
+
+class TestAucAllZero:
+    """AUClast with all-zero concentrations must not crash and produce 0."""
+
+    def test_linear_all_zero_is_zero(self) -> None:
+        assert auc_linear([0, 1, 2], [0.0, 0.0, 0.0]) == 0.0
+
+    def test_log_all_zero_is_zero(self) -> None:
+        result = auc_log([0, 1, 2], [0.0, 0.0, 0.0])
+        assert result.value == 0.0
+        assert len(result.warnings) > 0  # every interval falls back
+
+    def test_linear_up_log_down_all_zero_is_zero(self) -> None:
+        result = auc_linear_up_log_down([0, 1, 2], [0.0, 0.0, 0.0])
+        assert result.value == 0.0
+
+    def test_linear_all_zero_single_point_raises(self) -> None:
+        with pytest.raises(ValueError, match="2 points"):
+            auc_linear([0], [0.0])
+
+
+class TestAucAllNaN:
+    """NaN concentrations should raise explicit errors, not silently propagate."""
+
+    def test_linear_nan_raises(self) -> None:
+        with pytest.raises(ValueError, match="negative|NaN"):
+            auc_linear([0, 1, 2], [float("nan"), float("nan"), float("nan")])
+
+    def test_log_nan_raises(self) -> None:
+        with pytest.raises(ValueError, match="negative|NaN"):
+            auc_log([0, 1, 2], [float("nan"), float("nan"), float("nan")])
+
+
+class TestAucTrailingZero:
+    """AUC functions should handle trailing zeros gracefully at the math level.
+    The study-level tlast trimming is tested in test_study.py integration tests."""
+
+    def test_linear_trailing_zero_included(self) -> None:
+        v = auc_linear([0, 1, 2, 3], [5.0, 2.0, 0.5, 0.0])
+        assert v > 0.0
+
+    def test_linear_up_log_down_trailing_zero_included(self) -> None:
+        result = auc_linear_up_log_down([0, 1, 2, 3], [5.0, 2.0, 0.5, 0.0])
+        assert result.value > 0.0
+
+    def test_log_trailing_zero_falls_back(self) -> None:
+        result = auc_log([0, 1, 2, 3], [5.0, 2.0, 0.5, 0.0])
+        assert result.value > 0.0
+        assert len(result.warnings) >= 1  # trailing interval c2=0
+
+
+class TestCmaxMixedWithZero:
+    """Cmax should work when zeros and positives are interleaved."""
+
+    def test_zero_in_middle(self) -> None:
+        assert cmax([1.0, 0.0, 3.0, 0.0, 2.0]) == 3.0
+
+    def test_all_zero(self) -> None:
+        assert cmax([0.0, 0.0, 0.0]) == 0.0
+
+
+class TestTmaxMixedWithZero:
+    """Tmax should return time of first max including zeros."""
+
+    def test_zero_is_max(self) -> None:
+        assert tmax([0, 1, 2], [0.0, -0.5, -1.0]) == 0.0  # max is 0 at t=0

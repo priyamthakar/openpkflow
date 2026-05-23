@@ -97,7 +97,7 @@ class TestTheophRegression:
 
     def test_mean_auclast_regression(self, theoph_summary) -> None:
         df = theoph_summary.to_dataframe()
-        assert df["AUClast"].mean() == pytest.approx(100.1, rel=0.01)
+        assert df["AUClast"].mean() == pytest.approx(98.52, rel=0.01)
 
     def test_mean_cmax_regression(self, theoph_summary) -> None:
         df = theoph_summary.to_dataframe()
@@ -109,7 +109,7 @@ class TestTheophRegression:
 
     def test_mean_aucinf_obs_regression(self, theoph_summary) -> None:
         df = theoph_summary.to_dataframe()
-        assert df["AUCinf_obs"].dropna().mean() == pytest.approx(119.4, rel=0.01)
+        assert df["AUCinf_obs"].dropna().mean() == pytest.approx(117.78, rel=0.01)
 
 
 class TestTheophSubject1:

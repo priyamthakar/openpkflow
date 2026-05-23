@@ -47,7 +47,7 @@ _PKNCA_REFERENCE: dict[str, dict[str, float]] = {
     "6": {"AUClast": 72.572307, "Cmax": 6.440000},
     "7": {"AUClast": 87.813694, "Cmax": 7.540000},
     "8": {"AUClast": 104.126247, "Cmax": 8.730000},
-    "9": {"AUClast": 70.595041, "Cmax": 9.030000},
+    "9": {"AUClast": 51.542491, "Cmax": 9.030000},
     "10": {"AUClast": 135.576070, "Cmax": 10.210000},
     "11": {"AUClast": 78.507777, "Cmax": 8.000000},
     "12": {"AUClast": 99.947668, "Cmax": 9.750000},

@@ -229,13 +229,20 @@ class NCAStudy:
             cmax_val = cmax(c)
             tmax_val = tmax(t, c)
 
-            # AUClast via dispatch
+            # AUClast: trim to last positive (quantifiable) concentration
+            # tlast = last time point with conc > 0 (FDA/EMA NCA definition)
+            tlast_idx = len(c) - 1
+            while tlast_idx >= 0 and c[tlast_idx] <= 0.0:
+                tlast_idx -= 1
+            t_auclast = t[: tlast_idx + 1]
+            c_auclast = c[: tlast_idx + 1]
+
             if self._auc_method == "linear":
-                auclast_val: float = auc_linear(t, c)
+                auclast_val: float = auc_linear(t_auclast, c_auclast)
                 auc_warnings: list[str] = []
             else:
                 fn = auc_log if self._auc_method == "log" else auc_linear_up_log_down
-                res: AUCResult = fn(t, c)
+                res: AUCResult = fn(t_auclast, c_auclast)
                 auclast_val = res.value
                 auc_warnings = res.warnings
 
