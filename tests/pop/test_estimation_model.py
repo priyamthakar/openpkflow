@@ -1,11 +1,14 @@
 """Tests for PopPKModel."""
 
+import warnings
 from dataclasses import FrozenInstanceError
 
 import numpy as np
 import pytest
 
-from openpkflow.pop.estimation.model import PopPKModel
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+from openpkflow.pop.estimation.model import PopPKModel  # noqa: E402
 
 
 class TestPopPKModelOral:

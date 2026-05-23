@@ -1,11 +1,15 @@
 """Integration tests for SAEM population PK estimation."""
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import pytest
 
-from openpkflow.pop.estimation.model import PopPKModel
-from openpkflow.pop.estimation.objective import predict_individual
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+from openpkflow.pop.estimation.model import PopPKModel  # noqa: E402
+from openpkflow.pop.estimation.objective import predict_individual  # noqa: E402
 
 
 def _make_simulated_dataset(

@@ -9,9 +9,19 @@ categorical covariates (0/1 indicator).
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 
 import numpy as np
+
+warnings.warn(
+    "The covariate API (CovariateModel, CovariateDef, apply_covariates) is a "
+    "non-functional skeleton in v2.2.0. Covariates are not applied during "
+    "run_foce_i() or run_saem() estimation. This API will be removed or "
+    "fully wired in v2.3.0. Do not use in production.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 
 @dataclass(frozen=True)

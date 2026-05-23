@@ -26,7 +26,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
-- **Population PK estimation (v2.2.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; covariate modeling; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()`
+- **Population PK estimation (v2.2.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; covariate modeling; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; not independently validated against NONMEM or nlmixr2)
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
