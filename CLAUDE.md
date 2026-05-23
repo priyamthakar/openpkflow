@@ -50,20 +50,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install in editable mode with dev tools
 pip install -e ".[dev]"
 
-# Run all tests (exclude benchmarks in headless CI)
-pytest --ignore=tests/test_benchmark.py
+# Run all tests (exclude slow MCMC tests)
+pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"
 
-# Run with benchmarks
-pytest
+# Run NCA + validation tests (fast, complete coverage)
+pytest tests/nca/ tests/validation/
 
-# Run tests with coverage
+# Run single module
+pytest tests/nca/test_methods.py
+
+# Run with coverage
 pytest --cov=src/openpkflow --cov-report=term-missing
-
-# Run a single test file
-pytest tests/dissolution/test_similarity.py
-
-# Run a single test by name
-pytest tests/dissolution/test_similarity.py::TestF2::test_identical_profiles
 
 # Lint and auto-fix
 ruff check src/ tests/ --fix
@@ -75,8 +72,8 @@ mypy src/openpkflow
 # Build wheel/sdist
 python -m build
 
-# Verify wheel before upload
-python -m twine check dist/*
+# PKNCA cross-validation (requires R + PKNCA)
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
 
 # CLI
 openpkflow version
@@ -99,7 +96,7 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 
 ```
 dissolution/   -- f1, f2, bootstrap_f2, model fitting, loader, reporting   <- DONE v0.1-v0.2
-nca/           -- AUC, lambda_z, PK parameters, steady-state, urine        <- DONE v0.4.0, v1.3.0
+nca/           -- AUC, lambda_z, PK parameters, steady-state, urine, tlast  <- DONE v0.4.0, v1.3.0
 ivivc/         -- Wagner-Nelson, Loo-Riegelman, convolution, Levy, %PE     <- DONE v1.2.0
 sim/           -- analytical compartment models, dosing, superposition      <- DONE v0.5.0
 pop/           — GOF plots (4-panel), VPC (simulation-based), dataset      ← DONE v0.6.0
@@ -119,10 +116,31 @@ nca/
   methods.py       — pure math: auc_linear, auc_log, auc_linear_up_log_down,
                      cmax, tmax, lambda_z (BAR² auto + manual), auc_inf_obs,
                      auc_percent_extrapolated, clearance_volume_parameters
+                     _validate_time_conc rejects NaN/Inf, negative conc
   loader.py        — load_nca_csv(): CSV load + BLQ handling
   results.py       — NCAResult (per-subject), NCASummaryResults dataclasses
   study.py         — NCAStudy: from_csv(), analyze() -> NCASummaryResults
+                     tlast trimming: strips trailing conc <= 0 before AUClast
   reporting.py     — report_nca_single(), report_nca_summary() (HTML + Markdown)
+```
+
+### NCA data flow
+
+```
+CSV file
+  -> load_nca_csv()            BLQ-handled DataFrame (subject, time, conc, dose, route)
+  -> NCAStudy(df, auc_method, blq_method)
+  -> study.analyze()           per-subject loop:
+                               1. tlast trimming: strip trailing conc <= 0 (FDA/EMA)
+                               2. AUClast via chosen method (linear/log/linear_up_log_down)
+                               3. Cmax, Tmax from full profile
+                               4. lambda_z BAR² auto (post-Cmax positive points)
+                               5. AUCinf = AUClast + Clast/lambda_z
+                               6. CL_F/Vz_F (oral) or CL/Vz (IV)
+  -> NCASummaryResults         list of NCAResult
+  -> summary.to_dataframe()    pandas DataFrame
+  -> summary.report("out.html")  -> report_nca_summary() -> nca_summary_report.html
+  -> result.report("sub.html")   -> report_nca_single()  -> nca_single_report.html
 ```
 
 ### Sim module layout
@@ -151,20 +169,6 @@ OneCompartmentModel(route, CL, Vz) or TwoCompartmentModel(...)
   -> result.report("sim.html")   -> report_simulation() -> sim_report.html
 ```
 
-### NCA data flow
-
-```
-CSV file
-  -> load_nca_csv()            BLQ-handled DataFrame (subject, time, conc, dose, route)
-  -> NCAStudy(df, auc_method, blq_method)
-  -> study.analyze()           per-subject loop: AUClast, Cmax, Tmax, lambda_z, AUCinf,
-                               CL_F/Vz_F (oral) or CL/Vz (IV), warnings
-  -> NCASummaryResults         list of NCAResult
-  -> summary.to_dataframe()    pandas DataFrame
-  -> summary.report("out.html")  -> report_nca_summary() -> nca_summary_report.html
-  -> result.report("sub.html")   -> report_nca_single()  -> nca_single_report.html
-```
-
 ### Dissolution data flow
 
 ```
@@ -190,6 +194,43 @@ All CLI output and docstrings must use ASCII-only characters. Unicode punctuatio
 
 ---
 
+## Validation & Cross-Validation
+
+### PKNCA NCA cross-validation
+
+The NCA module is cross-validated against PKNCA 0.12.1 (Denney et al., 2015) on the
+12-subject R nlme::Theoph theophylline dataset. AUClast matches within 2% relative
+tolerance for every subject. Cmax matches exactly.
+
+Run with:
+```bash
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
+```
+
+The R script outputs a `_PKNCA_REFERENCE` dict that goes into
+`tests/validation/test_nca_theoph_reference.py`.
+
+### Validation test suite
+
+- `tests/validation/test_nca_theoph_reference.py` — per-subject PKNCA cross-validation
+- `tests/validation/test_nca_validation.py` — analytical truth recovery (IV bolus, oral)
+- `tests/validation/test_sim_validation.py` — Gibaldi & Perrier analytical solutions
+- `tests/nca/test_methods.py` — edge cases: all-zero, NaN/Inf, trailing zeros, mixed zeros
+
+Each test cites a source: paper DOI, FDA guidance ID, or reference implementation.
+
+### Known edge cases tested
+
+- All-zero concentrations → AUClast = 0 (no crash)
+- NaN/Inf concentrations → ValueError (not silently propagated)
+- Trailing zero concentrations → trimmed by tlast logic in study.py
+- Single-point profiles → ValueError (need >= 2 for AUC)
+- Empty arrays → ValueError
+- Negative concentrations → ValueError
+- Non-increasing times → ValueError
+
+---
+
 ## Current focus
 
 v1.5.0 is current (sparse-sampling NCA). v1.1.0-v1.4.0 also complete.
@@ -206,8 +247,7 @@ See `ROADMAP.md` for the full post-1.0.0 ladder.
 0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests          DONE
 0.1.1  bootstrap_f2, profile plots in HTML reports, CI, example datasets, py.typed          DONE
 0.1.2  PyPI publish, Trusted Publishing workflow                                         DONE
-0.1.3  README polish, f2_method="regulatory" option, CV% warning in compare(),
-       validation claims softened
+0.1.3  README polish, f2_method="regulatory" option, CV% warning in compare()
 0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, first-order,
        zero-order) — scipy curve_fit, AIC/BIC/R2, fit overlay in HTML report
 0.3.0  full Markdown + HTML + ReportLab PDF report generator
@@ -253,10 +293,14 @@ These are load-bearing. Do not violate them.
 
 4. **BLQ handling must be explicit.** Never silently drop BLQ values. Require the caller to specify the method.
 
-5. **Disclaimer required in all generated reports:**
+5. **AUClast stops at tlast.** Following FDA/EMA NCA guidance, AUClast integrates from time 0 to tlast — the last time point with a quantifiable (positive) concentration. Trailing zero or negative concentrations must be excluded from the trapezoidal sum. This is enforced in `study.py`.
+
+6. **NaN/Inf must be rejected.** `_validate_time_conc()` in `methods.py` rejects non-finite concentrations and times with explicit `ValueError` messages. Do not allow NaN to propagate silently through AUC calculations.
+
+7. **Disclaimer required in all generated reports:**
    > This report was generated using OpenPKFlow (open-source). Final regulatory interpretation should be reviewed by qualified formulation, pharmacokinetic, and regulatory experts.
 
-6. **Do not copy code from R packages.** You may study R package behavior, formulas, documentation, and reference outputs. Do not copy source code unless the license explicitly allows it.
+8. **Do not copy code from R packages.** You may study R package behavior, formulas, documentation, and reference outputs. Do not copy source code unless the license explicitly allows it.
 
 ---
 
@@ -273,6 +317,8 @@ Known reference values:
 - f2 = 100 when reference == test (by definition)
 - f2 ≈ 50 when profiles differ by ~10 percentage points at each timepoint (FDA 1997 guidance threshold)
 - f1 = 0 when reference == test (by definition)
+- AUClast matches PKNCA 0.12.1 within 2% on all 12 theophylline subjects
+- Cmax matches PKNCA 0.12.1 exactly
 
 ---
 

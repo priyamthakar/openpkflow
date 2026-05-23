@@ -30,8 +30,35 @@ Non-Compartmental Analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F.
 
 Pass `auc_method` explicitly to `NCAStudy`. Never left to default.
 
+## AUClast and tlast
+
+AUClast follows the FDA/EMA definition: AUC from time 0 to **tlast**, the last time
+point with a quantifiable (positive) concentration. Trailing zero or negative
+concentrations are excluded from the trapezoidal sum automatically. This is validated
+against PKNCA 0.12.1 on the theophylline reference dataset (12 subjects, all within 2%
+relative tolerance).
+
+## Input validation
+
+All AUC functions reject non-finite (NaN/Inf) concentrations and times with explicit
+`ValueError` messages. Negative concentrations raise `ValueError`. This prevents silent
+garbage propagation through downstream PK parameter calculations.
+
 ## BLQ methods
 
 `"none"`, `"zero"`, `"half_lloq"` (M1), `"lloq"` (M2), `"drop"`
 
 CSV string-BLQ notation (`"<0.5"`) is parsed automatically.
+
+> **Note on `blq_method="zero"`**: terminal BLQ values zero-filled by the loader are
+> automatically trimmed by the tlast logic (they don't inflate AUClast). However,
+> interior BLQs (between quantifiable concentrations) become zero-concentration
+> intervals that do affect the trapezoidal sum. For NCA, `"drop"` is the safer choice
+> unless FDA guidance for the specific analysis permits zero substitution.
+
+## Validation
+
+The NCA module is cross-validated against PKNCA 0.12.1 (Denney et al., 2015) on the
+12-subject R nlme::Theoph theophylline dataset. AUClast matches within 2% relative
+tolerance for every subject. Cmax matches exactly. See `tests/validation/` and
+`scripts/pknca_theoph_crossval.R`.

@@ -61,11 +61,21 @@ df = summary.to_dataframe()
 print(df[["subject", "Cmax", "AUClast", "half_life", "CL_F"]].to_string())
 ```
 
-Expected mean values (self-consistent regression): AUClast ~100, Cmax ~8.9, t1/2 ~7.9 h.
+Expected mean values (self-consistent regression): AUClast ~98.5, Cmax ~8.9, t1/2 ~7.9 h.
 
 ---
 
-## 5. BLQ handling
+## 5. AUClast and tlast
+
+AUClast follows the FDA/EMA NCA definition: AUC from time 0 to **tlast** — the last time
+point with a quantifiable (positive) concentration. Trailing zero or negative
+concentrations are automatically excluded from the trapezoidal sum. This matches PKNCA
+0.12.1 behavior and is validated on all 12 theophylline reference subjects within 2%
+relative tolerance.
+
+---
+
+## 6. BLQ handling
 
 | Method | What it does |
 |--------|-------------|
@@ -79,7 +89,7 @@ The CSV may contain BLQ flags as `"<0.5"` string values; these are parsed automa
 
 ---
 
-## 6. AUC methods
+## 7. AUC methods
 
 | Method | Rule |
 |--------|------|
