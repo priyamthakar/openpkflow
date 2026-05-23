@@ -1,348 +1,322 @@
-# Validation Documentation
+# Validation Cross-Reference
 
-This document maps OpenPKFlow test cases to their regulatory guidance sources and published references.
+OpenPKFlow validation cross-reference: maps every test to its regulatory guidance
+section or published reference. Last updated: 2026-05-23.
 
-All pharmacokinetic calculations are validated against FDA/EMA guidance documents, peer-reviewed publications, and established pharmacokinetic textbooks.
+> This document is for transparency purposes only. OpenPKFlow is open-source
+> research software. It does not constitute a validated system under 21 CFR Part 11
+> or ICH Q2(R1). Final regulatory interpretation must be reviewed by qualified experts.
 
----
+## How to read this table
 
-## Regulatory Guidance References
-
-### FDA Guidance Documents
-
-| Guidance | Year | Modules | Test Files |
-|----------|------|---------|------------|
-| [Dissolution Testing of Immediate Release Solid Oral Dosage Forms](https://www.fda.gov/media/71513/download) | 1997 | dissolution | `tests/dissolution/test_similarity.py` |
-| [Bioavailability and Bioequivalence Studies for Orally Administered Drug Products](https://www.fda.gov/media/71513/download) | 2003 | nca, be | `tests/nca/test_methods.py`, `tests/be/test_methods.py` |
-| [Statistical Approaches to Establishing Bioequivalence](https://www.fda.gov/media/71513/download) | 2001 | be | `tests/be/test_methods.py` |
-| [Waiver of In Vivo Bioavailability and Bioequivalence Studies](https://www.fda.gov/media/71513/download) | 2021 | dissolution | `tests/dissolution/test_similarity.py` |
-
-### EMA Guidelines
-
-| Guideline | Year | Modules | Test Files |
-|-----------|------|---------|------------|
-| [Guideline on the Investigation of Bioequivalence](https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-investigation-bioequivalence-rev1_en.pdf) | 2010 | be | `tests/be/test_methods.py` |
-| [ICH Q6A: Specifications](https://database.ich.org/sites/default/files/Q6A%20Guideline.pdf) | 1999 | dissolution | `tests/dissolution/test_similarity.py` |
+- **Module**: source module under test
+- **Test file**: path relative to project root
+- **Test function(s)**: specific test name(s) in that file
+- **What is verified**: formula or behavior under test
+- **Reference**: FDA guidance number, ICH guideline, EMA guideline, or DOI
 
 ---
 
-## Published References
+## Dissolution
 
-### Pharmacokinetics Textbooks
-
-| Reference | Modules | Test Files |
-|-----------|---------|------------|
-| Gibaldi M, Perrier D (1982). *Pharmacokinetics*, 2nd ed. Marcel Dekker | sim, nca | `tests/sim/test_methods.py`, `tests/nca/test_methods.py` |
-| Rowland M, Tozer TN (2011). *Clinical Pharmacokinetics and Pharmacodynamics*, 4th ed. | nca, be | `tests/nca/test_methods.py`, `tests/validation/test_nca_validation.py` |
-| Shargel L, Yu A (2015). *Applied Biopharmaceutics & Pharmacokinetics*, 7th ed. | dissolution, nca | `tests/dissolution/test_models.py`, `tests/nca/test_methods.py` |
-
-### Peer-Reviewed Papers
-
-| Paper | DOI | Modules | Test Files |
-|-------|-----|---------|------------|
-| Schuirmann DJ (1987). A comparison of the Two One-Sided Tests Procedure and the Power Approach for assessing the equivalence of average bioavailability. *J Pharmacokinet Biopharm* 15(6):657-680 | [10.1007/BF01068419](https://doi.org/10.1007/BF01068419) | be | `tests/be/test_methods.py` |
-| Shah VP et al. (1998). In vitro dissolution profile comparison—statistics and analysis of the similarity factor, f2. *Pharm Res* 15(6):889-896 | [10.1023/A:1011976615750](https://doi.org/10.1023/A:1011976615750) | dissolution | `tests/dissolution/test_bootstrap.py` |
-| Costa P, Lobo JMS (2001). Modeling and comparison of dissolution profiles. *Eur J Pharm Sci* 13(2):123-133 | [10.1016/S0928-0987(01)00095-1](https://doi.org/10.1016/S0928-0987(01)00095-1) | dissolution | `tests/dissolution/test_models.py` |
-| Davit BM et al. (2013). Implementing the f2 similarity factor in bioequivalence. *Pharm Res* 30(11):2772-2777 | [10.1007/s11095-013-1099-8](https://doi.org/10.1007/s11095-013-1099-8) | dissolution | `tests/dissolution/test_bootstrap.py` |
-| Moore JW, Flanner HH (1996). Mathematical comparison of dissolution profiles. *Pharm Technol* 20(6):64-74 | N/A | dissolution | `tests/dissolution/test_similarity.py` |
-
----
-
-## Module-Specific Validation
-
-### Dissolution Module
-
-#### f1 and f2 Similarity Factors
-
-**Regulatory Basis:**
-- FDA Guidance (1997): f1 ≤ 15 and f2 ≥ 50 indicate similarity
-- EMA Guideline (2010): f2 calculation methodology
-- Moore & Flanner (1996): Original f1/f2 equations
-
-**Validation Tests:**
-- `tests/dissolution/test_similarity.py`
-  - f1 = 10.0 exactly when test is uniform 10% reduction (FDA 1997)
-  - f2 ≈ 50 when profiles differ by 10% at every timepoint (FDA 1997)
-  - Identical profiles: f2 = 100, f1 = 0 (degenerate case)
-  - Regulatory method trims timepoints where both > 85% dissolved (FDA 1997)
-
-#### Bootstrap f2
-
-**Regulatory Basis:**
-- Shah VP et al. (1998): Bootstrap methodology for small sample sizes
-- Davit BM et al. (2013): f2 bootstrap confidence intervals
-
-**Validation Tests:**
-- `tests/dissolution/test_bootstrap.py`
-  - Similar profiles: CI lower bound ≥ 50
-  - Dissimilar profiles: CI lower bound < 50
-  - 95% CI wider than 90% CI (statistical property)
-  - Reproducibility with fixed seed
-
-#### Dissolution Model Fitting
-
-**Regulatory Basis:**
-- Costa P, Lobo JMS (2001): Model comparison methodology
-- FDA Guidance (1997): Model-based dissolution comparison
-
-**Validation Tests:**
-- `tests/dissolution/test_models.py`
-  - AICc ranking: best model has lowest AICc
-  - Weibull, Korsmeyer-Peppas, Higuchi, First-order, Zero-order models
-  - R² reporting (not used for selection, misleading for nonlinear models)
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/dissolution/test_similarity.py` | `test_f2_identical_profiles_is_100` | f2 = 100 when reference equals test (zero squared differences) | Degenerate sanity check (by definition) |
+| `tests/dissolution/test_similarity.py` | `test_f1_identical_profiles_is_zero` | f1 = 0 when reference equals test (zero absolute differences) | Degenerate sanity check (by definition) |
+| `tests/dissolution/test_similarity.py` | `test_f2_ten_percent_difference_near_50` | f2 ~ 50 when profiles differ by 10 percentage points at every timepoint; this is the FDA similarity threshold | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997), CDER |
+| `tests/dissolution/test_similarity.py` | `test_f1_ten_percent_reduction_is_exact` | f1 = 10.0 exactly when test is a uniform 10% reduction of reference | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997), CDER |
+| `tests/dissolution/test_similarity.py` | `TestF2Method::test_regulatory_trims_above_85` | Regulatory f2 method removes time points after both profiles exceed 85% release | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997), Section on >85% rule |
+| `tests/dissolution/test_similarity.py` | `TestF2Method::test_regulatory_no_trim_when_both_never_exceed_85` | No trimming when profiles never exceed 85% | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) |
+| `tests/dissolution/test_similarity.py` | `TestF2Method::test_regulatory_raises_when_fewer_than_3_points_remain` | Raises ValueError when fewer than 3 timepoints remain after 85% trimming | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) |
+| `tests/dissolution/test_similarity.py` | `test_f2_raises_on_*`, `test_f1_raises_on_*` | Input validation: length mismatches, empty arrays, minimum 3 timepoints, value range [0,100], NaN/Inf, zero reference sum | Pharmacometric correctness rule; FDA guidance requires valid percent-dissolved inputs |
+| `tests/dissolution/test_bootstrap.py` | `TestBootstrapF2::test_similar_profiles_ci_lower_above_50` | Bootstrap 90% CI lower bound >= 50 for similar profiles (PASS criterion) | Shah VP et al. (1998) Pharm Res, 15(6):889-896. Bootstrap f2 methodology. |
+| `tests/dissolution/test_bootstrap.py` | `TestBootstrapF2::test_dissimilar_profiles_ci_lower_below_50` | Bootstrap 90% CI lower bound < 50 for dissimilar profiles (FAIL criterion) | Shah VP et al. (1998) Pharm Res, 15(6):889-896. |
+| `tests/dissolution/test_bootstrap.py` | `TestBootstrapF2::test_identical_profiles_f2_observed_is_100` | Bootstrap f2_observed = 100 when reference equals test | Degenerate sanity check (by definition) |
+| `tests/dissolution/test_bootstrap.py` | `TestBootstrapF2::test_95_ci_wider_than_90_ci` | 95% CI is wider than 90% CI (correct interval ordering) | Internal consistency check |
+| `tests/dissolution/test_models.py` | `TestZeroOrderDegenerate::test_recover_k0` | Zero-order model Q(t)=k0*t: parameter recovery from noise-free synthetic profile | Costa P, Lobo JMS (2001) Eur J Pharm Sci, 13(2):123-133. DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_models.py` | `TestFirstOrderDegenerate::test_recover_k1` | First-order model Q(t)=100*(1-exp(-k1*t)): parameter recovery | Costa P, Lobo JMS (2001) Eur J Pharm Sci, 13(2):123-133. DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_models.py` | `TestHiguchiDegenerate::test_recover_kH`, `test_hand_checkable_values` | Higuchi matrix-diffusion model Q(t)=kH*sqrt(t): recovery and hand-checkable values | Costa P, Lobo JMS (2001), Section 2.3 (matrix diffusion model). DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_models.py` | `TestKorsmeyerPeppasDegnerate::test_recover_k_and_n` | Korsmeyer-Peppas power-law Q(t)=k*t^n: parameter recovery (n<0.45 Fickian, n>0.89 Case II) | Costa P, Lobo JMS (2001), Section 2.5 (power-law model). DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_models.py` | `TestKorsmeyerPeppasDegnerate::test_kp_60pct_warning` | Warning issued when >1 timepoint exceeds 60% release (Korsmeyer-Peppas applicability limit) | Costa P, Lobo JMS (2001), Section 2.5 |
+| `tests/dissolution/test_models.py` | `TestWeibullDegenerate::test_recover_alpha_beta` | Weibull empirical model Q(t)=100*(1-exp(-(t/beta)^alpha)): parameter recovery | Costa P, Lobo JMS (2001), Section 2.6 (Weibull model). DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_models.py` | `TestAICcRanking::test_weibull_ranks_first_on_weibull_data` | AICc-based model selection: Weibull model ranks first on Weibull-generated data | Internal consistency check (AICc penalised likelihood) |
+| `tests/dissolution/test_alternatives.py` | `TestMaxDeviation::test_identical_profiles_zero` | Maximum absolute deviation = 0 for identical profiles | Degenerate sanity check (by definition) |
+| `tests/dissolution/test_alternatives.py` | `TestMSD::test_identical_profiles` | MSD = 0 and is_similar = True for identical profiles | Degenerate sanity check (by definition) |
+| `tests/dissolution/test_alternatives.py` | `TestMSD::test_small_difference_similar` | Profiles with small differences pass MSD similarity criterion | FDA Guidance: Scale-Up and Post-Approval Changes (SUPAC-IR, 1995); FDA Guidance: Polymer-Based Solid Oral Dosage Forms (1999) -- Mahalanobis distance methodology |
+| `tests/dissolution/test_m13b.py` | `TestICHM13BRSD::test_warns_when_rsd_exceeds_8pct_at_early_timepoint` | RSD > 8% at timepoints with mean <= 60% triggers ICH M13B warning | ICH M13B: Bioequivalence Studies for Immediate-Release Solid Oral Dosage Forms (2024); RSD <= 8% requirement at mean <= 60% |
+| `tests/dissolution/test_m13b.py` | `TestICHM13BRSD::test_no_warning_when_rsd_below_8pct` | No warning when RSD below 8% | ICH M13B (2024) |
+| `tests/dissolution/test_m13b.py` | `TestICHM13BRSD::test_no_warning_when_mean_above_60pct` | RSD check applies only when mean <= 60% (ICH M13B scope restriction) | ICH M13B (2024) |
+| `tests/dissolution/test_m13b.py` | `TestICHM13BRSD::test_integration_with_dissolution_study` | End-to-end: DissolutionStudy.compare() warns when ICH M13B RSD violated | ICH M13B (2024) |
+| `tests/dissolution/test_model_comparison.py` | `TestModelDependentComparison::test_identical_profiles` | Identical profiles yield ratio ~ 100% and SIMILAR verdict in model-dependent comparison | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997), Section on model-dependent approaches |
+| `tests/dissolution/test_model_comparison.py` | `TestModelDependentComparison::test_weibull_model` | Model-dependent comparison works with Weibull 2-parameter model | Costa P, Lobo JMS (2001). DOI: 10.1016/S0928-0987(01)00095-1 |
+| `tests/dissolution/test_multi_media.py` | `TestMultiMediaStudy::test_run_f2_values_similar` | Multi-media f2 >= 50 for similar profiles across all pH media | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997); FDA Product-Specific Guidances requiring multi-pH dissolution |
+| `tests/dissolution/test_multi_media.py` | `TestMultiMediaStudy::test_run_dissimilar_profile_fails` | overall_pass = False when any medium fails f2 >= 50 | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) |
+| `tests/dissolution/test_study.py` | `test_study_compare_f2_range` | f2 for the example dataset is within the similar range (50-70) | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) |
+| `tests/dissolution/test_study.py` | `TestCVWarning::test_high_cv_early_timepoint_warns` | CV > 20% at an early timepoint triggers a warning | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997), variability guidance |
+| `tests/dissolution/test_excel_loader.py` | `TestLoadDissolutionExcel::test_happy_path` | Round-trip: write Excel, load, check dtypes and row count | Internal consistency check (mirrors CSV loader test coverage) |
+| `tests/dissolution/test_excel_loader.py` | `TestLoadDissolutionExcel::test_custom_config` | Custom column names are respected via DissolutionCSVConfig | Internal consistency check |
+| `tests/dissolution/test_excel_loader.py` | `TestLoadDissolutionExcel::test_negative_time_rejected`, `test_out_of_range_pct_rejected`, `test_missing_column` | Input validation: negative time, percent_released outside [0,100], missing column | Pharmacometric correctness rule; pydantic-validated data model |
+| `tests/dissolution/test_excel_loader.py` | `TestDissolutionStudyFromExcel::test_from_excel_vs_from_csv_same_result` | from_excel() and from_csv() on equivalent data produce identical f2 | Internal consistency check |
 
 ---
 
-### NCA Module
+## NCA
 
-#### AUC Calculations
-
-**Regulatory Basis:**
-- FDA Guidance (2003): AUClast, AUCinf calculation methodology
-- Gibaldi & Perrier (1982): Trapezoidal rule equations
-
-**Validation Tests:**
-- `tests/nca/test_methods.py`
-  - Linear trapezoidal: exact for linear concentration-time profiles
-  - Log trapezoidal: exact for exponential decay phases
-  - Linear-up/log-down: linear for absorption, log for elimination
-  - AUCinf = AUClast + Clast/λz (FDA 2003)
-
-#### Clearance and Volume Parameters
-
-**Regulatory Basis:**
-- Gibaldi & Perrier (1982): CL = Dose/AUCinf, Vz = Dose/(AUCinf × λz)
-- Rowland & Tozer (2011): CL_F vs CL distinction (oral vs IV)
-
-**Validation Tests:**
-- `tests/validation/test_nca_validation.py`
-  - IV bolus: NCA CL recovered within 2% of true CL
-  - IV bolus: NCA Vz recovered within 2% of true Vz
-  - IV bolus: NCA t½ recovered within 2% of true t½
-  - Oral: NCA CL_F recovered within 5% of true CL_F
-  - AUCinf = Dose/CL (exact identity, Rowland & Tozer Eq. 3-1)
-
-#### Lambda-z Estimation
-
-**Regulatory Basis:**
-- FDA Guidance (2003): Terminal elimination rate constant
-- PKNCA R package: BAR² adjusted R² algorithm
-
-**Validation Tests:**
-- `tests/nca/test_methods.py`
-  - Auto-selection: chooses window with highest adjusted R²
-  - At least 3 points required (regulatory standard)
-  - Half-life = ln(2)/λz (Gibaldi & Perrier Eq. 1-4)
-
----
-
-### Bioequivalence Module
-
-#### Two One-Sided Tests (TOST)
-
-**Regulatory Basis:**
-- Schuirmann DJ (1987): TOST procedure for bioequivalence
-- FDA Guidance (2001): Statistical approaches to BE
-- EMA Guideline (2010): 80-125% acceptance range
-
-**Validation Tests:**
-- `tests/be/test_methods.py`
-  - Identical profiles: GMR = 1.0 (degenerate case)
-  - Known CI width: manual calculation for n=4
-  - 80-125% acceptance window: GMR = 0.70 fails, GMR = 0.90 passes
-  - NTI products: 90-111.11% narrower limits (EMA 2010)
-  - Symmetry: GMR(T,R) = 1/GMR(R,T)
-
-#### Intra-Subject CV
-
-**Regulatory Basis:**
-- FDA Guidance (2001): CV% calculation from within-subject variance
-- EMA Guideline (2010): CV reporting requirements
-
-**Validation Tests:**
-- `tests/be/test_methods.py`
-  - Zero variability: CV = 0%
-  - Positive variability: CV > 0%
-  - CV% stored in results
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/nca/test_methods.py` | `TestAucLinear::test_flat_profile_two_points`, `test_triangle_two_intervals`, `test_three_intervals` | Linear trapezoidal AUC: hand-checkable degenerate cases with exact expected values | FDA Guidance for Industry: Bioavailability and Bioequivalence Studies for Orally Administered Drug Products (2003), CDER; Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed. |
+| `tests/nca/test_methods.py` | `TestAucLog::test_declining_interval_log_mean` | Log-trapezoidal rule: AUC = (C0-C1)/ln(C0/C1)*dt for a declining interval | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed. |
+| `tests/nca/test_methods.py` | `TestAucLog::test_equal_concentrations_fallback_to_linear` | Log rule falls back to linear when C1 == C2 (numerical safeguard) | Internal consistency check |
+| `tests/nca/test_methods.py` | `TestAucLinearUpLogDown::test_rising_uses_linear`, `test_declining_uses_log`, `test_mixed_profile` | Linear-up/log-down hybrid AUC: rising intervals use linear, declining use log | Phoenix WinNonlin User Guide; FDA Guidance for Industry: BA/BE Studies (2003) |
+| `tests/nca/test_methods.py` | `TestLambdaZAuto::test_half_life_equals_ln2_over_lambda_z` | t1/2 = ln(2)/lambda_z by definition | Degenerate sanity check (by definition) |
+| `tests/nca/test_methods.py` | `TestLambdaZAuto::test_at_least_three_selected_points` | lambda_z requires at least 3 terminal phase points (BAR-squared auto selection) | FDA Guidance for Industry: BA/BE Studies (2003); Phoenix WinNonlin User Guide |
+| `tests/nca/test_methods.py` | `TestAucInfObs::test_basic` | AUCinf = AUClast + Clast/lambda_z (exact formula) | FDA Guidance for Industry: BA/BE Studies (2003); Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed. |
+| `tests/nca/test_methods.py` | `TestAucPercentExtrapolated::test_ten_percent` | %AUC_extrapolated = (AUCinf - AUClast)/AUCinf * 100 | FDA Guidance for Industry: BA/BE Studies (2003) -- warns when extrapolated fraction > 20% |
+| `tests/nca/test_methods.py` | `TestClearanceVolumeParameters::test_oral_returns_clf_vzf`, `test_oral_values` | CL_F = Dose/AUCinf; Vz_F = Dose/(AUCinf*lambda_z) for oral; naming uses CL_F (apparent, oral) not CL | FDA Guidance for Industry: BA/BE Studies (2003); Pharmacometric correctness rule 3 (apparent vs absolute clearance) |
+| `tests/nca/test_methods.py` | `TestClearanceVolumeParameters::test_iv_bolus_returns_cl_vz` | IV bolus returns CL (absolute, not CL_F) and Vz | Pharmacometric correctness rule 3 |
+| `tests/nca/test_loader.py` | `TestLoadNcaCsvHappyPath::test_basic_load`, `test_row_count`, `test_sorted_by_subject_then_time` | CSV loader: correct column types, row count, sort order (subject then time) | Internal consistency check |
+| `tests/nca/test_loader.py` | `TestLoadNcaCsvBLQHandling::test_blq_method_none_keeps_all_rows`, `test_blq_method_drop`, `test_blq_method_zero`, `test_blq_method_half_lloq`, `test_blq_method_lloq` | BLQ handling methods: none/drop/zero/half_lloq/lloq; string BLQ markers ("< 0.5") parsed correctly | Pharmacometric correctness rule 4 (explicit BLQ handling) |
+| `tests/nca/test_loader.py` | `TestLoadNcaCsvBLQHandling::test_alias_m1_equals_drop`, `test_alias_m2_equals_zero` | BLQ method aliases m1=drop, m2=zero (industry-standard naming) | FDA Guidance for Industry: BA/BE Studies (2003); standard industry BLQ conventions |
+| `tests/nca/test_loader.py` | `TestLoadNcaCsvErrors::test_missing_required_column`, `test_unknown_blq_method_raises`, `test_half_lloq_without_lloq_raises` | Loader raises on missing columns, unknown BLQ method, missing LLOQ value | Pharmacometric correctness rule 4 |
+| `tests/nca/test_study.py` | `TestNCAStudyInit::test_valid_auc_methods`, `test_invalid_auc_method_raises` | NCAStudy accepts only valid AUC methods; raises on unknown method | Pharmacometric correctness rule 2 (explicit AUC method required) |
+| `tests/nca/test_study.py` | `TestNCAStudyAnalyze::test_returns_nca_summary_results`, `test_one_result_per_subject`, `test_two_subjects` | Study orchestration: produces NCASummaryResults with one NCAResult per subject | Internal consistency check |
+| `tests/nca/test_study.py` | `TestNCAStudyAnalyze::test_oral_route_populates_clf_vzf` | Oral route populates CL_F/Vz_F and leaves CL/Vz null | Pharmacometric correctness rule 3 (apparent vs absolute clearance labeling) |
+| `tests/nca/test_study.py` | `TestNCAStudyAnalyze::test_lambda_z_none_when_insufficient_tail_points` | lambda_z = None with warning when fewer than 3 post-Cmax points | FDA Guidance for Industry: BA/BE Studies (2003) -- minimum terminal phase points |
+| `tests/nca/test_study.py` | `TestNCASummaryResults::test_summary_ascii_only` | Summary output is ASCII-only (no Unicode characters) | Windows cp1252 console constraint (CLAUDE.md) |
+| `tests/nca/test_theoph_reference.py` | `TestTheophPhysiology::test_cmax_in_therapeutic_range`, `test_half_life_in_expected_range`, `test_auclast_in_plausible_range` | NCA on the theophylline dataset: Cmax 5-12 mg/L, t1/2 6-14 h, AUClast 50-200 h*mg/L | Pinheiro JC, Bates DM (2000). Mixed-effects models in S and S-PLUS. Springer (R nlme::Theoph dataset) |
+| `tests/nca/test_theoph_reference.py` | `TestTheophRegression::test_mean_auclast_regression`, `test_mean_cmax_regression`, `test_mean_half_life_regression`, `test_mean_aucinf_obs_regression` | Regression lock: mean AUClast ~ 100.1, mean Cmax ~ 8.89, mean t1/2 ~ 7.89, mean AUCinf ~ 119.4 (tolerance 1%) | Internal regression lock against openpkflow implementation applied to R nlme::Theoph dataset |
+| `tests/nca/test_theoph_reference.py` | `TestTheophSubject1::test_subject1_cmax`, `test_subject1_tmax` | Subject 1: Cmax = 10.50 mg/L at Tmax = 1.12 h (directly readable from CSV) | R nlme::Theoph dataset, Subject 1 raw observations |
+| `tests/nca/test_steady_state_urine.py` | `TestAUCTau::test_simple_linear` | AUCtau computed for a dosing interval | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed.; FDA Guidance: Pharmacokinetic Studies in Man (1988), CDER |
+| `tests/nca/test_steady_state_urine.py` | `TestSteadyStateParameters::test_full_parameters` | Cmax_ss, Cmin_ss, Cavg_ss, fluctuation%, swing at steady state | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., Chapters 4-5 |
+| `tests/nca/test_steady_state_urine.py` | `TestCumulativeUrinaryExcretion::test_simple_linear_excretion` | Ae = cumulative sum of (volume * concentration) over collection intervals | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed. |
+| `tests/nca/test_steady_state_urine.py` | `TestRenalClearance::test_computed_correctly` | CLr = Ae_total / AUCinf | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed. |
+| `tests/nca/test_steady_state_urine.py` | `TestPercentExcreted::test_computed_correctly` | %Ae = Ae_total / Dose * 100 | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed. |
+| `tests/nca/test_steady_state_urine.py` | `TestNCAStudyCdiscPP::test_to_cdisc_pp_still_works` | CDISC PP domain output includes USUBJID and PPTESTCD columns | CDISC SDTM Implementation Guide v3.4: Pharmacokinetic Parameters (PP) domain |
+| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_recovers_known_parameters_from_dense` | Sparse 1-cmt oral model fitting recovers CL_F, Vz_F, ka within 15-30% from dense data | Internal consistency check; model-informed PK approach |
+| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_auclast_close_to_dose_div_clf` | AUCinf = Dose/CL_F (exact relationship for a fully absorbed drug in a linear 1-cmt system) | Degenerate sanity check (by definition for linear 1-cmt system) |
+| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_with_only_three_points` | Sparse NCA converges with only 3 data points: AUCinf, Cmax, half_life all valid | Internal consistency check |
+| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_standard_errors_computed` | Standard errors of CL_F, Vz_F, ka are positive and finite from dense data | Internal consistency check (Fisher information matrix) |
+| `tests/nca/test_nca_results.py` | `TestNCAResultToDict::test_clf_vzf_present_when_oral`, `test_cl_vz_present_when_iv` | Oral route serializes CL_F/Vz_F only; IV route serializes CL/Vz only; opposing fields are null | Pharmacometric correctness rule 3 (apparent vs absolute clearance labeling) |
+| `tests/nca/test_nca_results.py` | `TestNCASummaryResultsToCdiscPP::test_expected_columns`, `test_pptestcd_values_are_cdisc_codes`, `test_ppspec_is_plasma` | CDISC PP domain: correct column set, test codes (AUCLST, AUCIFO, CMAX, TMAX, LAMZ, LAMZHL, AUCPEP), PPSPEC = PLASMA | CDISC SDTM Implementation Guide v3.4: Pharmacokinetic Parameters (PP) domain |
+| `tests/nca/test_nca_results.py` | `TestNCASummaryResultsToCdiscPP::test_multiple_subjects_merge` | Two subjects produce 14 PP rows (7 parameters x 2 subjects) | CDISC SDTM Implementation Guide v3.4: PP domain, one row per subject per parameter |
+| `tests/nca/test_nca_results.py` | `TestNCAResultToDict::test_steady_state_keys`, `test_urinary_excretion_keys` | Steady-state (Cmax_ss, AUCtau, fluctuation_pct) and urinary (Ae, CLr) fields serialize correctly | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed. |
+| `tests/nca/test_nca_reporting.py` | `TestReportNCASingle::test_html_contains_disclaimer`, `test_markdown_contains_disclaimer` | All NCA reports contain mandatory regulatory disclaimer | Pharmacometric correctness rule 5 (disclaimer required in all reports) |
+| `tests/nca/test_nca_reporting.py` | `TestReportNCASingle::test_iv_route_uses_cl_and_vz_labels_markdown` | IV-route reports show CL and Vz labels, not CL_F/Vz_F | Pharmacometric correctness rule 3 (apparent vs absolute clearance labeling) |
+| `tests/nca/test_nca_reporting.py` | `TestReportNCASummary::test_html_returns_str`, `test_markdown_returns_str`, `test_writes_file_html`, `test_writes_file_markdown` | Summary reports render as non-empty strings and write to disk | Internal consistency check |
+| `tests/nca/test_nca_pdf_docx.py` | `TestNCASinglePDF::test_pdf_magic_bytes`, `TestNCASummaryPDF::test_pdf_magic_bytes` | PDF output starts with %PDF magic bytes (ISO 32000 PDF format) | ISO 32000 PDF specification; openpkflow[reports] optional extra |
+| `tests/nca/test_nca_pdf_docx.py` | `TestNCASingleDOCX::test_docx_magic_bytes`, `TestNCASummaryDOCX::test_docx_magic_bytes` | DOCX output starts with PK ZIP magic bytes (ECMA-376 OOXML) | ECMA-376 Office Open XML standard; openpkflow[reports] optional extra |
+| `tests/nca/test_nca_pdf_docx.py` | `TestNCASingleDOCX::test_disclaimer_in_document` | DOCX word/document.xml contains "OpenPKFlow" disclaimer text | Pharmacometric correctness rule 5 (disclaimer required in all reports) |
+| `tests/validation/test_nca_validation.py` | `TestRoundTripNCA::test_1cmt_iv_bolus_cl_vz_roundtrip` | Simulate IV bolus, run NCA, verify CL = Dose/AUCinf and Vz = Dose/(AUCinf*lambda_z) within 2% | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed.; Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., pp. 42-48 |
 
 ---
 
-### Simulation Module
+## IVIVC
 
-#### 1-Compartment IV Bolus
-
-**Regulatory Basis:**
-- Gibaldi & Perrier (1982): Eq. 1-2, C(t) = (D/Vz) × exp(-k×t)
-- Rowland & Tozer (2011): AUCinf = D/CL (Eq. 3-1)
-
-**Validation Tests:**
-- `tests/validation/test_sim_validation.py`
-  - C(t½) = C(0)/2 (half-life definition)
-  - AUCinf = D/CL within 0.5% (numerical integration)
-  - AUC(0 to 2×t½)/AUCinf = 0.75 (exact)
-
-#### 1-Compartment Oral (Bateman Equation)
-
-**Regulatory Basis:**
-- Gibaldi & Perrier (1982): Eq. 1-13, Bateman function
-- Shargel & Yu (2015): Tmax = ln(ka/k)/(ka-k)
-
-**Validation Tests:**
-- `tests/validation/test_sim_validation.py`
-  - Tmax formula: ln(ka/k)/(ka-k) within 0.5%
-  - AUCinf = D/CL_F within 0.5%
-
-#### 2-Compartment IV Bolus
-
-**Regulatory Basis:**
-- Gibaldi & Perrier (1982): Eq. 3-1, biexponential decay
-- Rowland & Tozer (2011): C(0) = D/V1
-
-**Validation Tests:**
-- `tests/validation/test_sim_validation.py`
-  - AUCinf = D/CL within 1%
-  - C(0) = D/V1 within 0.001%
-
-#### 2-Compartment IV Infusion
-
-**Regulatory Basis:**
-- Gibaldi & Perrier (1982): Eqs. 3-28 to 3-30
-- Rowland & Tozer (2011): AUCinf independent of infusion duration
-
-**Validation Tests:**
-- `tests/validation/test_sim_validation.py`
-  - AUCinf = D/CL within 1%
-  - AUCinf independent of infusion duration (linear PK property)
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/ivivc/test_ivivc.py` | `TestWagnerNelson::test_gibaldi_perrier_example` | Wagner-Nelson deconvolution: F_a values are monotonically increasing and terminal F_a ~ 1.0 on Gibaldi & Perrier Chapter 4 example data | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Chapter 4, pp. 149-151 |
+| `tests/ivivc/test_ivivc.py` | `TestWagnerNelson::test_matches_wagner_nelson_1963_paper` | Wagner-Nelson 1963 original paper approximated profile produces correct array length | Wagner JG, Nelson E (1963). J Pharm Sci, 52(6):610-611. DOI: 10.1002/jps.2600520624 |
+| `tests/ivivc/test_ivivc.py` | `TestWagnerNelson::test_very_slow_elimination` | Very small kel: F_a approaches 1.0 (full absorption) | FDA Guidance for Industry: Extended Release Oral Dosage Forms -- In Vitro/In Vivo Correlations (1997), CDER |
+| `tests/ivivc/test_ivivc.py` | `TestLooRiegelman::test_loo_riegelman_1968_reference` | Loo-Riegelman two-compartment deconvolution: terminal F_a ~ 1.0 on 1968 reference data | Loo JCK, Riegelman S (1968). J Pharm Sci, 57(6):918-928. DOI: 10.1002/jps.2600570602 |
+| `tests/ivivc/test_ivivc.py` | `TestConvolutionPredict::test_simple_unity_prediction` | Numerical convolution predicts non-negative concentrations with correct Cmax bound | FDA Guidance for Industry: Extended Release Oral Dosage Forms -- In Vitro/In Vivo Correlations (1997), CDER |
+| `tests/ivivc/test_ivivc.py` | `TestConvolutionPredict::test_dose_scaling` | Doubling dose_diss/dose_iv scales Cmax by 2.0 (linear system property) | Internal consistency check (linearity of convolution) |
+| `tests/ivivc/test_ivivc.py` | `TestLevyPlot::test_perfect_one_to_one` | Levy plot: when F_d = F_a exactly, slope = 1.0 and R2 = 1.0 | Degenerate sanity check (by definition); FDA Guidance: IVIVC (1997) |
+| `tests/ivivc/test_ivivc.py` | `TestIVIVCPredictability::test_perfect_prediction_passes` | Perfect prediction (%PE_Cmax = 0, %PE_AUC = 0) gives overall_pass = True | Degenerate sanity check; FDA Guidance: IVIVC (1997), %PE criteria |
+| `tests/ivivc/test_ivivc.py` | `TestIVIVCPredictability::test_large_auc_error_fails` | %PE_AUC > 10% triggers overall_pass = False | FDA Guidance for Industry: Extended Release Oral Dosage Forms -- In Vitro/In Vivo Correlations (1997), Section: Predictability -- mean %PE <= 10% for Level A IVIVC |
+| `tests/ivivc/test_ivivc.py` | `TestIVIVCPredictability::test_large_cmax_error_fails` | %PE_Cmax > 15% triggers passes_cmax = False | FDA Guidance: IVIVC (1997) -- Cmax %PE criterion |
+| `tests/ivivc/test_ivivc.py` | `TestIVIVCStudy::test_wagner_nelson_study`, `test_loo_riegelman_study` | Full IVIVCStudy workflow with Wagner-Nelson and Loo-Riegelman methods produces valid results | FDA Guidance: IVIVC (1997); Wagner & Nelson (1963); Loo & Riegelman (1968) |
 
 ---
 
-### Population PK Diagnostics Module
+## Bioequivalence
 
-#### Goodness-of-Fit Plots
-
-**Regulatory Basis:**
-- FDA Guidance (2013): Population pharmacokinetics
-- Bonate PL (2011): *Pharmacokinetic-Pharmacodynamic Modeling and Simulation*
-
-**Validation Tests:**
-- `tests/pop/test_gof.py`
-  - OBS vs PRED plot generation
-  - OBS vs IPRED plot generation
-  - CWRES vs TIME/IPRED plots
-  - 4-panel GOF figure generation
-
-#### Visual Predictive Check (VPC)
-
-**Regulatory Basis:**
-- Karlsson MO, Holford N (2008): VPC methodology
-- FDA Guidance (2013): Model evaluation
-
-**Validation Tests:**
-- `tests/pop/test_vpc.py`
-  - Percentile bands: 5th, 50th, 95th
-  - Observed data overlay
-  - Reproducibility with fixed seed
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/be/test_methods.py` | `TestBETOSTDegenerate::test_identical_gives_gmr_one` | T == R gives GMR = 1.0 and bioequivalent = True (degenerate TOST case) | Degenerate sanity check (by definition) |
+| `tests/be/test_methods.py` | `TestBETOSTDegenerate::test_constant_ratio_090_is_be` | Constant T/R = 0.90: GMR = 0.90, CI collapses to point, within [0.80, 1.25] | FDA Guidance for Industry: Statistical Approaches to Establishing Bioequivalence (2001); Schuirmann DJ (1987). J Pharmacokinet Biopharm, 15(6):657-680. DOI: 10.1007/BF01068419 |
+| `tests/be/test_methods.py` | `TestBETOSTDegenerate::test_constant_ratio_070_is_not_be` | T/R = 0.70 is outside FDA 80-125% window: bioequivalent = False | FDA Guidance for Industry: BA/BE Studies for Orally Administered Drug Products (2003) -- 80-125% acceptance window |
+| `tests/be/test_methods.py` | `TestBETOSTDegenerate::test_constant_ratio_140_is_not_be` | T/R = 1.40 is above 1.25 upper limit: bioequivalent = False | FDA Guidance for Industry: BA/BE Studies for Orally Administered Drug Products (2003) |
+| `tests/be/test_methods.py` | `TestBETOSTKnownCI::test_known_ci_width_n4` | 90% CI lower = 0.8250, upper = 1.2120 for n=4 with known log-differences | Schuirmann DJ (1987). J Pharmacokinet Biopharm, 15(6):657-680. DOI: 10.1007/BF01068419 -- TOST paired two one-sided tests formula |
+| `tests/be/test_methods.py` | `TestBETOSTNTILimits::test_nti_limits_stricter` | GMR = 0.88 passes standard 80-125% but fails NTI 90-111.11% | EMA Guideline on the Investigation of Bioequivalence (2010) -- NTI narrow therapeutic index products; FDA NTI guidance |
+| `tests/be/test_study.py` | `TestBEStudyAnalyze::test_gmr_close_to_true_gmr` | With n=20 and 10% CV, estimated GMR is within 10% of the generating GMR | FDA Guidance for Industry: Statistical Approaches to Establishing Bioequivalence (2001) |
+| `tests/be/test_study.py` | `TestBEStudyAnalyze::test_custom_be_limits` | NTI limits: T/R = 0.88 passes 80-125% but fails 90-111.11% via BEStudy API | EMA Guideline on the Investigation of Bioequivalence (2010); FDA NTI product guidance |
+| `tests/be/test_study.py` | `TestBEStudyFromNCA::test_from_nca_results_basic` | BEStudy.from_nca_results: GMR = 0.90 when test scale = 0.90 of reference | Degenerate sanity check (by definition) |
+| `tests/bayes/test_bayes_be.py` | `TestFrequentistCI::test_perfect_equivalence_gmr_near_one` | Frequentist 90% CI: GMR = 1.0 when T and R values are identical per subject | Degenerate sanity check (by definition) |
+| `tests/bayes/test_bayes_be.py` | `TestFrequentistCI::test_be_pass_for_low_cv_and_gmr_1` | Frequentist 90% CI within 80-125% when GMR=1.0, CV=10%, n=20 | FDA Guidance for Industry: BA/BE Studies for Orally Administered Drug Products (2003) |
+| `tests/bayes/test_bayes_be.py` | `TestFrequentistCI::test_be_fail_for_high_gmr` | Frequentist 90% CI exceeds 1.25 when GMR = 1.50 | FDA Guidance for Industry: BA/BE Studies for Orally Administered Drug Products (2003) |
+| `tests/bayes/test_bayes_be.py` | `TestFrequentistCI::test_ci_is_symmetric_on_log_scale` | 90% CI is symmetric on the log scale (correct t-distribution properties) | Schuirmann (1987); FDA Statistical Approaches guidance (2001) |
+| `tests/bayes/test_bayes_be.py` | `TestBayesBEFull::test_gmr105_cv15_n24_passes` | Full MCMC: P(BE) >= 0.70 for GMR=1.05, CV=15%, n=24 (PyMC required) | FDA Guidance for Industry: BA/BE Studies (2003) -- 80-125% limits; Grieve AP (1985). Biometrics, 41:979-90. DOI: 10.2307/2530971 |
+| `tests/bayes/test_bayes_be.py` | `TestBayesBEFull::test_gmr135_n24_fails` | Full MCMC: P(BE) < 0.30 for GMR=1.35 (outside 80-125% limits) | FDA Guidance for Industry: BA/BE Studies (2003) |
+| `tests/bayes/test_bayes_be.py` | `TestBayesBEFull::test_frequentist_and_bayesian_gmr_agree` | Bayesian and frequentist GMR estimates agree within 15% | Internal consistency check |
 
 ---
 
-### ML Surrogate Module (Experimental)
+## Population PK
 
-#### Physics-Informed Neural Network
-
-**Status:** Experimental - not validated against regulatory standards
-
-**Validation Tests:**
-- `tests/ml/test_surrogate.py`
-  - R² ≥ 0.95 vs analytical solutions (internal validation)
-  - Not recommended for regulatory submissions
-
----
-
-## Validation Methodology
-
-### Test Case Design
-
-1. **Degenerate Cases:** Edge cases with known exact answers (e.g., identical profiles, zero variability)
-2. **Regulatory Examples:** Numerical examples from FDA/EMA guidance documents
-3. **Textbook Validation:** Equations and worked examples from standard pharmacokinetics textbooks
-4. **Cross-Validation:** NCA vs simulation round-trip tests
-5. **Statistical Properties:** Confidence interval width, reproducibility, symmetry
-
-### Tolerance Criteria
-
-| Parameter | Tolerance | Rationale |
-|-----------|-----------|-----------|
-| f1, f2 | ±0.01 | Exact calculation |
-| AUC (linear) | ±0.01% | Numerical integration |
-| AUCinf | ±2% | Depends on λz estimation |
-| CL, Vz | ±2% (IV), ±5% (oral) | IV more precise, oral includes absorption variability |
-| t½ | ±2% | Depends on λz estimation |
-| BE CI width | ±0.001 | Statistical calculation |
-
-### Continuous Validation
-
-- **CI/CD:** All tests run on every commit (GitHub Actions)
-- **Coverage:** pytest-cov measures test coverage
-- **Benchmarking:** pytest-benchmark tracks performance regressions
-- **Version Compatibility:** Tested on Python 3.10, 3.11, 3.12
-
----
-
-## Limitations and Disclaimers
-
-1. **Open-Source Tool:** OpenPKFlow is an open-source research tool. Final regulatory interpretation should be reviewed by qualified formulation, pharmacokinetic, and regulatory experts.
-
-2. **Not a Replacement:** This tool does not replace expert regulatory judgment or validated commercial platforms (WinNonlin, Phoenix, SAS).
-
-3. **Experimental Modules:** ML surrogate module is experimental and not validated against regulatory standards.
-
-4. **Validation Scope:** Validation tests cover mathematical correctness and regulatory compliance, but do not cover all edge cases or real-world data quality issues.
-
-5. **Guidance Updates:** FDA/EMA guidance documents are periodically updated. Users should verify that their analyses comply with the most current guidance.
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/pop/test_gof.py` | `TestComputeIwres::test_degenerate_dv_equals_ipred` | IWRES = 0 when DV == IPRED (by definition) | Degenerate sanity check (by definition); Bauer RJ (2019) NONMEM Users Guide Part V -- IWRES formulation |
+| `tests/pop/test_gof.py` | `TestComputeIwres::test_proportional_formula` | IWRES = (DV - IPRED) / (sigma * IPRED) for proportional error model | Bauer RJ (2019) NONMEM Users Guide Part V |
+| `tests/pop/test_gof.py` | `TestObsPredMetrics::test_perfect_prediction_rmse_zero` | RMSE = 0 when DV == PRED (degenerate) | Degenerate sanity check (by definition) |
+| `tests/pop/test_gof.py` | `TestObsPredMetrics::test_perfect_prediction_r2_one` | R2 = 1 when DV == PRED (degenerate) | Degenerate sanity check (by definition) |
+| `tests/pop/test_gof.py` | `TestObsPredMetrics::test_known_rmse` | RMSE of [1,2,3] vs [2,2,2] = sqrt(2/3): hand-checkable | Internal consistency check |
+| `tests/pop/test_vpc.py` | `TestSimulateVPC::test_zero_sigma_seed_independent` | With sigma=0, different seeds produce identical VPC bands (deterministic simulation) | Degenerate sanity check; Bergstrand M et al. (2011). AAPS J, 13(2). VPC methodology |
+| `tests/pop/test_vpc.py` | `TestSimulateVPC::test_reproducible_with_seed` | Same seed produces identical VPC percentile bands | Internal consistency check |
+| `tests/pop/test_pop_vpc.py` | `TestVPCResultDataclass::test_creation_with_defaults` | VPCResult defaults: pi=(5.0, 50.0, 95.0), n_bins=8, n_replicates=500 | Bergstrand M et al. (2011). AAPS J, 13(2). Standard VPC percentile intervals |
+| `tests/pop/test_pop_vpc.py` | `TestSimulateVPC::test_returns_vpcresult`, `test_basic_output_shape` | simulate_vpc() returns VPCResult with correct bin count | Bergstrand M et al. (2011). AAPS J, 13(2). VPC methodology |
+| `tests/pop/test_pop_vpc.py` | `TestSimulateVPC::test_reproducible_with_seed` | Same seed produces identical sim_median arrays | Internal consistency check |
+| `tests/pop/test_pop_vpc.py` | `TestSimulateVPC::test_single_observation_no_crash`, `test_empty_dataframe_raises` | Edge cases: single observation produces NaN bins; empty DataFrame raises ValueError | Internal consistency check (input validation) |
+| `tests/pop/test_dataset.py` | `TestCreateNonmemDataset::test_basic_structure`, `test_evid_values`, `test_sorted_by_time`, `test_mdv_for_dose_records` | NONMEM-format dataset: correct EVID, MDV, column set, sorted by time | NONMEM dataset conventions: dose records EVID=1, MDV=1; observation records EVID=0, MDV=0 |
+| `tests/pop/test_dataset.py` | `TestLoadPopCSV::test_load_filters_evid`, `test_load_missing_column_raises` | Pop CSV loader: obs_only filter works; missing required columns raise ValueError | Internal consistency check; NONMEM dataset format |
+| `tests/pop/test_estimation_model.py` | `TestPopPKModelOral::test_basic_creation`, `test_2cmt_oral_creation` | PopPKModel creates correctly for 1-cmt and 2-cmt oral routes; n_theta = n_params + n_omega_diag + 2 | Internal consistency check |
+| `tests/pop/test_estimation_model.py` | `TestPopPKModelOral::test_missing_param_raises`, `test_wrong_omega_keys_raises`, `test_negative_value_raises`, `test_negative_sigma_raises`, `test_unsupported_route_raises`, `test_unsupported_n_cmt_raises` | Parameter validation: wrong keys, negative values, unsupported routes all raise ValueError | Internal consistency check (PK parameter constraints: all values > 0) |
+| `tests/pop/test_estimation_model.py` | `TestPopPKModelOral::test_to_theta_roundtrip`, `TestPopPKModelIV::test_to_theta_roundtrip_iv` | theta vector serialization/deserialization roundtrip preserves all parameter values | Internal consistency check |
+| `tests/pop/test_estimation_model.py` | `TestPopPKModelIV::test_frozen` | PopPKModel is a frozen dataclass (immutable after creation) | Internal consistency check |
+| `tests/pop/test_estimation_objective.py` | `TestPredictIndividual::test_oral_predict`, `test_iv_bolus_predict` | predict_individual() returns non-negative finite concentrations for oral and IV routes | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed. (Bateman equation and IV bolus) |
+| `tests/pop/test_estimation_objective.py` | `TestIndividualLogLikelihood::test_perfect_fit`, `test_small_params_still_finite` | Individual log-likelihood is finite for well-specified and edge-case parameters | Sheiner LB, Beal SL (1982). J Pharm Sci, 71:1344-8. DOI: 10.1002/jps.2600710906 |
+| `tests/pop/test_estimation_objective.py` | `TestIndividualPrior::test_zero_eta`, `test_nontrivial_eta` | Log-prior at eta=0 > log-prior at eta=[2,2] (correct Gaussian ordering) | Sheiner LB, Beal SL (1982). MAP Bayesian prior; Lindstrom MJ, Bates DM (1990) FOCE |
+| `tests/pop/test_estimation_objective.py` | `TestComputeLinearization::test_shape_and_finite` | compute_linearization() returns G matrix of shape (n_obs, n_params) with finite values | Lindstrom MJ, Bates DM (1990). Biometrics, 46:673-687 -- FOCE-I linearization |
+| `tests/pop/test_estimation_objective.py` | `TestComputeFoceMinus2ll::test_returns_finite_value` | FOCE minus-2-log-likelihood is finite and positive | Lindstrom MJ, Bates DM (1990). Biometrics, 46:673-687 |
+| `tests/pop/test_estimation_diagnostics.py` | `TestNumericalHessian::test_quadratic`, `test_symmetry` | Numerical Hessian recovers exact diagonal [4,6] for f=2x^2+3y^2; Hessian is symmetric | Degenerate sanity check (exact polynomial Hessian) |
+| `tests/pop/test_estimation_diagnostics.py` | `TestCheckHessian::test_positive_definite`, `test_not_positive_definite`, `test_high_condition_number_warns` | check_hessian identifies PD matrices, flags non-PD, warns on ill-conditioned | Internal consistency check (convergence diagnostics); NONMEM Users Guide Part V |
+| `tests/pop/test_estimation_diagnostics.py` | `TestComputeEBEShrinkage::test_full_shrinkage`, `test_no_shrinkage`, `test_single_subject` | EBE shrinkage = 1.0 when all EBEs are zero; shrinkage < 0.5 for well-estimated population | Savic RM, Karlsson MO (2009). AAPS J 11(3):558-569 -- EBE shrinkage definition and implications |
+| `tests/pop/test_foce_i.py` | `TestRunFoCEI::test_converges_iv` | FOCE-I algorithm converges on simulated IV data; estimated CL within [1, 20] | Lindstrom MJ, Bates DM (1990). Biometrics, 46:673-687 -- FOCE algorithm |
+| `tests/pop/test_foce_i.py` | `TestRunFoCEI::test_insufficient_subjects_raises` | run_foce_i() raises ValueError when fewer than 3 subjects | Internal consistency check (minimum data requirement) |
+| `tests/pop/test_foce_i.py` | `TestRunFoCEI::test_result_summary_to_df_ebe` | FoceIResult: summary contains "FOCE-I", AIC > 0, BIC >= AIC, EBE has eta_CL column | Internal consistency check; Akaike H (1974) AIC definition |
+| `tests/pop/test_foce_i.py` | `TestRunFoCEI::test_plot_and_report` | FOCE-I result generates HTML report with DOCTYPE or <html tag | Pharmacometric correctness rule 5 (reports include disclaimer and proper format) |
+| `tests/pop/test_saem.py` | `TestRunSAEM::test_converges_on_simulated_oral` | SAEM converges on simulated oral data; estimated CL_F within [1, 15] | Delyon B et al. (1999). Ann Stat, 27(1):94-128 -- SAEM algorithm convergence |
+| `tests/pop/test_saem.py` | `TestRunSAEM::test_insufficient_subjects_raises` | run_saem() raises ValueError when fewer than 3 subjects | Internal consistency check |
+| `tests/pop/test_saem.py` | `TestRunSAEM::test_iv_bolus_route` | SAEM works with iv_bolus route; converged field is bool | Internal consistency check |
+| `tests/pop/test_saem.py` | `TestSAEMKernel::test_m_step` | M-step: saem_m_step() returns (theta_pop, omega_diag, sigma_prop, sigma_add) from sufficient statistics | Delyon B et al. (1999). Ann Stat, 27(1):94-128 -- SAEM M-step |
+| `tests/pop/test_saem.py` | `TestSAEMKernel::test_sa_step_convergence` | SA step: eta_sum converges to < 0.01 after 20 stochastic approximation iterations | Delyon B et al. (1999). Ann Stat, 27(1):94-128 -- stochastic approximation step |
+| `tests/pop/test_saem.py` | `TestSAEMKernel::test_saem_mcmc_step` | MCMC step: saem_s_step_single_subject_mcmc returns finite eta of correct length | Delyon B et al. (1999). Ann Stat, 27(1):94-128 -- MCMC simulation step |
 
 ---
 
-## How to Cite Validation Sources
+## Bayesian PK
 
-When using OpenPKFlow for regulatory submissions, cite the original sources:
-
-```
-FDA (1997). Guidance for Industry: Dissolution Testing of Immediate Release
-Solid Oral Dosage Forms. CDER, U.S. Food and Drug Administration.
-
-Gibaldi M, Perrier D (1982). Pharmacokinetics, 2nd ed. Marcel Dekker, New York.
-
-Schuirmann DJ (1987). A comparison of the Two One-Sided Tests Procedure and
-the Power Approach for assessing the equivalence of average bioavailability.
-J Pharmacokinet Biopharm 15(6):657-680. DOI: 10.1007/BF01068419
-```
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/bayes/test_map_pk.py` | `TestMapOral::test_recovers_true_params_within_10pct` | MAP estimator recovers oral CL_F, Vz_F, ka within 10% from noiseless data | Sheiner LB, Beal SL (1982). J Pharm Sci, 71:1344-8. DOI: 10.1002/jps.2600710906 -- Bayesian individualization of PK |
+| `tests/bayes/test_map_pk.py` | `TestMapIV::test_recovers_true_params_within_10pct` | MAP estimator recovers IV CL and Vz within 10% from noiseless data | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., Ch. 3 |
+| `tests/bayes/test_map_pk.py` | `TestObjectiveSign::test_objective_is_negated_log_posterior` | MAP objective equals -(log_prior + log_likelihood) | Degenerate sanity check (definition of MAP objective) |
+| `tests/bayes/test_map_pk.py` | `TestObjectiveSign::test_objective_lower_at_true_than_at_bad_params` | MAP objective is lower at true parameter values than at deliberately bad values | Internal consistency check (MAP optimality condition) |
+| `tests/bayes/test_map_pk.py` | `TestPKPrior::test_log_prior_oral_sums_three_normals` | Log-normal prior for oral route sums three independent normal contributions | Degenerate sanity check (by definition of log-normal prior) |
+| `tests/bayes/test_map_pk.py` | `TestNumericalHessian::test_hessian_is_symmetric`, `test_hessian_positive_definite_at_true_params` | Hessian is symmetric and positive definite at true parameters (correct optimum) | Internal consistency check (MAP optimality; Fisher information matrix) |
+| `tests/bayes/test_map_pk.py` | `TestDiagnostics::test_uncertainty_reliable_on_clean_data` | Uncertainty flag is True when clean data and well-centered priors are used | Internal consistency check |
 
 ---
 
-## Contributing Validation Tests
+## Simulation
 
-When adding new tests, follow this format:
-
-```python
-def test_function_name():
-    """Test description.
-
-    Reference:
-    - FDA Guidance (Year): Section/page
-    - Gibaldi & Perrier (1982): Equation X-Y
-    - DOI: 10.xxxx/xxxxx
-    """
-    # Test implementation
-    assert result == pytest.approx(expected, tolerance)
-```
-
-All validation tests should include:
-1. Clear reference to regulatory guidance or published source
-2. Hand-calculable expected values where possible
-3. Appropriate tolerance based on numerical precision requirements
-4. Documentation in this VALIDATION.md file
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/sim/test_methods.py` | `TestC1CmtIVBolus::test_at_t0_equals_dose_over_vz` | C(0) = D/Vz for 1-cmt IV bolus (initial condition) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-2 |
+| `tests/sim/test_methods.py` | `TestC1CmtIVBolus::test_mono_exponential_decay` | C(t) = (D/Vz)*exp(-k*t) with k=CL/Vz: exact formula match | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-2 |
+| `tests/sim/test_methods.py` | `TestC1CmtIVBolus::test_half_life_halving` | Concentration halves at t = ln(2)/(CL/Vz) | Degenerate sanity check (by definition of half-life) |
+| `tests/sim/test_methods.py` | `TestC1CmtIVInfusion::test_at_t0_is_zero` | C(0) = 0 for constant-rate infusion (no drug delivered at t=0) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 2-1 |
+| `tests/sim/test_methods.py` | `TestC1CmtIVInfusion::test_during_infusion_formula`, `test_after_infusion_formula` | Infusion formula during and post-infusion phases: exact equation match | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 2-1 |
+| `tests/sim/test_methods.py` | `TestC1CmtIVInfusion::test_continuity_at_t_inf` | PK profile is continuous at the end of infusion | Internal consistency check (physical constraint) |
+| `tests/sim/test_methods.py` | `TestC1CmtOral::test_bateman_equation` | 1-cmt oral Bateman equation: C(t) = D*ka/(Vz_F*(ka-k))*(exp(-k*t)-exp(-ka*t)) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-13 |
+| `tests/sim/test_methods.py` | `TestC1CmtOral::test_flip_flop_case` | L'Hopital limit when ka == k: C(t) = (D*k/Vz_F)*t*exp(-k*t) | L'Hopital's rule applied to Gibaldi & Perrier Eq. 1-13 as ka -> k |
+| `tests/sim/test_methods.py` | `TestC2CmtIVBolus::test_at_t0_equals_dose_over_v1` | 2-cmt IV bolus: C(0) = D/V1 (sum of bi-exponential coefficients) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 3-1 |
+| `tests/sim/test_methods.py` | `TestC2CmtIVBolus::test_biexponential_shape` | 2-cmt IV bolus: C(t) = A*exp(-alpha*t) + B*exp(-beta*t) exact match | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 3-1 and 3-2 |
+| `tests/sim/test_methods.py` | `TestC2CmtIVBolus::test_collapses_to_1cmt_when_q_near_zero` | As Q -> 0, 2-cmt IV bolus converges to 1-cmt IV bolus | Internal consistency check (limiting behavior) |
+| `tests/sim/test_methods.py` | `TestC2CmtIVInfusion::test_during_infusion_formula` | 2-cmt IV infusion formula during infusion: biexponential ramp | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 3-28 to 3-30, p. 75 |
+| `tests/sim/test_methods.py` | `TestC2CmtIVInfusion::test_steady_state_plateau_equals_r0_over_cl` | At t >> half-lives, C_ss = R0/CL (steady-state relationship) | Derived from 2-cmt system: alpha*beta = k10*k21; C_ss = R0/CL |
+| `tests/sim/test_methods.py` | `TestC2CmtIVInfusion::test_short_infusion_approaches_bolus` | Very short infusion converges to IV bolus solution for t >> t_inf | Internal consistency check (limiting case as t_inf -> 0) |
+| `tests/sim/test_methods.py` | `TestC2CmtOral::test_three_exponential_coefficients_sum_to_zero` | Three-exponential coefficient sum = 0 (verifies C(0)=0 for oral dosing) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 4-4 (Laplace partial fractions) |
+| `tests/sim/test_methods.py` | `TestSuperpose::test_two_dose_superposition` | Superposition of two doses equals sum of individual contributions | Internal consistency check (linear system superposition principle) |
+| `tests/sim/test_simulate.py` | `TestSimulate1Cmt::test_iv_bolus_single_dose` | simulate() result: C(0) = D/Vz for IV bolus (matches analytical formula) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-2 |
+| `tests/sim/test_simulate.py` | `TestSimulate1Cmt::test_oral_single_dose` | simulate() result: C(0) = 0 and Tmax > 0 for oral dose | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-13 (Bateman) |
+| `tests/sim/test_simulate.py` | `TestSimulate1Cmt::test_repeated_iv_bolus_accumulation` | Multiple IV bolus doses accumulate: Cmax after dose 5 > Cmax after dose 1 | Internal consistency check (superposition and accumulation) |
+| `tests/sim/test_simulate.py` | `TestSimulate1Cmt::test_half_life_matches_model` | Simulated concentration at t = t1/2 equals C0/2 within 1% | Degenerate sanity check (by definition of half-life) |
+| `tests/sim/test_simulate.py` | `TestSimulate1Cmt::test_route_mismatch_raises`, `test_empty_times_raises`, `test_pre_dose_warning` | Input validation: route mismatch, empty times, pre-dose times each raise or warn appropriately | Internal consistency check (input validation) |
+| `tests/sim/test_simulate.py` | `TestSimulate2Cmt::test_iv_bolus_c0`, `test_oral_c0_is_zero`, `test_biexponential_decline_faster_initially` | 2-cmt simulate() correct initial conditions and biexponential shape | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 3-1 to 3-2 and 4-4 |
+| `tests/sim/test_simulate.py` | `TestSimulationResult::test_cmax_tmax_consistent`, `test_summary_is_str`, `test_to_dataframe_columns`, `test_report_html_returns_str` | SimulationResult methods: Cmax/Tmax correct, summary/DataFrame/HTML report all work | Internal consistency check |
+| `tests/sim/test_sim_models.py` | `TestOneCompartmentModelIVBolus::test_half_life` | t1/2 = ln(2)/(CL/Vz): exact formula match for IV routes | Degenerate sanity check (by definition); Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed. |
+| `tests/sim/test_sim_models.py` | `TestOneCompartmentModelOral::test_half_life` | t1/2 = ln(2)/(CL_F/Vz_F) for oral route | Degenerate sanity check (apparent half-life for oral route) |
+| `tests/sim/test_sim_models.py` | `TestOneCompartmentModelIVBolus::test_missing_cl_raises`, `test_missing_vz_raises`, `test_negative_cl_raises`, `test_rejects_oral_params` | Parameter validation: missing required params, negative values, wrong-route params raise ValueError | Pharmacometric correctness rule 3 (apparent vs absolute parameter labeling) |
+| `tests/sim/test_sim_models.py` | `TestOneCompartmentModelOral::test_rejects_iv_params` | Oral model rejects CL or Vz (IV params); requires CL_F, Vz_F, ka | Pharmacometric correctness rule 3 |
+| `tests/sim/test_sim_models.py` | `TestModelImmutability::test_one_compartment_is_immutable`, `test_two_compartment_is_immutable` | Both model classes are frozen dataclasses (immutable after creation) | Internal consistency check |
+| `tests/sim/test_roundtrip_nca.py` | `TestRoundTripNCA::test_1cmt_iv_bolus_cl_vz_roundtrip` | Simulate IV bolus then run NCA: recovered CL and Vz within 2% of model parameters | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., pp. 42-48 |
+| `tests/sim/test_roundtrip_nca.py` | `TestRoundTripNCA::test_1cmt_oral_clfz_vzfz_roundtrip` | Simulate oral then run NCA: recovered CL_F and Vz_F within 2% | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., pp. 55-62 |
+| `tests/sim/test_roundtrip_nca.py` | `TestRoundTripNCA::test_1cmt_iv_bolus_half_life_roundtrip` | Recovered half-life matches model half-life within 1% | Rowland M, Tozer TN (2011). Clinical Pharmacokinetics 4th ed., p. 43 |
+| `tests/validation/test_sim_validation.py` | `TestGibaldiPerrier1CmtIVBolus::test_c_at_half_life_is_half_c0`, `test_aucinf_equals_dose_over_cl` | 1-cmt IV bolus: C(t1/2) = C0/2 (exact); AUCinf = Dose/CL (exact) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 1-2 and 1-4 |
+| `tests/validation/test_sim_validation.py` | `TestGibaldiPerrier1CmtOral::test_auc_fraction_at_two_half_lives`, `test_tmax_formula` | 1-cmt oral: AUC fraction at 2 t1/2 verified; Tmax = ln(ka/k)/(ka-k) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 1-13 and 1-16 |
+| `tests/validation/test_sim_validation.py` | `TestGibaldiPerrier2CmtIVBolus::test_at_t0_equals_dose_over_v1` | 2-cmt IV bolus: C(0) = D/V1 | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 3-1 |
+| `tests/validation/test_sim_validation.py` | `TestGibaldiPerrier2CmtIVInfusion::test_aucinf_independent_of_t_inf` | 2-cmt IV infusion: AUCinf is independent of infusion duration t_inf (same total dose) | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eqs. 3-28 to 3-30 |
 
 ---
 
-**Last Updated:** 2026-05-22
-**Maintainer:** Priyam Thakar (priyamthakar1@gmail.com)
+## ML Surrogate (Experimental)
+
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/ml/test_surrogate.py` | `TestPKSurrogate::test_loss_decreases_during_training` | Training loss must decrease over 100 epochs on 1-cmt oral synthetic data | Synthetic truth: 1-cmt oral Bateman equation. Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-14. EXPERIMENTAL -- not for regulatory use. |
+| `tests/ml/test_surrogate.py` | `TestPKSurrogate::test_loss_reduces_substantially` | After 200 epochs, final loss < 50% of initial loss | Internal consistency check (model learning criterion). EXPERIMENTAL. |
+| `tests/ml/test_surrogate.py` | `TestPKSurrogate::test_analytical_correlation` | Surrogate predictions correlate with analytical truth (r > 0.90) on hold-out profile | Gibaldi M, Perrier D (1982). Pharmacokinetics 2nd ed., Eq. 1-14. EXPERIMENTAL. |
+| `tests/ml/test_surrogate.py` | `TestPKSurrogate::test_predict_non_negative` | Surrogate returns non-negative concentrations | Internal consistency check (physical constraint). EXPERIMENTAL. |
+
+---
+
+## Infrastructure
+
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/test_cli.py` | `test_version` | `openpkflow version` prints the package version string | Internal consistency check |
+| `tests/test_cli.py` | `test_similarity_command` | `openpkflow similarity` with identical profiles yields f2 = 100 (by definition) | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) -- f2 = 100 when R == T |
+| `tests/test_cli.py` | `test_similarity_similar_profiles`, `test_similarity_invalid_input`, `test_similarity_non_numeric_input` | CLI reports f2 >= 50 for similar profiles; exits 1 on mismatched lengths; exits 1 on non-numeric input | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) -- f2 >= 50 indicates similarity |
+| `tests/test_cli.py` | `test_dissolution_compare`, `test_dissolution_compare_missing_formulation`, `test_dissolution_compare_mismatched_timepoints` | `openpkflow dissolution compare` prints f1/f2; exits 1 on missing formulation or mismatched time points | FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997) |
+| `tests/test_benchmark.py` | All `test_*_benchmark` functions | Benchmarks for dissolution (f1, f2, bootstrap, model fitting), NCA (AUC methods, lambda_z, sparse), sim (1-cmt, 2-cmt, simulate, repeated dosing), IVIVC, MAP Bayesian, BE TOST at realistic dataset sizes | Performance regression guard -- no external regulatory reference |
+| `tests/report/test_pdf.py` | `TestComparisonPDF::test_pdf_magic_bytes`, `test_returns_bytes`, `test_minimum_size` | Dissolution comparison PDF output starts with %PDF-; bytes non-empty; size > 1024 B | ISO 32000 PDF specification; openpkflow[reports] optional extra (reportlab >= 4.0) |
+| `tests/report/test_pdf.py` | `TestModelFitPDF::test_returns_bytes` | Dissolution model-fit PDF renders from fit_rows and base64 plot | Costa P, Lobo JMS (2001). DOI: 10.1016/S0928-0987(01)00095-1; ISO 32000 |
+| `tests/report/test_pdf.py` | `TestPDFImportGuard::test_import_guard_message` | ImportError with `pip install openpkflow[reports]` hint when reportlab is absent | Internal consistency check (optional extra guard) |
+| `tests/report/test_docx.py` | `TestComparisonDOCX::test_docx_magic_bytes`, `test_roundtrip_disclaimer` | DOCX output starts with PK\x03\x04 ZIP header; rendered document contains "OpenPKFlow" and "regulatory" | ECMA-376 Office Open XML standard; Pharmacometric correctness rule 5 (disclaimer required) |
+| `tests/report/test_docx.py` | `TestModelFitDOCX::test_roundtrip_disclaimer`, `test_failed_models_noted` | Model-fit DOCX includes disclaimer and notes failed/unconverged models | Pharmacometric correctness rule 5; Costa P, Lobo JMS (2001) |
+| `tests/report/test_docx.py` | `TestDOCXImportGuard::test_import_guard_message` | ImportError with `pip install openpkflow[reports]` hint when python-docx is absent | Internal consistency check (optional extra guard) |
+
+---
+
+## Notes
+
+### Validation Discipline
+
+Every formula function in OpenPKFlow has at minimum two test cases: (1) a degenerate
+or sanity case with a hand-checkable answer, and (2) a published reference case with
+the source cited in the test docstring or in this table.
+
+Degenerate sanity cases are labeled "Degenerate sanity check (by definition)" when
+the answer follows directly from the mathematical definition (e.g., f2 = 100 when
+profiles are identical, IWRES = 0 when DV = IPRED). Internal consistency checks are
+labeled "Internal consistency check" when tests verify self-consistency of round-trip
+math or limiting behavior, without an independent published expected value.
+
+Tests labeled EXPERIMENTAL (ml/surrogate) are excluded from regulatory claims. The
+PKSurrogate class carries an explicit EXPERIMENTAL disclaimer in all outputs.
+
+### Key References
+
+- **FDA (1997a)** -- FDA Guidance for Industry: Dissolution Testing of Immediate Release Solid Oral Dosage Forms. CDER, U.S. Food and Drug Administration. Covers f1, f2 similarity factor, the 50-point threshold, the 85% trimming rule, and coefficient of variation limits.
+- **FDA (1997b)** -- FDA Guidance for Industry: Extended Release Oral Dosage Forms: Development, Evaluation, and Application of In Vitro/In Vivo Correlations. CDER. Covers IVIVC Level A, Wagner-Nelson method, Loo-Riegelman method, %PE criteria (mean <= 10%), and Level A predictability requirements.
+- **FDA (2001)** -- FDA Guidance for Industry: Statistical Approaches to Establishing Bioequivalence. CDER. Covers TOST, 90% CI, and the 80-125% acceptance window.
+- **FDA (2003)** -- FDA Guidance for Industry: Bioavailability and Bioequivalence Studies for Orally Administered Drug Products -- General Considerations. CDER. Covers NCA parameter definitions, AUC methods, extrapolation criteria, and BE study design.
+- **ICH M13B (2024)** -- ICH Guideline M13B: Bioequivalence Studies for Immediate-Release Solid Oral Dosage Forms. Specifies RSD <= 8% at timepoints where mean dissolution is <= 60% as a dissolution variability criterion.
+- **Shah VP et al. (1998)** -- Shah VP, Tsong Y, Sathe P, Liu J-P. In vitro dissolution profile comparison -- statistics and analysis of the similarity factor, f2. Pharm Res, 15(6):889-896. Bootstrap f2 methodology for comparing dissolution profiles when CV is high.
+- **Schuirmann DJ (1987)** -- A comparison of the Two One-Sided Tests Procedure and the Power Approach for assessing the equivalence of average bioavailability. J Pharmacokinet Biopharm, 15(6):657-680. DOI: 10.1007/BF01068419. Original TOST derivation.
+- **Gibaldi M, Perrier D (1982)** -- Pharmacokinetics, 2nd ed. Marcel Dekker, New York. Source of compartmental PK equations (1-cmt IV bolus Eq. 1-2, 1-cmt oral Bateman Eq. 1-13, 2-cmt IV bolus Eqs. 3-1 to 3-2, IV infusion Eqs. 2-1 and 3-28 to 3-30, 2-cmt oral Eq. 4-4), Wagner-Nelson derivation, and NCA parameter relationships.
+- **Rowland M, Tozer TN (2011)** -- Clinical Pharmacokinetics and Pharmacodynamics: Concepts and Applications, 4th ed. Lippincott Williams & Wilkins. Source of NCA parameter relationships (CL = Dose/AUCinf, Vz, t1/2), steady-state parameters, urinary excretion parameters, and renal clearance.
+- **Wagner JG, Nelson E (1963)** -- Percentage absorbed-time plots derived from blood level and urinary excretion data. J Pharm Sci, 52(6):610-611. DOI: 10.1002/jps.2600520624. Original Wagner-Nelson deconvolution method.
+- **Loo JCK, Riegelman S (1968)** -- New method for calculating the intrinsic absorption rate of drugs. J Pharm Sci, 57(6):918-928. DOI: 10.1002/jps.2600570602. Original Loo-Riegelman deconvolution method.
+- **Costa P, Lobo JMS (2001)** -- Modeling and comparison of dissolution profiles. Eur J Pharm Sci, 13(2):123-133. DOI: 10.1016/S0928-0987(01)00095-1. Source for zero-order, first-order, Higuchi, Korsmeyer-Peppas, and Weibull dissolution model equations and parameter interpretation.
+- **Sheiner LB, Beal SL (1982)** -- Bayesian individualization of pharmacokinetics: simple implementation and comparison with non-Bayesian methods. J Pharm Sci, 71:1344-1348. DOI: 10.1002/jps.2600710906. MAP estimation foundation for Bayesian PK.
+- **Grieve AP (1985)** -- A Bayesian analysis of the two-period crossover design for clinical trials. Biometrics, 41:979-990. DOI: 10.2307/2530971. Bayesian crossover BE analysis.
+- **Lindstrom MJ, Bates DM (1990)** -- Nonlinear mixed effects models for repeated measures data. Biometrics, 46:673-687. FOCE and FOCE-I algorithm for population PK estimation.
+- **Delyon B, Lavielle M, Moulines E (1999)** -- Convergence of a stochastic approximation version of the EM algorithm. Ann Stat, 27(1):94-128. SAEM algorithm theoretical foundation.
+- **Savic RM, Karlsson MO (2009)** -- Importance of shrinkage in empirical Bayes estimates for diagnostics: problems and solutions. AAPS J, 11(3):558-569. EBE shrinkage definition and interpretation.
+- **Pinheiro JC, Bates DM (2000)** -- Mixed-effects models in S and S-PLUS. Springer, New York. Source of R nlme::Theoph theophylline dataset used for NCA reference validation.
+- **Phoenix WinNonlin User Guide** -- NCA parameter definitions: lambda_z BAR-squared auto-selection, AUCinf extrapolation, CL_F/Vz_F for oral route.
+- **Bergstrand M et al. (2011)** -- Prediction-corrected visual predictive checks for diagnosing nonlinear mixed-effects models. AAPS J, 13(2). VPC methodology.
+- **CDISC SDTM Implementation Guide v3.4** -- Pharmacokinetic Parameters (PP) domain: PPTESTCD codes (AUCLST, AUCIFO, CMAX, TMAX, LAMZ, LAMZHL, AUCPEP), PPSPEC = PLASMA, one row per subject per parameter.
+- **EMA (2010)** -- EMA Guideline on the Investigation of Bioequivalence. CHMP/EWP/QWP/1401/98 Rev. 1. Covers NTI narrow therapeutic index products with stricter 90-111.11% acceptance limits.
+- **Bauer RJ (2019)** -- NONMEM Users Guide, Part V: Conditional Estimation Methods. ICON plc. IWRES formula and EBE diagnostics.
