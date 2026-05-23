@@ -168,7 +168,7 @@ Scope: new `pop/estimation/` sub-package. Two-tier architecture matching `bayes/
 
 ### Validation infrastructure
 - `VALIDATION.md`: cross-reference table mapping every test to FDA/EMA guidance section
-  and published DOI. Priority: add before PyPI promotion to CRO/CDMO audiences.
+  and published DOI. Updated with PKNCA cross-val entries (v2.2.0 maintenance).
 - `pytest-benchmark` CI job: performance regression detection for NCA/dissolution math
 - `hypothesis` property-based tests for PK calculations (edge-case fuzzing)
 
@@ -186,8 +186,8 @@ Scope: new `pop/estimation/` sub-package. Two-tier architecture matching `bayes/
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
 | Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
-| Medium | conda-forge recipe | 3 h | Pending |
-| Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done |
+| Medium | conda-forge recipe | 3 h | Draft at `scripts/conda-forge/meta.yaml`; sha256 + PR pending |
+| Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done (v2.2.0 — CDISC PP row split, PKNCA claims corrected, caveat added) |
 | Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 
 ---

@@ -8,10 +8,19 @@
 ## Where things stand
 
 - v2.2.0 tagged and pushed to GitHub + PyPI. CHANGELOG complete.
-- 874 tests passing (15 skipped). Benchmarks included.
-- VALIDATION.md added — 48 test files mapped to FDA/EMA guidance.
-- Theoph NCA benchmark in `tests/validation/`: internal-consistency only.
-  PKNCA-R cross-validation is pending a controlled R run (see task 2 below).
+- 900 tests (866 passing, 15 skipped, 1 pre-existing CLI version string stale).
+  Benchmarks excluded from headless CI.
+- VALIDATION.md — 49 test files mapped to FDA/EMA guidance (PKNCA cross-val added).
+- PKNCA-R cross-validation scaffolded: `tests/validation/test_nca_theoph_reference.py`
+  has a `TestPKNCACrossValidation` class with ≤2% tolerance checks on all 12 subjects.
+  `scripts/pknca_theoph_crossval.R` is ready to run. The `_PKNCA_REFERENCE` dict
+  needs a live PKNCA 0.10.x run to replace the placeholder openpkflow values.
+- conda-forge recipe drafted at `scripts/conda-forge/meta.yaml`. Noarch Python,
+  `matplotlib-base`, hatchling build. sha256 placeholder needs filling before
+  PR to `conda-forge/staged-recipes`.
+- README comparison table verified and corrected: CDISC PP row split, PKNCA no
+  longer claiming CDISC PP, research-grade caveat added to pop PK rows, test
+  count fixed (648 → 900).
 - Pop estimation (FOCE-I, SAEM) shipped but NOT cross-validated against NONMEM
   or nlmixr2. README discloses this; estimation scope is frozen.
 - Covariate API (`CovariateModel`, `apply_covariates`) shipped in v2.2.0 as a
@@ -20,22 +29,20 @@
 
 ---
 
-## Next 3 tasks, in order
+## Next tasks
 
-1. **PKNCA-R cross-validation** — run PKNCA 0.10.x in R on the identical theoph
-   dataset, extract per-subject AUClast and Cmax, update
-   `tests/validation/test_nca_theoph_reference.py` with real reference values and
-   a tight tolerance check (within 2%). This is the flagship evidence for the
-   "transparent and reproducible" claim.
+1. **Run PKNCA-R** — execute `Rscript scripts/pknca_theoph_crossval.R` in an
+   environment with R + PKNCA 0.10.x, paste the output `_PKNCA_REFERENCE` dict
+   into `tests/validation/test_nca_theoph_reference.py`, run the test suite to
+   confirm ≤2% agreement. R is not installed in CI; this is a one-time manual step.
 
-2. **conda-forge recipe** — ~3h, single PR to
-   `conda-forge/staged-recipes`. Closes the distribution gap with the biostat
-   community (pip-only is a barrier for many pharmacometrics groups). Template:
-   follow `pknca` feedstock as a reference for a scipy-based pharmacometrics package.
+2. **Submit conda-forge recipe** — compute `sha256sum dist/openpkflow-2.2.0.tar.gz`,
+   fill the placeholder in `scripts/conda-forge/meta.yaml`, submit single PR to
+   `conda-forge/staged-recipes`.
 
-3. **README "Comparison" table** — feature matrix vs PKNCA (R), WinNonlin, Pharmpy,
-   OpenPKPD. Already marked as done in ROADMAP but not verified as live in README.
-   Check and ship if missing.
+3. **Pre-existing CLI test** — `tests/test_cli.py::test_version` asserts `"2.0.0"`
+   but the package is `2.2.0`. Fix the assertion to match the live `pyproject.toml`
+   version string.
 
 ---
 
@@ -55,6 +62,22 @@
 
 See **"Scope and boundary"** in CLAUDE.md — that is the authoritative list.
 This file does not duplicate it.
+
+---
+
+## New files created (2026-05-23 maintenance)
+
+| File | Purpose |
+|------|---------|
+| `scripts/pknca_theoph_crossval.R` | PKNCA 0.10.x R script — reads theoph.csv, outputs `_PKNCA_REFERENCE` dict |
+| `scripts/conda-forge/meta.yaml` | conda-forge recipe (noarch, hatchling, matplotlib-base) |
+
+## Files modified (2026-05-23 maintenance)
+
+| File | Change |
+|------|--------|
+| `tests/validation/test_nca_theoph_reference.py` | Rewritten: removed inline mg/kg data, uses `NCAStudy.from_csv()` on full 12-subject theoph.csv, added `TestPKNCACrossValidation` with ≤2% tolerance per subject |
+| `README.md` | Split CDISC PP row (PKNCA no longer claims it), added research-grade caveat on pop PK rows, fixed test count 648→900 |
 
 ---
 

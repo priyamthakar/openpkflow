@@ -14,9 +14,11 @@ runner = CliRunner()
 
 def test_version() -> None:
     """openpkflow version prints the package version string."""
+    from openpkflow import __version__
+
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
-    assert "2.0.0" in result.output
+    assert __version__ in result.output
 
 
 def test_similarity_command() -> None:

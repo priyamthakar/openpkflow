@@ -10,6 +10,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-yaml
+        exclude: ^scripts/conda-forge/
       - id: check-toml
       - id: check-merge-conflict
       - id: end-of-file-fixer

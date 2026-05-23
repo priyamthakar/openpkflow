@@ -50,7 +50,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install in editable mode with dev tools
 pip install -e ".[dev]"
 
-# Run all tests
+# Run all tests (exclude benchmarks in headless CI)
+pytest --ignore=tests/test_benchmark.py
+
+# Run with benchmarks
 pytest
 
 # Run tests with coverage
