@@ -130,12 +130,34 @@ Scope: `bayes/` module. Architecture Decision Record: `V2_ARCHITECTURE_DECISION.
 
 ---
 
+### v2.1.0 -- FOCE-I & SAEM Population PK ✅ DONE (2026-05-23)
+
+Scope: new `pop/estimation/` sub-package. Two-tier architecture matching `bayes/` pattern.
+1-cmt models (oral + IV bolus), diagonal Ω, combined error.
+
+**Architecture:** `pop/estimation/` sub-package (11 files, ~4,500 lines).
+
+- `PopPKModel` frozen dataclass: structural + statistical model, `to_theta()`/`from_theta()` pack/unpack ✅
+- `run_foce_i()`: scipy tier (zero new deps), L-BFGS-B outer loop, per-subject EBE inner loop,
+  FOCE-I linearized -2LL, 10 fail-closed diagnostics from `bayes/map_pk.py` ported ✅
+- `run_saem()`: PyMC tier (`[bayes]` extra), Metropolis S-step, Robbins-Monro SA-step with γ=1/k^α,
+  analytical M-step, numpy MCMC fallback, `_require_saem()` import guard ✅
+- `PopPKResult` dataclass: `.summary()`, `.to_dataframe()`, `.to_dict()`, `.plot()`, `.report()` ✅
+- 6-panel pop PK diagnostic plot: OBS vs PRED/IPRED, CWRES vs TIME/PRED, EBE histograms + pairs ✅
+- HTML/Markdown reports with embedded plots, parameter tables, warnings, disclaimer ✅
+- CLI: `openpkflow pop foce-i` and `openpkflow pop saem` (Typer subcommands) ✅
+- Tests: 47 new tests (model, diagnostics, objective, FOCE-I integration, SAEM integration) ✅
+
+**Deferred to v2.2.0:** 2-cmt models, full Ω block matrix, covariates, PDF/DOCX reports.
+
+---
+
 ## Cross-cutting workstreams (parallel to milestones)
 
 ### Documentation
 - Fix dead GitHub Pages link (priyamthakar.github.io/openpkflow -- currently 404)
   **This is the single highest-priority quick-win.**
-- MkDocs tutorials for BE, IVIVC modules as they ship
+- MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship
 - Theory guide: derivations for each formula module (regulatory review support)
 - "Coming from WinNonlin/NONMEM" migration cheatsheet
 
