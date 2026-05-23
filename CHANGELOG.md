@@ -11,6 +11,40 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.2.0] — 2026-05-23
+
+### Added
+
+**Population PK -- 2-compartment models, full Omega matrix, covariate support**
+- `pop/estimation/model.py` -- `PopPKModel` extended: `n_cmt` field (1 or 2), `omega_type` field ("diagonal" or "full"), `covariate_model` field; `to_theta()`/`from_theta()` handle full log-Cholesky Omega parameterization and covariate beta packing
+- `pop/estimation/omega.py` -- `log_cholesky_to_omega()`, `omega_to_log_cholesky()`, `extract_omega_cov_dict()`: log-Cholesky Omega parameterization enforcing positive-definiteness; off-diagonal SEs via delta method
+- `pop/estimation/covariate.py` -- `CovariateDef`, `CovariateModel`, `apply_covariates()`, `pack_betas()`/`unpack_betas()`: exponential covariate model on population PK parameters; continuous and categorical covariates
+- `pop/estimation/objective.py` -- extended 4-way dispatch `(route, n_cmt)` supporting 2-cmt oral and IV bolus; `predict_individual()` passes `n_cmt` through to `sim/` analytical solutions
+- `pop/estimation/foce_inner.py` -- `compute_ebe()` and `compute_all_ebe()` pass `n_cmt` to objective; full Omega propagated via Cholesky
+- `pop/estimation/foce_i.py` -- outer loop constructs full Omega via `log_cholesky_to_omega()`; extended SEs include off-diagonal Omega elements and covariate betas
+- `pop/estimation/saem_kernel.py` -- S-step and M-step return full Omega matrix; eigenvalue clipping enforces PD in SA accumulation step
+- `pop/estimation/saem.py` -- SAEM orchestrator stores full Omega chain; covariate-aware M-step; `n_cmt` dispatch
+- `pop/estimation/result.py` -- `PopPKResult` extended: `omega_off_diag`, `omega_off_se`, `covariate_betas` fields; `.summary()` and `.to_dataframe()` render covariate and full Omega tables
+- `pop/estimation/reporting.py` -- HTML/Markdown report templates updated for covariate coefficient table and off-diagonal Omega correlation matrix
+
+## [2.1.0] — 2026-05-23
+
+### Added
+
+**Population PK -- FOCE-I and SAEM estimation**
+- `pop/estimation/` -- new sub-package (11 files) implementing two-tier population PK estimation
+- `pop/estimation/model.py` -- `PopPKModel` frozen dataclass: structural model definition, `to_theta()`/`from_theta()` for optimizer packing/unpacking, parameter bounds
+- `pop/estimation/foce_i.py` -- `run_foce_i()`: L-BFGS-B outer loop, per-subject EBE inner loop, FOCE-I linearized -2LL, 10 fail-closed diagnostics (convergence, gradient norm, Hessian PD, condition number, at-bound, multi-start agreement), delta-method SEs via inverse Hessian; zero new dependencies
+- `pop/estimation/saem.py` -- `run_saem()`: Robbins-Monro SA-step with gamma=1/k^alpha, analytical M-step, PyMC Metropolis S-step (`[bayes]` extra), pure-numpy MCMC fallback; `_require_saem()` import guard
+- `pop/estimation/result.py` -- `PopPKResult`: `.summary()`, `.to_dataframe()`, `.to_dict()`, `.plot()`, `.report()` methods; -2LL, AIC, BIC, RSE%, EBE shrinkage
+- `pop/estimation/plotting.py` -- 6-panel pop PK diagnostic figure: OBS vs PRED, OBS vs IPRED, CWRES vs TIME, CWRES vs PRED, EBE histograms, EBE pairs
+- `pop/estimation/reporting.py` -- HTML and Markdown reports with embedded diagnostic plots, parameter tables, warnings section, disclaimer
+- `pop/__init__.py` -- exports `PopPKModel`, `PopPKResult`, `run_foce_i`, `run_saem`
+- CLI: `openpkflow pop foce-i` and `openpkflow pop saem` Typer subcommands
+- 47 new tests across `tests/pop/`
+
+---
+
 ## [2.0.0] — 2026-05-22
 
 ### Added
