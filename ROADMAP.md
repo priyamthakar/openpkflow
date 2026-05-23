@@ -20,7 +20,7 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | OpenPKFlow ✅ |
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
-| Formal RSABE / replicate-design BE | :x: (planned v2.x) |
+| Formal RSABE / replicate-design BE | Planned in BioEqPy (companion package) |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse NCA (model-informed AUC from 2-5 samples) | OpenPKFlow ✅ |
 
