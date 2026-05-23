@@ -9,7 +9,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from openpkflow.ivivc.results import IVIVCResult
     from openpkflow.nca.results import NCAResult, NCASummaryResults
+    from openpkflow.pop.gof import GOFResult
+    from openpkflow.pop.vpc import VPCResult
 
 _DISCLAIMER = (
     "This report was generated using OpenPKFlow — an open-source Python workflow "
@@ -841,7 +844,7 @@ def render_sim_docx_report(
 
 def render_ivivc_docx_report(
     *,
-    result: object,
+    result: IVIVCResult,
     output_path: str | Path | None = None,
 ) -> bytes:
     """Render an IVIVC Word document report.
@@ -1039,7 +1042,7 @@ def render_ivivc_docx_report(
 
 def render_gof_docx_report(
     *,
-    result: object,
+    result: GOFResult,
     output_path: str | Path | None = None,
 ) -> bytes:
     """Render a population PK GOF Word document report.
@@ -1126,7 +1129,7 @@ def render_gof_docx_report(
 
 def render_vpc_docx_report(
     *,
-    result: object,
+    result: VPCResult,
     output_path: str | Path | None = None,
 ) -> bytes:
     """Render a VPC Word document report.

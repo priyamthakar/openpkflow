@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import pandas as pd
 
@@ -237,7 +237,7 @@ class BEStudy:
 
         tost = be_tost(ref_vals, tst_vals, be_lower=be_lower, be_upper=be_upper, alpha=alpha)
 
-        subj_data: dict[str, list[object]] = {
+        subj_data: dict[str, Any] = {
             "subject": self._df[self._subject_col].tolist(),
             "reference": ref_vals,
             "test": tst_vals,

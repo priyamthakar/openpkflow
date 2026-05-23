@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import pandas as pd
 
@@ -260,7 +260,12 @@ class NCAStudy:
 
                 aucinf = auc_inf_obs(auclast_val, clast_obs, lz_result)
                 pct_extrap = auc_percent_extrapolated(auclast_val, aucinf)
-                cl_params = clearance_volume_parameters(dose, aucinf, lz_result, route=route)
+                cl_params = clearance_volume_parameters(
+                    dose,
+                    aucinf,
+                    lz_result,
+                    route=cast(Literal["oral", "iv_bolus", "iv_infusion"], route),
+                )
 
             except ValueError as exc:
                 nca_warnings.append(f"lambda_z could not be estimated: {exc}")

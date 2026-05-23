@@ -44,6 +44,7 @@ dist/
 .ipynb_checkpoints/
 *.ipynb
 !demo.ipynb
+!examples/openpkflow_tour.ipynb
 
 # Local config/secrets
 .env

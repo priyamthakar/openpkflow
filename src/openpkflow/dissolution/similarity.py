@@ -332,9 +332,9 @@ def _chi2_ppf(p: float, df: int) -> float:
     Accurate to ~0.1% for df >= 3, which is sufficient for regulatory
     significance testing.
     """
-    import scipy.stats as st  # type: ignore[import-untyped]
+    import scipy.stats as st
 
-    return float(st.chi2.ppf(p, df))  # type: ignore[no-any-return]
+    return float(st.chi2.ppf(p, df))
 
 
 @dataclass(frozen=True)

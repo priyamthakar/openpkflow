@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 
@@ -414,7 +414,7 @@ def lambda_z(
             )
 
         # Step 2: enumerate tail windows (size 3 .. n_post), all including last point
-        best: dict | None = None
+        best: dict[str, Any] | None = None
         for window_size in range(3, n_post + 1):
             start_idx = n_post - window_size
             wt = post_t[start_idx:]
@@ -526,7 +526,7 @@ def lambda_z(
 
         lz = -slope
         hl = math.log(2) / lz
-        lz_warnings: list[str] = []
+        lz_warnings = []
         if adj_r2 < 0.9:
             lz_warnings.append(
                 f"lambda_z manual window has adjusted R2 < 0.9"

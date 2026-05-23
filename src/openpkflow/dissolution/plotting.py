@@ -119,7 +119,7 @@ def dissolution_fit_plot_b64(
             t_dense,
             Q_pred,
             color=colors[i % len(colors)],
-            linestyle=linestyles[i % len(linestyles)],  # type: ignore[arg-type]
+            linestyle=linestyles[i % len(linestyles)],
             linewidth=1.8,
             label=label,
         )

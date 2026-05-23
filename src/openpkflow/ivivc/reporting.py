@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from openpkflow import __version__
 
 if TYPE_CHECKING:
-    pass
+    from openpkflow.ivivc.results import IVIVCResult
 
 _DISCLAIMER = (
     "This report was generated using OpenPKFlow -- an open-source Python workflow "
@@ -20,7 +20,7 @@ _DISCLAIMER = (
 
 def render_ivivc_markdown_report(
     *,
-    result: object,
+    result: IVIVCResult,
     output_path: str | Path | None = None,
 ) -> str:
     """Render an IVIVC Markdown report.
@@ -136,7 +136,7 @@ def render_ivivc_markdown_report(
 
 def render_ivivc_html_report(
     *,
-    result: object,
+    result: IVIVCResult,
     output_path: str | Path | None = None,
 ) -> str:
     """Render an IVIVC HTML report.
@@ -279,7 +279,7 @@ def render_ivivc_html_report(
             }
         )
 
-    pred_rows = []
+    pred_rows: list[dict[str, str]] = []
     n_pred_show = min(10, len(result.predicted_times))
     step = max(1, len(result.predicted_times) // n_pred_show)
     for i in range(0, len(result.predicted_times), step):
@@ -328,7 +328,7 @@ def report_ivivc(
     *,
     output_path: str | Path,
     format: str = "html",
-    result: object,
+    result: IVIVCResult,
 ) -> str | bytes:
     """Generate an IVIVC report in the specified format.
 

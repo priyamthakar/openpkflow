@@ -15,7 +15,7 @@ import numpy as np
 from openpkflow.dissolution.study import ComparisonResult, DissolutionStudy
 
 if TYPE_CHECKING:
-    pass
+    from matplotlib.figure import Figure
 
 
 @dataclass
@@ -69,10 +69,12 @@ class MultiMediaResult:
             "overall_pass": self.overall_pass,
         }
 
-    def plot(self, output_path=None, show=False) -> None:
+    def plot(self, output_path: str | Path | None = None, show: bool = False) -> None:
         _multi_media_plot(self.media_names, self.per_media_results, output_path, show)
 
-    def report(self, output_path, format: Literal["html", "pdf", "docx"] = "html") -> str | bytes:
+    def report(
+        self, output_path: str | Path, format: Literal["html", "pdf", "docx"] = "html"
+    ) -> str | bytes:
         from openpkflow.dissolution.reporting import report_multi_media
 
         return report_multi_media(
@@ -100,7 +102,10 @@ class MultiMediaResult:
         return base64.b64encode(buf.read()).decode()
 
 
-def _build_multi_media_figure(media_names, per_media_results):
+def _build_multi_media_figure(
+    media_names: list[str],
+    per_media_results: dict[str, ComparisonResult],
+) -> Figure:
     n = len(media_names)
     fig, axes = plt.subplots(1, n, figsize=(4.5 * n, 4), squeeze=False)
 
@@ -136,7 +141,12 @@ def _build_multi_media_figure(media_names, per_media_results):
     return fig
 
 
-def _multi_media_plot(media_names, per_media_results, output_path=None, show=False):
+def _multi_media_plot(
+    media_names: list[str],
+    per_media_results: dict[str, ComparisonResult],
+    output_path: str | Path | None = None,
+    show: bool = False,
+) -> None:
     fig = _build_multi_media_figure(media_names, per_media_results)
     if output_path:
         fig.savefig(output_path, dpi=300, bbox_inches="tight")

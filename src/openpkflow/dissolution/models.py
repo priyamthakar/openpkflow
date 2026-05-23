@@ -34,15 +34,17 @@ def _first_order(t: np.ndarray, k1: float) -> np.ndarray:
 
 
 def _higuchi(t: np.ndarray, kH: float) -> np.ndarray:
-    return kH * np.sqrt(t)
+    return np.asarray(kH * np.sqrt(t), dtype=float)
 
 
 def _korsmeyer_peppas(t: np.ndarray, k: float, n: float) -> np.ndarray:
-    return k * np.power(np.clip(t, 0.0, None), n)
+    return np.asarray(k * np.power(np.clip(t, 0.0, None), n), dtype=float)
 
 
 def _weibull(t: np.ndarray, alpha: float, beta: float) -> np.ndarray:
-    return 100.0 * (1.0 - np.exp(-np.power(np.clip(t, 0.0, None) / beta, alpha)))
+    return np.asarray(
+        100.0 * (1.0 - np.exp(-np.power(np.clip(t, 0.0, None) / beta, alpha))), dtype=float
+    )
 
 
 # ──────────────────────────────────────────────────────────────────────────────

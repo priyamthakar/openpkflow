@@ -19,7 +19,7 @@ import numpy as np
 
 def _require_torch() -> Any:
     try:
-        import torch  # type: ignore[import]
+        import torch
 
         return torch
     except ImportError as exc:
@@ -61,8 +61,8 @@ class PKSurrogate:
 
     # private: set by fit()
     _model: Any = field(default=None, init=False, repr=False)
-    _x_mean: np.ndarray = field(default=None, init=False, repr=False)  # type: ignore[assignment]
-    _x_std: np.ndarray = field(default=None, init=False, repr=False)  # type: ignore[assignment]
+    _x_mean: np.ndarray | None = field(default=None, init=False, repr=False)
+    _x_std: np.ndarray | None = field(default=None, init=False, repr=False)
     _y_mean: float = field(default=0.0, init=False, repr=False)
     _y_std: float = field(default=1.0, init=False, repr=False)
 
@@ -163,7 +163,7 @@ class PKSurrogate:
         with torch.no_grad():
             pred_norm = self._model(X_t).squeeze(1).numpy()
 
-        return np.maximum(pred_norm * self._y_std + self._y_mean, 0.0)
+        return np.asarray(np.maximum(pred_norm * self._y_std + self._y_mean, 0.0), dtype=float)
 
     @classmethod
     def from_1cmt_oral(

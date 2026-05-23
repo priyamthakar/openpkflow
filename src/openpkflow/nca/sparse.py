@@ -69,7 +69,7 @@ def fit_sparse_1cmt_oral(
     if bounds is None:
         bounds = ((0.01, 0.1, 0.01), (1000.0, 10000.0, 10.0))
 
-    def _model(t_eval, CL_F, Vz_F, ka):
+    def _model(t_eval: np.ndarray, CL_F: float, Vz_F: float, ka: float) -> np.ndarray:
         return c_1cmt_oral(t_eval, dose, CL_F, Vz_F, ka)
 
     try:
@@ -236,7 +236,7 @@ class SparseNCAResult:
                 lines.append(f"{t:>8.2f} {obs:>12.4g} {fit:>12.4g} {obs - fit:>12.4g}")
         return "\n".join(lines)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, object]:
         return {
             "subject": self.subject,
             "dose": self.dose,
@@ -260,14 +260,14 @@ class SparseNCAResult:
             "fitted_conc": self.fitted_conc,
         }
 
-    def plot(self, output_path=None, show=False) -> None:
+    def plot(self, output_path: str | None = None, show: bool = False) -> None:
         import matplotlib
 
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
         fig, ax = plt.subplots(figsize=(6, 4))
-        if self.time_points:
+        if self.time_points is not None and self.observed_conc is not None:
             t_dense = np.linspace(0, max(self.time_points) * 1.3, 300)
             from openpkflow.sim.methods import c_1cmt_oral
 
@@ -300,7 +300,7 @@ class SparseNCAResult:
 def sparse_nca_bias_analysis(
     sparse_result: SparseNCAResult,
     rich_result: object,
-) -> dict:
+) -> dict[str, object]:
     """Compare sparse-NCA parameters against rich-sampling reference.
 
     Parameters
@@ -317,7 +317,7 @@ def sparse_nca_bias_analysis(
         Dictionary with pct_bias for each parameter.
     """
 
-    def _pct_bias(sparse_val, rich_val):
+    def _pct_bias(sparse_val: float, rich_val: float | None) -> float | None:
         if rich_val is None or rich_val == 0:
             return None
         return 100.0 * (sparse_val - rich_val) / rich_val

@@ -55,17 +55,17 @@ def report_simulation(
     """
     kw = {"output_path": output_path, "time_unit": time_unit, "conc_unit": conc_unit}
     if format == "markdown":
-        return _sim_markdown(result, **kw)
+        return _sim_markdown(result, **kw)  # type: ignore[arg-type]
     if format == "html":
-        return _sim_html(result, **kw)
+        return _sim_html(result, **kw)  # type: ignore[arg-type]
     if format == "pdf":
         from openpkflow.report.pdf import render_sim_pdf_report
 
-        return render_sim_pdf_report(result=result, **kw)
+        return render_sim_pdf_report(result=result, **kw)  # type: ignore[arg-type]
     if format == "docx":
         from openpkflow.report.docx import render_sim_docx_report
 
-        return render_sim_docx_report(result=result, **kw)
+        return render_sim_docx_report(result=result, **kw)  # type: ignore[arg-type]
     raise ValueError(f"Unknown format {format!r}. Choose 'html', 'markdown', 'pdf', or 'docx'.")
 
 

@@ -23,7 +23,9 @@ from collections.abc import Sequence
 import numpy as np
 
 
-def _trapz_linear(times: Sequence[float], values: Sequence[float]) -> np.ndarray:
+def _trapz_linear(
+    times: np.ndarray | Sequence[float], values: np.ndarray | Sequence[float]
+) -> np.ndarray:
     """Cumulative trapezoidal AUC via the linear method for ascending time."""
     t = np.asarray(times, dtype=float)
     v = np.asarray(values, dtype=float)
@@ -34,12 +36,12 @@ def _trapz_linear(times: Sequence[float], values: Sequence[float]) -> np.ndarray
 
 
 def wagner_nelson(
-    times: Sequence[float],
-    concentrations: Sequence[float],
+    times: Sequence[float] | np.ndarray,
+    concentrations: Sequence[float] | np.ndarray,
     *,
     kel: float | None = None,
-    iv_unit_impulse_times: Sequence[float] | None = None,
-    iv_unit_impulse_concs: Sequence[float] | None = None,
+    iv_unit_impulse_times: Sequence[float] | np.ndarray | None = None,
+    iv_unit_impulse_concs: Sequence[float] | np.ndarray | None = None,
 ) -> np.ndarray:
     """Wagner-Nelson deconvolution for one-compartment oral data.
 
@@ -135,12 +137,12 @@ def wagner_nelson(
     # F_a(t) = (C(t) + kel * AUC_0^t) / (kel * AUC_inf)
     f_a = (c + _kel * auc_cum) / (_kel * auc_inf)
 
-    return f_a
+    return np.asarray(f_a, dtype=float)
 
 
 def loo_riegelman(
-    times: Sequence[float],
-    concentrations: Sequence[float],
+    times: Sequence[float] | np.ndarray,
+    concentrations: Sequence[float] | np.ndarray,
     *,
     kel: float,
     k12: float,
@@ -231,15 +233,15 @@ def loo_riegelman(
 
     fa = num / denom
 
-    return fa
+    return np.asarray(fa, dtype=float)
 
 
 def convolution_predict(
-    dissolution_times: Sequence[float],
-    dissolution_pct: Sequence[float],
+    dissolution_times: Sequence[float] | np.ndarray,
+    dissolution_pct: Sequence[float] | np.ndarray,
     *,
-    iv_unit_impulse_times: Sequence[float],
-    iv_unit_impulse_concs: Sequence[float],
+    iv_unit_impulse_times: Sequence[float] | np.ndarray,
+    iv_unit_impulse_concs: Sequence[float] | np.ndarray,
     dose_diss: float | None = None,
     dose_iv: float | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -330,9 +332,9 @@ def convolution_predict(
 
 
 def levy_plot_data(
-    in_vitro_times: Sequence[float],
-    in_vitro_fraction: Sequence[float],
-    in_vivo_fraction: Sequence[float],
+    in_vitro_times: Sequence[float] | np.ndarray,
+    in_vitro_fraction: Sequence[float] | np.ndarray,
+    in_vivo_fraction: Sequence[float] | np.ndarray,
 ) -> dict[str, np.ndarray]:
     """Compute data for a Levy plot (IVIVC correlation plot).
 
