@@ -27,6 +27,7 @@ def compute_ebe(
     x0: np.ndarray | None = None,
     maxiter: int = _MAX_INNER_ITERS,
     gtol: float = _EBE_GTOL,
+    n_cmt: int = 1,
 ) -> tuple[np.ndarray, float, bool]:
     """Compute EBE eta_hat for a single subject via L-BFGS-B.
 
@@ -57,6 +58,8 @@ def compute_ebe(
         Maximum inner loop iterations.
     gtol : float
         Gradient tolerance for convergence.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
@@ -69,12 +72,11 @@ def compute_ebe(
 
     def objective(eta: np.ndarray) -> float:
         theta_i = theta_pop * np.exp(eta)
-        ll = individual_log_likelihood(t, y_obs, dose, theta_i, sigma_prop, sigma_add, route)
+        ll = individual_log_likelihood(
+            t, y_obs, dose, theta_i, sigma_prop, sigma_add, route, n_cmt=n_cmt
+        )
         lp = individual_prior_logp(eta, omega_inv)
         return -(ll + lp)
-
-    def callback(xk: np.ndarray) -> None:
-        pass
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -84,7 +86,6 @@ def compute_ebe(
             method="L-BFGS-B",
             jac=None,
             options={"maxiter": maxiter, "gtol": gtol, "ftol": 1e-12},
-            callback=callback,
         )
 
     converged = result.success and result.nit >= _MIN_INNER_ITERS
@@ -100,6 +101,7 @@ def compute_all_ebe(
     route: str,
     *,
     warm_start: dict[str, np.ndarray] | None = None,
+    n_cmt: int = 1,
 ) -> tuple[dict[str, np.ndarray], int, list[str]]:
     """Compute EBE for all subjects.
 
@@ -119,6 +121,8 @@ def compute_all_ebe(
         ``"oral"`` or ``"iv_bolus"``.
     warm_start : dict | None
         Previous EBE estimates for warm-starting.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
@@ -132,15 +136,8 @@ def compute_all_ebe(
     for subj, (t, y, dose) in data_by_subject.items():
         x0 = warm_start.get(subj) if warm_start else None
         eta_hat, _obj, converged = compute_ebe(
-            t,
-            y,
-            dose,
-            theta_pop,
-            omega_inv,
-            sigma_prop,
-            sigma_add,
-            route,
-            x0=x0,
+            t, y, dose, theta_pop, omega_inv, sigma_prop, sigma_add, route,
+            x0=x0, n_cmt=n_cmt,
         )
         ebe_dict[subj] = eta_hat
         if not converged:

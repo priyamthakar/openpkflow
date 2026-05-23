@@ -1,4 +1,8 @@
-"""FOCE-I (First Order Conditional Estimation with Interaction) — scipy tier."""
+"""FOCE-I (First Order Conditional Estimation with Interaction) — scipy tier.
+
+Supports 1- and 2-compartment models, diagonal and full Omega matrices,
+with optional covariate modeling.
+"""
 
 from __future__ import annotations
 
@@ -22,8 +26,8 @@ from .model import PopPKModel
 from .objective import (
     compute_foce_minus2ll,
     predict_individual,
-    unpack_theta,
 )
+from .omega import extract_omega_cov_dict, log_cholesky_to_omega
 from .result import PopPKResult
 
 _MAX_OUTER_ITERS = 10_000
@@ -47,43 +51,7 @@ def run_foce_i(
     n_multistart: int = _N_MULTISTART,
     subject: str = "",
 ) -> PopPKResult:
-    """Run FOCE-I population PK estimation.
-
-    Uses L-BFGS-B outer loop with per-subject EBE inner loops.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        NONMEM-style dataset with ID, TIME, DV, AMT, EVID columns.
-    model : PopPKModel
-        Initial population PK model.
-    dose_col : str
-        Column name for dose amounts.
-    time_col : str
-        Column name for time.
-    dv_col : str
-        Column name for dependent variable (concentrations).
-    id_col : str
-        Column name for subject ID.
-    evid_col : str
-        Column name for event ID.
-    max_inner_iters : int
-        Maximum inner loop iterations per subject.
-    inner_gtol : float
-        Gradient tolerance for inner EBE optimization.
-    max_outer_iters : int
-        Maximum outer loop iterations.
-    outer_ftol : float
-        Function tolerance for outer optimization.
-    n_multistart : int
-        Number of multi-start runs.
-    subject : str
-        Optional study label.
-
-    Returns
-    -------
-    PopPKResult
-    """
+    """Run FOCE-I population PK estimation."""
     t_start = time.perf_counter()
 
     _validate_data(data, dose_col, time_col, dv_col, id_col, evid_col)
@@ -97,11 +65,13 @@ def run_foce_i(
     route = model.route
     param_names = model.param_names
     n_params = model.n_params
+    n_omega = model.n_omega_total
+    n_betas_val = model.n_betas
+    n_cmt_val = model.n_cmt
 
     theta0 = model.to_theta()
     bounds = model.get_bounds()
-
-    param_labels = _make_param_labels(param_names)
+    param_labels = model.param_labels
 
     multi_start_points = _generate_multistart(theta0, model, param_names, n_multistart)
 
@@ -112,19 +82,13 @@ def run_foce_i(
 
     for _start_idx, x0 in enumerate(multi_start_points):
         result = _run_foce_outer(
-            data_by_subject,
-            x0,
-            bounds,
-            route,
-            param_names,
-            max_outer_iters,
-            outer_ftol,
+            data_by_subject, x0, bounds, route,
+            n_params, n_omega, n_betas_val, n_cmt_val,
+            max_outer_iters, outer_ftol,
         )
         total_iterations += result.nit
-
         if result.success:
             converged_results.append(result)
-
         if result.fun < best_obj:
             best_obj = float(result.fun)
             best_result = result
@@ -136,62 +100,83 @@ def run_foce_i(
     warn_list: list[str] = []
 
     theta_opt = best_result.x
-    theta_pop_opt, omega_diag_opt, sigma_prop_opt, sigma_add_opt = unpack_theta(theta_opt, n_params)
-    omega_inv_opt = np.diag(1.0 / omega_diag_opt)
+    theta_pop_opt = np.exp(theta_opt[:n_params])
+    L_diag_opt = theta_opt[n_params : n_params + n_omega][:n_params]
+    L_off_opt = theta_opt[n_params + n_params : n_params + n_omega] if n_omega > n_params else None
+    omega_opt = log_cholesky_to_omega(L_diag_opt, L_off_opt)
+    omega_inv_opt = np.linalg.inv(omega_opt)
+    omega_diag_opt = np.diag(omega_opt).copy()
+    sigma_prop_opt = float(np.exp(theta_opt[-2]))
+    sigma_add_opt = float(theta_opt[-1])
 
     ebe_dict, n_inner_failures, ebe_warns = compute_all_ebe(
-        data_by_subject,
-        theta_pop_opt,
-        omega_inv_opt,
-        sigma_prop_opt,
-        sigma_add_opt,
-        route,
+        data_by_subject, theta_pop_opt, omega_inv_opt, sigma_prop_opt, sigma_add_opt,
+        route, n_cmt=n_cmt_val,
     )
     warn_list.extend(ebe_warns)
 
     grad_norm = check_gradient_norm(
         theta_opt,
-        lambda x: _foce_objective(x, data_by_subject, route, param_names),
+        lambda x: _foce_objective(
+            x, data_by_subject, route, n_params, n_omega, n_betas_val, n_cmt_val,
+        ),
         warn_list,
     )
 
     check_multistart_agreement(converged_results, theta_opt, param_labels, warn_list)
-
     check_at_bounds(theta_opt, bounds, param_labels, warn_list)
 
     hess = numerical_hessian(
-        lambda x: _foce_objective(x, data_by_subject, route, param_names),
+        lambda x: _foce_objective(
+            x, data_by_subject, route, n_params, n_omega, n_betas_val, n_cmt_val,
+        ),
         theta_opt,
     )
     pos_def, cond_num, hess_inv = check_hessian(hess, warn_list)
 
-    se_vec = (
-        _compute_se(hess_inv, theta_pop_opt, omega_diag_opt, sigma_prop_opt, n_params)
-        if hess_inv is not None
-        else None
-    )
+    if hess_inv is not None:
+        var_diag = np.diag(hess_inv)
+        if np.any(var_diag < 0):
+            hess_inv = None
 
-    if se_vec is None:
-        theta_se: dict[str, float] = {k: float("nan") for k in param_names}
-        omega_se: dict[str, float] = {k: float("nan") for k in param_names}
+    if hess_inv is not None:
+        var_diag = np.diag(hess_inv)
+        se_log = np.sqrt(np.abs(var_diag))
+        theta_se = {k: float(theta_pop_opt[i] * se_log[i]) for i, k in enumerate(param_names)}
+        omega_se: dict[str, float] = {}
+        omega_off_se_dict: dict[str, float] = {}
+        for i in range(n_params):
+            idx = n_params + i
+            if idx < len(se_log):
+                omega_se[param_names[i]] = float(omega_diag_opt[i] * se_log[idx])
+            else:
+                omega_se[param_names[i]] = float("nan")
+        if n_omega > n_params:
+            off_names = []
+            for col in range(n_params):
+                for row in range(col + 1, n_params):
+                    off_names.append(f"{param_names[row]}_{param_names[col]}")
+            for j, oname in enumerate(off_names):
+                idx = 2 * n_params + j
+                if idx < len(se_log):
+                    omega_off_se_dict[oname] = float(se_log[idx])
+        sigma_prop_se_val = float(sigma_prop_opt * se_log[-2])
+        sigma_add_se_val = float(se_log[-1])
+        uncertainty_reliable = True
+    else:
+        theta_se = {k: float("nan") for k in param_names}
+        omega_se = {k: float("nan") for k in param_names}
+        omega_off_se_dict = {}
         sigma_prop_se_val = float("nan")
         sigma_add_se_val = float("nan")
         uncertainty_reliable = False
-    else:
-        theta_se = {k: float(v) for k, v in zip(param_names, se_vec[:n_params], strict=False)}
-        omega_se = {
-            k: float(v) for k, v in zip(param_names, se_vec[n_params : 2 * n_params], strict=False)
-        }
-        sigma_prop_se_val = float(se_vec[-2])
-        sigma_add_se_val = float(se_vec[-1])
-        uncertainty_reliable = True
 
-    shrinkage = _compute_shrinkage(ebe_dict, omega_diag_opt, param_names, n_params)
+    shrinkage = _compute_shrinkage(ebe_dict, omega_diag_opt, param_names)
 
     ebe_df = _build_ebe_dataframe(ebe_dict, param_names)
 
     ipred, pop_pred, pop_pred_arr = _compute_predictions(
-        data_by_subject, ebe_dict, theta_pop_opt, route
+        data_by_subject, ebe_dict, theta_pop_opt, route, n_cmt=n_cmt_val,
     )
 
     obs_times: dict[str, np.ndarray] = {}
@@ -209,6 +194,9 @@ def run_foce_i(
 
     theta_pop_dict = {k: float(v) for k, v in zip(param_names, theta_pop_opt, strict=False)}
     omega_diag_dict = {k: float(v) for k, v in zip(param_names, omega_diag_opt, strict=False)}
+    omega_off_diag_dict: dict[str, float] = {}
+    if n_omega > n_params:
+        omega_off_diag_dict = extract_omega_cov_dict(omega_opt, param_names)
 
     return PopPKResult(
         method="FOCE-I",
@@ -224,6 +212,8 @@ def run_foce_i(
         theta_se=theta_se,
         omega_diag=omega_diag_dict,
         omega_se=omega_se,
+        omega_off_diag=omega_off_diag_dict,
+        omega_off_se=omega_off_se_dict,
         sigma_prop=float(sigma_prop_opt),
         sigma_add=float(sigma_add_opt),
         sigma_prop_se=sigma_prop_se_val,
@@ -244,83 +234,41 @@ def run_foce_i(
     )
 
 
-def _validate_data(
-    data: pd.DataFrame,
-    dose_col: str,
-    time_col: str,
-    dv_col: str,
-    id_col: str,
-    evid_col: str,
-) -> None:
+def _validate_data(data, dose_col, time_col, dv_col, id_col, evid_col):
     required = {dose_col, time_col, dv_col, id_col, evid_col}
     missing = required - set(data.columns)
     if missing:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
 
 
-def _prepare_subject_data(
-    data: pd.DataFrame,
-    dose_col: str,
-    time_col: str,
-    dv_col: str,
-    id_col: str,
-    evid_col: str,
-) -> tuple[dict[str, tuple[np.ndarray, np.ndarray, float]], pd.DataFrame]:
+def _prepare_subject_data(data, dose_col, time_col, dv_col, id_col, evid_col):
     dose_rows = data[data[evid_col] == 1]
     obs_rows = data[data[evid_col] == 0]
-
     data_by_subject: dict[str, tuple[np.ndarray, np.ndarray, float]] = {}
     subj_ids = obs_rows[id_col].unique()
-
     for subj in subj_ids:
         obs_subj = obs_rows[obs_rows[id_col] == subj].sort_values(time_col)
         dose_subj = dose_rows[dose_rows[id_col] == subj].sort_values(time_col)
-
         if len(dose_subj) == 0:
             raise ValueError(f"Subject {subj}: no dose records found")
-
         total_dose = float(dose_subj[dose_col].sum())
         t = np.asarray(obs_subj[time_col], dtype=float)
         y = np.asarray(obs_subj[dv_col], dtype=float)
-
         if len(t) < 2:
             raise ValueError(f"Subject {subj}: need at least 2 observations; got {len(t)}")
-
         data_by_subject[str(subj)] = (t, y, total_dose)
-
     if len(data_by_subject) < 3:
-        raise ValueError(f"Need at least 3 subjects for population PK; got {len(data_by_subject)}")
-
+        raise ValueError(f"Need at least 3 subjects; got {len(data_by_subject)}")
     return data_by_subject, obs_rows
 
 
-def _make_param_labels(param_names: list[str]) -> list[str]:
-    labels: list[str] = []
-    for n in param_names:
-        labels.append(f"log_{n}")
-    for n in param_names:
-        labels.append(f"log_omega_{n}")
-    labels.append("log_sigma_prop")
-    labels.append("sigma_add")
-    return labels
-
-
-def _generate_multistart(
-    theta0: np.ndarray,
-    model: PopPKModel,
-    param_names: list[str],
-    n_starts: int,
-) -> list[np.ndarray]:
+def _generate_multistart(theta0, model, param_names, n_starts):
     starts = [theta0.copy()]
     if n_starts > 1:
-        sd_shift = 0.5
-        n_params = len(param_names)
+        n_pk = len(param_names)
         x_plus = theta0.copy()
         x_minus = theta0.copy()
-        for i in range(n_params):
-            x_plus[i] += sd_shift
-            x_minus[i] -= sd_shift
-        for i in range(n_params, 2 * n_params):
+        for i in range(n_pk):
             x_plus[i] += 0.5
             x_minus[i] -= 0.5
         x_plus[-2] = np.log(model.sigma_prop + 0.1)
@@ -333,117 +281,54 @@ def _generate_multistart(
 
 
 def _run_foce_outer(
-    data_by_subject: dict[str, tuple[np.ndarray, np.ndarray, float]],
-    x0: np.ndarray,
-    bounds: list[tuple[float, float]],
-    route: str,
-    param_names: list[str],
-    maxiter: int,
-    ftol: float,
-) -> OptimizeResult:
+    data_by_subject, x0, bounds, route, n_params, n_omega, n_betas, n_cmt, maxiter, ftol,
+):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return minimize(
-            lambda x: _foce_objective(x, data_by_subject, route, param_names),
-            x0,
-            method="L-BFGS-B",
-            bounds=bounds,
+            lambda x: _foce_objective(x, data_by_subject, route, n_params, n_omega, n_betas, n_cmt),
+            x0, method="L-BFGS-B", bounds=bounds,
             options={"maxiter": maxiter, "ftol": ftol, "gtol": 1e-8},
         )
 
 
-def _foce_objective(
-    theta_vec: np.ndarray,
-    data_by_subject: dict[str, tuple[np.ndarray, np.ndarray, float]],
-    route: str,
-    param_names: list[str],
-) -> float:
-    n_params = len(param_names)
-    theta_pop, omega_diag_vec, sigma_prop, sigma_add = unpack_theta(theta_vec, n_params)
+def _foce_objective(theta_vec, data_by_subject, route, n_params, n_omega, n_betas, n_cmt):
+    n_pk = n_params
+    theta_pop = np.exp(theta_vec[:n_pk])
+    omega_vec = theta_vec[n_pk : n_pk + n_omega]
+    sigma_prop = float(np.exp(theta_vec[-2]))
+    sigma_add = float(theta_vec[-1])
 
-    if np.any(theta_pop <= 0) or np.any(omega_diag_vec <= 0) or sigma_prop <= 0:
+    if np.any(theta_pop <= 0) or sigma_prop <= 0:
         return 1e12
 
-    omega = np.diag(omega_diag_vec)
-    omega_inv = np.diag(1.0 / omega_diag_vec)
+    L_diag = omega_vec[:n_pk]
+    L_off = omega_vec[n_pk:] if len(omega_vec) > n_pk else None
+    omega = log_cholesky_to_omega(L_diag, L_off)
+    omega_inv = np.linalg.inv(omega)
 
-    ebe_dict, _n_fail, _warns = compute_all_ebe(
-        data_by_subject,
-        theta_pop,
-        omega_inv,
-        sigma_prop,
-        sigma_add,
-        route,
+    ebe_dict, _nf, _w = compute_all_ebe(
+        data_by_subject, theta_pop, omega_inv, sigma_prop, sigma_add, route, n_cmt=n_cmt,
     )
 
     total_minus2ll = 0.0
     for subj, (t, y, dose) in data_by_subject.items():
-        eta_hat = ebe_dict.get(subj, np.zeros(n_params, dtype=float))
+        eta_hat = ebe_dict.get(subj, np.zeros(n_pk, dtype=float))
         subj_ll = compute_foce_minus2ll(
-            t,
-            y,
-            dose,
-            theta_pop,
-            omega,
-            sigma_prop,
-            sigma_add,
-            eta_hat,
-            route,
+            t, y, dose, theta_pop, omega, sigma_prop, sigma_add, eta_hat, route, n_cmt=n_cmt,
         )
         total_minus2ll += subj_ll
 
     return total_minus2ll
 
 
-def _compute_se(
-    hess_inv: np.ndarray,
-    theta_pop: np.ndarray,
-    omega_diag: np.ndarray,
-    sigma_prop: float,
-    n_params: int,
-) -> np.ndarray | None:
-    """Compute standard errors from inverse Hessian via delta method.
-
-    Parameters are optimized in log-space; delta method converts to natural scale:
-      SE(theta_i) = theta_i * SE(log_theta_i)
-      SE(omega_i) = omega_i * SE(log_omega_i)
-      SE(sigma_prop) = sigma_prop * SE(log_sigma_prop)
-      SE(sigma_add) = SE(sigma_add)  (already on natural scale)
-
-    Returns (n_params*2 + 2,) array or None if variance diagonal is negative.
-    """
-    var_diag = np.diag(hess_inv)
-    if np.any(var_diag < 0):
-        return None
-
-    k = 2 * n_params + 2
-    se = np.zeros(k, dtype=float)
-
-    for i in range(n_params):
-        se[i] = theta_pop[i] * np.sqrt(var_diag[i])
-    for i in range(n_params):
-        idx = n_params + i
-        se[idx] = omega_diag[i] * np.sqrt(var_diag[idx])
-    se[-2] = sigma_prop * np.sqrt(var_diag[-2])
-    se[-1] = np.sqrt(var_diag[-1])
-    return se
-
-
-def _compute_shrinkage(
-    ebe_dict: dict[str, np.ndarray],
-    omega_diag: np.ndarray,
-    param_names: list[str],
-    n_params: int,
-) -> dict[str, float]:
+def _compute_shrinkage(ebe_dict, omega_diag, param_names):
     ebe_arr = np.array([ebe_dict[k] for k in sorted(ebe_dict.keys())])
     omega_dict = {n: float(v) for n, v in zip(param_names, omega_diag, strict=False)}
     return compute_ebd_shrinkage(ebe_arr, omega_dict, param_names)
 
 
-def _build_ebe_dataframe(
-    ebe_dict: dict[str, np.ndarray],
-    param_names: list[str],
-) -> pd.DataFrame:
+def _build_ebe_dataframe(ebe_dict, param_names):
     rows = []
     for subj in sorted(ebe_dict.keys()):
         row: dict[str, object] = {"ID": subj}
@@ -453,12 +338,7 @@ def _build_ebe_dataframe(
     return pd.DataFrame(rows)
 
 
-def _compute_predictions(
-    data_by_subject: dict[str, tuple[np.ndarray, np.ndarray, float]],
-    ebe_dict: dict[str, np.ndarray],
-    theta_pop: np.ndarray,
-    route: str,
-) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], np.ndarray]:
+def _compute_predictions(data_by_subject, ebe_dict, theta_pop, route, n_cmt=1):
     ipred: dict[str, np.ndarray] = {}
     pop_pred: dict[str, np.ndarray] = {}
     pred_list: list[float] = []
@@ -467,11 +347,11 @@ def _compute_predictions(
         eta_hat = ebe_dict[subj]
         theta_i = theta_pop * np.exp(eta_hat)
         try:
-            ipred[subj] = predict_individual(t, dose, theta_i, route)
+            ipred[subj] = predict_individual(t, dose, theta_i, route, n_cmt=n_cmt)
         except (ValueError, FloatingPointError):
             ipred[subj] = np.zeros_like(t)
         try:
-            pop_pred[subj] = predict_individual(t, dose, theta_pop, route)
+            pop_pred[subj] = predict_individual(t, dose, theta_pop, route, n_cmt=n_cmt)
         except (ValueError, FloatingPointError):
             pop_pred[subj] = np.zeros_like(t)
         pred_list.extend(pop_pred[subj].tolist())

@@ -10,67 +10,7 @@ import pandas as pd
 
 @dataclass
 class PopPKResult:
-    """Result of population PK estimation (FOCE-I or SAEM).
-
-    Parameters
-    ----------
-    method : str
-        ``"FOCE-I"`` or ``"SAEM"``.
-    route : str
-        ``"oral"`` or ``"iv_bolus"``.
-    converged : bool
-        Whether the estimation converged.
-    uncertainty_reliable : bool
-        Whether Fisher information matrix was positive-definite.
-    n_subjects : int
-        Number of subjects.
-    n_observations : int
-        Total number of observations.
-    minus2ll : float
-        Final -2 log-likelihood.
-    aic : float
-        Akaike Information Criterion.
-    bic : float
-        Bayesian Information Criterion.
-    theta_pop : dict[str, float]
-        Population typical values on natural scale.
-    theta_se : dict[str, float]
-        Standard errors of theta_pop.
-    omega_diag : dict[str, float]
-        Estimated Omega diagonal elements (log-scale variances).
-    omega_se : dict[str, float]
-        Standard errors of omega_diag.
-    sigma_prop : float
-        Estimated proportional error.
-    sigma_add : float
-        Estimated additive error.
-    sigma_prop_se : float
-        Standard error of sigma_prop.
-    sigma_add_se : float
-        Standard error of sigma_add.
-    shrinkage : dict[str, float]
-        EBE shrinkage per parameter (0-1).
-    ebe : pd.DataFrame
-        Empirical Bayes Estimates per subject (columns: ID, eta_...).
-    individual_predictions : dict[str, np.ndarray]
-        IPRED per subject keyed by subject ID.
-    population_predictions : np.ndarray
-        PRED for all observations.
-    gradient_norm : float
-        Gradient norm at solution.
-    condition_number : float
-        Fisher information condition number.
-    n_inner_failures : int
-        Number of subjects with failed EBE optimization.
-    iterations : int
-        Number of outer iterations or SAEM cycles.
-    elapsed_time : float
-        Wall-clock time in seconds.
-    warnings : list[str]
-        Diagnostic warnings.
-    study_label : str
-        Optional label for reports.
-    """
+    """Result of population PK estimation (FOCE-I or SAEM)."""
 
     method: str
     route: str
@@ -85,21 +25,24 @@ class PopPKResult:
     theta_se: dict[str, float]
     omega_diag: dict[str, float]
     omega_se: dict[str, float]
-    sigma_prop: float
-    sigma_add: float
-    sigma_prop_se: float
-    sigma_add_se: float
-    shrinkage: dict[str, float]
-    ebe: pd.DataFrame
-    individual_predictions: dict[str, np.ndarray]
-    population_predictions: np.ndarray
-    observed_times: dict[str, np.ndarray]
-    observed_concentrations: dict[str, np.ndarray]
-    gradient_norm: float
-    condition_number: float
-    n_inner_failures: int
-    iterations: int
-    elapsed_time: float
+    omega_off_diag: dict[str, float] = field(default_factory=dict)
+    omega_off_se: dict[str, float] = field(default_factory=dict)
+    covariate_betas: dict[str, float] | None = None
+    sigma_prop: float = 0.15
+    sigma_add: float = 0.0
+    sigma_prop_se: float = float("nan")
+    sigma_add_se: float = float("nan")
+    shrinkage: dict[str, float] = field(default_factory=dict)
+    ebe: pd.DataFrame = field(default_factory=pd.DataFrame)
+    individual_predictions: dict[str, np.ndarray] = field(default_factory=dict)
+    population_predictions: np.ndarray = field(default_factory=lambda: np.array([]))
+    observed_times: dict[str, np.ndarray] = field(default_factory=dict)
+    observed_concentrations: dict[str, np.ndarray] = field(default_factory=dict)
+    gradient_norm: float = 0.0
+    condition_number: float = float("nan")
+    n_inner_failures: int = 0
+    iterations: int = 0
+    elapsed_time: float = 0.0
     warnings: list[str] = field(default_factory=list)
     study_label: str = ""
 
@@ -125,13 +68,7 @@ class PopPKResult:
         return result
 
     def summary(self) -> str:
-        """Return an ASCII multi-line summary of the estimation results.
-
-        Returns
-        -------
-        str
-            Formatted summary string.
-        """
+        """Return an ASCII multi-line summary of the estimation results."""
         lines: list[str] = []
         lines.append(f"Population PK Estimation -- {self.method}")
         lines.append(f"Study: {self.study_label}" if self.study_label else "")
@@ -150,7 +87,10 @@ class PopPKResult:
             lines.append(f"{k:<12} {est:12.4f} {se:12.4f} {rse_val:11.1f}")
         lines.append("")
 
-        lines.append("Between-Subject Variability (Omega diagonal)")
+        if self.omega_off_diag:
+            lines.append("Between-Subject Variability (Omega matrix)")
+        else:
+            lines.append("Between-Subject Variability (Omega diagonal)")
         lines.append("-" * 55)
         lines.append(f"{'Parameter':<12} {'Omega':>12} {'SE':>12} {'RSE%':>12}")
         lines.append("-" * 55)
@@ -165,12 +105,20 @@ class PopPKResult:
             lines.append(
                 f"{'omega_' + k:<12} {omega_val:12.4f} {omega_se_val:12.4f} {omega_rse:11.1f}"
             )
+        if self.omega_off_diag:
+            for k, v in self.omega_off_diag.items():
+                se_val = self.omega_off_se.get(k, float("nan"))
+                lines.append(f"  cov({k}): {v:.4f} (SE: {se_val:.4f})")
         lines.append("")
 
         lines.append("Residual Error")
         lines.append("-" * 40)
-        lines.append(f"  sigma_prop = {self.sigma_prop:.4f}  (SE = {self.sigma_prop_se:.4f})")
-        lines.append(f"  sigma_add  = {self.sigma_add:.4f}   (SE = {self.sigma_add_se:.4f})")
+        lines.append(
+            f"  sigma_prop = {self.sigma_prop:.4f}  (SE = {self.sigma_prop_se:.4f})"
+        )
+        lines.append(
+            f"  sigma_add  = {self.sigma_add:.4f}   (SE = {self.sigma_add_se:.4f})"
+        )
         lines.append("")
 
         lines.append("EBE Shrinkage")
@@ -187,11 +135,8 @@ class PopPKResult:
         lines.append(f"  Converged: {self.converged}")
         lines.append(f"  Uncertainty reliable: {self.uncertainty_reliable}")
         lines.append(f"  Gradient norm: {self.gradient_norm:.2e}")
-        lines.append(
-            f"  Condition number: {self.condition_number:.1f}"
-            if np.isfinite(self.condition_number)
-            else ""
-        )
+        if np.isfinite(self.condition_number):
+            lines.append(f"  Condition number: {self.condition_number:.1f}")
         lines.append(f"  EBE failures: {self.n_inner_failures}/{self.n_subjects}")
         lines.append(f"  Iterations: {self.iterations}")
         lines.append(f"  Elapsed time: {self.elapsed_time:.1f}s")
@@ -205,71 +150,61 @@ class PopPKResult:
             lines.append("")
 
         lines.append("Disclaimer: This is a research tool. Results should be verified")
-        lines.append("against a regulatory-grade population PK engine (NONMEM, Monolix).")
+        lines.append(
+            "against a regulatory-grade population PK engine (NONMEM, Monolix)."
+        )
 
         return "\n".join(lines)
 
     def to_dataframe(self) -> pd.DataFrame:
-        """Return a DataFrame of population parameter estimates.
-
-        Returns
-        -------
-        pd.DataFrame
-            Table with rows for each parameter type.
-        """
+        """Return a DataFrame of population parameter estimates."""
         rows: list[dict[str, object]] = []
         for k in self.param_names:
-            rows.append(
-                {
-                    "type": "theta",
-                    "parameter": k,
-                    "estimate": self.theta_pop.get(k),
-                    "se": self.theta_se.get(k),
-                    "rse_pct": self.rse.get(k),
-                }
-            )
+            rows.append({
+                "type": "theta",
+                "parameter": k,
+                "estimate": self.theta_pop.get(k),
+                "se": self.theta_se.get(k),
+                "rse_pct": self.rse.get(k),
+            })
         for k in self.param_names:
-            rows.append(
-                {
-                    "type": "omega",
-                    "parameter": f"omega_{k}",
-                    "estimate": self.omega_diag.get(k),
-                    "se": self.omega_se.get(k),
-                    "rse_pct": (
-                        100.0 * self.omega_se.get(k, 0) / self.omega_diag.get(k, 1)
-                        if self.omega_diag.get(k, 0) > 0
-                        else float("nan")
-                    ),
-                }
-            )
-        rows.append(
-            {
-                "type": "sigma",
-                "parameter": "sigma_prop",
-                "estimate": self.sigma_prop,
-                "se": self.sigma_prop_se,
+            rows.append({
+                "type": "omega",
+                "parameter": f"omega_{k}",
+                "estimate": self.omega_diag.get(k),
+                "se": self.omega_se.get(k),
+                "rse_pct": (
+                    100.0 * self.omega_se.get(k, 0) / self.omega_diag.get(k, 1)
+                    if self.omega_diag.get(k, 0) > 0
+                    else float("nan")
+                ),
+            })
+        for k, v in self.omega_off_diag.items():
+            rows.append({
+                "type": "omega_cov",
+                "parameter": f"cov({k})",
+                "estimate": v,
+                "se": self.omega_off_se.get(k, float("nan")),
                 "rse_pct": float("nan"),
-            }
-        )
-        rows.append(
-            {
-                "type": "sigma",
-                "parameter": "sigma_add",
-                "estimate": self.sigma_add,
-                "se": self.sigma_add_se,
-                "rse_pct": float("nan"),
-            }
-        )
+            })
+        rows.append({
+            "type": "sigma",
+            "parameter": "sigma_prop",
+            "estimate": self.sigma_prop,
+            "se": self.sigma_prop_se,
+            "rse_pct": float("nan"),
+        })
+        rows.append({
+            "type": "sigma",
+            "parameter": "sigma_add",
+            "estimate": self.sigma_add,
+            "se": self.sigma_add_se,
+            "rse_pct": float("nan"),
+        })
         return pd.DataFrame(rows)
 
     def to_dict(self) -> dict[str, object]:
-        """Return a dictionary of scalar results (no raw EBE or predictions).
-
-        Returns
-        -------
-        dict
-            Scalar estimation results.
-        """
+        """Return a dictionary of scalar results."""
         return {
             "method": self.method,
             "route": self.route,
@@ -284,6 +219,9 @@ class PopPKResult:
             "theta_se": self.theta_se,
             "omega_diag": self.omega_diag,
             "omega_se": self.omega_se,
+            "omega_off_diag": self.omega_off_diag,
+            "omega_off_se": self.omega_off_se,
+            "covariate_betas": self.covariate_betas,
             "sigma_prop": self.sigma_prop,
             "sigma_add": self.sigma_add,
             "sigma_prop_se": self.sigma_prop_se,
@@ -298,22 +236,9 @@ class PopPKResult:
             "study_label": self.study_label,
         }
 
-    def plot(
-        self,
-        output_path: str | None = None,
-        show: bool = False,
-    ) -> None:
-        """Generate a 6-panel population PK diagnostic plot.
-
-        Parameters
-        ----------
-        output_path : str | None
-            If provided, save to this path.
-        show : bool
-            If True, display the plot.
-        """
+    def plot(self, output_path=None, show=False):
+        """Generate a 6-panel population PK diagnostic plot."""
         import matplotlib.pyplot as plt
-
         from .plotting import pop_pk_figure
 
         fig = pop_pk_figure(self)
@@ -324,26 +249,7 @@ class PopPKResult:
         else:
             plt.close(fig)
 
-    def report(
-        self,
-        output_path: str,
-        *,
-        fmt: str = "html",
-    ) -> str | bytes:
-        """Generate a population PK estimation report.
-
-        Parameters
-        ----------
-        output_path : str
-            Path for the output file.
-        fmt : str
-            ``"html"`` or ``"markdown"``.
-
-        Returns
-        -------
-        str or bytes
-            Report content.
-        """
+    def report(self, output_path, *, fmt="html"):
+        """Generate a population PK estimation report."""
         from .reporting import report_pop_pk
-
         return report_pop_pk(self, output_path=output_path, fmt=fmt)

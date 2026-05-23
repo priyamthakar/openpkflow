@@ -17,7 +17,7 @@ class TestPopPKModelOral:
         )
         assert m.route == "oral"
         assert m.n_params == 3
-        assert m.n_omega == 3
+        assert m.n_diag_omega == 3
         assert m.param_names == ["CL_F", "Vz_F", "ka"]
 
     def test_missing_param_raises(self) -> None:
@@ -62,7 +62,16 @@ class TestPopPKModelOral:
             )
 
     def test_unsupported_n_cmt_raises(self) -> None:
-        with pytest.raises(ValueError, match="n_cmt=1 only"):
+        with pytest.raises(ValueError, match="n_cmt must be 1 or 2"):
+            PopPKModel(
+                route="oral",
+                n_cmt=3,
+                fixed_effects={"CL_F": 5.0, "Vz_F": 50.0, "ka": 1.0},
+                omega_diag={"CL_F": 0.1, "Vz_F": 0.1, "ka": 0.1},
+            )
+
+    def test_2cmt_with_1cmt_params_raises(self) -> None:
+        with pytest.raises(ValueError, match="fixed_effects keys must be"):
             PopPKModel(
                 route="oral",
                 n_cmt=2,
@@ -88,7 +97,7 @@ class TestPopPKModelOral:
             sigma_add=0.01,
         )
         theta = m.to_theta()
-        assert len(theta) == 8
+        assert len(theta) == m.n_theta
         m2 = PopPKModel.from_theta(theta, route="oral")
         np.testing.assert_allclose(
             [m2.fixed_effects[k] for k in m2.param_names],
@@ -103,8 +112,19 @@ class TestPopPKModelOral:
             omega_diag={"CL_F": 0.1, "Vz_F": 0.1, "ka": 0.1},
         )
         bounds = m.get_bounds()
-        assert len(bounds) == 8
+        assert len(bounds) == m.n_theta
         assert bounds[-1] == (0.0, None)
+
+    def test_2cmt_oral_creation(self) -> None:
+        m = PopPKModel(
+            route="oral",
+            n_cmt=2,
+            fixed_effects={"CL_F": 5.0, "V1_F": 10.0, "Q": 5.0, "V2": 30.0, "ka": 1.0},
+            omega_diag={"CL_F": 0.1, "V1_F": 0.1, "Q": 0.05, "V2": 0.05, "ka": 0.1},
+        )
+        assert m.n_params == 5
+        assert m.param_names == ["CL_F", "V1_F", "Q", "V2", "ka"]
+        assert m.n_theta == 5 + 5 + 2
 
 
 class TestPopPKModelIV:
@@ -133,7 +153,7 @@ class TestPopPKModelIV:
             omega_diag={"CL": 0.09, "Vz": 0.04},
         )
         theta = m.to_theta()
-        assert len(theta) == 6
+        assert len(theta) == m.n_theta
         m2 = PopPKModel.from_theta(theta, route="iv_bolus")
         np.testing.assert_allclose(
             [m2.fixed_effects[k] for k in m2.param_names],

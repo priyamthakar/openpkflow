@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from .omega import ensure_positive_definite
+
 
 def saem_m_step(
     s: dict[str, np.ndarray],
@@ -13,6 +15,7 @@ def saem_m_step(
     """Analytical M-step of SAEM.
 
     Given sufficient statistics, compute the updated population parameters.
+    Returns the full Omega matrix from empirical covariance of eta samples.
 
     Parameters
     ----------
@@ -30,22 +33,22 @@ def saem_m_step(
     Returns
     -------
     tuple
-        ``(theta_pop, omega_diag, sigma_prop, sigma_add)``.
+        ``(theta_pop, Omega_matrix, sigma_prop, sigma_add)``.
+        Omega_matrix is ``(n_params, n_params)`` positive-definite.
     """
     theta_pop = np.exp(s["eta_sum"] / max(n_subjects, 1))
 
-    omega_mat = s["eta_outer"] / max(n_subjects, 1)
-    omega_diag = np.maximum(np.diag(omega_mat), 1e-9)
+    Omega_raw = s["eta_outer"] / max(n_subjects, 1)
+    Omega, _was_modified = ensure_positive_definite(Omega_raw)
 
     sigma_prop = float(np.sqrt(max(0.0, s["resid_weighted"] / max(n_obs, 1))))
-
     raw_mean = s["resid_raw"] / max(n_obs, 1)
     sigma_add = float(np.sqrt(max(0.0, raw_mean)))
 
-    sigma_prop = float(np.clip(float(sigma_prop), 0.001, 2.0))
-    sigma_add_val = float(np.clip(float(sigma_add), 0.0, 100.0))
+    sigma_prop = float(np.clip(sigma_prop, 0.001, 2.0))
+    sigma_add_val = float(np.clip(sigma_add, 0.0, 100.0))
 
-    return theta_pop, omega_diag, sigma_prop, sigma_add_val
+    return theta_pop, Omega, sigma_prop, sigma_add_val
 
 
 def saem_sa_step(
@@ -107,12 +110,12 @@ def saem_s_step_single_subject_mcmc(
     route: str,
     n_mcmc_steps: int = 5,
     rng: np.random.Generator | None = None,
+    n_cmt: int = 1,
 ) -> np.ndarray:
     """S-step for SAEM: sample one eta draw per subject via Metropolis.
 
     Simple random-walk Metropolis sampler implemented directly in numpy
-    (no PyMC dependency in the kernel). PyMC is used at the orchestrator
-    level in saem.py; this function provides a pure-numpy fallback.
+    (no PyMC dependency in the kernel).
 
     Parameters
     ----------
@@ -136,6 +139,8 @@ def saem_s_step_single_subject_mcmc(
         Number of MCMC steps (including burn-in).
     rng : np.random.Generator | None
         Random number generator.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
@@ -154,7 +159,9 @@ def saem_s_step_single_subject_mcmc(
 
     def log_post(eta_vec: np.ndarray) -> float:
         theta_i = theta_pop * np.exp(eta_vec)
-        ll = individual_log_likelihood(t, y_obs, dose, theta_i, sigma_prop, sigma_add, route)
+        ll = individual_log_likelihood(
+            t, y_obs, dose, theta_i, sigma_prop, sigma_add, route, n_cmt=n_cmt
+        )
         lp = individual_prior_logp(eta_vec, omega_inv)
         return ll + lp
 

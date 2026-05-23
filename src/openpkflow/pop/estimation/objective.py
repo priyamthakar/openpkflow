@@ -5,7 +5,12 @@ from __future__ import annotations
 import numpy as np
 from scipy import linalg
 
-from openpkflow.sim.methods import c_1cmt_iv_bolus, c_1cmt_oral
+from openpkflow.sim.methods import (
+    c_1cmt_iv_bolus,
+    c_1cmt_oral,
+    c_2cmt_iv_bolus,
+    c_2cmt_oral,
+)
 
 
 def predict_individual(
@@ -13,6 +18,7 @@ def predict_individual(
     dose: float,
     theta_i: np.ndarray,
     route: str,
+    n_cmt: int = 1,
 ) -> np.ndarray:
     """Predicted concentrations for a single subject given individual parameters.
 
@@ -23,21 +29,26 @@ def predict_individual(
     dose : float
         Dose amount.
     theta_i : np.ndarray
-        Individual parameters on natural scale, matching route convention.
+        Individual parameters on natural scale, matching route + n_cmt convention.
     route : str
         ``"oral"`` or ``"iv_bolus"``.
+    n_cmt : int
+        Number of compartments (1 or 2).
 
     Returns
     -------
     np.ndarray
         Predicted concentrations.
     """
-    if route == "oral":
+    if route == "oral" and n_cmt == 1:
         return c_1cmt_oral(t, dose, theta_i[0], theta_i[1], theta_i[2])
-    elif route == "iv_bolus":
+    if route == "oral" and n_cmt == 2:
+        return c_2cmt_oral(t, dose, theta_i[0], theta_i[1], theta_i[2], theta_i[3], theta_i[4])
+    if route == "iv_bolus" and n_cmt == 1:
         return c_1cmt_iv_bolus(t, dose, theta_i[0], theta_i[1])
-    else:
-        raise ValueError(f"Unsupported route '{route}'")
+    if route == "iv_bolus" and n_cmt == 2:
+        return c_2cmt_iv_bolus(t, dose, theta_i[0], theta_i[1], theta_i[2], theta_i[3])
+    raise ValueError(f"Unsupported (route={route}, n_cmt={n_cmt})")
 
 
 def individual_log_likelihood(
@@ -48,6 +59,7 @@ def individual_log_likelihood(
     sigma_prop: float,
     sigma_add: float,
     route: str,
+    n_cmt: int = 1,
 ) -> float:
     """Gaussian log-likelihood for one subject with combined error model.
 
@@ -67,6 +79,8 @@ def individual_log_likelihood(
         Additive error SD.
     route : str
         ``"oral"`` or ``"iv_bolus"``.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
@@ -74,7 +88,7 @@ def individual_log_likelihood(
         Log-likelihood value (natural log).
     """
     try:
-        c_pred = predict_individual(t, dose, theta_i, route)
+        c_pred = predict_individual(t, dose, theta_i, route, n_cmt)
     except (ValueError, FloatingPointError):
         return -1e12
 
@@ -116,6 +130,7 @@ def compute_linearization(
     route: str,
     *,
     eps: float = 1e-5,
+    n_cmt: int = 1,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute FOCE-I linearization around eta_hat.
 
@@ -135,6 +150,8 @@ def compute_linearization(
         ``"oral"`` or ``"iv_bolus"``.
     eps : float
         Finite difference step for gradient.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
@@ -144,7 +161,7 @@ def compute_linearization(
     """
     theta_i_hat = theta_pop * np.exp(eta_hat)
     try:
-        f_hat = predict_individual(t, dose, theta_i_hat, route)
+        f_hat = predict_individual(t, dose, theta_i_hat, route, n_cmt)
     except (ValueError, FloatingPointError):
         f_hat = np.full(len(t), 0.0)
 
@@ -157,7 +174,7 @@ def compute_linearization(
         eta_plus[p] += eps
         theta_plus = theta_pop * np.exp(eta_plus)
         try:
-            f_plus = predict_individual(t, dose, theta_plus, route)
+            f_plus = predict_individual(t, dose, theta_plus, route, n_cmt)
         except (ValueError, FloatingPointError):
             f_plus = f_hat
         G[:, p] = (f_plus - f_hat) / eps
@@ -175,6 +192,7 @@ def compute_foce_minus2ll(
     sigma_add: float,
     eta_hat: np.ndarray,
     route: str,
+    n_cmt: int = 1,
 ) -> float:
     """Compute FOCE-I -2LL for a single subject.
 
@@ -198,13 +216,17 @@ def compute_foce_minus2ll(
         EBE estimate (k,).
     route : str
         ``"oral"`` or ``"iv_bolus"``.
+    n_cmt : int
+        Number of compartments.
 
     Returns
     -------
     float
         Subject contribution to -2LL.
     """
-    G, f_hat, theta_i_hat = compute_linearization(t, dose, theta_pop, eta_hat, route)
+    G, f_hat, _theta_i_hat = compute_linearization(
+        t, dose, theta_pop, eta_hat, route, n_cmt=n_cmt
+    )
 
     sigma_diag = (sigma_prop * np.abs(f_hat) + 1e-9) ** 2 + sigma_add**2
     sigma_mat = np.diag(sigma_diag)
@@ -224,30 +246,16 @@ def compute_foce_minus2ll(
     return float(minus2ll)
 
 
+# Backward-compatible wrappers (v2.1.0 API)
+
+
 def pack_theta(
     theta_pop: np.ndarray,
     omega_diag: np.ndarray,
     sigma_prop: float,
     sigma_add: float,
 ) -> np.ndarray:
-    """Pack population parameters into a flat optimization vector.
-
-    Parameters
-    ----------
-    theta_pop : np.ndarray
-        Population parameters on natural scale.
-    omega_diag : np.ndarray
-        Omega diagonal elements.
-    sigma_prop : float
-        Proportional error.
-    sigma_add : float
-        Additive error.
-
-    Returns
-    -------
-    np.ndarray
-        Flat theta vector: [log(theta_pop), log(omega_diag), log(sigma_prop), sigma_add].
-    """
+    """Pack diagonal-only theta vector (v2.1.0 compat)."""
     return np.concatenate(
         [
             np.log(theta_pop),
@@ -262,20 +270,7 @@ def unpack_theta(
     theta_vec: np.ndarray,
     n_params: int,
 ) -> tuple[np.ndarray, np.ndarray, float, float]:
-    """Unpack a flat theta vector.
-
-    Parameters
-    ----------
-    theta_vec : np.ndarray
-        Flat parameter vector.
-    n_params : int
-        Number of PK parameters (2 for iv_bolus, 3 for oral).
-
-    Returns
-    -------
-    tuple
-        ``(theta_pop, omega_diag, sigma_prop, sigma_add)``.
-    """
+    """Unpack diagonal-only theta vector (v2.1.0 compat)."""
     theta_pop = np.exp(theta_vec[:n_params])
     omega_diag = np.exp(theta_vec[n_params : 2 * n_params])
     sigma_prop = float(np.exp(theta_vec[-2]))
