@@ -15,7 +15,7 @@ from .diagnostics import compute_ebd_shrinkage
 from .foce_inner import compute_all_ebe
 from .model import PopPKModel
 from .objective import compute_foce_minus2ll, predict_individual
-from .omega import extract_omega_cov_dict, log_cholesky_to_omega
+from .omega import extract_omega_cov_dict
 from .result import PopPKResult
 from .saem_kernel import saem_m_step, saem_s_step_single_subject_mcmc, saem_sa_step
 
@@ -85,13 +85,31 @@ def run_saem(
         for si, (_subj, (t, y, dose)) in enumerate(sorted(data_by_subject.items())):
             if use_pymc:
                 eta_sample = _saem_pymc_step(
-                    t, y, dose, theta_pop, omega_mat, sigma_prop, sigma_add,
-                    route, n_mcmc_steps, rng, n_cmt=n_cmt_val,
+                    t,
+                    y,
+                    dose,
+                    theta_pop,
+                    omega_mat,
+                    sigma_prop,
+                    sigma_add,
+                    route,
+                    n_mcmc_steps,
+                    rng,
+                    n_cmt=n_cmt_val,
                 )
             else:
                 eta_sample = saem_s_step_single_subject_mcmc(
-                    t, y, dose, theta_pop, omega_mat, sigma_prop, sigma_add,
-                    route, n_mcmc_steps, rng, n_cmt=n_cmt_val,
+                    t,
+                    y,
+                    dose,
+                    theta_pop,
+                    omega_mat,
+                    sigma_prop,
+                    sigma_add,
+                    route,
+                    n_mcmc_steps,
+                    rng,
+                    n_cmt=n_cmt_val,
                 )
             eta_samples[si] = eta_sample
 
@@ -109,7 +127,9 @@ def run_saem(
 
         s = saem_sa_step(s, eta_samples, res_sq_arr, f_pred_arr, gamma_k)
         theta_pop, omega_mat, sigma_prop, sigma_add = saem_m_step(
-            s, n_subjects, n_observations,
+            s,
+            n_subjects,
+            n_observations,
         )
 
         if k >= n_burn_in:
@@ -139,8 +159,13 @@ def run_saem(
     omega_inv_final = np.linalg.inv(omega_final)
 
     ebe_dict, n_inner_failures, ebe_warns = compute_all_ebe(
-        data_by_subject, theta_pop_final, omega_inv_final,
-        sigma_prop_final, sigma_add_final, route, n_cmt=n_cmt_val,
+        data_by_subject,
+        theta_pop_final,
+        omega_inv_final,
+        sigma_prop_final,
+        sigma_add_final,
+        route,
+        n_cmt=n_cmt_val,
     )
     warn_list.extend(ebe_warns)
 
@@ -153,7 +178,11 @@ def run_saem(
     ebe_df = _build_ebe_dataframe(ebe_dict, param_names)
 
     ipred, pop_pred, pop_pred_arr = _compute_predictions(
-        data_by_subject, ebe_dict, theta_pop_final, route, n_cmt=n_cmt_val,
+        data_by_subject,
+        ebe_dict,
+        theta_pop_final,
+        route,
+        n_cmt=n_cmt_val,
     )
 
     obs_times: dict[str, np.ndarray] = {}
@@ -163,8 +192,13 @@ def run_saem(
         obs_concs[subj] = y
 
     minus2ll = _compute_saem_minus2ll(
-        data_by_subject, theta_pop_final, omega_diag_final,
-        sigma_prop_final, sigma_add_final, route, n_cmt=n_cmt_val,
+        data_by_subject,
+        theta_pop_final,
+        omega_diag_final,
+        sigma_prop_final,
+        sigma_add_final,
+        route,
+        n_cmt=n_cmt_val,
     )
 
     n_total_params = model.n_theta
@@ -214,7 +248,17 @@ def run_saem(
 
 
 def _saem_pymc_step(
-    t, y_obs, dose, theta_pop, omega, sigma_prop, sigma_add, route, n_mcmc_steps, rng, n_cmt=1,
+    t,
+    y_obs,
+    dose,
+    theta_pop,
+    omega,
+    sigma_prop,
+    sigma_add,
+    route,
+    n_mcmc_steps,
+    rng,
+    n_cmt=1,
 ):
     """S-step using PyMC Metropolis sampling."""
     import math
@@ -241,9 +285,11 @@ def _saem_pymc_step(
         return ll + lp
 
     if n_eta == 3:
+
         @as_op(itypes=[pt.dscalar, pt.dscalar, pt.dscalar], otypes=[pt.dscalar])
         def _pk_post(e0, e1, e2):  # type: ignore[no-untyped-def]
             return np.float64(_log_post(np.array([float(e0), float(e1), float(e2)])))
+
         with pm.Model():
             e0 = pm.Normal("e0", mu=0.0, sigma=np.sqrt(omega[0, 0]))
             e1 = pm.Normal("e1", mu=0.0, sigma=np.sqrt(omega[1, 1]))
@@ -252,20 +298,28 @@ def _saem_pymc_step(
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 trace = pm.sample(
-                    draws=n_mcmc_steps, tune=0, chains=1,
-                    step=pm.Metropolis(), progressbar=False,
-                    compute_convergence_checks=False, random_seed=seed_val,
+                    draws=n_mcmc_steps,
+                    tune=0,
+                    chains=1,
+                    step=pm.Metropolis(),
+                    progressbar=False,
+                    compute_convergence_checks=False,
+                    random_seed=seed_val,
                 )
             if trace.posterior.dims["draw"] > 0:
-                return np.array([
-                    float(trace.posterior["e0"].values[0, -1]),
-                    float(trace.posterior["e1"].values[0, -1]),
-                    float(trace.posterior["e2"].values[0, -1]),
-                ])
+                return np.array(
+                    [
+                        float(trace.posterior["e0"].values[0, -1]),
+                        float(trace.posterior["e1"].values[0, -1]),
+                        float(trace.posterior["e2"].values[0, -1]),
+                    ]
+                )
     elif n_eta == 2:
+
         @as_op(itypes=[pt.dscalar, pt.dscalar], otypes=[pt.dscalar])
         def _pk_post(e0, e1):  # type: ignore[no-untyped-def]
             return np.float64(_log_post(np.array([float(e0), float(e1)])))
+
         with pm.Model():
             e0 = pm.Normal("e0", mu=0.0, sigma=np.sqrt(omega[0, 0]))
             e1 = pm.Normal("e1", mu=0.0, sigma=np.sqrt(omega[1, 1]))
@@ -273,15 +327,21 @@ def _saem_pymc_step(
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 trace = pm.sample(
-                    draws=n_mcmc_steps, tune=0, chains=1,
-                    step=pm.Metropolis(), progressbar=False,
-                    compute_convergence_checks=False, random_seed=seed_val,
+                    draws=n_mcmc_steps,
+                    tune=0,
+                    chains=1,
+                    step=pm.Metropolis(),
+                    progressbar=False,
+                    compute_convergence_checks=False,
+                    random_seed=seed_val,
                 )
             if trace.posterior.dims["draw"] > 0:
-                return np.array([
-                    float(trace.posterior["e0"].values[0, -1]),
-                    float(trace.posterior["e1"].values[0, -1]),
-                ])
+                return np.array(
+                    [
+                        float(trace.posterior["e0"].values[0, -1]),
+                        float(trace.posterior["e1"].values[0, -1]),
+                    ]
+                )
     return rng.multivariate_normal(np.zeros(n_eta), omega)
 
 
@@ -344,7 +404,13 @@ def _compute_predictions(data_by_subject, ebe_dict, theta_pop, route, n_cmt=1):
 
 
 def _compute_saem_minus2ll(
-    data_by_subject, theta_pop, omega_diag, sigma_prop, sigma_add, route, n_cmt=1,
+    data_by_subject,
+    theta_pop,
+    omega_diag,
+    sigma_prop,
+    sigma_add,
+    route,
+    n_cmt=1,
 ):
     """Compute approximate -2LL using FOCE-I linearization at SAEM final estimates."""
     n_params = len(theta_pop)
@@ -352,14 +418,29 @@ def _compute_saem_minus2ll(
     omega_inv = np.diag(1.0 / np.maximum(omega_diag, 1e-9))
 
     ebe_dict, _nf, _w = compute_all_ebe(
-        data_by_subject, theta_pop, omega_inv, sigma_prop, sigma_add, route, n_cmt=n_cmt,
+        data_by_subject,
+        theta_pop,
+        omega_inv,
+        sigma_prop,
+        sigma_add,
+        route,
+        n_cmt=n_cmt,
     )
 
     total_minus2ll = 0.0
     for subj, (t, y, dose) in data_by_subject.items():
         eta_hat = ebe_dict.get(subj, np.zeros(n_params, dtype=float))
         subj_ll = compute_foce_minus2ll(
-            t, y, dose, theta_pop, omega, sigma_prop, sigma_add, eta_hat, route, n_cmt=n_cmt,
+            t,
+            y,
+            dose,
+            theta_pop,
+            omega,
+            sigma_prop,
+            sigma_add,
+            eta_hat,
+            route,
+            n_cmt=n_cmt,
         )
         total_minus2ll += subj_ll
     return total_minus2ll

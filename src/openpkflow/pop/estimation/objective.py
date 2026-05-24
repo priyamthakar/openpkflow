@@ -224,9 +224,7 @@ def compute_foce_minus2ll(
     float
         Subject contribution to -2LL.
     """
-    G, f_hat, _theta_i_hat = compute_linearization(
-        t, dose, theta_pop, eta_hat, route, n_cmt=n_cmt
-    )
+    G, f_hat, _theta_i_hat = compute_linearization(t, dose, theta_pop, eta_hat, route, n_cmt=n_cmt)
 
     sigma_diag = (sigma_prop * np.abs(f_hat) + 1e-9) ** 2 + sigma_add**2
     sigma_mat = np.diag(sigma_diag)

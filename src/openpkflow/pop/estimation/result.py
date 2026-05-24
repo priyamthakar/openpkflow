@@ -27,7 +27,6 @@ class PopPKResult:
     omega_se: dict[str, float]
     omega_off_diag: dict[str, float] = field(default_factory=dict)
     omega_off_se: dict[str, float] = field(default_factory=dict)
-    covariate_betas: dict[str, float] | None = None
     sigma_prop: float = 0.15
     sigma_add: float = 0.0
     sigma_prop_se: float = float("nan")
@@ -113,12 +112,8 @@ class PopPKResult:
 
         lines.append("Residual Error")
         lines.append("-" * 40)
-        lines.append(
-            f"  sigma_prop = {self.sigma_prop:.4f}  (SE = {self.sigma_prop_se:.4f})"
-        )
-        lines.append(
-            f"  sigma_add  = {self.sigma_add:.4f}   (SE = {self.sigma_add_se:.4f})"
-        )
+        lines.append(f"  sigma_prop = {self.sigma_prop:.4f}  (SE = {self.sigma_prop_se:.4f})")
+        lines.append(f"  sigma_add  = {self.sigma_add:.4f}   (SE = {self.sigma_add_se:.4f})")
         lines.append("")
 
         lines.append("EBE Shrinkage")
@@ -150,9 +145,7 @@ class PopPKResult:
             lines.append("")
 
         lines.append("Disclaimer: This is a research tool. Results should be verified")
-        lines.append(
-            "against a regulatory-grade population PK engine (NONMEM, Monolix)."
-        )
+        lines.append("against a regulatory-grade population PK engine (NONMEM, Monolix).")
 
         return "\n".join(lines)
 
@@ -160,47 +153,57 @@ class PopPKResult:
         """Return a DataFrame of population parameter estimates."""
         rows: list[dict[str, object]] = []
         for k in self.param_names:
-            rows.append({
-                "type": "theta",
-                "parameter": k,
-                "estimate": self.theta_pop.get(k),
-                "se": self.theta_se.get(k),
-                "rse_pct": self.rse.get(k),
-            })
+            rows.append(
+                {
+                    "type": "theta",
+                    "parameter": k,
+                    "estimate": self.theta_pop.get(k),
+                    "se": self.theta_se.get(k),
+                    "rse_pct": self.rse.get(k),
+                }
+            )
         for k in self.param_names:
-            rows.append({
-                "type": "omega",
-                "parameter": f"omega_{k}",
-                "estimate": self.omega_diag.get(k),
-                "se": self.omega_se.get(k),
-                "rse_pct": (
-                    100.0 * self.omega_se.get(k, 0) / self.omega_diag.get(k, 1)
-                    if self.omega_diag.get(k, 0) > 0
-                    else float("nan")
-                ),
-            })
+            rows.append(
+                {
+                    "type": "omega",
+                    "parameter": f"omega_{k}",
+                    "estimate": self.omega_diag.get(k),
+                    "se": self.omega_se.get(k),
+                    "rse_pct": (
+                        100.0 * self.omega_se.get(k, 0) / self.omega_diag.get(k, 1)
+                        if self.omega_diag.get(k, 0) > 0
+                        else float("nan")
+                    ),
+                }
+            )
         for k, v in self.omega_off_diag.items():
-            rows.append({
-                "type": "omega_cov",
-                "parameter": f"cov({k})",
-                "estimate": v,
-                "se": self.omega_off_se.get(k, float("nan")),
+            rows.append(
+                {
+                    "type": "omega_cov",
+                    "parameter": f"cov({k})",
+                    "estimate": v,
+                    "se": self.omega_off_se.get(k, float("nan")),
+                    "rse_pct": float("nan"),
+                }
+            )
+        rows.append(
+            {
+                "type": "sigma",
+                "parameter": "sigma_prop",
+                "estimate": self.sigma_prop,
+                "se": self.sigma_prop_se,
                 "rse_pct": float("nan"),
-            })
-        rows.append({
-            "type": "sigma",
-            "parameter": "sigma_prop",
-            "estimate": self.sigma_prop,
-            "se": self.sigma_prop_se,
-            "rse_pct": float("nan"),
-        })
-        rows.append({
-            "type": "sigma",
-            "parameter": "sigma_add",
-            "estimate": self.sigma_add,
-            "se": self.sigma_add_se,
-            "rse_pct": float("nan"),
-        })
+            }
+        )
+        rows.append(
+            {
+                "type": "sigma",
+                "parameter": "sigma_add",
+                "estimate": self.sigma_add,
+                "se": self.sigma_add_se,
+                "rse_pct": float("nan"),
+            }
+        )
         return pd.DataFrame(rows)
 
     def to_dict(self) -> dict[str, object]:
@@ -221,7 +224,6 @@ class PopPKResult:
             "omega_se": self.omega_se,
             "omega_off_diag": self.omega_off_diag,
             "omega_off_se": self.omega_off_se,
-            "covariate_betas": self.covariate_betas,
             "sigma_prop": self.sigma_prop,
             "sigma_add": self.sigma_add,
             "sigma_prop_se": self.sigma_prop_se,
@@ -239,6 +241,7 @@ class PopPKResult:
     def plot(self, output_path=None, show=False):
         """Generate a 6-panel population PK diagnostic plot."""
         import matplotlib.pyplot as plt
+
         from .plotting import pop_pk_figure
 
         fig = pop_pk_figure(self)
@@ -252,4 +255,5 @@ class PopPKResult:
     def report(self, output_path, *, fmt="html"):
         """Generate a population PK estimation report."""
         from .reporting import report_pop_pk
+
         return report_pop_pk(self, output_path=output_path, fmt=fmt)

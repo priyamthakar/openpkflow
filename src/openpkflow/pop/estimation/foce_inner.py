@@ -136,8 +136,16 @@ def compute_all_ebe(
     for subj, (t, y, dose) in data_by_subject.items():
         x0 = warm_start.get(subj) if warm_start else None
         eta_hat, _obj, converged = compute_ebe(
-            t, y, dose, theta_pop, omega_inv, sigma_prop, sigma_add, route,
-            x0=x0, n_cmt=n_cmt,
+            t,
+            y,
+            dose,
+            theta_pop,
+            omega_inv,
+            sigma_prop,
+            sigma_add,
+            route,
+            x0=x0,
+            n_cmt=n_cmt,
         )
         ebe_dict[subj] = eta_hat
         if not converged:

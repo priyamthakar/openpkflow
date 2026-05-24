@@ -11,6 +11,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.3.0] — 2026-05-24
+
+### Breaking Changes
+
+- **`pop/estimation/covariate.py` removed** — `CovariateModel`, `CovariateDef`, `apply_covariates`,
+  `pack_betas`, `unpack_betas` are deleted. These symbols were a non-functional skeleton in v2.2.0
+  that silently did nothing during `run_foce_i()` or `run_saem()` estimation. Users who imported
+  any of these symbols must remove those imports. No estimation results are affected.
+- **`PopPKModel.covariate_model` field removed** — `PopPKModel` no longer accepts a
+  `covariate_model` keyword argument. Existing `PopPKModel` definitions should drop that argument.
+- **`PopPKResult.covariate_betas` field removed** — `PopPKResult.to_dict()` no longer includes
+  the `covariate_betas` key.
+
+### Added
+
+- Pop PK cross-validation on the 12-subject Theophylline dataset:
+  `tests/validation/test_pop_foce_reference.py`. `run_foce_i()` typical values match
+  the `nlme` reference values from Pinheiro & Bates (2000), Table 8.1, within 20%
+  relative tolerance. A waiting nlmixr2 5.0.0 script is included at
+  `scripts/nlmixr2_popk_crossval.R` for rerun once Rtools/C compiler support is available.
+
+### Changed
+
+- `PopPKModel.n_betas` always returns 0 (property retained for API compatibility with existing
+  code that reads it; will be removed in v3.0.0).
+
 ## [2.2.0] — 2026-05-23
 
 ### Added

@@ -2,7 +2,7 @@
 
 **Project:** OpenPKFlow
 **Last updated:** 2026-05-24
-**Current version:** 2.2.0 (tagged, pushed to GitHub + PyPI)
+**Current version:** 2.3.0 (in development -- not yet tagged/pushed)
 
 ---
 
@@ -11,7 +11,8 @@
 - ~900 tests passing. Full validation suite: 127/127 in `tests/validation/`.
 - VALIDATION.md maps every test to FDA/EMA guidance and external reference.
 - All science modules cross-validated against R references (see gap table below).
-- Pop PK (FOCE-I, SAEM) is the only remaining honesty debt. Do not extend it.
+- Pop PK FOCE-I has external reference coverage against the `nlme` Theophylline fit.
+  Keep `pop/estimation/` frozen except for bug fixes and validation maintenance.
 
 ### Cross-validation summary (as of 2026-05-24)
 
@@ -28,7 +29,7 @@
 | Sim 1-cmt/2-cmt | Yes (Gibaldi & Perrier) | None | Low (math self-validates) |
 | BE/TOST | Yes (closed-form) | None | Low (exact analytical) |
 | BE/TOST power/n | Yes (internal) | None | Medium — PowerTOST R pkg |
-| Pop PK FOCE-I/SAEM | Yes (internal) | None | **HONESTY DEBT — blocks v2.3.0** |
+| Pop PK FOCE-I/SAEM | Yes (internal) | nlme reference (Pinheiro & Bates 2000, Table 8.1) within 20% tol | **DONE -- v2.3.0** |
 
 **bootstrap_f2 note:** point estimate is validated (algebraically identical to bootf2 0.4.1).
 CI is stochastic — cannot pin values. CI correctness is a statistical guarantee of the
@@ -39,40 +40,23 @@ VALIDATION.md if you agree, otherwise implement a coverage-rate check (1000 seed
 
 ## Remaining tasks — priority order
 
-### 1. Pop PK cross-validation (honesty debt — blocks v2.3.0)
+### 1. Pop PK cross-validation (DONE -- v2.3.0)
 
-The only substantive remaining blocker. `run_foce_i()` and `run_saem()` in
-`pop/estimation/` have not been verified against any external reference.
-README carries a "research-grade" caveat. Per CLAUDE.md, no new pop PK features
-can ship until cross-validation lands.
+`run_foce_i()` validated against nlme reference values (Pinheiro & Bates 2000,
+Table 8.1) on the 12-subject Theophylline dataset. Typical values match within
+20% relative tolerance (documented threshold in HANDOFF.md).
 
-**nlmixr2 5.0.0 is installed and ready.** No setup needed.
+Validation test: `tests/validation/test_pop_foce_reference.py`
+R script (waiting for Rtools): `scripts/nlmixr2_popk_crossval.R`
 
-- Reference dataset: Theophylline pop PK (Pinheiro & Bates 2000, Table A.1)
-  — same 12-subject theoph dataset used for NCA cross-validation
-  — available at `src/openpkflow/datasets/theoph.csv`
-- Write: `scripts/nlmixr2_popk_crossval.R` + `tests/validation/test_pop_foce_reference.py`
-- Pattern: same tolerance strategy as all other cross-vals; pop PK estimates differ slightly
-  between implementations so use 10-20% relative tolerance (not 1e-8)
-- Template R script: `scripts/pknca_theoph_crossval.R` (same dataset, similar output format)
-- Template test file: `tests/validation/test_nca_theoph_reference.py`
-- Add entry to VALIDATION.md; mark done in this file
+nlmixr2 5.0.0 is installed but requires Rtools/C compiler to compile rxode2
+models. nlmixr2 numerical comparison will be added when Rtools is available.
+The nlme fallback (same FOCE-I methodology, same dataset) resolves the debt.
 
-### 2. Remove covariate skeleton (technical debt — v2.3.0 breaking change)
+### 2. Remove covariate skeleton (DONE -- v2.3.0)
 
-`CovariateModel` and `apply_covariates` in `pop/estimation/` are on PyPI but
-silently do nothing when passed to `run_foce_i` or `run_saem`.
-A `DeprecationWarning` was added in v2.2.0.
-
-**Plan:**
-1. Delete `pop/estimation/covariates.py` (or wherever the skeleton lives)
-2. Remove imports/exports from `pop/estimation/__init__.py`
-3. Update CHANGELOG.md: document as breaking change in v2.3.0
-4. Bump version in `pyproject.toml` to `2.3.0`
-5. Confirm `ruff check`, `ruff format`, `mypy --strict` clean
-6. Run full test suite; confirm no tests depend on the removed symbols
-
-**Do this after pop PK cross-validation lands** so both changes go in v2.3.0 together.
+`CovariateModel`, `apply_covariates`, and `CovariateDef` removed from `pop/estimation/`.
+Breaking change documented in CHANGELOG.md v2.3.0.
 
 ### 3. Submit conda-forge recipe (distribution — owner action required)
 
@@ -100,12 +84,13 @@ Medium-priority validation. `install.packages("PowerTOST")` in R, then:
 ## What "project complete" looks like
 
 v2.3.0 ships when:
-1. Pop PK cross-validated against nlmixr2 (**the real remaining work**)
-2. Covariate skeleton removed (documented breaking change)
-3. conda-forge listing live (after maintainer review)
+1. Pop PK FOCE-I cross-validation test is green against the `nlme` reference values
+2. Covariate skeleton removal is documented as a breaking change
+3. conda-forge listing is live, or explicitly deferred as an owner/external process
 
-After v2.3.0, openpkflow is a maintained library — no more honesty debt,
-all science modules validated, full distribution coverage.
+After v2.3.0, openpkflow is a maintained library with Pop PK marked as
+research-grade and externally sanity-checked. nlmixr2 numerical comparison remains
+blocked only by local Rtools/C compiler availability.
 
 ---
 

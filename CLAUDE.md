@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
-**Out of scope — do not extend (existing code is frozen at v2.2.0):**
+**Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
@@ -25,9 +25,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 1. Before adding any feature, verify it is on the in-scope list. If not, ask the user.
 2. Validation work outranks new features. Do not add a new module when existing
    modules lack NONMEM/PKNCA cross-validation.
-3. The covariate API in `pop/estimation/` (`CovariateModel`, `apply_covariates`) is a
-   non-functional skeleton in v2.2.0 — it does not affect estimation results. See
-   HANDOFF.md before touching it.
+3. The former covariate API in `pop/estimation/` (`CovariateModel`, `apply_covariates`)
+   was a non-functional v2.2.0 skeleton and was removed in v2.3.0. Do not reintroduce
+   covariate estimation without a full external validation plan.
 4. When ROADMAP.md and CLAUDE.md disagree, CLAUDE.md wins. Flag the conflict to the user.
 5. Never use `--no-verify` to bypass pre-commit hooks. Fix the underlying issue instead.
 
