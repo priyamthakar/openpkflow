@@ -29,9 +29,15 @@ def example_theoph_path() -> str:
     return _dataset_path("theoph.csv")
 
 
+def example_ss_crossval_path() -> str:
+    """Path to the 3-subject synthetic steady-state dataset (1-cmt oral, tau=8 h)."""
+    return _dataset_path("ss_crossval.csv")
+
+
 __all__ = [
     "example_dissolution_path",
     "example_similar_path",
     "example_not_similar_path",
     "example_theoph_path",
+    "example_ss_crossval_path",
 ]
