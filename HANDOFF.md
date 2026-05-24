@@ -46,13 +46,16 @@ The only substantive remaining blocker. `run_foce_i()` and `run_saem()` in
 README carries a "research-grade" caveat. Per CLAUDE.md, no new pop PK features
 can ship until cross-validation lands.
 
-**Path:** nlmixr2 R package (free) or NONMEM (license required).
-- Check if nlmixr2 is installed: `"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e "library(nlmixr2)"`
-- If not: `install.packages("nlmixr2")` in R
+**nlmixr2 5.0.0 is installed and ready.** No setup needed.
+
 - Reference dataset: Theophylline pop PK (Pinheiro & Bates 2000, Table A.1)
   — same 12-subject theoph dataset used for NCA cross-validation
+  — available at `src/openpkflow/datasets/theoph.csv`
 - Write: `scripts/nlmixr2_popk_crossval.R` + `tests/validation/test_pop_foce_reference.py`
-- Pattern: same algebraic identity / tolerance strategy as all other cross-vals
+- Pattern: same tolerance strategy as all other cross-vals; pop PK estimates differ slightly
+  between implementations so use 10-20% relative tolerance (not 1e-8)
+- Template R script: `scripts/pknca_theoph_crossval.R` (same dataset, similar output format)
+- Template test file: `tests/validation/test_nca_theoph_reference.py`
 - Add entry to VALIDATION.md; mark done in this file
 
 ### 2. Remove covariate skeleton (technical debt — v2.3.0 breaking change)
@@ -124,7 +127,7 @@ Run R scripts:
 "C:\Program Files\R\R-4.6.0\bin\Rscript.exe" scripts/<name>.R
 ```
 
-Packages installed: PKNCA 0.12.1, NonCompart 0.8.0, bootf2 0.4.1
+Packages installed: PKNCA 0.12.1, NonCompart 0.8.0, bootf2 0.4.1, nlmixr2 5.0.0
 
 Run all tests (excluding slow MCMC):
 ```
