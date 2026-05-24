@@ -1,16 +1,14 @@
-"""Population PK model definition — structural + statistical model.
+"""Population PK model definition -- structural + statistical model.
 
-Supports 1- and 2-compartment models, diagonal and full Omega matrices,
-and covariate effects on PK parameters.
+Supports 1- and 2-compartment models and diagonal and full Omega matrices.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 
-from .covariate import CovariateModel, n_beta_params, pack_betas, unpack_betas
 from .omega import (
     log_cholesky_to_omega,
     make_param_labels_omega,
@@ -18,8 +16,7 @@ from .omega import (
     omega_to_log_cholesky,
 )
 
-
-# (route, n_cmt) → list of PK parameter names
+# (route, n_cmt) -> list of PK parameter names
 _ROUTE_N_CMT_PARAMS: dict[tuple[str, int], list[str]] = {
     ("oral", 1): ["CL_F", "Vz_F", "ka"],
     ("oral", 2): ["CL_F", "V1_F", "Q", "V2", "ka"],
@@ -62,8 +59,6 @@ class PopPKModel:
         Number of compartments (1 or 2).
     omega_type : str
         ``"diagonal"`` or ``"full"`` for block Omega matrix.
-    covariate_model : CovariateModel or None
-        Optional covariate model with beta coefficients.
 
     Raises
     ------
@@ -80,13 +75,10 @@ class PopPKModel:
     error_model: str = "combined"
     n_cmt: int = 1
     omega_type: str = "diagonal"
-    covariate_model: CovariateModel | None = None
 
     def __post_init__(self) -> None:
         if self.route not in ("oral", "iv_bolus"):
-            raise ValueError(
-                f"Unsupported route '{self.route}'. Expected 'oral' or 'iv_bolus'."
-            )
+            raise ValueError(f"Unsupported route '{self.route}'. Expected 'oral' or 'iv_bolus'.")
         if self.n_cmt not in (1, 2):
             raise ValueError(f"n_cmt must be 1 or 2; got {self.n_cmt}")
         if self.error_model not in ("combined", "proportional", "additive"):
@@ -96,8 +88,7 @@ class PopPKModel:
             )
         if self.omega_type not in ("diagonal", "full"):
             raise ValueError(
-                f"Unsupported omega_type '{self.omega_type}'. "
-                f"Expected 'diagonal' or 'full'."
+                f"Unsupported omega_type '{self.omega_type}'. Expected 'diagonal' or 'full'."
             )
 
         expected = set(_get_param_names(self.route, self.n_cmt))
@@ -126,14 +117,6 @@ class PopPKModel:
         if self.sigma_add < 0:
             raise ValueError("sigma_add must be >= 0")
 
-        if self.covariate_model is not None:
-            for beta_key in self.covariate_model.beta_init:
-                if beta_key[0] not in expected:
-                    raise ValueError(
-                        f"covariate beta key {beta_key} references unknown "
-                        f"parameter '{beta_key[0]}'"
-                    )
-
     @property
     def param_names(self) -> list[str]:
         """Ordered list of parameter names for this model."""
@@ -156,13 +139,13 @@ class PopPKModel:
 
     @property
     def n_betas(self) -> int:
-        """Number of covariate beta parameters."""
-        return n_beta_params(self.covariate_model)
+        """Number of covariate beta parameters (always 0 in v2.3.0+)."""
+        return 0
 
     @property
     def n_theta(self) -> int:
         """Total length of the flat theta optimization vector."""
-        return self.n_params + self.n_omega_total + self.n_betas + 2
+        return self.n_params + self.n_omega_total + 2
 
     @property
     def param_labels(self) -> list[str]:
@@ -171,10 +154,6 @@ class PopPKModel:
         for n in self.param_names:
             labels.append(f"log_{n}")
         labels.extend(make_param_labels_omega(self.param_names, self.omega_type))
-        if self.covariate_model is not None:
-            for pname in self.param_names:
-                for cdef in self.covariate_model.covariates:
-                    labels.append(f"beta_{pname}_{cdef.name}")
         labels.append("log_sigma_prop")
         labels.append("sigma_add")
         return labels
@@ -183,7 +162,7 @@ class PopPKModel:
         """Pack the full parameter vector for optimization.
 
         Order: [log(theta_pop)... | log_cholesky_diag... | cholesky_off_diag...
-                | betas... | log(sigma_prop), sigma_add]
+                | log(sigma_prop), sigma_add]
 
         Returns
         -------
@@ -203,13 +182,10 @@ class PopPKModel:
         else:
             omega_vec = np.concatenate([L_diag, L_off])
 
-        beta_vec = pack_betas(self.covariate_model, names)
-
         return np.concatenate(
             [
                 theta_pop_log,
                 omega_vec,
-                beta_vec,
                 [np.log(self.sigma_prop)],
                 [self.sigma_add],
             ]
@@ -224,7 +200,6 @@ class PopPKModel:
         n_cmt: int = 1,
         omega_type: str = "diagonal",
         error_model: str = "combined",
-        covariate_model: CovariateModel | None = None,
     ) -> PopPKModel:
         """Unpack a flat theta vector back to a ``PopPKModel``.
 
@@ -240,8 +215,6 @@ class PopPKModel:
             ``"diagonal"`` or ``"full"``.
         error_model : str
             Error model type.
-        covariate_model : CovariateModel or None
-            Covariate model (for beta naming only).
 
         Returns
         -------
@@ -250,11 +223,9 @@ class PopPKModel:
         names = _get_param_names(route, n_cmt)
         n_pk = len(names)
         n_om = n_omega_params(n_pk, omega_type)
-        n_bet = n_beta_params(covariate_model)
 
         theta_pop_log = theta[:n_pk]
         omega_vec = theta[n_pk : n_pk + n_om]
-        beta_vec = theta[n_pk + n_om : n_pk + n_om + n_bet]
         sigma_prop = float(np.exp(theta[-2]))
         sigma_add = float(theta[-1])
 
@@ -265,15 +236,6 @@ class PopPKModel:
         fixed_effects = {k: float(np.exp(v)) for k, v in zip(names, theta_pop_log, strict=False)}
         omega_diag = {k: float(Omega[i, i]) for i, k in enumerate(names)}
 
-        if covariate_model is not None and n_bet > 0:
-            betas = unpack_betas(beta_vec, covariate_model, names)
-            new_cov_model = CovariateModel(
-                covariates=list(covariate_model.covariates),
-                beta_init=betas,
-            )
-        else:
-            new_cov_model = None
-
         return cls(
             route=route,
             fixed_effects=fixed_effects,
@@ -283,7 +245,6 @@ class PopPKModel:
             error_model=error_model,
             n_cmt=n_cmt,
             omega_type=omega_type,
-            covariate_model=new_cov_model,
         )
 
     def get_bounds(self) -> list[tuple[float, float | None]]:
@@ -291,7 +252,6 @@ class PopPKModel:
 
         Log-scale parameters get wide physiological bounds;
         off-diagonal Cholesky elements are unbounded;
-        beta parameters are unbounded;
         sigma_add is bounded [0, inf).
 
         Returns
@@ -301,14 +261,15 @@ class PopPKModel:
         """
         n_pk = self.n_params
         n_om = self.n_omega_total
-        n_bet = self.n_betas
 
         bounds: list[tuple[float, float | None]] = []
         bounds.extend([(-6.0, 6.0)] * n_pk)
         bounds.extend([(-10.0, 2.0)] * n_pk)
         if n_om > n_pk:
-            bounds.extend([(None, None)] * (n_om - n_pk))
-        bounds.extend([(None, None)] * n_bet)
+            off_bounds: list[tuple[float, float | None]] = [(float("-inf"), float("inf"))] * (
+                n_om - n_pk
+            )
+            bounds.extend(off_bounds)
         bounds.append((-5.0, 1.0))
         bounds.append((0.0, None))
         return bounds

@@ -148,7 +148,9 @@ Scope: new `pop/estimation/` sub-package. Two-tier architecture matching `bayes/
 - CLI: `openpkflow pop foce-i` and `openpkflow pop saem` (Typer subcommands) ✅
 - Tests: 47 new tests (model, diagnostics, objective, FOCE-I integration, SAEM integration) ✅
 
-**Deferred to v2.2.0:** 2-cmt models, full Ω block matrix, covariates, PDF/DOCX reports.
+**Deferred to v2.2.0:** 2-cmt models, full Omega block matrix, PDF/DOCX reports.
+Covariate skeleton APIs briefly shipped in v2.2.0 but were removed in v2.3.0 because
+they did not affect estimation.
 
 ---
 

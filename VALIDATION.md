@@ -229,6 +229,27 @@ section or published reference. Last updated: 2026-05-23.
 
 ---
 
+## Population PK Cross-Validation
+
+| Test file | Test function(s) | What is verified | Reference |
+|---|---|---|---|
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIConvergence::test_produces_finite_minus2ll`, `test_minus2ll_pharmacologically_plausible` | FOCE-I produces a finite objective value in the expected range on the 12-subject Theoph dataset | Lindstrom MJ, Bates DM (1990). Biometrics, 46:673-687. FOCE-I conditional estimation. |
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIConvergence::test_correct_subject_count`, `test_observation_count_plausible`, `test_aic_greater_than_minus2ll`, `test_ebe_dataframe_has_12_rows`, `test_all_three_param_names_present` | Structural validity: 12 subjects, ~120 obs, AIC > -2LL, 12-row EBE dataframe, expected parameter names | Internal consistency checks; Akaike H (1974) AIC definition. |
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIPlausibility::test_clf_plausible`, `test_vzf_plausible`, `test_ka_plausible` | Population typical values CL/F, V/F, ka within published theophylline PK ranges: CL/F 1.5-5 L/h, V/F 15-50 L, ka 0.5-5 h-1 | Pinheiro JC, Bates DM (2000). Mixed-Effects Models in S and S-PLUS. Springer, Table A.1. Jusko WJ et al. (1986). J Pharm Sci, 75(5):539-547. |
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIPlausibility::test_omega_clf_plausible`, `test_omega_vzf_plausible`, `test_omega_ka_plausible`, `test_sigma_prop_plausible`, `test_sigma_add_nonnegative` | IIV variances (omega^2) and residual sigma within plausible ranges for theophylline data | Pinheiro JC, Bates DM (2000). Chapter 8, typical omega^2 values for Theoph nlme fit. |
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIVsPinheiroAndBates::test_clf_vs_nlme_reference`, `test_vzf_vs_nlme_reference`, `test_ka_vs_nlme_reference` | openpkflow FOCE-I matches nlme reference (Pinheiro & Bates 2000, Table 8.1: CL/F=2.73 L/h, V/F=31.0 L, ka=1.49 h-1) within 20% relative tolerance | Pinheiro JC, Bates DM (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York. Chapter 8, Table 8.1. Tolerance per HANDOFF.md (FOCE-I implementations differ by 5-15% due to optimizer tolerance). |
+| `tests/validation/test_pop_foce_reference.py` | `TestFOCEIShrinkage::test_shrinkage_keys_present`, `test_shrinkage_values_are_fractions` | EBE shrinkage present for all 3 parameters and in [0, 1] | Savic RM, Karlsson MO (2009). AAPS J, 11(3):558-569. EBE shrinkage definition. |
+
+**Cross-validation note:** nlmixr2 5.0.0 is installed (D:/R-library/4.6) but requires Rtools
+(C compiler) to compile rxode2 ODE models. Compilation fails on this system without Rtools.
+The cross-validation therefore uses nlme reference values from Pinheiro & Bates (2000) Table 8.1,
+which fit the same dataset with the same FOCE-I methodology (via R nlme package). The 20%
+relative tolerance is appropriate for FOCE-I implementations differing in inner-loop convergence
+criteria and Hessian approximation method. See `scripts/nlmixr2_popk_crossval.R` for the
+waiting nlmixr2 R script to run once Rtools is available.
+
+---
+
 ## Bayesian PK
 
 | Test file | Test function(s) | What is verified | Reference |

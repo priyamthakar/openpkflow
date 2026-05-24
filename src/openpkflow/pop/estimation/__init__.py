@@ -30,7 +30,7 @@ Two-tier architecture matching the ``bayes/`` module pattern:
     - 6-panel diagnostic plot: OBS vs PRED/IPRED, CWRES vs TIME/PRED, EBE histograms + pairs
 
 **CLI:**
-    - ``openpkflow pop foce-i data.csv --route oral --cl 5.0 --v 50.0 --ka 1.0 --report report.html``
+    - ``openpkflow pop foce-i data.csv --route oral --cl 5.0 --v 50.0 --ka 1.0``
     - ``openpkflow pop saem data.csv --route iv_bolus --cl 3.0 --v 30.0 --n-iter 500``
 
 **Tests:** 47 tests across 5 test files in ``tests/pop/``.

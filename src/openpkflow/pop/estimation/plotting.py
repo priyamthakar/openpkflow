@@ -81,7 +81,7 @@ def pop_pk_plot_b64(result: PopPKResult) -> str:
     return base64.b64encode(buf.read()).decode("ascii")
 
 
-def _panel_obs_vs_pred(ax: Axes, result: "PopPKResult") -> None:
+def _panel_obs_vs_pred(ax: Axes, result: PopPKResult) -> None:
     obs_all, pred_all = _collect_obs_pred(result)
     if len(obs_all) < 2:
         ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)

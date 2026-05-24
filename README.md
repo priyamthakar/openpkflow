@@ -26,7 +26,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
-- **Population PK estimation (v2.2.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; covariate modeling; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; not independently validated against NONMEM or nlmixr2)
+- **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
@@ -331,14 +331,14 @@ vpc.report("vpc_report.html")
 | Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
 | MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
-| Population PK estimation — FOCE-I + SAEM (1/2-cmt, full Omega, covariates) | :white_check_mark: (v2.2.0)\* | :x: | :x: | :x: |
+| Population PK estimation — FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
 | Formal BE ANOVA / RSABE / replicate BE | :x: | :x: | :white_check_mark: | :x: |
 
-\* Research-grade; not independently validated against NONMEM or nlmixr2. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. nlmixr2 rerun is waiting on local Rtools/C compiler support. See [HANDOFF.md](HANDOFF.md).
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), FOCE-I + SAEM pop PK (done v2.1.0), 2-cmt + full Omega + covariates (done v2.2.0), replicate BE (planned).
+Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), FOCE-I + SAEM pop PK (done v2.1.0), 2-cmt + full Omega (done v2.2.0), covariate skeleton removal + FOCE-I reference validation (v2.3.0), replicate BE (planned).
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---
@@ -359,9 +359,9 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Sparse NCA (model-informed 1-cmt oral from 3-5 samples) | Stable — v1.5.0 |
 | PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
 | Population PK diagnostics (GOF, VPC) | Stable — v0.6.0 |
-| FOCE-I pop PK estimation (scipy tier, 1/2-cmt, full Omega)\* | Stable — v2.2.0 |
-| SAEM pop PK estimation ([bayes] extra, 1/2-cmt, full Omega)\* | Stable — v2.2.0 |
-| Covariate modeling (continuous + categorical) | Stable — v2.2.0 |
+| FOCE-I pop PK estimation (scipy tier, 1/2-cmt, full Omega)\* | Stable — v2.3.0 |
+| SAEM pop PK estimation ([bayes] extra, 1/2-cmt, full Omega)\* | Stable — v2.3.0 |
+| Covariate modeling | Removed — v2.3.0 breaking change |
 | Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
 | MAP individual PK (scipy, zero extra deps) | Stable -- v2.0.0 |
 | Full Bayesian PK posterior (PyMC, [bayes] extra) | Stable -- v2.0.0 |
@@ -370,7 +370,7 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype -- v0.9.0 |
 | Stable public release | Done -- v2.0.0 |
 
-\* Research-grade; not independently validated against NONMEM or nlmixr2. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
 
 ---
 

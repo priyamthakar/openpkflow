@@ -1,7 +1,6 @@
-"""FOCE-I (First Order Conditional Estimation with Interaction) — scipy tier.
+"""FOCE-I (First Order Conditional Estimation with Interaction) -- scipy tier.
 
-Supports 1- and 2-compartment models, diagonal and full Omega matrices,
-with optional covariate modeling.
+Supports 1- and 2-compartment models and diagonal and full Omega matrices.
 """
 
 from __future__ import annotations
@@ -66,7 +65,6 @@ def run_foce_i(
     param_names = model.param_names
     n_params = model.n_params
     n_omega = model.n_omega_total
-    n_betas_val = model.n_betas
     n_cmt_val = model.n_cmt
 
     theta0 = model.to_theta()
@@ -82,9 +80,15 @@ def run_foce_i(
 
     for _start_idx, x0 in enumerate(multi_start_points):
         result = _run_foce_outer(
-            data_by_subject, x0, bounds, route,
-            n_params, n_omega, n_betas_val, n_cmt_val,
-            max_outer_iters, outer_ftol,
+            data_by_subject,
+            x0,
+            bounds,
+            route,
+            n_params,
+            n_omega,
+            n_cmt_val,
+            max_outer_iters,
+            outer_ftol,
         )
         total_iterations += result.nit
         if result.success:
@@ -110,15 +114,25 @@ def run_foce_i(
     sigma_add_opt = float(theta_opt[-1])
 
     ebe_dict, n_inner_failures, ebe_warns = compute_all_ebe(
-        data_by_subject, theta_pop_opt, omega_inv_opt, sigma_prop_opt, sigma_add_opt,
-        route, n_cmt=n_cmt_val,
+        data_by_subject,
+        theta_pop_opt,
+        omega_inv_opt,
+        sigma_prop_opt,
+        sigma_add_opt,
+        route,
+        n_cmt=n_cmt_val,
     )
     warn_list.extend(ebe_warns)
 
     grad_norm = check_gradient_norm(
         theta_opt,
         lambda x: _foce_objective(
-            x, data_by_subject, route, n_params, n_omega, n_betas_val, n_cmt_val,
+            x,
+            data_by_subject,
+            route,
+            n_params,
+            n_omega,
+            n_cmt_val,
         ),
         warn_list,
     )
@@ -128,7 +142,12 @@ def run_foce_i(
 
     hess = numerical_hessian(
         lambda x: _foce_objective(
-            x, data_by_subject, route, n_params, n_omega, n_betas_val, n_cmt_val,
+            x,
+            data_by_subject,
+            route,
+            n_params,
+            n_omega,
+            n_cmt_val,
         ),
         theta_opt,
     )
@@ -176,7 +195,11 @@ def run_foce_i(
     ebe_df = _build_ebe_dataframe(ebe_dict, param_names)
 
     ipred, pop_pred, pop_pred_arr = _compute_predictions(
-        data_by_subject, ebe_dict, theta_pop_opt, route, n_cmt=n_cmt_val,
+        data_by_subject,
+        ebe_dict,
+        theta_pop_opt,
+        route,
+        n_cmt=n_cmt_val,
     )
 
     obs_times: dict[str, np.ndarray] = {}
@@ -281,18 +304,28 @@ def _generate_multistart(theta0, model, param_names, n_starts):
 
 
 def _run_foce_outer(
-    data_by_subject, x0, bounds, route, n_params, n_omega, n_betas, n_cmt, maxiter, ftol,
+    data_by_subject,
+    x0,
+    bounds,
+    route,
+    n_params,
+    n_omega,
+    n_cmt,
+    maxiter,
+    ftol,
 ):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return minimize(
-            lambda x: _foce_objective(x, data_by_subject, route, n_params, n_omega, n_betas, n_cmt),
-            x0, method="L-BFGS-B", bounds=bounds,
+            lambda x: _foce_objective(x, data_by_subject, route, n_params, n_omega, n_cmt),
+            x0,
+            method="L-BFGS-B",
+            bounds=bounds,
             options={"maxiter": maxiter, "ftol": ftol, "gtol": 1e-8},
         )
 
 
-def _foce_objective(theta_vec, data_by_subject, route, n_params, n_omega, n_betas, n_cmt):
+def _foce_objective(theta_vec, data_by_subject, route, n_params, n_omega, n_cmt):
     n_pk = n_params
     theta_pop = np.exp(theta_vec[:n_pk])
     omega_vec = theta_vec[n_pk : n_pk + n_omega]
@@ -308,14 +341,29 @@ def _foce_objective(theta_vec, data_by_subject, route, n_params, n_omega, n_beta
     omega_inv = np.linalg.inv(omega)
 
     ebe_dict, _nf, _w = compute_all_ebe(
-        data_by_subject, theta_pop, omega_inv, sigma_prop, sigma_add, route, n_cmt=n_cmt,
+        data_by_subject,
+        theta_pop,
+        omega_inv,
+        sigma_prop,
+        sigma_add,
+        route,
+        n_cmt=n_cmt,
     )
 
     total_minus2ll = 0.0
     for subj, (t, y, dose) in data_by_subject.items():
         eta_hat = ebe_dict.get(subj, np.zeros(n_pk, dtype=float))
         subj_ll = compute_foce_minus2ll(
-            t, y, dose, theta_pop, omega, sigma_prop, sigma_add, eta_hat, route, n_cmt=n_cmt,
+            t,
+            y,
+            dose,
+            theta_pop,
+            omega,
+            sigma_prop,
+            sigma_add,
+            eta_hat,
+            route,
+            n_cmt=n_cmt,
         )
         total_minus2ll += subj_ll
 
