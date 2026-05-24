@@ -168,9 +168,25 @@ Scope: new `pop/estimation/` sub-package. Two-tier architecture matching `bayes/
 
 ### Validation infrastructure
 - `VALIDATION.md`: cross-reference table mapping every test to FDA/EMA guidance section
-  and published DOI. Updated with PKNCA cross-val entries (v2.2.0 maintenance).
-- `pytest-benchmark` CI job: performance regression detection for NCA/dissolution math
-- `hypothesis` property-based tests for PK calculations (edge-case fuzzing)
+  and published DOI. Updated 2026-05-24 with all new cross-val entries.
+- **Three-way NCA cross-validation** (2026-05-24): openpkflow == PKNCA 0.12.1 ==
+  NonCompart 0.8.0 on all 12 theoph subjects, all parameters. ✅ Done.
+- **Steady-state NCA PKNCA cross-validation** (2026-05-24): AUCtau, Cmax_ss, Cmin_ss,
+  Cavg_ss, fluctuation%, swing. Swing convention documented (dimensionless ratio vs
+  PKNCA percent). ✅ Done.
+- **Dissolution f2 bootf2 cross-validation** (2026-05-24): bootf2 0.4.1 `calcf2(est.f2)`
+  vs openpkflow `f2(method="all_points")`. Algebraically identical. ✅ Done.
+- **IVIVC Level A cross-validation** (2026-05-24): Wagner-Nelson and Loo-Riegelman
+  independently implemented in R (no package needed — formula-level algebraic identity).
+  13 tests. F_a values match to < 1e-8 relative. ✅ Done.
+- **Urinary NCA cross-validation** (2026-05-24): Ae, CLr, %Ae independently implemented
+  in R; verified against analytical truth (1-cmt IV bolus renal excretion model, 3
+  subjects). 17 tests. ✅ Done.
+- **Dissolution model fitting cross-validation** (2026-05-24): All 5 models (zero-order,
+  first-order, Higuchi, KP, Weibull) cross-validated against base R lm/optim on
+  noise-free data. 24 tests. ✅ Done.
+- `pytest-benchmark` CI job: performance regression detection for NCA/dissolution math. ✅ Done.
+- `hypothesis` property-based tests for PK calculations (edge-case fuzzing). **Pending.**
 
 ### Discoverability
 - README "Comparison" section: feature matrix vs. PKNCA (R), WinNonlin, Pharmpy, OpenPKPD
