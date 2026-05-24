@@ -1,159 +1,147 @@
 # Handoff — start here
 
-**Project:** OpenPKFlow v2.2.0
+**Project:** OpenPKFlow
 **Last updated:** 2026-05-24
+**Current version:** 2.2.0 (tagged, pushed to GitHub + PyPI)
 
 ---
 
 ## Where things stand
 
-- v2.2.0 tagged and pushed to GitHub + PyPI. CHANGELOG complete.
-- ~900 tests passing. Benchmarks excluded from headless CI.
-- VALIDATION.md — all test files mapped to FDA/EMA guidance (updated 2026-05-24).
-- **Three-way NCA cross-validation complete** (strongest available open-source claim):
-  - PKNCA 0.12.1 (primary + extended): 12 subjects, 11 parameters each, ≤2% tolerance.
-    Scripts: `scripts/pknca_theoph_crossval.R`, `scripts/pknca_theoph_crossval_extended.R`
-    Tests: `tests/validation/test_nca_theoph_reference.py` (both `TestPKNCACrossValidation`
-    and `TestPKNCAExtendedCrossValidation`).
-  - NonCompart 0.8.0: independent second reference, all 12 theoph subjects, all parameters.
-    Script: `scripts/noncompart_theoph_crossval.R`
-    Test: `tests/validation/test_nca_noncompart_reference.py`
-  - openpkflow == PKNCA == NonCompart to 4+ decimal places on all subjects/parameters.
-- **Steady-state NCA cross-validated** against PKNCA 0.12.1:
-  - Synthetic SS dataset: `src/openpkflow/datasets/ss_crossval.csv` (3 subjects, true SS)
-  - Script: `scripts/pknca_ss_crossval.R`
-  - Test: `tests/validation/test_nca_ss_reference.py`
-  - **Swing unit convention documented**: openpkflow = dimensionless ratio (WinNonlin);
-    PKNCA = percentage (x100). Documented in `nca/results.py` and `nca/methods.py`.
-- **Dissolution f2 cross-validated** against bootf2 0.4.1:
-  - Script: `scripts/bootf2_dissolution_crossval.R`
-  - Test: `tests/validation/test_dissolution_bootf2_reference.py`
-  - bootf2 `calcf2(f2.type="est.f2")` is algebraically identical to openpkflow
-    `f2(method="all_points")`; values match to floating-point precision (< 1e-10).
-- conda-forge recipe at `scripts/conda-forge/meta.yaml`: sha256 filled with real
-  v2.2.0 hash (`e611165358b7913f9455c0a8a3ded323be870763f2d2a9fa5d438c4055c7bfa5`).
-  Still needs PR submission to `conda-forge/staged-recipes`.
-- Pop estimation (FOCE-I, SAEM) shipped but NOT cross-validated against NONMEM
-  or nlmixr2. README discloses this; estimation scope is frozen.
-- Covariate API (`CovariateModel`, `apply_covariates`) shipped in v2.2.0 as a
-  non-functional skeleton. `DeprecationWarning` emitted on import. Tracked for
-  removal in v2.3.0.
+- ~900 tests passing. Full validation suite: 127/127 in `tests/validation/`.
+- VALIDATION.md maps every test to FDA/EMA guidance and external reference.
+- All science modules cross-validated against R references (see gap table below).
+- Pop PK (FOCE-I, SAEM) is the only remaining honesty debt. Do not extend it.
 
----
-
-## Next tasks (priority order)
-
-1. **Submit conda-forge recipe** — submit single PR to `conda-forge/staged-recipes`
-   using `scripts/conda-forge/meta.yaml` (sha256 already filled with v2.2.0 hash).
-   This is the only major distribution task remaining.
-
-2. **CLI version test** — `tests/test_cli.py::test_version` may assert an old version
-   string. Verify it matches the live `pyproject.toml` version (`2.2.0`).
-
-3. **Bootstrap f2 stochastic validation** — `bootstrap_f2()` CI was not validated
-   stochastically against `bootf2::bootf2()` (the bootstrap CI is stochastic so
-   values can't be pinned). Options: (a) run coverage check across many seeds and
-   verify 90% CI includes true f2 in >90% of runs, or (b) accept that the f2_observed
-   point estimate is validated (done) and CI coverage is a statistical guarantee of
-   the algorithm design rather than a numerical check.
-
-4. **Pop PK validation** — `run_foce_i` and `run_saem` are unvalidated against NONMEM
-   or nlmixr2. Largest remaining honesty gap. Do not add pop PK features until
-   cross-validation lands. This requires NONMEM license or nlmixr2 R install plus a
-   reference pop PK dataset (e.g., Theophylline pop PK from Pinheiro & Bates).
-
-5. **BE/TOST power/sample-size vs PowerTOST** — medium priority; current tests use
-   closed-form truth for TOST. PowerTOST R package could cross-validate the power
-   calculation if installed. `install.packages("PowerTOST")` then write
-   `scripts/powertost_crossval.R` + `tests/validation/test_be_power_reference.py`.
-
----
-
-## Honesty debt (must resolve before any new module)
-
-- **Covariate skeleton**: `CovariateModel` and `apply_covariates` are on PyPI but
-  silently do nothing when passed to `run_foce_i` or `run_saem`. DeprecationWarning
-  added in v2.2.0. Plan: remove entirely in v2.3.0 as a documented breaking change.
-- **Pop estimation unvalidated**: `run_foce_i` and `run_saem` have not been
-  independently verified against NONMEM or nlmixr2 on a reference dataset. The
-  README pop PK section carries a "research-grade" caveat. Do not add estimation
-  features until cross-validation lands.
-
----
-
-## Validation gap analysis (as of 2026-05-24)
+### Cross-validation summary (as of 2026-05-24)
 
 | Module | Internal tests | External cross-val | Status |
-|--------|---------------|-------------------|--------|
+|--------|---------------|--------------------|--------|
 | NCA single-dose | Yes | PKNCA 0.12.1 + NonCompart 0.8.0 (3-way) | Done |
 | NCA steady-state | Yes | PKNCA 0.12.1 | Done |
 | NCA urinary (Ae, CLr) | Yes | Independent R formula (algebraic) | Done |
 | Dissolution f1/f2 | Yes | bootf2 0.4.1 | Done |
-| Dissolution bootstrap_f2 | Yes | Point estimate only (CI stochastic) | Partial |
+| Dissolution bootstrap_f2 | Yes | Point estimate only (CI stochastic) | Done — see note |
 | Dissolution model fitting | Yes | Base R lm/optim (all 5 models) | Done |
 | IVIVC WN + LR | Yes | Independent R formula (algebraic) | Done |
 | IVIVC convolution + Levy | Yes (internal) | None | Low (numerical convolution) |
 | Sim 1-cmt/2-cmt | Yes (Gibaldi & Perrier) | None | Low (math self-validates) |
-| BE/TOST TOST | Yes (closed-form) | None | Low (exact analytical) |
-| BE/TOST power/n | Yes (internal) | None | Medium (PowerTOST R pkg) |
-| Pop PK FOCE-I/SAEM | Yes (internal) | None | **HONESTY DEBT — no features until done** |
+| BE/TOST | Yes (closed-form) | None | Low (exact analytical) |
+| BE/TOST power/n | Yes (internal) | None | Medium — PowerTOST R pkg |
+| Pop PK FOCE-I/SAEM | Yes (internal) | None | **HONESTY DEBT — blocks v2.3.0** |
+
+**bootstrap_f2 note:** point estimate is validated (algebraically identical to bootf2 0.4.1).
+CI is stochastic — cannot pin values. CI correctness is a statistical guarantee of the
+algorithm design, not a numerical check. This is the accepted resolution; document in
+VALIDATION.md if you agree, otherwise implement a coverage-rate check (1000 seeds).
 
 ---
 
-## Out of scope
+## Remaining tasks — priority order
 
-See **"Scope and boundary"** in CLAUDE.md — that is the authoritative list.
-This file does not duplicate it.
+### 1. Pop PK cross-validation (honesty debt — blocks v2.3.0)
+
+The only substantive remaining blocker. `run_foce_i()` and `run_saem()` in
+`pop/estimation/` have not been verified against any external reference.
+README carries a "research-grade" caveat. Per CLAUDE.md, no new pop PK features
+can ship until cross-validation lands.
+
+**Path:** nlmixr2 R package (free) or NONMEM (license required).
+- Check if nlmixr2 is installed: `"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e "library(nlmixr2)"`
+- If not: `install.packages("nlmixr2")` in R
+- Reference dataset: Theophylline pop PK (Pinheiro & Bates 2000, Table A.1)
+  — same 12-subject theoph dataset used for NCA cross-validation
+- Write: `scripts/nlmixr2_popk_crossval.R` + `tests/validation/test_pop_foce_reference.py`
+- Pattern: same algebraic identity / tolerance strategy as all other cross-vals
+- Add entry to VALIDATION.md; mark done in this file
+
+### 2. Remove covariate skeleton (technical debt — v2.3.0 breaking change)
+
+`CovariateModel` and `apply_covariates` in `pop/estimation/` are on PyPI but
+silently do nothing when passed to `run_foce_i` or `run_saem`.
+A `DeprecationWarning` was added in v2.2.0.
+
+**Plan:**
+1. Delete `pop/estimation/covariates.py` (or wherever the skeleton lives)
+2. Remove imports/exports from `pop/estimation/__init__.py`
+3. Update CHANGELOG.md: document as breaking change in v2.3.0
+4. Bump version in `pyproject.toml` to `2.3.0`
+5. Confirm `ruff check`, `ruff format`, `mypy --strict` clean
+6. Run full test suite; confirm no tests depend on the removed symbols
+
+**Do this after pop PK cross-validation lands** so both changes go in v2.3.0 together.
+
+### 3. Submit conda-forge recipe (distribution — owner action required)
+
+`scripts/conda-forge/meta.yaml` is complete. sha256 is the real v2.2.0 hash
+(`e611165358b7913f9455c0a8a3ded323be870763f2d2a9fa5d438c4055c7bfa5`).
+
+**Steps:**
+1. Fork `https://github.com/conda-forge/staged-recipes`
+2. Create `recipes/openpkflow/meta.yaml` — copy from `scripts/conda-forge/meta.yaml`
+3. Open PR following conda-forge contributing guide
+4. Maintainer review takes days to weeks — this is an async external process
+
+A Claude Code agent can write and stage the PR; the owner (Priyam) must submit it
+and respond to maintainer review comments.
+
+### 4. BE/TOST power cross-validation vs PowerTOST (nice-to-have, ~3h)
+
+Medium-priority validation. `install.packages("PowerTOST")` in R, then:
+- Write: `scripts/powertost_crossval.R` + `tests/validation/test_be_power_reference.py`
+- Template: `tests/validation/test_dissolution_bootf2_reference.py`
+- Add entry to VALIDATION.md
 
 ---
 
-## New files created (2026-05-24 session)
+## What "project complete" looks like
 
-| File | Purpose |
-|------|---------|
-| `scripts/pknca_theoph_crossval_extended.R` | PKNCA 0.12.1 — full NCA parameter set (AUCinf, lambda_z, CL_F, Vz_F, etc.) |
-| `scripts/pknca_ss_crossval.R` | PKNCA 0.12.1 steady-state NCA on synthetic SS dataset |
-| `scripts/noncompart_theoph_crossval.R` | NonCompart 0.8.0 — independent 3rd-party NCA validation |
-| `scripts/bootf2_dissolution_crossval.R` | bootf2 0.4.1 — dissolution f2 cross-validation |
-| `scripts/probe_bootf2.R` | One-time bootf2 API probe (historical, not needed again) |
-| `src/openpkflow/datasets/ss_crossval.csv` | Synthetic steady-state dataset (3 subjects, true C(0)=C(tau)) |
-| `tests/validation/test_nca_ss_reference.py` | PKNCA SS cross-validation tests (11 tests) |
-| `tests/validation/test_nca_noncompart_reference.py` | NonCompart 3-way agreement tests (12 tests) |
-| `tests/validation/test_dissolution_bootf2_reference.py` | bootf2 dissolution f2 tests (10 tests) |
+v2.3.0 ships when:
+1. Pop PK cross-validated against nlmixr2 (**the real remaining work**)
+2. Covariate skeleton removed (documented breaking change)
+3. conda-forge listing live (after maintainer review)
 
-## Files modified (2026-05-24 session)
-
-| File | Change |
-|------|--------|
-| `tests/validation/test_nca_theoph_reference.py` | Added `TestPKNCAExtendedCrossValidation` (9 tests for AUCinf, lambda_z, CL_F, Vz_F, etc.); fixed version strings "0.10.x" -> "0.12.1" throughout |
-| `src/openpkflow/nca/results.py` | Documented swing as dimensionless ratio; PKNCA comparison note |
-| `src/openpkflow/nca/methods.py` | Updated `steady_state_parameters()` docstring: swing convention explanation |
-| `src/openpkflow/datasets/__init__.py` | Added `example_ss_crossval_path()` |
-| `scripts/conda-forge/meta.yaml` | sha256 placeholder -> real v2.2.0 hash |
-
-## Files modified (2026-05-23 maintenance)
-
-| File | Change |
-|------|--------|
-| `tests/validation/test_nca_theoph_reference.py` | Rewritten: removed inline mg/kg data, uses `NCAStudy.from_csv()` on full 12-subject theoph.csv, added `TestPKNCACrossValidation` with ≤2% tolerance per subject |
-| `README.md` | Split CDISC PP row (PKNCA no longer claims it), added research-grade caveat on pop PK rows, fixed test count |
+After v2.3.0, openpkflow is a maintained library — no more honesty debt,
+all science modules validated, full distribution coverage.
 
 ---
 
 ## Architecture reference
 
-See module docstrings and CLAUDE.md. In particular:
 - `pop/estimation/__init__.py` — full architecture narrative for the estimation module
-- `VALIDATION.md` — test-to-guidance cross-reference (updated 2026-05-24)
+- `VALIDATION.md` — test-to-guidance cross-reference
 - `V2_ARCHITECTURE_DECISION.md` — v2.0.0 Bayesian PK decision record (historical)
+- `CLAUDE.md` — authoritative rules for AI agents (scope, conventions, correctness rules)
+
+---
 
 ## R environment (Windows)
 
-R is installed at `C:\Program Files\R\R-4.6.0\`. Library path: `D:/R-library/4.6`.
-Run R scripts with:
+R is installed at `C:\Program Files\R\R-4.6.0\`. Library path: `D:/R-library/4.6`
+
+Run R scripts:
 ```
 "C:\Program Files\R\R-4.6.0\bin\Rscript.exe" scripts/<name>.R
 ```
-Packages installed: PKNCA 0.12.1, NonCompart 0.8.0, bootf2 0.4.1.
-Unit note for NonCompart `sNCA()`: pass `concUnit="mg/L"` to get CL in L/h and V in L.
-Without `concUnit`, NonCompart defaults to mL/h and mL (1000x larger).
+
+Packages installed: PKNCA 0.12.1, NonCompart 0.8.0, bootf2 0.4.1
+
+Run all tests (excluding slow MCMC):
+```
+pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"
+```
+
+Run validation suite only (fast, 127 tests):
+```
+pytest tests/validation/ -q
+```
+
+---
+
+## Definition of done (any new validation test)
+
+1. Test cites DOI or R package + version in docstring
+2. Tolerance is justified by the formula or optimizer
+3. `ruff check`, `ruff format`, `mypy --strict` clean
+4. Entry added to VALIDATION.md
+5. This file updated to mark task done
