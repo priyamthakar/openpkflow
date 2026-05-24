@@ -99,6 +99,10 @@ class NCAResult:
     Cavg_ss: float | None = None
     AUCtau: float | None = None
     fluctuation_pct: float | None = None
+    # swing is a dimensionless ratio: (Cmax_ss - Cmin_ss) / Cmin_ss.
+    # WinNonlin and standard textbooks use the same ratio convention.
+    # PKNCA expresses this value as a percentage (x100); divide PKNCA swing
+    # by 100 to compare directly with this field.
     swing: float | None = None
     accumulation_ratio: float | None = None
 
@@ -160,7 +164,7 @@ class NCAResult:
             lines.append(f"Cavg_ss                 : {_fmt(self.Cavg_ss)}")
             lines.append(f"AUCtau                  : {_fmt(self.AUCtau)}")
             lines.append(f"Fluctuation (%)         : {_fmt(self.fluctuation_pct)}")
-            lines.append(f"Swing                   : {_fmt(self.swing)}")
+            lines.append(f"Swing (ratio)           : {_fmt(self.swing)}  [PKNCA=x100]")
             lines.append(f"Accumulation Ratio      : {_fmt(self.accumulation_ratio)}")
 
         if self.Ae is not None:

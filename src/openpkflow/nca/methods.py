@@ -864,8 +864,14 @@ def steady_state_parameters(
     Returns
     -------
     dict[str, float or None]
-        ``Cmax_ss``, ``Cmin_ss``, ``Cavg_ss``, ``AUCtau``, ``fluctuation_pct``,
-        ``swing``, ``accumulation_ratio`` (None if not computable).
+        ``Cmax_ss``, ``Cmin_ss``, ``Cavg_ss``, ``AUCtau``, ``fluctuation_pct``
+        (percent), ``swing`` (dimensionless ratio), ``accumulation_ratio``
+        (None if not computable).
+
+        ``swing`` = (Cmax_ss - Cmin_ss) / Cmin_ss — a dimensionless ratio,
+        matching WinNonlin/Phoenix and standard textbook convention.
+        PKNCA expresses this as a percentage (multiply by 100); divide PKNCA
+        ``swing`` by 100 before comparing with this value.
     """
     t_arr = np.asarray(times, dtype=float)
     c_arr = np.asarray(concs, dtype=float)
