@@ -2,7 +2,7 @@
 
 **Project:** OpenPKFlow
 **Last updated:** 2026-05-24
-**Current version:** 2.3.0 (in development -- not yet tagged/pushed)
+**Current version:** 2.3.0
 
 ---
 
