@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: PLACEHOLDER_SHA256  # replace with: sha256sum dist/openpkflow-2.2.0.tar.gz
+  sha256: e611165358b7913f9455c0a8a3ded323be870763f2d2a9fa5d438c4055c7bfa5
 
 build:
   number: 0
