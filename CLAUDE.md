@@ -233,9 +233,9 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-v1.5.0 is current (sparse-sampling NCA). v1.1.0-v1.4.0 also complete.
-Next milestone is v2.0.0: Bayesian PK.
-See `ROADMAP.md` for the full post-1.0.0 ladder.
+v2.3.0 is current — Pop PK FOCE-I validated against nlme reference, covariate skeleton removed.
+Next focus: conda-forge distribution + PowerTOST cross-validation (nice-to-have).
+See `ROADMAP.md` for the full ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -264,6 +264,9 @@ See `ROADMAP.md` for the full post-1.0.0 ladder.
 1.4.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping         DONE
 1.5.0  Sparse-sampling NCA: model-informed 1-cmt oral from 3-5 data points         DONE
 2.0.0  Bayesian PK: MAP individual estimation + full posterior + Bayesian BE (PyMC) DONE
+2.1.0  FOCE-I & SAEM population PK (1-cmt, diagonal Omega)                         DONE
+2.2.0  2-cmt models, full Omega matrix, covariate skeleton                          DONE
+2.3.0  Remove covariate skeleton, FOCE-I nlme cross-validation, conda-forge prep    DONE
 ```
 
 See `ROADMAP.md` for full milestone detail, scope rationale, and definition of done.
