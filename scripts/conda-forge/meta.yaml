@@ -1,5 +1,5 @@
 {% set name = "openpkflow" %}
-{% set version = "2.2.0" %}
+{% set version = "2.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: e611165358b7913f9455c0a8a3ded323be870763f2d2a9fa5d438c4055c7bfa5
+  sha256: 923aa6b1e3b51460f9dbc497dae3f62a38181fc7bdc388f7ce97714f915855ee
 
 build:
   number: 0
