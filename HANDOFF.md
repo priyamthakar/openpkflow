@@ -28,7 +28,7 @@
 | IVIVC convolution + Levy | Yes (internal) | None | Low (numerical convolution) |
 | Sim 1-cmt/2-cmt | Yes (Gibaldi & Perrier) | None | Low (math self-validates) |
 | BE/TOST | Yes (closed-form) | None | Low (exact analytical) |
-| BE/TOST power/n | Yes (internal) | None | Medium — PowerTOST R pkg |
+| BE/TOST power/n | Yes (internal) | PowerTOST 1.5-7 | **DONE -- v2.3.0** |
 | Pop PK FOCE-I/SAEM | Yes (internal) | nlme reference (Pinheiro & Bates 2000, Table 8.1) within 20% tol | **DONE -- v2.3.0** |
 
 **bootstrap_f2 note:** point estimate is validated (algebraically identical to bootf2 0.4.1).
@@ -72,13 +72,16 @@ Breaking change documented in CHANGELOG.md v2.3.0.
 A Claude Code agent can write and stage the PR; the owner (Priyam) must submit it
 and respond to maintainer review comments.
 
-### 4. BE/TOST power cross-validation vs PowerTOST (nice-to-have, ~3h)
 
-Medium-priority validation. `install.packages("PowerTOST")` in R, then:
-- Write: `scripts/powertost_crossval.R` + `tests/validation/test_be_power_reference.py`
-- Template: `tests/validation/test_dissolution_bootf2_reference.py`
-- Add entry to VALIDATION.md
+### 4. BE/TOST power cross-validation (DONE -- v2.3.0)
 
+`be_tost_power()` and `be_sample_size()` implemented using the exact non-central
+t-distribution method (Phillips 1990; Diletti et al. 1991). Cross-validated against
+PowerTOST 1.5-7 on 6 power scenarios and 6 sample size scenarios -- all match within
+1e-5 (power) and exactly (sample size).
+
+Validation test: `tests/validation/test_be_power_reference.py`
+R script: `scripts/powertost_crossval.R`
 ---
 
 ## What "project complete" looks like

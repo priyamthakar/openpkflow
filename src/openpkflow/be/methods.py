@@ -6,6 +6,14 @@ Schuirmann, D.J. (1987). A comparison of the Two One-Sided Tests Procedure and
 the Power Approach for assessing the equivalence of average bioavailability.
 Journal of Pharmacokinetics and Biopharmaceutics, 15(6), 657-680.
 DOI: 10.1007/BF01068419
+
+Phillips, K.F. (1990). Power of the two one-sided tests procedure in
+bioequivalence. J Pharmacokinet Biopharm, 18(2):137-144.
+DOI: 10.1007/BF01063556
+
+Diletti, E., Hauschke, D., Steinijans, V.W. (1991). Sample size determination
+for bioequivalence assessment by means of confidence intervals.
+Int J Clin Pharmacol Ther Toxicol, 29(1):1-8.
 """
 
 from __future__ import annotations
@@ -13,6 +21,9 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+
+from scipy.stats import nct
+from scipy.stats import t as t_dist
 
 
 @dataclass
@@ -102,8 +113,6 @@ def be_tost(
     FDA (2003) Guidance for Industry: Bioavailability and Bioequivalence Studies
         for Orally Administered Drug Products -- General Considerations.
     """
-    from scipy.stats import t as t_dist
-
     ref = list(reference)
     tst = list(test)
     n = len(ref)
@@ -154,4 +163,145 @@ def be_tost(
         cv_intra_pct=cv_intra,
         alpha=alpha,
         log_diffs=log_diffs,
+    )
+
+
+def be_tost_power(
+    gmr: float,
+    cv: float,
+    n: int,
+    *,
+    be_lower: float = 0.80,
+    be_upper: float = 1.25,
+    alpha: float = 0.05,
+) -> float:
+    """Statistical power of the 2x2 crossover TOST bioequivalence test.
+
+    Computes the probability of declaring bioequivalence when the true
+    geometric mean ratio is *gmr* and the intra-subject CV is *cv*,
+    given *n* subjects in a standard 2x2 crossover trial.
+
+    Uses the non-central t-distribution method (Phillips 1990; Diletti et
+    al. 1991).  Matches PowerTOST `power.TOST(method="exact")`.
+
+    Parameters
+    ----------
+    gmr : float
+        True geometric mean ratio (test / reference).  Must be > 0.
+    cv : float
+        Intra-subject coefficient of variation as a fraction
+        (e.g. 0.15 for 15%).  Must be > 0.
+    n : int
+        Number of subjects.  Must be >= 3 (df >= 1).
+    be_lower : float, optional
+        Lower acceptance limit.  Default 0.80.
+    be_upper : float, optional
+        Upper acceptance limit.  Default 1.25.
+    alpha : float, optional
+        One-sided significance level.  Default 0.05 (90% CI).
+
+    Returns
+    -------
+    float
+        Probability of passing TOST (0.0 to 1.0).
+
+    Raises
+    ------
+    ValueError
+        If *gmr* or *cv* is non-positive, or *n* < 3.
+
+    References
+    ----------
+    Phillips KF (1990) J Pharmacokinet Biopharm 18(2):137-144.
+    Diletti E, Hauschke D, Steinijans VW (1991)
+        Int J Clin Pharmacol Ther Toxicol 29(1):1-8.
+    """
+    if gmr <= 0.0:
+        raise ValueError(f"gmr must be positive (got {gmr}).")
+    if cv <= 0.0:
+        raise ValueError(f"cv must be positive (got {cv}).")
+    if n < 3:
+        raise ValueError(f"n must be at least 3 (got {n}).")
+
+    sigma_w = math.sqrt(math.log(1.0 + cv**2))
+    se = sigma_w * math.sqrt(2.0 / n)
+    df = n - 2
+
+    t_crit = float(t_dist.ppf(1.0 - alpha, df))
+    delta_l = math.log(gmr / be_lower) / se
+    delta_u = math.log(be_upper / gmr) / se
+
+    power = 1.0 - nct.cdf(t_crit, df, delta_u) - nct.cdf(t_crit, df, delta_l)
+    return float(max(0.0, min(1.0, power)))
+
+
+def be_sample_size(
+    gmr: float,
+    cv: float,
+    target_power: float = 0.80,
+    *,
+    be_lower: float = 0.80,
+    be_upper: float = 1.25,
+    alpha: float = 0.05,
+    max_n: int = 1000,
+) -> tuple[int, float]:
+    """Sample size for a 2x2 crossover TOST bioequivalence study.
+
+    Finds the smallest *n* such that :func:`be_tost_power` >= *target_power*.
+    Uses sequential integer search starting from 2.
+
+    Parameters
+    ----------
+    gmr : float
+        Assumed true geometric mean ratio (test / reference).  Must be > 0.
+    cv : float
+        Assumed intra-subject CV as a fraction (e.g. 0.20 for 20%).  Must be > 0.
+    target_power : float, optional
+        Desired statistical power.  Default 0.80 (FDA/EMA standard).
+    be_lower : float, optional
+        Lower acceptance limit.  Default 0.80.
+    be_upper : float, optional
+        Upper acceptance limit.  Default 1.25.
+    alpha : float, optional
+        One-sided significance level.  Default 0.05.
+    max_n : int, optional
+        Maximum subjects to consider.  Default 1000.
+
+    Returns
+    -------
+    tuple[int, float]
+        Required sample size and the achieved power at that size.
+
+    Raises
+    ------
+    ValueError
+        If *gmr*, *cv*, or *target_power* is out of range.
+    RuntimeError
+        If *max_n* is reached without achieving *target_power*.
+
+    References
+    ----------
+    Diletti E, Hauschke D, Steinijans VW (1991)
+        Int J Clin Pharmacol Ther Toxicol 29(1):1-8.
+    FDA (2001) Guidance: Statistical Approaches to Establishing Bioequivalence.
+    """
+    if not (0.0 < target_power < 1.0):
+        raise ValueError(f"target_power must be in (0, 1) (got {target_power}).")
+
+    achieved = 0.0
+    for n in range(4, max_n + 1, 2):
+        achieved = be_tost_power(
+            gmr,
+            cv,
+            n,
+            be_lower=be_lower,
+            be_upper=be_upper,
+            alpha=alpha,
+        )
+        if achieved >= target_power:
+            return n, achieved
+
+    raise RuntimeError(
+        f"Target power {target_power} not reached within max_n={max_n}. "
+        f"Last power at n={max_n}: {achieved:.6f}."
     )
