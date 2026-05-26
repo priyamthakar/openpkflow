@@ -1,0 +1,16 @@
+# docker-compose.yml for OpenPKFlow Jupyter environment
+# Start: docker compose up -d
+# Open:  http://localhost:8888
+
+services:
+  openpkflow:
+    build: .
+    image: openpkflow:latest
+    container_name: openpkflow
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./examples:/workspace/examples
+      - ./datasets:/workspace/datasets
+    environment:
+      - JUPYTER_ENABLE_LAB=yes

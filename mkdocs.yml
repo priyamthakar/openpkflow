@@ -42,15 +42,20 @@ nav:
     - PK Simulation: tutorials/sim.md
     - Population Diagnostics: tutorials/pop.md
     - Bioequivalence: tutorials/be.md
+    - Bayesian PK: tutorials/bayes.md
+    - IVIVC Level A: tutorials/ivivc.md
   - Reference:
     - dissolution: reference/dissolution.md
     - nca: reference/nca.md
     - sim: reference/sim.md
     - pop: reference/pop.md
     - be: reference/be.md
+    - bayes: reference/bayes.md
+    - ivivc: reference/ivivc.md
     - ml: reference/ml.md
     - validation: reference/validation.md
   - Changelog: changelog.md
+  - Migration Guide: migration-cheatsheet.md
 
 markdown_extensions:
   - pymdownx.highlight:
