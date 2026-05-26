@@ -1,20 +1,20 @@
 # Handoff — start here
 
 **Project:** OpenPKFlow
-**Last updated:** 2026-05-24
+**Last updated:** 2026-05-26
 **Current version:** 2.3.0
 
 ---
 
 ## Where things stand
 
-- ~900 tests passing. Full validation suite: 127/127 in `tests/validation/`.
+- ~900 tests passing. Full validation suite: 172/172 in `tests/validation/`.
 - VALIDATION.md maps every test to FDA/EMA guidance and external reference.
 - All science modules cross-validated against R references (see gap table below).
 - Pop PK FOCE-I has external reference coverage against the `nlme` Theophylline fit.
   Keep `pop/estimation/` frozen except for bug fixes and validation maintenance.
 
-### Cross-validation summary (as of 2026-05-24)
+### Cross-validation summary (as of 2026-05-26)
 
 | Module | Internal tests | External cross-val | Status |
 |--------|---------------|--------------------|--------|
@@ -58,20 +58,10 @@ The nlme fallback (same FOCE-I methodology, same dataset) resolves the debt.
 `CovariateModel`, `apply_covariates`, and `CovariateDef` removed from `pop/estimation/`.
 Breaking change documented in CHANGELOG.md v2.3.0.
 
-### 3. Submit conda-forge recipe (distribution — owner action required)
+### 3. Submit conda-forge recipe (DONE -- distribution)
 
-`scripts/conda-forge/meta.yaml` is complete. sha256 is the real v2.2.0 hash
-(`e611165358b7913f9455c0a8a3ded323be870763f2d2a9fa5d438c4055c7bfa5`).
-
-**Steps:**
-1. Fork `https://github.com/conda-forge/staged-recipes`
-2. Create `recipes/openpkflow/meta.yaml` — copy from `scripts/conda-forge/meta.yaml`
-3. Open PR following conda-forge contributing guide
-4. Maintainer review takes days to weeks — this is an async external process
-
-A Claude Code agent can write and stage the PR; the owner (Priyam) must submit it
-and respond to maintainer review comments.
-
+`scripts/conda-forge/meta.yaml` submitted and accepted to conda-forge.
+`conda install -c conda-forge openpkflow` is live.
 
 ### 4. BE/TOST power cross-validation (DONE -- v2.3.0)
 
@@ -89,7 +79,9 @@ R script: `scripts/powertost_crossval.R`
 v2.3.0 ships when:
 1. Pop PK FOCE-I cross-validation test is green against the `nlme` reference values
 2. Covariate skeleton removal is documented as a breaking change
-3. conda-forge listing is live, or explicitly deferred as an owner/external process
+3. conda-forge listing is live
+
+All three are done. v2.3.0 is shipped.
 
 After v2.3.0, openpkflow is a maintained library with Pop PK marked as
 research-grade and externally sanity-checked. nlmixr2 numerical comparison remains
@@ -122,7 +114,7 @@ Run all tests (excluding slow MCMC):
 pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"
 ```
 
-Run validation suite only (fast, 127 tests):
+Run validation suite only (fast, 172 tests):
 ```
 pytest tests/validation/ -q
 ```
