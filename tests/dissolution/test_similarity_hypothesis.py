@@ -8,7 +8,7 @@ import numpy as np
 from hypothesis import assume, given
 from hypothesis import strategies as st
 
-from openpkflow.dissolution.similarity import f1, f2
+from openpkflow.dissolution.similarity import f1, f2, max_deviation
 
 _valid_points = st.lists(st.floats(min_value=1.0, max_value=100.0), min_size=3, max_size=20).filter(
     lambda lst: sum(lst) > 0.0
@@ -79,3 +79,29 @@ class TestF1F2Identity:
 
         if not np.isclose(f2_1, 0):
             assert f2_1 >= f2_2 - 1e-10
+
+
+class TestMaxDeviation:
+    @given(_valid_points)
+    def test_identity_is_zero(self, profile):
+        result = max_deviation(profile, profile)
+        assert np.isclose(result, 0.0, atol=1e-12)
+
+    @given(_valid_points, _valid_points)
+    def test_symmetric(self, ref, tst):
+        assume(len(ref) == len(tst))
+        r1 = max_deviation(ref, tst)
+        r2 = max_deviation(tst, ref)
+        assert np.isclose(r1, r2, rtol=1e-12)
+
+    @given(_valid_points, st.floats(min_value=0.0, max_value=20.0))
+    def test_nonnegative(self, profile, noise_scale):
+        other = [min(100.0, max(1.0, p + noise_scale * (i % 3 - 1))) for i, p in enumerate(profile)]
+        result = max_deviation(profile, other)
+        assert result >= 0.0
+
+    @given(_valid_points)
+    def test_bounded_by_100(self, profile):
+        other = [100.0 - p for p in profile]
+        result = max_deviation(profile, other)
+        assert result <= 100.0
