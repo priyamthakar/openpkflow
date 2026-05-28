@@ -1,24 +1,24 @@
 # Handoff — start here
 
 **Project:** OpenPKFlow
-**Last updated:** 2026-05-26
+**Last updated:** 2026-05-29
 **Current version:** 2.3.0
 
 ---
 
 ## Where things stand
 
-- ~900 tests passing. Full validation suite: 172/172 in `tests/validation/`.
+- ~900 tests passing. Full validation suite: 190/190 in `tests/validation/`.
 - VALIDATION.md maps every test to FDA/EMA guidance and external reference.
 - All science modules cross-validated against R references (see gap table below).
 - Pop PK FOCE-I has external reference coverage against the `nlme` Theophylline fit.
   Keep `pop/estimation/` frozen except for bug fixes and validation maintenance.
 
-### Cross-validation summary (as of 2026-05-26)
+### Cross-validation summary (as of 2026-05-29)
 
 | Module | Internal tests | External cross-val | Status |
 |--------|---------------|--------------------|--------|
-| NCA single-dose | Yes | PKNCA 0.12.1 + NonCompart 0.8.0 (3-way) | Done |
+| NCA single-dose | Yes | PKNCA 0.12.1 + NonCompart 0.8.0 + **Phoenix WinNonlin** (4-way) | **DONE -- 2026-05-29** |
 | NCA steady-state | Yes | PKNCA 0.12.1 | Done |
 | NCA urinary (Ae, CLr) | Yes | Independent R formula (algebraic) | Done |
 | Dissolution f1/f2 | Yes | bootf2 0.4.1 | Done |
@@ -28,8 +28,8 @@
 | IVIVC convolution + Levy | Yes (internal) | None | Low (numerical convolution) |
 | Sim 1-cmt/2-cmt | Yes (Gibaldi & Perrier) | None | Low (math self-validates) |
 | BE/TOST | Yes (closed-form) | None | Low (exact analytical) |
-| BE/TOST power/n | Yes (internal) | PowerTOST 1.5-7 | **DONE -- v2.3.0** |
-| Pop PK FOCE-I/SAEM | Yes (internal) | nlme reference (Pinheiro & Bates 2000, Table 8.1) within 20% tol | **DONE -- v2.3.0** |
+| BE/TOST power/n | Yes (internal) | PowerTOST 1.5-7 | Done -- v2.3.0 |
+| Pop PK FOCE-I/SAEM | Yes (internal) | nlme reference (Pinheiro & Bates 2000, Table 8.1) within 20% tol | Done -- v2.3.0 |
 
 **bootstrap_f2 note:** point estimate is validated (algebraically identical to bootf2 0.4.1).
 CI is stochastic — cannot pin values. CI correctness is a statistical guarantee of the
@@ -72,6 +72,35 @@ PowerTOST 1.5-7 on 6 power scenarios and 6 sample size scenarios -- all match wi
 
 Validation test: `tests/validation/test_be_power_reference.py`
 R script: `scripts/powertost_crossval.R`
+
+### 5. Phoenix WinNonlin NCA cross-validation (DONE -- 2026-05-29)
+
+Validated NCA against Phoenix WinNonlin (Certara) public reference data:
+- Theoph (12 subjects, oral): AUClast linear/log, AUCINF, CL_F, Vz_F, Cmax, Tmax
+  all within 2% for 12 subjects. Lambda_z/HL/Vz_F/%Extrap exclude S6 (WNL selects
+  7 points via auto-selection vs BAR^2 selecting 3; 4.3% lambda_z gap documented).
+- Indometh (6 subjects, IV): Cmax, Tmax, Lambda_z/HL for 5/6 subjects all pass.
+  AUClast/AUCINF NOT tested -- WNL includes C0 back-extrapolation (17-31% gap),
+  which is a known missing feature. See `test_auclast_c0_backext_not_implemented`.
+- Dose unit discovery: WNL used nominal dose=320 mg for all Theoph subjects (not
+  individual Dose*Wt from the dataset; Subject 9 diverges 16% if Dose*Wt used).
+
+Validation test: `tests/validation/test_nca_winnonlin_reference.py` (18 tests)
+Interactive script: `scripts/crossval_winnonlin.py`
+
+**Known gap to address next:** C0 back-extrapolation for IV bolus when no t=0
+measurement exists. See `tests/validation/test_nca_winnonlin_reference.py::
+TestWinNonLinIndometh::test_auclast_c0_backext_not_implemented` for details.
+
+Three options:
+  (a) Add `c0_backextrapolated()` function to `nca/methods.py` and use it in IV NCA
+  (b) Accept optional pre-extrapolated t=0 row from the caller
+  (c) Leave as-is and mark as unsupported for IV-with-no-t0 data
+
+Recommended: option (a) -- it's in-scope per CLAUDE.md "NCA greenfield moat" and
+WNL/PKNCA both implement it. Implementation: log-linear regression on the first
+n lambda_z points, extrapolate to t=0, add back-extrapolated trapezoid to AUClast.
+
 ---
 
 ## What "project complete" looks like

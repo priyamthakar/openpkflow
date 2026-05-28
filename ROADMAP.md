@@ -171,8 +171,10 @@ they did not affect estimation.
 ### Validation infrastructure
 - `VALIDATION.md`: cross-reference table mapping every test to FDA/EMA guidance section
   and published DOI. Updated 2026-05-24 with all new cross-val entries.
-- **Three-way NCA cross-validation** (2026-05-24): openpkflow == PKNCA 0.12.1 ==
-  NonCompart 0.8.0 on all 12 theoph subjects, all parameters. ✅ Done.
+- **Four-way NCA cross-validation** (2026-05-29): openpkflow == PKNCA 0.12.1 ==
+  NonCompart 0.8.0 == Phoenix WinNonlin on Theoph (12 subjects) and Indometh (6 subjects).
+  AUClast/AUCINF/CL/Vz pass for oral. IV bolus AUClast gap documented (C0 back-ext missing).
+  Test: `tests/validation/test_nca_winnonlin_reference.py` (18 tests). ✅ Done.
 - **Steady-state NCA PKNCA cross-validation** (2026-05-24): AUCtau, Cmax_ss, Cmin_ss,
   Cavg_ss, fluctuation%, swing. Swing convention documented (dimensionless ratio vs
   PKNCA percent). ✅ Done.
@@ -188,7 +190,11 @@ they did not affect estimation.
   first-order, Higuchi, KP, Weibull) cross-validated against base R lm/optim on
   noise-free data. 24 tests. ✅ Done.
 - `pytest-benchmark` CI job: performance regression detection for NCA/dissolution math. ✅ Done.
-- `hypothesis` property-based tests for PK calculations (edge-case fuzzing). **Pending.**
+- `hypothesis` property-based tests for PK calculations (edge-case fuzzing). ✅ Done.
+- **C0 back-extrapolation for IV bolus NCA** — next validation gap to close. WinNonlin adds
+  back-extrapolated area (t=0 to t_first) when no t=0 measurement exists. Affects AUClast,
+  AUCINF, CL, Vz, Vss for IV bolus. Implement `c0_backextrapolated()` in `nca/methods.py`.
+  Test framework already in place: `test_auclast_c0_backext_not_implemented()`. **Pending.**
 
 ### Discoverability
 - README "Comparison" section: feature matrix vs. PKNCA (R), WinNonlin, Pharmpy, OpenPKPD
@@ -204,7 +210,7 @@ they did not affect estimation.
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
 | Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
-| Medium | conda-forge recipe | 3 h | Draft at `scripts/conda-forge/meta.yaml`; sha256 + PR pending |
+| Medium | conda-forge recipe | 3 h | ✅ Done — `conda install -c conda-forge openpkflow` is live |
 | Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done (v2.2.0 — CDISC PP row split, PKNCA claims corrected, caveat added) |
 | Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 

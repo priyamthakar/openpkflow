@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Phoenix WinNonlin NCA cross-validation** (`tests/validation/test_nca_winnonlin_reference.py`):
+  18 tests validating NCA against Certara WinNonlin public reference data on two datasets.
+  - Theoph (12 subjects, oral): AUClast linear/log, AUCINF, CL_F, Vz_F, lambda_z, half-life,
+    Cmax, Tmax all within 2% for 11+ subjects. S6 excluded from lambda_z/Vz_F/%Extrap due to
+    documented auto-selection algorithm difference (WNL: 7 points; BAR^2: 3 points).
+  - Indometh (6 subjects, IV bolus): Cmax, Tmax, lambda_z, half-life for 5/6 subjects within 2%.
+    AUClast gap documented: WNL includes C0 back-extrapolation (17-31% higher) -- this is a
+    known missing feature, asserted in `test_auclast_c0_backext_not_implemented()`.
+  - Discovery: WNL used nominal dose=320 mg for all Theoph subjects, not individual Dose*Wt.
+- Interactive cross-val script `scripts/crossval_winnonlin.py` with PASS/WARN/SKIP output.
+
 ---
 
 ## [2.3.0] — 2026-05-24
