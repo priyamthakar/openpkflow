@@ -1,5 +1,10 @@
 # Tutorial: IVIVC Level A
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#ivivc-in-vitro-in-vivo-correlation) for the
+    Wagner-Nelson and Loo-Riegelman deconvolution derivations, convolution prediction, and
+    FDA predictability (%PE) criteria.
+
 This tutorial walks through a complete In Vitro-In Vivo Correlation (Level A)
 analysis: deconvolution, Levy plot, convolution prediction, and FDA predictability
 assessment using OpenPKFlow.

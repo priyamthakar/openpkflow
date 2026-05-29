@@ -159,9 +159,9 @@ they did not affect estimation.
 ### Documentation
 - Fix dead GitHub Pages link (priyamthakar.github.io/openpkflow -- currently 404)
   **This is the single highest-priority quick-win.**
-- MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship
-- Theory guide: derivations for each formula module (regulatory review support)
-- "Coming from WinNonlin/NONMEM" migration cheatsheet
+- MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship ✅ Done (2026-05-30)
+- Theory guide: derivations for each formula module (regulatory review support) ✅ Done (2026-05-30)
+- "Coming from WinNonlin/NONMEM" migration cheatsheet ✅ Done (2026-05-29)
 
 ### Packaging and distribution
 - `conda-forge` recipe PR (reaches biostat/bioinformatics community)

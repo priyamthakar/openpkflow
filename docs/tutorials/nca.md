@@ -1,5 +1,10 @@
 # Tutorial: Non-Compartmental Analysis (NCA)
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#nca-non-compartmental-analysis) for the mathematical
+    derivations of trapezoidal AUC, lambda_z BAR² algorithm, and all derived NCA parameters.
+
+
 This tutorial demonstrates NCA on single- and multi-subject PK datasets.
 
 ---

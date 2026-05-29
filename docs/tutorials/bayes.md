@@ -1,5 +1,9 @@
 # Tutorial: Bayesian PK
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#bayesian-pk) for the MAP log-posterior derivation,
+    MCMC posterior sampling, and Bayesian BE formulation.
+
 This tutorial covers MAP individual PK estimation, full Bayesian posterior
 sampling, and Bayesian 2x2 crossover bioequivalence using OpenPKFlow.
 

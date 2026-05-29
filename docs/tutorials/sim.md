@@ -1,5 +1,10 @@
 # Tutorial: PK Simulation
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#pk-simulation-analytical-solutions) for the Bateman
+    equation, 2-compartment biexponential derivation, and superposition principle.
+
+
 This tutorial covers 1- and 2-compartment PK simulation for IV and oral routes,
 including repeated dosing and multi-format reports.
 

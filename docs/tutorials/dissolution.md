@@ -1,5 +1,10 @@
 # Tutorial: Dissolution Similarity
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#dissolution-similarity) for the f1, f2 formula
+    derivations, dissolution model equations, and FDA threshold rationale.
+
+
 This tutorial walks through dissolution f1/f2 analysis, bootstrap confidence intervals,
 and dissolution model fitting using OpenPKFlow.
 

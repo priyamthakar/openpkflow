@@ -32,6 +32,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `test_auc_linear_does_not_include_c0_backext()` asserts that base `auc_linear()` does not
   silently include C0 back-extrapolated area, so callers that handle it explicitly are not broken.
 - Interactive cross-val script `scripts/crossval_winnonlin.py` with PASS/WARN/SKIP output.
+- **Theory guide** (docs/theory.md): full LaTeX formula derivations for all 7 modules (NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK). Added to MkDocs nav.
+
+- **Population PK tutorial expanded** (docs/tutorials/pop.md): rewritten from a 101-line diagnostics-only stub to a full FOCE-I/SAEM estimation tutorial with worked Theoph examples, 2-cmt models, CLI usage, and regulatory notes.
+
+- **Migration cheatsheet augmented** (docs/migration-cheatsheet.md): added C0 back-extrapolation and sparse NCA entries; clarified SAEM description.
+
+- **README and docs index updated**: new Documentation section with links to theory guide, migration cheatsheet, tutorials, validation matrix, and API reference.
+
 
 ---
 

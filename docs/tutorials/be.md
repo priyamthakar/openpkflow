@@ -1,5 +1,10 @@
 # Tutorial: Bioequivalence Convenience Layer
 
+!!! info "Theory"
+    See the [Theory Guide](../theory.md#bioequivalence-tost) for the TOST mathematics,
+    non-central t power formula, and sample size derivation.
+
+
 This tutorial demonstrates OpenPKFlow's lightweight paired TOST convenience
 layer. For formal regulator-facing BE analysis with ANOVA tables, replicate
 designs, NTI, ABEL/RSABE, and validation fixtures, export to BioEqPy.
