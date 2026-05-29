@@ -26,6 +26,8 @@ A quick-reference guide for scientists transitioning from Phoenix WinNonlin and 
 | Urinary excretion | `NCAStudy(..., urine_volume_col="vol", urine_conc_col="conc_u")` | Ae, CLr, %excreted |
 | CDISC PP output | `summary.to_cdisc_pp()` | PPTESTCD/PPORRES/PPORRESU format |
 | Dose-normalised params | `NCAResult.dn_auclast`, `.dn_cmax` | Per-mg normalisation |
+| C0 back-extrapolation (IV bolus) | `c0_back_extrapolated(times, concs)` | OLS log-linear on first 2 points; prepend t=0, C0 to profile |
+| Sparse NCA (model-informed) | `fit_sparse_1cmt_oral()` | Model-based NCA for 3-5 samples per subject |
 
 ### Example
 
@@ -84,7 +86,7 @@ result.report("ivivc_report.html")
 | Phoenix NLME / NONMEM | OpenPKFlow | Notes |
 |----------------------|-----------|-------|
 | FOCE-I (METHOD=1) | `run_foce_i(model, data)` | scipy L-BFGS-B, zero extra deps |
-| SAEM (METHOD=3) | `run_saem(model, data)` | PyMC optional, numpy fallback |
+| SAEM (METHOD=3) | `run_saem(model, data, n_iterations=500)` | PyMC optional, numpy fallback; chain mean estimates |
 | `$PK` block | `PopPKModel(route="oral", n_cmt=1, omega_type="diagonal")` | Frozen dataclass |
 | `$THETA` | `model.to_theta()`/`model.from_theta()` | Pack/unpack for optimizer |
 | `$OMEGA` | `PopPKModel(omega_type="full")` | Diagonal or full block matrix |

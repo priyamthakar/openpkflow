@@ -1,7 +1,7 @@
 # Handoff — start here
 
 **Project:** OpenPKFlow
-**Last updated:** 2026-05-29
+**Last updated:** 2026-05-30
 **Current version:** 2.3.0
 
 ---
@@ -35,6 +35,26 @@
 CI is stochastic — cannot pin values. CI correctness is a statistical guarantee of the
 algorithm design, not a numerical check. This is the accepted resolution; document in
 VALIDATION.md if you agree, otherwise implement a coverage-rate check (1000 seeds).
+
+---
+
+## Documentation (DONE -- 2026-05-30)
+
+### 6. Theory guide
+`docs/theory.md` created with full LaTeX formula derivations for all modules:
+NCA (trapezoidal rules, BAR², derived parameters), PK simulation (Bateman,
+1-cmt/2-cmt), dissolution (f1, f2, models), IVIVC (WN, LR, convolution),
+BE/TOST (power, sample size), pop PK (FOCE-I, SAEM, shrinkage), Bayesian PK
+(MAP, MCMC, Bayesian BE). Added to MkDocs nav as top-level section.
+
+### 7. Pop PK tutorial expanded
+`docs/tutorials/pop.md` expanded from 101 lines (diagnostics-only) to full
+tutorial covering FOCE-I and SAEM estimation with worked Theoph examples,
+2-cmt models, CLI usage, and regulatory notes.
+
+### 8. Migration cheatsheet augmented
+`docs/migration-cheatsheet.md` — added C0 back-extrapolation and sparse NCA
+rows, clarified SAEM entry.
 
 ---
 
