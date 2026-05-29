@@ -680,6 +680,69 @@ def clearance_volume_parameters(
 
 
 # ---------------------------------------------------------------------------
+# C0 back-extrapolation for IV bolus
+# ---------------------------------------------------------------------------
+
+
+def c0_back_extrapolated(
+    times: list[float],
+    concs: list[float],
+    *,
+    n_points: int = 2,
+) -> float:
+    """Estimate C0 for IV bolus by log-linear back-extrapolation.
+
+    Uses OLS regression of log(C) vs t on the first n_points to project
+    back to t=0. WinNonlin uses this approach (n_points=2) to add a
+    back-extrapolated area segment to AUClast for IV bolus data with no
+    t=0 measurement.
+
+    If the first n_points are not declining, the returned C0 may be
+    unphysical (C0 <= C_first); the caller is responsible for sanity-checking.
+
+    Parameters
+    ----------
+    times : list[float]
+        Sample times, strictly increasing. All must be > 0.
+    concs : list[float]
+        Observed concentrations. The first n_points must all be positive.
+    n_points : int, optional
+        Number of initial points for regression. Default 2 (WinNonlin default).
+
+    Returns
+    -------
+    float
+        Estimated concentration at t=0.
+
+    Raises
+    ------
+    ValueError
+        If n_points < 2, times[0] <= 0 (t=0 already present), fewer than
+        n_points points are available, or any of the first n_points
+        concentrations is non-positive.
+    """
+    if n_points < 2:
+        raise ValueError(f"n_points must be >= 2 for OLS regression (got {n_points}).")
+    t, c = _validate_time_conc(times, concs, min_points=n_points)
+    if t[0] <= 0.0:
+        raise ValueError(
+            f"times[0] = {t[0]}; back-extrapolation applies only when no t=0 "
+            "measurement exists (all times must be > 0)."
+        )
+    sel_t = np.asarray(t[:n_points], dtype=float)
+    sel_c = np.asarray(c[:n_points], dtype=float)
+    if np.any(sel_c <= 0.0):
+        raise ValueError(
+            f"The first {n_points} concentrations must all be positive for "
+            "log-linear regression; found non-positive values."
+        )
+    log_sel_c = np.log(sel_c)
+    # np.polyfit handles n=2 (perfect fit) without the n-2 division-by-zero in _ols_fit.
+    _slope, intercept = np.polyfit(sel_t, log_sel_c, 1)
+    return float(math.exp(intercept))
+
+
+# ---------------------------------------------------------------------------
 # Urinary excretion PK parameters
 # ---------------------------------------------------------------------------
 

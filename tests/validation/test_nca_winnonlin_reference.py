@@ -32,13 +32,13 @@ Known deviations (documented, not treated as failures):
      because the terminal phase contributes only ~12% of AUCinf for this subject.
      S6 is excluded from the lambda_z/HL test but included in all AUC/CL tests.
   2. Indometh S4 lambda_z: WNL uses all 11 points (0.25-8h), BAR^2 uses fewer.
-     5.8% lambda_z difference. S4 excluded from lambda_z/HL test.
-  3. Indometh AUClast/AUCINF/CL/Vz: WinNonlin includes a C0 back-extrapolated
-     area (from t=0 to the first measurement at t=0.25h) in AUClast for IV bolus
-     data with no t=0 observation. OpenPKFlow does not implement C0
-     back-extrapolation. This produces a systematic 17-31% under-estimation of
-     AUClast across all 6 subjects. These parameters are not tested here; see
-     test_indometh_auclast_c0_backext_not_supported() for the documented gap.
+     5.8% lambda_z difference. S4 excluded from lambda_z/HL test and from
+     AUCINF/CL/Vz C0-augmentation tests (lambda_z propagates into those params).
+  3. Indometh AUClast base gap (closed by c0_back_extrapolated): WinNonlin adds a
+     C0 back-extrapolated area from t=0 to t_first=0.25h in its AUClast for IV
+     bolus data without a t=0 observation. base auc_linear() starts at t_first,
+     producing a 17-31% gap. c0_back_extrapolated() + profile augmentation closes
+     this gap -- verified in TestWinNonLinIndomethC0BackExt (5 tests, all pass).
 
 Tolerance: 2% relative difference for all tested parameters.
 
@@ -56,6 +56,7 @@ from openpkflow.nca.methods import (
     auc_linear,
     auc_log,
     auc_percent_extrapolated,
+    c0_back_extrapolated,
     clearance_volume_parameters,
     cmax,
     lambda_z,
@@ -307,14 +308,72 @@ _WNL_THEOPH_LOG: dict[int, dict] = {
 }
 
 _WNL_INDOMETH_LINEAR: dict[int, dict] = {
-    1: dict(Cmax=1.5, Tmax=0.25, Lambda_z=0.158320, HL=4.378127),
-    2: dict(Cmax=2.03, Tmax=0.25, Lambda_z=0.302280, HL=2.293063),
-    3: dict(Cmax=2.72, Tmax=0.25, Lambda_z=0.421893, HL=1.642947),
+    1: dict(
+        Cmax=1.5,
+        Tmax=0.25,
+        Lambda_z=0.158320,
+        HL=4.378127,
+        C0=2.393617,
+        AUClast=2.040452,
+        AUCINF_obs=2.356267,
+        Vz_obs=67.015978,
+        Cl_obs=10.610002,
+    ),
+    2: dict(
+        Cmax=2.03,
+        Tmax=0.25,
+        Lambda_z=0.302280,
+        HL=2.293063,
+        C0=2.528160,
+        AUClast=3.248520,
+        AUCINF_obs=3.513175,
+        Vz_obs=23.541317,
+        Cl_obs=7.116070,
+    ),
+    3: dict(
+        Cmax=2.72,
+        Tmax=0.25,
+        Lambda_z=0.421893,
+        HL=1.642947,
+        C0=4.965369,
+        AUClast=3.554421,
+        AUCINF_obs=3.744043,
+        Vz_obs=15.826950,
+        Cl_obs=6.677274,
+    ),
     4: dict(
-        Cmax=1.85, Tmax=0.25, Lambda_z=0.455445, HL=1.521910
-    ),  # lambda_z excluded (auto-sel diff)
-    5: dict(Cmax=2.05, Tmax=0.25, Lambda_z=0.252748, HL=2.742446),
-    6: dict(Cmax=2.31, Tmax=0.25, Lambda_z=0.353521, HL=1.960699),
+        Cmax=1.85,
+        Tmax=0.25,
+        Lambda_z=0.455445,
+        HL=1.521910,
+        C0=2.462230,
+        AUClast=2.785279,
+        AUCINF_obs=2.938974,
+        Vz_obs=18.677030,
+        Cl_obs=8.506369,
+    ),  # lambda_z excluded (auto-sel diff); AUCINF/CL/Vz excluded from C0 tests
+    5: dict(
+        Cmax=2.05,
+        Tmax=0.25,
+        Lambda_z=0.252748,
+        HL=2.742446,
+        C0=4.040865,
+        AUClast=2.458858,
+        AUCINF_obs=2.696249,
+        Vz_obs=36.685349,
+        Cl_obs=9.272141,
+    ),
+    6: dict(
+        Cmax=2.31,
+        Tmax=0.25,
+        Lambda_z=0.353521,
+        HL=1.960699,
+        C0=3.705625,
+        AUClast=3.335703,
+        AUCINF_obs=3.590285,
+        Vz_obs=19.696834,
+        Cl_obs=6.963235,
+    ),
 }
 
 _DOSE_THEOPH = 320.0  # mg nominal (see module docstring)
@@ -330,6 +389,9 @@ _THEOPH_EXTRAP_SUBJECTS = [s for s in range(1, 13) if s != 6]
 
 # S4 Indometh: lambda_z auto-selection diverges -- exclude from lambda_z/HL tests
 _INDO_LAMBDA_Z_SUBJECTS = [s for s in range(1, 7) if s != 4]
+
+# S4 Indometh: lambda_z divergence propagates to AUCINF/CL/Vz -- exclude from those C0 tests
+_INDO_AUCINF_SUBJECTS = [s for s in range(1, 7) if s != 4]
 
 
 # ---------------------------------------------------------------------------
@@ -557,11 +619,9 @@ class TestWinNonLinTheoph:
 class TestWinNonLinIndometh:
     """Verify openpkflow matches Phoenix WinNonlin on indomethacin (IV bolus).
 
-    Only Cmax, Tmax, Lambda_z, and HL are tested. AUClast, AUCINF, CL, and Vz
-    are NOT tested because WinNonlin includes a C0 back-extrapolated area
-    (AUC from t=0 to t_first=0.25h) in its AUClast for IV bolus data without a
-    t=0 measurement. This produces a systematic 17-31% higher AUClast in WNL
-    vs OpenPKFlow. See test_auclast_c0_backext_not_implemented() below.
+    Cmax, Tmax, Lambda_z, and HL are tested here on the unaugmented profile.
+    AUClast, AUCINF, CL, and Vz with C0 augmentation are tested separately in
+    TestWinNonLinIndomethC0BackExt using c0_back_extrapolated().
     """
 
     def test_cmax_all_subjects_exact(self, indo_results: dict) -> None:
@@ -602,43 +662,127 @@ class TestWinNonLinIndometh:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_auclast_c0_backext_not_implemented(self, indo_results: dict) -> None:
-        """Documents the known gap: C0 back-extrapolation for IV bolus is not supported.
+    def test_auc_linear_does_not_include_c0_backext(self, indo_results: dict) -> None:
+        """Documents that base auc_linear() does not include C0 back-extrapolated area.
 
-        WinNonlin computes C0 (back-extrapolated concentration at t=0) using log-linear
-        regression on the first n terminal-phase points, then adds the area from t=0 to
-        t_first (trapezoid under C0 and C_first) to AUClast. OpenPKFlow does not do this.
-        The result is that WNL AUClast > OpenPKFlow AUClast by 17-31% for Indometh.
+        WinNonlin adds a trapezoid area from t=0 to t_first using an extrapolated C0.
+        auc_linear() starts integration at t_first (0.25h); the gap is 17-31% for all
+        6 Indometh subjects. c0_back_extrapolated() + manual augmentation closes the gap
+        -- verified in TestWinNonLinIndomethC0BackExt.
 
-        AUC_%Back_Ext_obs in WNL output is the % of AUCINF that is back-extrapolated:
-          S1: 20.7%,  S2: 16.2%,  S3: 25.7%,  S4: 18.3%,  S5: 28.2%,  S6: 20.9%
-
-        Options for future work:
-          (a) Add C0 back-extrapolation to nca/methods.py (auc_back_extrapolated function)
-          (b) Accept a pre-extrapolated t=0 concentration from the caller
-          (c) Leave as-is if back-extrapolation is considered out of scope
-
-        This test asserts the gap exists and is of the expected magnitude (>10% for all
-        subjects), ensuring it won't be silently masked if the behavior changes.
+        This test ensures the base AUC function does not silently change to include C0
+        back-extrapolation, which would break callers that handle it explicitly.
         """
-        from openpkflow.nca.methods import auc_linear
-
-        # WNL AUClast (includes back-extrapolated area)
-        _wnl_auclast = {
-            1: 2.040452,
-            2: 3.248520,
-            3: 3.554421,
-            4: 2.785279,
-            5: 2.458858,
-            6: 3.335699,
-        }
-
         for s in range(1, 7):
             d = _INDOMETH_INPUT[s]
             obs_auclast = auc_linear(d["times"], d["concs"])
-            wnl_auclast = _wnl_auclast[s]
+            wnl_auclast = _WNL_INDOMETH_LINEAR[s]["AUClast"]
             gap_pct = (wnl_auclast - obs_auclast) / wnl_auclast * 100
             assert gap_pct > 10.0, (
                 f"S{s}: expected AUClast gap >10% (C0 back-ext), got {gap_pct:.1f}%. "
                 f"WNL={wnl_auclast:.4f}, Open={obs_auclast:.4f}"
             )
+
+
+# ---------------------------------------------------------------------------
+# C0 back-extrapolation tests
+# ---------------------------------------------------------------------------
+
+
+def _run_indo_with_c0(s: int) -> dict:
+    """Run IV bolus NCA with C0 back-extrapolation matching WinNonlin approach.
+
+    OLS on first 2 points -> C0 -> prepend (t=0, C0) to profile -> AUClast
+    via linear trapezoidal. Lambda_z from ORIGINAL (unaugmented) data so
+    BAR^2 terminal-window selection is unaffected by the synthetic t=0 point.
+    """
+    d = _INDOMETH_INPUT[s]
+    times, concs = d["times"], d["concs"]
+    c0 = c0_back_extrapolated(times, concs, n_points=2)
+    t_aug = [0.0] + list(times)
+    c_aug = [c0] + list(concs)
+    auc_l = auc_linear(t_aug, c_aug)
+    lz = lambda_z(times, concs, method="auto")
+    ainf_l = auc_inf_obs(auc_l, concs[-1], lz)
+    pct_ext = auc_percent_extrapolated(auc_l, ainf_l)
+    cv_l = clearance_volume_parameters(_DOSE_INDO, ainf_l, lz, route="iv_bolus")
+    return dict(
+        C0=c0,
+        AUClast=auc_l,
+        AUCINF=ainf_l,
+        PctExt=pct_ext,
+        CL=cv_l["CL"],
+        Vz=cv_l["Vz"],
+    )
+
+
+@pytest.fixture(scope="module")
+def indo_results_c0() -> dict[int, dict]:
+    return {s: _run_indo_with_c0(s) for s in range(1, 7)}
+
+
+class TestWinNonLinIndomethC0BackExt:
+    """Verify c0_back_extrapolated() closes the WNL vs OpenPKFlow AUClast gap.
+
+    WinNonlin NCA for IV bolus data without a t=0 observation:
+      1. Estimates C0 via OLS log-linear regression on the first 2 time points.
+      2. Prepends (t=0, C0) to the profile.
+      3. Computes AUClast including the linear trapezoid from t=0 to t_first.
+
+    Reference: WNL_Indometh_Linear sheet, phoenix_winnonlin_combined_public_data.xlsx
+    (NonCompart-tests repository, Certara WinNonlin output).
+
+    S4 excluded from AUCINF/CL/Vz tests: lambda_z auto-selection diverges 5.8%
+    from WNL (uses all 11 points); AUClast is independent of lambda_z and passes.
+    """
+
+    def test_c0_all_subjects_within_1e4(self, indo_results_c0: dict) -> None:
+        """C0 back-extrapolated from first 2 points must match WNL to 4 decimal places."""
+        for s in range(1, 7):
+            ref = _WNL_INDOMETH_LINEAR[s]["C0"]
+            obs = indo_results_c0[s]["C0"]
+            assert obs == pytest.approx(ref, abs=1e-4), f"S{s} C0: obs={obs:.6f} ref={ref:.6f}"
+
+    def test_auclast_all_6_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """AUClast with C0 augmentation must match WNL within 2% for all 6 subjects."""
+        failures = []
+        for s in range(1, 7):
+            ref = _WNL_INDOMETH_LINEAR[s]["AUClast"]
+            obs = indo_results_c0[s]["AUClast"]
+            diff = _reldiff(obs, ref)
+            if diff > _TOL:
+                failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
+        assert not failures, "\n".join(failures)
+
+    def test_aucinf_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """AUCINF with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+        failures = []
+        for s in _INDO_AUCINF_SUBJECTS:
+            ref = _WNL_INDOMETH_LINEAR[s]["AUCINF_obs"]
+            obs = indo_results_c0[s]["AUCINF"]
+            diff = _reldiff(obs, ref)
+            if diff > _TOL:
+                failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
+        assert not failures, "\n".join(failures)
+
+    def test_cl_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """CL with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+        failures = []
+        for s in _INDO_AUCINF_SUBJECTS:
+            ref = _WNL_INDOMETH_LINEAR[s]["Cl_obs"]
+            obs = indo_results_c0[s]["CL"]
+            diff = _reldiff(obs, ref)
+            if diff > _TOL:
+                failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
+        assert not failures, "\n".join(failures)
+
+    def test_vz_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """Vz with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+        failures = []
+        for s in _INDO_AUCINF_SUBJECTS:
+            ref = _WNL_INDOMETH_LINEAR[s]["Vz_obs"]
+            obs = indo_results_c0[s]["Vz"]
+            diff = _reldiff(obs, ref)
+            if diff > _TOL:
+                failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
+        assert not failures, "\n".join(failures)
