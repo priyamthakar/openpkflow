@@ -11,15 +11,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`c0_back_extrapolated(times, concs, *, n_points=2)`** in `nca/methods.py` and exported from
+  `nca/__init__.py`. Estimates C0 at t=0 for IV bolus data with no t=0 observation via OLS
+  log-linear regression on the first `n_points` (default 2, matching WinNonlin). Prepending the
+  result as (t=0, C0) to the profile before calling `auc_linear()` closes the 17-31% AUClast gap
+  between OpenPKFlow and Phoenix WinNonlin on the Indometh dataset.
+
 - **Phoenix WinNonlin NCA cross-validation** (`tests/validation/test_nca_winnonlin_reference.py`):
-  18 tests validating NCA against Certara WinNonlin public reference data on two datasets.
+  23 tests validating NCA against Certara WinNonlin public reference data on two datasets.
   - Theoph (12 subjects, oral): AUClast linear/log, AUCINF, CL_F, Vz_F, lambda_z, half-life,
     Cmax, Tmax all within 2% for 11+ subjects. S6 excluded from lambda_z/Vz_F/%Extrap due to
     documented auto-selection algorithm difference (WNL: 7 points; BAR^2: 3 points).
-  - Indometh (6 subjects, IV bolus): Cmax, Tmax, lambda_z, half-life for 5/6 subjects within 2%.
-    AUClast gap documented: WNL includes C0 back-extrapolation (17-31% higher) -- this is a
-    known missing feature, asserted in `test_auclast_c0_backext_not_implemented()`.
+  - Indometh (6 subjects, IV bolus, `TestWinNonLinIndometh`): Cmax, Tmax, lambda_z, half-life for
+    5/6 subjects within 2%.
+  - Indometh with C0 back-extrapolation (`TestWinNonLinIndomethC0BackExt`, 5 new tests):
+    C0 matches WNL reference to 4 decimal places for all 6 subjects. AUClast within 2% for all 6.
+    AUCinf, CL, Vz within 2% for 5/6 subjects (S4 excluded: lambda_z auto-selection diverges 5.8%).
+    Lambda_z computed from unaugmented data to preserve BAR^2 window integrity.
   - Discovery: WNL used nominal dose=320 mg for all Theoph subjects, not individual Dose*Wt.
+- `test_auc_linear_does_not_include_c0_backext()` asserts that base `auc_linear()` does not
+  silently include C0 back-extrapolated area, so callers that handle it explicitly are not broken.
 - Interactive cross-val script `scripts/crossval_winnonlin.py` with PASS/WARN/SKIP output.
 
 ---
