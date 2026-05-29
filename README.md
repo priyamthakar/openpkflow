@@ -4,7 +4,7 @@
   <img src="docs/logo.png" alt="OpenPKFlow" width="420"/>
 </p>
 
-**A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.**
+**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting — with full theory derivations, cross-validated formulas, and regulatory-ready documentation.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/priyamthakar/openpkflow/branch/main/graph/badge.svg)](https://codecov.io/gh/priyamthakar/openpkflow)
@@ -27,6 +27,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
 - **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
+- **Theory guide:** Full LaTeX formula derivations for every module -- NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK -- for regulatory review support and teaching
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
@@ -379,15 +380,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~16,100 |
-| Lines of tests (`tests/`) | ~8,200 |
-| Total Python files | 101 (57 src + 44 tests) |
+| Lines of source code (`src/`) | ~19,600 |
+| Lines of tests (`tests/`) | ~15,200 |
+| Total Python files | 141 (69 src + 72 tests) |
 | Tests | 900 |
 | Public functions / methods | 195 |
 | Classes | 34 |
 | HTML report templates | 12 |
 | Bundled example datasets | 4 |
-| Git commits | 55 |
+| Git commits | 100+ |
 
 ---
 
@@ -413,6 +414,15 @@ See [VALIDATION.md](VALIDATION.md) for the full regulatory test traceability mat
 This software is for research and decision-support workflows.
 Final regulatory interpretation should be reviewed by qualified formulation, pharmacokinetic, and regulatory experts.
 
+---
+
+## Documentation
+
+- **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)** -- Full LaTeX formula derivations for every module: NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK. Designed for regulatory review support and teaching.
+- **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)** -- WinNonlin / NONMEM / R user? Quick-reference mapping for every parameter and function.
+- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** -- Step-by-step worked examples for all 7 modules.
+- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/reference/validation/)** -- Every test mapped to its FDA/EMA/ICH guidance section or published DOI.
+- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** -- Full function and class reference for all 9 modules.
 ---
 
 ## Contributing

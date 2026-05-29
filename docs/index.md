@@ -1,6 +1,6 @@
 # OpenPKFlow
 
-**A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.**
+**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting — with full theory derivations, cross-validated formulas, and regulatory-ready documentation.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/openpkflow)](https://pypi.org/project/openpkflow/)
@@ -16,10 +16,12 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 | Module | What it covers |
 |--------|---------------|
 | `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, Weibull/Higuchi/KP/first-order/zero-order model fitting |
-| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, DN params, CDISC PP |
+| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, sparse NCA |
 | `be` | 2x2 crossover TOST (convenience layer), GMR + 90% CI, intra-subject CV, BioEqPy export |
+| `bayes` | MAP individual PK (scipy), full Bayesian posterior (PyMC), Bayesian 2x2 crossover BE |
+| `pop` | FOCE-I and SAEM estimation (1/2-cmt), GOF plots (4-panel), VPC with percentile bands, NONMEM-style dataset helpers |
 | `sim` | 1- and 2-compartment IV bolus/infusion/oral, repeated dosing, superposition |
-| `pop` | GOF plots (4-panel), VPC with percentile bands, NONMEM-style dataset helpers |
+| `ivivc` | Level A IVIVC: Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE predictability |
 | `report` | Markdown, HTML, PDF (ReportLab), Word (python-docx) |
 | `ml` | Experimental torch MLP surrogate for 1-cmt oral profiles |
 | `validation` | Utility functions for cross-checking against reference values |
@@ -62,6 +64,16 @@ print(f"f2 = {f2(reference, test):.2f}")   # 72.80
 ```
 
 See the [Tutorials](tutorials/dissolution.md) section for complete worked examples.
+
+---
+
+## Documentation
+
+- **[Theory Guide](theory.md)** — Full LaTeX formula derivations for every module
+- **[Migration Guide](migration-cheatsheet.md)** — WinNonlin / NONMEM / R quick-reference mapping
+- **[Tutorials](tutorials/dissolution.md)** — Step-by-step worked examples for all 7 modules
+- **[Validation Matrix](reference/validation.md)** — Every test mapped to its FDA/EMA/ICH guidance
+- **[API Reference](reference/dissolution.md)** — Full function and class reference for all 9 modules
 
 ---
 
