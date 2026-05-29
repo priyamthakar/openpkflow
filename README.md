@@ -315,7 +315,8 @@ vpc.report("vpc_report.html")
 | Bootstrap f2 | :white_check_mark: | :x: | :x: | :x: |
 | Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
 | MSD / max deviation / model-dependent comparison | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| NCA (AUClast, AUCinf, CL/F, lambda_z) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| NCA (AUClast, AUCinf, CL/F, lambda_z) — cross-validated vs Phoenix WinNonlin | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| C0 back-extrapolation for IV bolus (matches WinNonlin within 2%) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | %AUCextrap flag, dose-normalised params | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | CDISC PP output (SDTM, PPTESTCD codes) | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | Bioequivalence convenience (paired 2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
@@ -394,7 +395,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 All formula implementations are validated against published FDA/EMA guidance examples.
 Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
-NCA results are validated against the R nlme Theoph reference dataset.
+
+**NCA — four-way cross-validation against Phoenix WinNonlin:**
+NCA results are cross-validated against Phoenix WinNonlin (Certara), PKNCA 0.12.1, and NonCompart 0.8.0
+on the standard R `nlme::Theoph` (12-subject oral theophylline) and `nlme::Indometh` (6-subject IV bolus
+indomethacin) datasets. Key validated parameters: AUClast, AUCinf, CL/F, Vz/F, lambda_z, half-life.
+C0 back-extrapolation for IV bolus data (WinNonlin's approach — OLS regression on the first 2 points,
+linear trapezoid area added from t=0 to t_first) is implemented in `c0_back_extrapolated()` and verified
+to match WinNonlin reference values within 2% for all 6 Indometh subjects.
+
 See [VALIDATION.md](VALIDATION.md) for the full regulatory test traceability matrix.
 
 ---
