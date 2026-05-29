@@ -173,8 +173,8 @@ they did not affect estimation.
   and published DOI. Updated 2026-05-24 with all new cross-val entries.
 - **Four-way NCA cross-validation** (2026-05-29): openpkflow == PKNCA 0.12.1 ==
   NonCompart 0.8.0 == Phoenix WinNonlin on Theoph (12 subjects) and Indometh (6 subjects).
-  AUClast/AUCINF/CL/Vz pass for oral. IV bolus AUClast gap documented (C0 back-ext missing).
-  Test: `tests/validation/test_nca_winnonlin_reference.py` (18 tests). ✅ Done.
+  AUClast/AUCINF/CL/Vz pass for oral. IV bolus C0 back-extrapolation implemented and verified
+  (AUClast gap fully closed). Test: `tests/validation/test_nca_winnonlin_reference.py` (23 tests). ✅ Done.
 - **Steady-state NCA PKNCA cross-validation** (2026-05-24): AUCtau, Cmax_ss, Cmin_ss,
   Cavg_ss, fluctuation%, swing. Swing convention documented (dimensionless ratio vs
   PKNCA percent). ✅ Done.
@@ -191,10 +191,10 @@ they did not affect estimation.
   noise-free data. 24 tests. ✅ Done.
 - `pytest-benchmark` CI job: performance regression detection for NCA/dissolution math. ✅ Done.
 - `hypothesis` property-based tests for PK calculations (edge-case fuzzing). ✅ Done.
-- **C0 back-extrapolation for IV bolus NCA** — next validation gap to close. WinNonlin adds
-  back-extrapolated area (t=0 to t_first) when no t=0 measurement exists. Affects AUClast,
-  AUCINF, CL, Vz, Vss for IV bolus. Implement `c0_backextrapolated()` in `nca/methods.py`.
-  Test framework already in place: `test_auclast_c0_backext_not_implemented()`. **Pending.**
+- **C0 back-extrapolation for IV bolus NCA** (2026-05-29): `c0_back_extrapolated()` added to
+  `nca/methods.py`. OLS on first 2 points matches WinNonlin C0 to 4 d.p. for all 6 Indometh
+  subjects. AUClast within 2% for all 6; AUCinf/CL/Vz within 2% for 5/6 (S4 excluded: lambda_z
+  auto-selection diverges). 5 new tests in `TestWinNonLinIndomethC0BackExt`. ✅ Done.
 
 ### Discoverability
 - README "Comparison" section: feature matrix vs. PKNCA (R), WinNonlin, Pharmpy, OpenPKPD
