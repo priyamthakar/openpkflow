@@ -19,8 +19,8 @@
 
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
-- **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting — Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas — model-dependent comparison via 90% CI
-- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F — three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; sparse NCA from 3-5 samples
+- **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
+- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; sparse NCA from 3-5 samples
 - **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) + full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
 - **Bioequivalence convenience:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV
 - **Report generation:** Markdown, HTML, PDF, Word
@@ -134,7 +134,7 @@ subject,time,conc,dose,route
 ```
 
 Required columns: `subject`, `time`, `conc`, `dose`, `route`.
-Dose units must match concentration × time — mg when conc is mg/L and time is h.
+Dose units must match concentration × time (mg when conc is mg/L and time is h).
 Route values: `"oral"`, `"iv_bolus"`, `"iv_infusion"`.
 
 Oral route yields apparent clearance and volume: `CL_F`, `Vz_F`.
@@ -283,7 +283,7 @@ from openpkflow.pop import GOFResult, simulate_vpc
 from openpkflow.sim.models import OneCompartmentModel
 from openpkflow.sim.dosing import DoseRegimen
 
-# GOF -- supply your own PRED/IPRED from NONMEM or nlmixr2
+# GOF: supply your own PRED/IPRED from NONMEM or nlmixr2
 gof = GOFResult(
     dv=[5.2, 8.1, 6.4, 3.2],
     pred=[4.9, 7.8, 6.0, 3.0],
@@ -315,7 +315,7 @@ vpc.report("vpc_report.html")
 | Bootstrap f2 | :white_check_mark: | :x: | :x: | :x: |
 | Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
 | MSD / max deviation / model-dependent comparison | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| NCA (AUClast, AUCinf, CL/F, lambda_z) — cross-validated vs Phoenix WinNonlin | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
+| NCA (AUClast, AUCinf, CL/F, lambda_z), cross-validated vs Phoenix WinNonlin | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | C0 back-extrapolation for IV bolus (matches WinNonlin within 2%) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | %AUCextrap flag, dose-normalised params | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | CDISC PP output (SDTM, PPTESTCD codes) | :white_check_mark: | :x: | :white_check_mark: | :x: |
@@ -332,7 +332,7 @@ vpc.report("vpc_report.html")
 | Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
 | MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
-| Population PK estimation — FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
+| Population PK estimation: FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
 | Formal BE ANOVA / RSABE / replicate BE | :x: | :x: | :white_check_mark: | :x: |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. nlmixr2 rerun is waiting on local Rtools/C compiler support. See [HANDOFF.md](HANDOFF.md).
@@ -353,23 +353,23 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
 | Dissolution model fitting (5 models, AICc) | Stable |
-| IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) | Stable — v1.2.0 |
-| Multi-media dissolution (f2 across pH, ethanol dose-dumping) | Stable — v1.4.0 |
+| IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) | Stable (v1.2.0) |
+| Multi-media dissolution (f2 across pH, ethanol dose-dumping) | Stable (v1.4.0) |
 | HTML, Markdown, PDF, Word reports | Stable |
-| NCA (AUClast, AUCinf, lambda_z, CL/F, steady-state, urinary excretion) | Stable — v1.3.0 |
-| Sparse NCA (model-informed 1-cmt oral from 3-5 samples) | Stable — v1.5.0 |
-| PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable — v0.9.1 |
-| Population PK diagnostics (GOF, VPC) | Stable — v0.6.0 |
-| FOCE-I pop PK estimation (scipy tier, 1/2-cmt, full Omega)\* | Stable — v2.3.0 |
-| SAEM pop PK estimation ([bayes] extra, 1/2-cmt, full Omega)\* | Stable — v2.3.0 |
-| Covariate modeling | Removed — v2.3.0 breaking change |
-| Validation utilities (pct_bias, rmse, within_pct) | Stable — v0.9.1 |
-| MAP individual PK (scipy, zero extra deps) | Stable -- v2.0.0 |
-| Full Bayesian PK posterior (PyMC, [bayes] extra) | Stable -- v2.0.0 |
-| Bayesian 2x2 BE with P(GMR in 80-125) (PyMC) | Stable -- v2.0.0 |
-| Bioequivalence convenience (paired TOST) | Stable -- 2x2 crossover TOST, GMR + 90% CI |
-| ML surrogate (torch MLP, EXPERIMENTAL) | Prototype -- v0.9.0 |
-| Stable public release | Done -- v2.0.0 |
+| NCA (AUClast, AUCinf, lambda_z, CL/F, steady-state, urinary excretion) | Stable (v1.3.0) |
+| Sparse NCA (model-informed 1-cmt oral from 3-5 samples) | Stable (v1.5.0) |
+| PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable (v0.9.1) |
+| Population PK diagnostics (GOF, VPC) | Stable (v0.6.0) |
+| FOCE-I pop PK estimation (scipy tier, 1/2-cmt, full Omega)\* | Stable (v2.3.0) |
+| SAEM pop PK estimation ([bayes] extra, 1/2-cmt, full Omega)\* | Stable (v2.3.0) |
+| Covariate modeling | Removed (v2.3.0 breaking change) |
+| Validation utilities (pct_bias, rmse, within_pct) | Stable (v0.9.1) |
+| MAP individual PK (scipy, zero extra deps) | Stable (v2.0.0) |
+| Full Bayesian PK posterior (PyMC, [bayes] extra) | Stable (v2.0.0) |
+| Bayesian 2x2 BE with P(GMR in 80-125) (PyMC) | Stable (v2.0.0) |
+| Bioequivalence convenience (paired TOST) | Stable (2x2 crossover TOST, GMR + 90% CI) |
+| ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
+| Stable public release | Done (v2.0.0) |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
 
@@ -396,11 +396,11 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 All formula implementations are validated against published FDA/EMA guidance examples.
 Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
 
-**NCA — four-way cross-validation against Phoenix WinNonlin:**
+**NCA: four-way cross-validation against Phoenix WinNonlin:**
 NCA results are cross-validated against Phoenix WinNonlin (Certara), PKNCA 0.12.1, and NonCompart 0.8.0
 on the standard R `nlme::Theoph` (12-subject oral theophylline) and `nlme::Indometh` (6-subject IV bolus
 indomethacin) datasets. Key validated parameters: AUClast, AUCinf, CL/F, Vz/F, lambda_z, half-life.
-C0 back-extrapolation for IV bolus data (WinNonlin's approach — OLS regression on the first 2 points,
+C0 back-extrapolation for IV bolus data (WinNonlin's approach: OLS regression on the first 2 points,
 linear trapezoid area added from t=0 to t_first) is implemented in `c0_back_extrapolated()` and verified
 to match WinNonlin reference values within 2% for all 6 Indometh subjects.
 
