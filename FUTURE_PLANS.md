@@ -63,7 +63,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ### Bioequivalence
 
-- Replicate designs (RTR, RTRT, TRTR): RSABE for HVDs/HVDPs per FDA Progesterone guidance
+- Replicate designs (RTR, RTRT, TRTR): research-grade CVwR/scaled-limit screening added; full FDA/EMA-validated RSABE parity remains future work
 - Adaptive BE designs: two-stage Potvin/Maurer methods
 - Group-sequential BE with futility stopping
 - Multiple-endpoint BE: simultaneous Cmax + AUCinf with multiplicity adjustment

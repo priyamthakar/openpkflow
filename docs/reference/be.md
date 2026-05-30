@@ -1,8 +1,9 @@
 # openpkflow.be
 
-Bioequivalence convenience analysis: paired 2x2 TOST, GMR + 90% CI,
-intra-subject CV. For formal ANOVA-based BE, NTI, ABEL/RSABE, replicate
-designs, and validation fixtures, export to BioEqPy.
+Bioequivalence analysis: paired 2x2 TOST, GMR + 90% CI, intra-subject CV,
+and research-grade replicate-design screening. For formal ANOVA-based BE,
+jurisdiction-specific NTI decisions, validated ABEL/RSABE, and submission
+fixtures, cross-check against BioEqPy, PowerTOST, or validated SAS/R workflows.
 
 ## Public API
 
@@ -12,6 +13,9 @@ designs, and validation fixtures, export to BioEqPy.
 | `BEResult` | dataclass | Analysis result: `gmr`, `gmr_lower_90ci`, `gmr_upper_90ci`, `bioequivalent`, `cv_intra_pct`, `subjects_df`, `.summary()`, `.report()` |
 | `BETOSTResult` | dataclass | Low-level TOST output from `be_tost()` |
 | `be_tost(reference, test, ...)` | function | Core TOST computation |
+| `replicate_be(data, value_col, ...)` | function | Long-format replicate-design BE screening |
+| `ReplicateBEResult` | dataclass | Replicate BE output with GMR, 90% CI, CVwR, scaled limits, and caveat |
+| `ema_scaled_limits(swr, ...)` | function | EMA-style scaled limits from reference within-subject SD |
 | `BEStudy.to_bioeqpy_dataframe()` | method | Export BioEqPy-ready long-format BE input |
 | `BEStudy.to_bioeqpy_csv(path)` | method | Write BioEqPy-ready CSV input |
 
@@ -100,6 +104,46 @@ Returns an ASCII table with GMR, 90% CI, acceptance limits, CV%, and verdict.
 
 Writes an HTML or Markdown report. Format inferred from file extension;
 override with `format="html"` or `format="markdown"`.
+
+## replicate_be()
+
+```python
+from openpkflow.be import replicate_be
+
+result = replicate_be(
+    data,                  # long-format DataFrame
+    value_col="AUCinf",    # positive PK metric values
+    subject_col="subject",
+    sequence_col="sequence",
+    period_col="period",
+    treatment_col="treatment",
+)
+```
+
+Required long-format columns:
+
+| Column | Meaning |
+|---|---|
+| `subject` | Subject identifier |
+| `sequence` | Randomized sequence, e.g. `TRTR`, `RTRT`, `TRR`, `RTR`, `RRT` |
+| `period` | Period number |
+| `treatment` | `T` or `R` |
+| value column | Positive PK parameter value such as `AUCinf` or `Cmax` |
+
+The result reports:
+
+- conventional GMR and 90% CI,
+- conventional 80-125% ABE decision,
+- reference within-subject SD (`swr`) and CVwR%,
+- EMA-style scaled limits when CVwR exceeds 30%, capped at the CVwR=50% limit,
+- FDA-style RSABE point-criterion screening, not the full 95% upper-bound decision.
+
+!!! warning "Research-grade scope"
+    `replicate_be()` is a transparent screening utility. It does not implement
+    jurisdiction-specific mixed-model degrees of freedom, SAS PROC MIXED parity,
+    FDA RSABE 95% upper confidence bound logic, or NTI decision rules. Use it to
+    explore and QA data, then cross-check formal decisions against validated
+    regulatory workflows.
 
 ## be_tost()
 

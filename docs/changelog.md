@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Research-grade replicate bioequivalence screening via `replicate_be()`:
+  long-format full/partial replicate data parsing, GMR + conventional 90% CI,
+  CVwR estimation, EMA-style scaled-limit summaries, and FDA-style RSABE point
+  criterion screening. These outputs are explicitly documented as exploratory
+  and not a replacement for jurisdiction-specific validated SAS/R workflows.
+
 ---
 
 ## [2.3.0] -- 2026-05-24

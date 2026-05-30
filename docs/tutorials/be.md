@@ -5,9 +5,10 @@
     non-central t power formula, and sample size derivation.
 
 
-This tutorial demonstrates OpenPKFlow's lightweight paired TOST convenience
-layer. For formal regulator-facing BE analysis with ANOVA tables, replicate
-designs, NTI, ABEL/RSABE, and validation fixtures, export to BioEqPy.
+This tutorial demonstrates OpenPKFlow's paired TOST convenience layer and the
+research-grade replicate-design screening helper. For formal regulator-facing BE
+analysis with ANOVA tables, validated NTI, ABEL/RSABE, and submission fixtures,
+cross-check against BioEqPy, PowerTOST, or validated SAS/R workflows.
 
 ---
 
@@ -113,7 +114,35 @@ The export requires `TR`/`RT` sequence labels.
 
 ---
 
-## 7. CLI
+## 7. Replicate-design screening
+
+Use `replicate_be()` for long-format partial or full replicate datasets. The
+minimum columns are `subject`, `sequence`, `period`, `treatment`, and the PK
+metric value.
+
+```python
+import pandas as pd
+from openpkflow.be import replicate_be
+
+df = pd.DataFrame({
+    "subject": ["S01", "S01", "S01", "S02", "S02", "S02"],
+    "sequence": ["TRR", "TRR", "TRR", "RTR", "RTR", "RTR"],
+    "period": [1, 2, 3, 1, 2, 3],
+    "treatment": ["T", "R", "R", "R", "T", "R"],
+    "Cmax": [105.0, 92.0, 108.0, 95.0, 101.0, 110.0],
+})
+
+result = replicate_be(df, value_col="Cmax")
+print(result.summary())
+```
+
+The output includes conventional ABE, CVwR%, EMA-style scaled limits, and an
+FDA-style RSABE point-criterion screen. These scaled outputs are explicitly
+research-grade and must be cross-checked before regulatory use.
+
+---
+
+## 8. CLI
 
 ```bash
 openpkflow be compare be_data.csv --parameter AUCinf
