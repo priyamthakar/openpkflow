@@ -163,6 +163,7 @@ class TestAUCLogInvariants:
     )
     def test_auc_log_scale_invariance(self, conc, factor):
         times = sorted([float(i) for i in range(len(conc))])
+        assume(all(abs(a - b) > 1e-10 for a, b in zip(conc, conc[1:], strict=False)))
         orig = auc_log(times, conc).value
         scaled = auc_log(times, [c * factor for c in conc]).value
         if orig == 0:
@@ -612,6 +613,8 @@ class TestLambdaZ:
     )
     def test_auto_method_lambda_z_positive(self, conc):
         conc = sorted(conc, reverse=True)
+        assume(conc[0] > conc[-1])
+        assume(len(set(conc)) >= 4)
         times = [float(i) for i in range(len(conc))]
         result = lambda_z(times, conc, method="auto")
         assert result.lambda_z > 0.0

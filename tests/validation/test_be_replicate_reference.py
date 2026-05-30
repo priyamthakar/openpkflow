@@ -1,5 +1,8 @@
 """Replicate BE validation against external R/SAS-compatible scalar fixtures.
 
+Regenerate with:
+  Rscript scripts/replicate_be_crossval.R
+
 Scope
 -----
 These fixtures validate OpenPKFlow's transparent scalar screening summaries:

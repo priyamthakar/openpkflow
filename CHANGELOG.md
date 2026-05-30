@@ -9,37 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.4.0] — 2026-05-30
+
 ### Added
 
-- **`c0_back_extrapolated(times, concs, *, n_points=2)`** in `nca/methods.py` and exported from
-  `nca/__init__.py`. Estimates C0 at t=0 for IV bolus data with no t=0 observation via OLS
-  log-linear regression on the first `n_points` (default 2, matching WinNonlin). Prepending the
-  result as (t=0, C0) to the profile before calling `auc_linear()` closes the 17-31% AUClast gap
-  between OpenPKFlow and Phoenix WinNonlin on the Indometh dataset.
-
-- **Phoenix WinNonlin NCA cross-validation** (`tests/validation/test_nca_winnonlin_reference.py`):
-  23 tests validating NCA against Certara WinNonlin public reference data on two datasets.
-  - Theoph (12 subjects, oral): AUClast linear/log, AUCINF, CL_F, Vz_F, lambda_z, half-life,
-    Cmax, Tmax all within 2% for 11+ subjects. S6 excluded from lambda_z/Vz_F/%Extrap due to
-    documented auto-selection algorithm difference (WNL: 7 points; BAR^2: 3 points).
-  - Indometh (6 subjects, IV bolus, `TestWinNonLinIndometh`): Cmax, Tmax, lambda_z, half-life for
-    5/6 subjects within 2%.
-  - Indometh with C0 back-extrapolation (`TestWinNonLinIndomethC0BackExt`, 5 new tests):
-    C0 matches WNL reference to 4 decimal places for all 6 subjects. AUClast within 2% for all 6.
-    AUCinf, CL, Vz within 2% for 5/6 subjects (S4 excluded: lambda_z auto-selection diverges 5.8%).
-    Lambda_z computed from unaugmented data to preserve BAR^2 window integrity.
-  - Discovery: WNL used nominal dose=320 mg for all Theoph subjects, not individual Dose*Wt.
-- `test_auc_linear_does_not_include_c0_backext()` asserts that base `auc_linear()` does not
-  silently include C0 back-extrapolated area, so callers that handle it explicitly are not broken.
-- Interactive cross-val script `scripts/crossval_winnonlin.py` with PASS/WARN/SKIP output.
-- **Theory guide** (docs/theory.md): full LaTeX formula derivations for all 7 modules (NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK). Added to MkDocs nav.
-
-- **Population PK tutorial expanded** (docs/tutorials/pop.md): rewritten from a 101-line diagnostics-only stub to a full FOCE-I/SAEM estimation tutorial with worked Theoph examples, 2-cmt models, CLI usage, and regulatory notes.
-
-- **Migration cheatsheet augmented** (docs/migration-cheatsheet.md): added C0 back-extrapolation and sparse NCA entries; clarified SAEM description.
-
-- **README and docs index updated**: new Documentation section with links to theory guide, migration cheatsheet, tutorials, validation matrix, and API reference.
-
+- Research-grade replicate bioequivalence screening via `replicate_be()`:
+  long-format full/partial replicate data parsing, GMR + conventional 90% CI,
+  CVwR estimation, EMA-style scaled-limit summaries, and FDA-style RSABE point
+  criterion screening. These outputs are explicitly documented as exploratory
+  and not a replacement for jurisdiction-specific validated SAS/R workflows.
+- Replicate BE CLI/report workflow: `openpkflow be replicate`, HTML/Markdown
+  reports, JSON export, example partial-replicate CSV, and scalar reference
+  validation fixtures for the screening calculations.
+- Release-readiness documentation and slow-validation workflow for heavyweight
+  reference checks, plus a read-only `scripts/release_readiness.py` checker.
 
 ---
 

@@ -2,7 +2,92 @@
 
 **Project:** OpenPKFlow
 **Last updated:** 2026-05-30
-**Current version:** 2.3.0
+**Current target version:** 2.4.0 release candidate
+
+---
+
+## Latest handoff update -- 2026-05-30, v2.4 credibility sprint
+
+This section supersedes the older v2.3 notes below for current release work.
+Start every takeover by running:
+
+```powershell
+git status --short --branch
+git log --oneline -5
+```
+
+### What is already completed and pushed
+
+- `0d923ae feat(be): add replicate design screening`
+  - Added research-grade replicate BE screening in `src/openpkflow/be/replicate.py`.
+  - Added `replicate_be`, `ReplicateBEResult`, CV helpers, EMA scaled-limit summaries, and unit coverage.
+  - Kept labels explicitly caveated as screening, not validated formal RSABE.
+- `afe6889 docs: add v2.4 credibility sprint to future plans`
+  - Updated `FUTURE_PLANS.md` with the v2.4 credibility sprint plan.
+- `6151dde feat(be): add replicate cli and release checks`
+  - Added `openpkflow be replicate ... --report ... --json ...`.
+  - Added replicate BE Markdown/HTML reporting and `examples/replicate_be_partial.csv`.
+  - Added scalar reference validation in `tests/validation/test_be_replicate_reference.py`.
+  - Added `RELEASE.md`, `.github/workflows/slow-validation.yml`, and slow-test marker configuration.
+- `c9a0c7e ci: allow benchmark history push`
+  - Added `contents: write` permission for benchmark history push.
+  - GitHub Actions were green for this commit:
+    - CI run `26677773546`: success.
+    - Deploy Docs run `26677773556`: success.
+
+### Release-finalization work included in this handoff
+
+- Version bumped to `2.4.0` in `pyproject.toml` and `src/openpkflow/__init__.py`.
+- `docs/changelog.md` now has `## [2.4.0] -- 2026-05-30`.
+- Root `CHANGELOG.md` now has `## [2.4.0] -- 2026-05-30` with v2.4 replicate BE and release-readiness items.
+- `README.md` now advertises replicate BE screening as `v2.4.0`, while keeping formal BE ANOVA / validated RSABE out of scope.
+- `docs/validation-matrix.md` clarifies replicate BE scalar fixture validation and avoids claiming full RSABE parity.
+- `tests/validation/test_be_replicate_reference.py` points to `scripts/replicate_be_crossval.R` for fixture regeneration.
+- `tests/nca/test_methods_hypothesis.py` has two Hypothesis assumptions tightened to avoid invalid generated examples.
+- Added `scripts/release_readiness.py`, a read-only release gate checker for version/changelog/git/tag/release state.
+- Added `scripts/replicate_be_crossval.R`, an R-side scalar fixture generator for replicate BE screening values.
+
+### Verification already run locally
+
+- `python -m ruff check src tests scripts` passed after fixing import order in `scripts/release_readiness.py`.
+- `python -m pytest tests\nca\test_methods_hypothesis.py::TestAUCLogInvariants tests\nca\test_methods_hypothesis.py::TestLambdaZ -q` passed: `9 passed`.
+- `python -m pytest -q` passed: `1208 passed, 6 skipped, 22 deselected`.
+- `python -m mkdocs build --strict` passed.
+- `python -m build` passed and produced the `openpkflow-2.4.0` sdist and wheel.
+- `python scripts\release_readiness.py` currently fails while the worktree is dirty and warns until tag/release exist. After commit, rerun it; warnings about missing `v2.4.0` tag and GitHub release are expected until release steps are performed.
+
+### Known gaps before tagging v2.4.0
+
+- Slow validation was started but not completed before interruption. Rerun:
+
+```powershell
+python -m pytest -m slow tests\validation -q
+```
+
+- `Rscript scripts\replicate_be_crossval.R` failed because `Rscript` is not on `PATH`. R is available on this machine; try:
+
+```powershell
+& "C:\Program Files\R\R-4.6.0\bin\Rscript.exe" scripts\replicate_be_crossval.R
+```
+
+- Do not tag or publish until the final commit is pushed, CI is green, slow validation is either green or explicitly deferred, and `python scripts\release_readiness.py` has no unexpected failures.
+- After final release commit and green CI, create tag `v2.4.0`, let release automation run, then verify the GitHub release/PyPI artifacts.
+
+### Prompt for next agent
+
+```text
+You are taking over OpenPKFlow in D:\openpkflow. The user wants the v2.4 credibility sprint finished and released only after proper verification. Start with `git status --short --branch` and `git log --oneline -5`. Read the top "Latest handoff update" section in HANDOFF.md first.
+
+Current objective:
+1. Verify the v2.4 release-finalization commit is present and pushed.
+2. Run `python scripts\release_readiness.py`; expect tag/release warnings only before release.
+3. Run or explicitly triage `python -m pytest -m slow tests\validation -q`.
+4. Use the full Rscript path if regenerating replicate BE fixtures: `C:\Program Files\R\R-4.6.0\bin\Rscript.exe`.
+5. Confirm GitHub Actions are green for the final commit.
+6. Only then create/push tag `v2.4.0` and verify release artifacts.
+
+Do not overclaim RSABE. OpenPKFlow v2.4 provides transparent replicate BE screening/reporting with scalar fixture validation; formal regulator-grade RSABE parity remains out of scope until jurisdiction-specific mixed-model/upper-bound parity is validated.
+```
 
 ---
 

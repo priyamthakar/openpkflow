@@ -14,7 +14,7 @@ test files that support the current validation surface.
 | Steady-state NCA | PKNCA 0.12.1 | Ctau, Cav, Cmax, Cmin, fluctuation, swing, and accumulation-style steady-state parameters | `tests/validation/test_nca_ss_reference.py` |
 | NCA | NonCompart 0.8.0 | Cross-checks against an independent R NCA implementation | `tests/validation/test_nca_noncompart_reference.py` |
 | Bioequivalence power | PowerTOST 1.5-7 | 2x2 crossover power and BE probability reference behavior | `tests/validation/test_be_power_reference.py` |
-| Replicate BE screening | Internal deterministic fixtures | GMR, CVwR, EMA-style scaled limits, and RSABE point-criterion screening | `tests/be/test_replicate.py` |
+| Replicate BE screening | R/SAS-compatible scalar fixtures | GMR, CVwR, EMA-style scaled limits, and RSABE point-criterion screening; not full RSABE upper-bound parity | `tests/validation/test_be_replicate_reference.py` |
 | Dissolution bootstrap f2 | bootf2 0.4.1 | Bootstrap f2 behavior and confidence interval agreement | `tests/validation/test_dissolution_bootf2_reference.py` |
 | Population PK FOCE-I | `nlme` Theophylline reference values from Pinheiro and Bates | Typical-value sanity check for one-compartment oral pop PK estimation | `tests/validation/test_pop_foce_reference.py` |
 

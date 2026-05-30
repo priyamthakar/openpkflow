@@ -19,13 +19,15 @@ not broad new scientific scope.
 1. Confirm the version is updated in project metadata and package exports.
 2. Confirm `docs/changelog.md` has a dated release section with user-facing
    changes, caveats, and migration notes.
-3. Run the standard test suite and any manual or nightly slow validation checks
+3. Run `python scripts/release_readiness.py` before tagging. Warnings are
+   acceptable before the tag/release exists; failures must be fixed.
+4. Run the standard test suite and any manual or nightly slow validation checks
    needed for the release scope.
    - Standard: `python -m pytest -q`
    - Slow validation: `python -m pytest -m slow tests/validation -q`
-4. Build the documentation site with `mkdocs build --strict`.
-5. Confirm package artifacts build cleanly and inspect metadata.
-6. Confirm PyPI, GitHub release, and conda-forge state before announcing.
+5. Build the documentation site with `mkdocs build --strict`.
+6. Confirm package artifacts build cleanly and inspect metadata.
+7. Confirm PyPI, GitHub release, and conda-forge state before announcing.
 
 ## GitHub release notes
 

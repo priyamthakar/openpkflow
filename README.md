@@ -334,13 +334,15 @@ vpc.report("vpc_report.html")
 | MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
 | Population PK estimation: FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
-| Formal BE ANOVA / RSABE / replicate BE | :x: | :x: | :white_check_mark: | :x: |
+| Replicate BE screening (CVwR/scaled-limit summaries) | :white_check_mark: (v2.4.0)\*\* | :x: | :white_check_mark: | :x: |
+| Formal BE ANOVA / validated RSABE decision | :x: | :x: | :white_check_mark: | :x: |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. nlmixr2 rerun is waiting on local Rtools/C compiler support. See [HANDOFF.md](HANDOFF.md).
+\*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), FOCE-I + SAEM pop PK (done v2.1.0), 2-cmt + full Omega (done v2.2.0), covariate skeleton removal + FOCE-I reference validation (v2.3.0), replicate BE (planned).
+Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), FOCE-I + SAEM pop PK (done v2.1.0), 2-cmt + full Omega (done v2.2.0), covariate skeleton removal + FOCE-I reference validation (v2.3.0), replicate BE screening + release credibility sprint (v2.4.0).
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ---

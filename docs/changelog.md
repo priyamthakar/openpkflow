@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.4.0] -- 2026-05-30
+
 ### Added
 
 - Research-grade replicate bioequivalence screening via `replicate_be()`:
@@ -20,7 +24,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reports, JSON export, example partial-replicate CSV, and scalar reference
   validation fixtures for the screening calculations.
 - Release-readiness documentation and slow-validation workflow for heavyweight
-  reference checks.
+  reference checks, plus a read-only `scripts/release_readiness.py` checker.
 
 ---
 
