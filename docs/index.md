@@ -72,7 +72,8 @@ See the [Tutorials](tutorials/dissolution.md) section for complete worked exampl
 - **[Theory Guide](theory.md)** — Full LaTeX formula derivations for every module
 - **[Migration Guide](migration-cheatsheet.md)** — WinNonlin / NONMEM / R quick-reference mapping
 - **[Tutorials](tutorials/dissolution.md)** — Step-by-step worked examples for all 7 modules
-- **[Validation Matrix](reference/validation.md)** — Every test mapped to its FDA/EMA/ICH guidance
+- **[Validation Matrix](validation-matrix.md)** — External comparators and executable reference tests
+- **[Validation API](reference/validation.md)** — Bias, RMSE, and percent-tolerance helper reference
 - **[API Reference](reference/dissolution.md)** — Full function and class reference for all 9 modules
 
 ---

@@ -45,6 +45,7 @@ nav:
     - Bayesian PK: tutorials/bayes.md
     - IVIVC Level A: tutorials/ivivc.md
   - Theory Guide: theory.md
+  - Validation Matrix: validation-matrix.md
   - Reference:
     - dissolution: reference/dissolution.md
     - nca: reference/nca.md
