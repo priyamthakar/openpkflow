@@ -15,6 +15,42 @@ what others already do well.
 
 ---
 
+## v2.4.0 Credibility Sprint
+
+Goal: make the next release about trust, usability, and release discipline rather
+than broad new scientific scope. All changes should be additive, with no breaking
+API changes before v3.0.0.
+
+### Bioequivalence hardening
+
+- Add external reference fixtures from PowerTOST/SAS/R for GMR, CVwR, conventional
+  ABE CI, and scaled-limit calculations.
+- Add `tests/validation/test_be_replicate_reference.py`.
+- Keep FDA/EMA RSABE labels explicitly caveated until full upper-bound and
+  mixed-model parity are validated against jurisdiction-specific workflows.
+
+### Replicate BE workflow
+
+- Add CLI: `openpkflow be replicate input.csv --parameter Cmax --report out.html --json out.json`.
+- Add HTML/Markdown report support for `ReplicateBEResult`.
+- Add a small example CSV for `TRR/RTR/RRT` partial replicate data.
+
+### Validation infrastructure
+
+- Mark computationally heavy FOCE reference validation as `slow`.
+- Add a nightly or manually triggered CI job for slow validation tests.
+- Remove or relocate stale "latest local verification" text from static docs so
+  validation pages do not drift.
+
+### Release discipline
+
+- Add a documented `RELEASE.md` workflow for v2.x releases.
+- Keep GitHub release notes generated from `docs/changelog.md`.
+- Add a short "what OpenPKFlow is / is not" page to reduce overclaiming around
+  regulatory use.
+
+---
+
 ## Greenfield differentiators — high-impact gaps no one does well
 
 ### IVIVC (full toolkit — Level A/B/C)
@@ -63,7 +99,8 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ### Bioequivalence
 
-- Replicate designs (RTR, RTRT, TRTR): research-grade CVwR/scaled-limit screening added; full FDA/EMA-validated RSABE parity remains future work
+- v2.4.0 hardens research-grade replicate BE screening; validated regulator-grade
+  RSABE parity remains future BioEqPy/SAS/R work
 - Adaptive BE designs: two-stage Potvin/Maurer methods
 - Group-sequential BE with futility stopping
 - Multiple-endpoint BE: simultaneous Cmax + AUCinf with multiplicity adjustment
@@ -126,6 +163,14 @@ FDA and EMA increasingly require dissolution in 3+ media:
 - **Theory guide**: math derivations for each formula module (regulatory review support)
 - **Migration guide**: "Coming from WinNonlin / NONMEM / R" cheat sheets
 - **VALIDATION.md**: cross-reference table mapping every test to FDA/EMA guidance + DOI
+- **Release readiness checks**: verify version, changelog, tag/release, PyPI,
+  docs, and conda-forge state before publishing
+- **Slow validation CI**: run heavyweight reference checks such as FOCE on a
+  manual or nightly schedule
+- **Validation docs hygiene**: keep static docs free of stale local-verification
+  snapshots
+- **Positioning page**: document what OpenPKFlow is and is not, especially for
+  regulatory use
 - **Property-based testing**: `hypothesis` for fuzzing PK calculations
 - **conda-forge recipe**: `conda install -c conda-forge openpkflow`
 - **Docker image**: Jupyter + openpkflow + all extras
@@ -161,8 +206,8 @@ FDA and EMA increasingly require dissolution in 3+ media:
 | Sparse NCA | ✅ | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
-| RSABE / replicate BE | planned | — | — | — | ✅ |
-| PopPK estimation | deferred | ✅ | ✅ | ✅ | — |
+| RSABE / replicate BE | research-grade screening; validated RSABE future | — | — | — | ✅ |
+| PopPK estimation | ✅ research-grade FOCE-I/SAEM | ✅ | ✅ | ✅ | — |
 | PK simulation (1-2 cmt) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MAP individual PK | ✅ (v2.0.0) | — | — | — | ✅ |
 | Full Bayesian PK + BE | ✅ (v2.0.0) | — | partial | — | — |
