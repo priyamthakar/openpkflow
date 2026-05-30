@@ -47,6 +47,8 @@ import pytest
 from openpkflow.datasets import example_theoph_path
 from openpkflow.pop.estimation import PopPKModel, run_foce_i
 
+pytestmark = pytest.mark.slow
+
 # ---------------------------------------------------------------------------
 # Published plausibility bounds (Pinheiro & Bates 2000, Table A.1 + literature)
 #

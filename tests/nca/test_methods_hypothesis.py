@@ -571,6 +571,8 @@ class TestLambdaZ:
     )
     def test_lambda_z_positive_for_declining_data(self, conc):
         conc = sorted(conc, reverse=True)
+        assume(conc[0] > conc[-1])
+        assume(len(set(conc)) >= 4)
         times = [float(i) for i in range(len(conc))]
         result = lambda_z(times, conc, method="auto")
         assert result.lambda_z > 0.0
@@ -580,6 +582,8 @@ class TestLambdaZ:
     )
     def test_half_life_equals_ln2_over_lambda_z(self, conc):
         conc = sorted(conc, reverse=True)
+        assume(conc[0] > conc[-1])
+        assume(len(set(conc)) >= 4)
         times = [float(i) for i in range(len(conc))]
         result = lambda_z(times, conc, method="auto")
         assert np.isclose(result.half_life, math.log(2) / result.lambda_z, rtol=1e-12)

@@ -77,6 +77,7 @@ class TestReplicateBE:
         df = _partial_replicate_df(n=12, ratio=1.05, cv_wr=0.40)
         result = replicate_be(df, value_col="AUCinf")
         assert result.n_subjects == 12
+        assert result.parameter == "AUCinf"
         assert result.design == "RRT/RTR/TRR"
         assert result.gmr == pytest.approx(1.05, rel=1e-12)
         assert result.cv_wr_pct == pytest.approx(40.0, abs=1e-10)
@@ -92,6 +93,36 @@ class TestReplicateBE:
         assert result.scaled_abe_pass is True
         assert result.scaled_lower == pytest.approx(0.80)
         assert result.scaled_upper == pytest.approx(1.25)
+
+    def test_result_to_dict_includes_parameter(self) -> None:
+        df = _partial_replicate_df()
+        result = replicate_be(df, value_col="AUCinf")
+        payload = result.to_dict()
+        assert payload["parameter"] == "AUCinf"
+        assert payload["gmr"] == pytest.approx(result.gmr)
+
+    def test_html_report_created(self, tmp_path) -> None:
+        df = _partial_replicate_df().rename(columns={"AUCinf": "Cmax"})
+        result = replicate_be(df, value_col="Cmax")
+        out = tmp_path / "replicate.html"
+        result.report(out)
+        text = out.read_text(encoding="utf-8")
+        assert "Replicate Bioequivalence" in text
+        assert "Cmax" in text
+
+    def test_markdown_report_created(self, tmp_path) -> None:
+        df = _partial_replicate_df().rename(columns={"AUCinf": "Cmax"})
+        result = replicate_be(df, value_col="Cmax")
+        out = tmp_path / "replicate.md"
+        result.report(out)
+        text = out.read_text(encoding="utf-8")
+        assert "Replicate Bioequivalence" in text
+        assert "Cmax" in text
+
+    def test_report_unsupported_format_raises(self, tmp_path) -> None:
+        result = replicate_be(_partial_replicate_df(), value_col="AUCinf")
+        with pytest.raises(ValueError, match="Unsupported format"):
+            result.report(tmp_path / "replicate.txt", format="pdf")
 
     def test_rejects_nonpositive_values(self) -> None:
         df = _partial_replicate_df()

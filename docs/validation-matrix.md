@@ -35,15 +35,12 @@ public comparators. They do not make OpenPKFlow a validated regulated system by
 themselves. Regulated use still requires local SOPs, version control, locked
 environments, independent review, and study-specific validation.
 
-## Latest local verification
+## Running validation
 
-The current release-health pass confirmed:
+Default test runs exclude computationally heavy validation checks marked
+`slow`. Run slow validation explicitly before changing population PK estimation
+internals:
 
-- `python -m ruff check src tests scripts`
-- `python -m mkdocs build --strict`
-- `python -m pytest tests\validation\test_nca_winnonlin_reference.py -q`
-- `python -m pytest tests\validation -q --ignore=tests\validation\test_pop_foce_reference.py --ignore=tests\validation\test_nca_winnonlin_reference.py`
-
-The FOCE-I population PK reference test is computationally heavier than the
-other validation tests and should be checked in CI or run locally with a longer
-timeout before changing population PK estimation internals.
+```bash
+python -m pytest -m slow tests/validation -q
+```

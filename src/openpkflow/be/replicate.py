@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import pandas as pd
 from scipy.stats import t as t_dist
@@ -59,6 +60,7 @@ class ReplicateBEResult:
         Per-subject mean log T/R differences used for GMR and CI estimation.
     """
 
+    parameter: str
     n_subjects: int
     design: str
     gmr: float
@@ -82,6 +84,7 @@ class ReplicateBEResult:
         lines = [
             "Replicate BE Summary",
             "=" * 40,
+            f"Parameter          : {self.parameter}",
             f"Design             : {self.design}",
             f"Subjects (n)       : {self.n_subjects}",
             f"GMR (T/R)          : {self.gmr:.4f}",
@@ -101,6 +104,7 @@ class ReplicateBEResult:
         """Return scalar result fields as a plain dictionary."""
         return {
             "n_subjects": self.n_subjects,
+            "parameter": self.parameter,
             "design": self.design,
             "gmr": self.gmr,
             "gmr_lower_90ci": self.gmr_lower_90ci,
@@ -117,6 +121,12 @@ class ReplicateBEResult:
             "rsabe_point_pass": self.rsabe_point_pass,
             "analysis_note": self.analysis_note,
         }
+
+    def report(self, path: str | Path, format: str | None = None) -> None:
+        """Write a replicate BE report to *path*."""
+        from openpkflow.be.reporting import report_replicate_be
+
+        report_replicate_be(self, path, format=format)
 
 
 def cv_to_s_within(cv: float) -> float:
@@ -280,6 +290,7 @@ def replicate_be(
     )
 
     return ReplicateBEResult(
+        parameter=value_col,
         n_subjects=n,
         design=design,
         gmr=gmr,

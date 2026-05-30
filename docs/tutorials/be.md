@@ -147,6 +147,7 @@ research-grade and must be cross-checked before regulatory use.
 ```bash
 openpkflow be compare be_data.csv --parameter AUCinf
 openpkflow be compare be_data.csv --parameter AUCinf --report be_report.html
+openpkflow be replicate replicate_be_partial.csv --parameter Cmax --report replicate.html --json replicate.json
 ```
 
 CSV format: `subject, sequence, reference, test`

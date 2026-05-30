@@ -1,0 +1,10 @@
+subject,sequence,period,treatment,Cmax
+S01,TRR,1,T,105.0
+S01,TRR,2,R,92.0
+S01,TRR,3,R,108.0
+S02,RTR,1,R,95.0
+S02,RTR,2,T,101.0
+S02,RTR,3,R,110.0
+S03,RRT,1,R,91.0
+S03,RRT,2,R,106.0
+S03,RRT,3,T,100.0

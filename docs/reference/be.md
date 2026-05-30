@@ -145,6 +145,12 @@ The result reports:
     explore and QA data, then cross-check formal decisions against validated
     regulatory workflows.
 
+CLI usage:
+
+```bash
+openpkflow be replicate replicate_be_partial.csv --parameter Cmax --report replicate.html --json replicate.json
+```
+
 ## be_tost()
 
 ```python

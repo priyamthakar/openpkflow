@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import typer
@@ -201,6 +202,80 @@ def be_compare(
             typer.echo(f"\nReport written to: {report}")
         except Exception as exc:  # noqa: BLE001
             typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+
+@be_app.command("replicate")
+def be_replicate(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to a long-format replicate BE CSV.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    parameter: str = typer.Option("Cmax", "--parameter", help="PK parameter value column."),
+    subject_col: str = typer.Option("subject", help="Column name for subject IDs."),
+    sequence_col: str = typer.Option("sequence", help="Column name for sequence labels."),
+    period_col: str = typer.Option("period", help="Column name for period numbers."),
+    treatment_col: str = typer.Option("treatment", help="Column name for treatment labels."),
+    test_label: str = typer.Option("T", help="Test treatment label."),
+    reference_label: str = typer.Option("R", help="Reference treatment label."),
+    be_lower: float = typer.Option(0.80, help="Lower acceptance limit."),
+    be_upper: float = typer.Option(1.25, help="Upper acceptance limit."),
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write an HTML or Markdown report to this path.",
+    ),
+    json_out: Path | None = typer.Option(
+        None,
+        "--json",
+        help="Write scalar result fields to a JSON file.",
+    ),
+) -> None:
+    """Run replicate-design BE screening from a long-format CSV."""
+    import pandas as pd
+
+    from openpkflow.be import replicate_be
+
+    try:
+        df = pd.read_csv(csv_path)
+        result = replicate_be(
+            df,
+            value_col=parameter,
+            subject_col=subject_col,
+            sequence_col=sequence_col,
+            period_col=period_col,
+            treatment_col=treatment_col,
+            test_label=test_label,
+            reference_label=reference_label,
+            be_lower=be_lower,
+            be_upper=be_upper,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if report is not None:
+        _rp = str(report)
+        fmt = "markdown" if _rp.endswith((".md", ".markdown")) else "html"
+        try:
+            result.report(report, format=fmt)
+            typer.echo(f"\nReport written to: {report}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+    if json_out is not None:
+        try:
+            payload = result.to_dict()
+            payload["subjects"] = result.subjects_df.to_dict(orient="records")
+            json_out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            typer.echo(f"JSON written to: {json_out}")
+        except OSError as exc:
+            typer.echo(f"Warning: could not write JSON: {exc}", err=True)
 
 
 @ivivc_app.command("run")

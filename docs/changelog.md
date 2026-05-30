@@ -16,6 +16,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   CVwR estimation, EMA-style scaled-limit summaries, and FDA-style RSABE point
   criterion screening. These outputs are explicitly documented as exploratory
   and not a replacement for jurisdiction-specific validated SAS/R workflows.
+- Replicate BE CLI/report workflow: `openpkflow be replicate`, HTML/Markdown
+  reports, JSON export, example partial-replicate CSV, and scalar reference
+  validation fixtures for the screening calculations.
+- Release-readiness documentation and slow-validation workflow for heavyweight
+  reference checks.
 
 ---
 

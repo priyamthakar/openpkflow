@@ -109,4 +109,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--tb=short"
+addopts = "--tb=short -m 'not slow'"
+markers = [
+  "slow: computationally heavy validation tests excluded from default runs",
+]

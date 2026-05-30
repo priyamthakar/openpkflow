@@ -29,6 +29,19 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 It does not replace expert regulatory judgement or validated commercial platforms.
 It makes routine analysis faster, cleaner, and more reproducible.
 
+## What it is and is not
+
+OpenPKFlow is a transparent Python toolkit for exploratory and reproducible
+pharmacometric workflows: dissolution comparison, NCA, simulation,
+bioequivalence screening, IVIVC, population PK diagnostics, and report
+generation.
+
+OpenPKFlow is not a substitute for qualified regulatory judgement, validated
+commercial platforms, or jurisdiction-specific submission workflows. Research
+features, including replicate bioequivalence screening, should be treated as
+decision-support until independently validated against the required SAS/R or
+agency-specific reference process.
+
 ---
 
 ## Install
