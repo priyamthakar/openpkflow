@@ -154,6 +154,27 @@ they did not affect estimation.
 
 ---
 
+## v2.5.0 -- Reactive Web Application (2026-05-31)
+
+Scope: new `api/` (FastAPI) and `webapp/` (React + Vite + Tailwind) at repo root.
+The library is **not modified** -- the web layer calls existing validated public APIs.
+
+- FastAPI backend: `/api/nca/*`, `/api/dissolution/*`, `/api/sim/*`, `/health` ✅
+- React frontend: dark enterprise theme (Linear/Sentry aesthetic), side-nav layout ✅
+- NCA page: CSV upload, column mapping, AUC/Cmax/Tmax/t1/2 metric cards, per-subject
+  concentration-time chart, linear/semi-log toggle, report download ✅
+- Dissolution page: formulation dropdowns, f1/f2 comparison, overlaid profile chart
+  with 85% threshold line, regulatory warning surface, report download ✅
+- Sim page: interactive sliders for all PK params (1-/2-cmt, oral/IV/infusion),
+  debounced live chart, Cmax/Tmax/Cmin/Clast metric cards, report download ✅
+- 16 backend golden + error tests; production build clean ✅
+- CLAUDE.md updated with scope ratification note ✅
+
+**Anti-drift guarantee:** all pharmacometric numbers originate from `src/openpkflow/`
+via the FastAPI adapters. The frontend never computes pharmacometric values.
+
+---
+
 ## Cross-cutting workstreams (parallel to milestones)
 
 ### Documentation

@@ -14,12 +14,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
+**Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
+- `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
+  In scope: adding endpoints, fixing bugs in the adapter layer, improving error handling.
+- `webapp/` — React + Vite + Tailwind frontend. In scope: UI improvements, new pages for
+  modules already covered by the backend, bug fixes.
+- Both dirs are separate from `src/openpkflow/` and do NOT modify the frozen library.
+- Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
+  first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
+
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
 - RSABE / replicate-design BE — belongs in companion BioEqPy package, not here.
-- WeasyPrint, Streamlit/Gradio GUI, CDISC Define.xml, eCTD table formatting.
+- WeasyPrint, Streamlit/Gradio GUI (as embedded GUI in the library), CDISC Define.xml, eCTD table formatting.
+  Note: The `api/` + `webapp/` web application is a separate layer, not a Streamlit/Gradio embed.
 
 **Rules for AI agents:**
 1. Before adding any feature, verify it is on the in-scope list. If not, ask the user.
