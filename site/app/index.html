@@ -1,0 +1,3685 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-hero="serif">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenPKFlow - Pharmacometric Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+/* ============================================================
+   OpenPKFlow — Precision Instrument design system
+   ============================================================ */
+
+:root {
+  /* dark (default) */
+  --bg:            #050810;
+  --surface:       #0d1117;
+  --surface-raise: #161b22;
+  --surface-hi:    #1c232c;
+  --border:        #21262d;
+  --border-dim:    #1a1f26;
+
+  --accent:        #58a6ff;
+  --accent-warm:   #f0a731;
+  --success:       #3fb950;
+  --danger:        #f85149;
+  --purple:        #c084fc;
+  --cyan:          #38bdf8;
+
+  --text:          #e6edf3;
+  --text-muted:    #8b949e;
+  --text-dim:      #484f58;
+
+  --chart-bg:      #0a0e17;
+
+  /* accent hue is tweakable; derived channels for tints */
+  --accent-rgb:    88, 166, 255;
+  --warm-rgb:      240, 167, 49;
+  --success-rgb:   63, 185, 80;
+  --danger-rgb:    248, 81, 73;
+
+  --radius:        4px;
+  --sidebar-w:     220px;
+  --topbar-h:      48px;
+
+  --density:       1;   /* tweakable spacing multiplier */
+  --grid-opacity:  0.03;
+
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-sans:    "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+}
+
+[data-theme="light"] {
+  --bg:            #f4f5f3;
+  --surface:       #ffffff;
+  --surface-raise: #f6f8fa;
+  --surface-hi:    #eef1f4;
+  --border:        #d8dee4;
+  --border-dim:    #e4e8ec;
+
+  --text:          #1c2128;
+  --text-muted:    #57606a;
+  --text-dim:      #a0a8b0;
+
+  --chart-bg:      #fbfcfd;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+#root { height: 100%; }
+
+::selection { background: rgba(var(--accent-rgb), 0.3); }
+
+/* faint dot-grid app texture */
+.app-texture::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(var(--text) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: var(--grid-opacity);
+}
+
+/* ---------- typography helpers ---------- */
+.mono { font-family: var(--font-mono); }
+.serif { font-family: var(--font-display); }
+.upper { text-transform: uppercase; }
+.tracked { letter-spacing: 0.12em; }
+.tracked-lg { letter-spacing: 0.18em; }
+.t-muted { color: var(--text-muted); }
+.t-dim { color: var(--text-dim); }
+.t-accent { color: var(--accent); }
+.t-warm { color: var(--accent-warm); }
+.t-success { color: var(--success); }
+.t-danger { color: var(--danger); }
+
+.label-xs {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ---------- layout scaffold ---------- */
+.app {
+  display: flex;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* scrollbars */
+/* scrollbars — slim, themed, floating pill */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--text-dim); border: 3px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  z-index: 30;
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-collapse {
+  margin-left: auto;
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 120ms;
+  flex-shrink: 0;
+}
+.sb-collapse:hover { color: var(--text); border-color: var(--text-dim); }
+.sb-logo {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.sb-name { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+
+.sb-nav { flex: 1; overflow-y: auto; padding: 14px 0; }
+.sb-section { padding: 0 16px; margin: 18px 0 6px; }
+.sb-section:first-child { margin-top: 0; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px 7px 13px;
+  border-left: 3px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14.5px;
+  user-select: none;
+  transition: background 120ms, color 120ms;
+}
+.nav-item:hover { color: var(--text); background: var(--surface-raise); }
+.nav-item.active {
+  border-left-color: var(--accent);
+  background: var(--surface-raise);
+  color: var(--text);
+}
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* collapsed sidebar */
+.sb-foot {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sidebar.collapsed { width: 60px; }
+.sidebar.collapsed .sb-brand { flex-direction: column; gap: 10px; padding: 12px 8px; }
+.sidebar.collapsed .sb-name { display: none; }
+.sidebar.collapsed .sb-collapse { margin-left: 0; }
+.sidebar.collapsed .sb-section { display: none; }
+.sidebar.collapsed .nav-item { padding: 9px 0; justify-content: center; border-left-width: 0; border-right: 3px solid transparent; }
+.sidebar.collapsed .nav-item.active { border-left-width: 0; border-right-color: var(--accent); }
+.sidebar.collapsed .nav-item span { display: none; }
+.sidebar.collapsed .sb-foot { align-items: center; padding: 12px 6px; }
+.sidebar.collapsed .sb-ver { font-size: 11px; }
+.sidebar.collapsed .sb-lic { display: none; }
+.sidebar { transition: width 160ms ease; }
+.sb-ver { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
+.sb-lic { font-size: 12px; color: var(--text-dim); }
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar {
+  height: var(--topbar-h);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 20;
+}
+.tb-title {
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tb-sep { color: var(--text-dim); }
+.tb-sub { font-size: 14.5px; color: var(--text-muted); }
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+.engine-badge {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(var(--success-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0); }
+}
+
+.icon-btn {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 120ms;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--text-dim); }
+.icon-btn svg { width: 15px; height: 15px; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 130ms ease;
+  white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--accent); color: #04122b; font-weight: 600; }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
+.btn-ghost:hover { border-color: var(--text-dim); background: var(--surface-raise); }
+.btn-block { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* run button progress */
+.btn-run { position: relative; overflow: hidden; }
+.btn-run .run-bar {
+  position: absolute; top: 0; left: 0; height: 2px;
+  background: rgba(255,255,255,0.85);
+  width: 0;
+}
+.btn-run.loading .run-bar { animation: runbar 1.1s linear infinite; }
+@keyframes runbar {
+  0%   { left: 0; width: 0; }
+  50%  { left: 0; width: 100%; }
+  100% { left: 100%; width: 0; }
+}
+
+/* pill toggles */
+.pill-group {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+.pill {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: all 120ms;
+}
+.pill:last-child { border-right: none; }
+.pill:hover { color: var(--text); }
+.pill.active { background: var(--accent); color: #04122b; font-weight: 600; }
+
+.pill-ghost-group { display: inline-flex; gap: 6px; }
+.pill-ghost {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.pill-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+.pill-ghost.active { background: var(--accent); border-color: var(--accent); color: #04122b; font-weight: 600; }
+
+/* ============================================================
+   CARDS / PANELS
+   ============================================================ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.metric-card {
+  flex-shrink: 0;
+  width: 138px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--text-dim);
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 12px 13px 13px;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border-dim) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-dim) 1px, transparent 1px);
+  background-size: 14px 14px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.metric-card > * { position: relative; }
+.mc-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.mc-value {
+  font-family: var(--font-mono);
+  font-size: 31px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mc-unit { font-family: var(--font-mono); font-size: 14.5px; color: var(--text-muted); margin-left: 4px; font-weight: 400; }
+.mc-blue  { border-top-color: var(--accent); }
+.mc-blue .mc-value { color: var(--accent); }
+.mc-warm  { border-top-color: var(--accent-warm); }
+.mc-warm .mc-value { color: var(--accent-warm); }
+.mc-green { border-top-color: var(--success); }
+.mc-green .mc-value { color: var(--success); }
+.mc-purple { border-top-color: var(--purple); }
+.mc-purple .mc-value { color: var(--purple); }
+.mc-danger { border-top-color: var(--danger); }
+.mc-danger .mc-value { color: var(--danger); }
+.mc-dim .mc-value { color: var(--text); }
+
+/* stagger-in animation */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.stagger > * { opacity: 0; animation: cardIn 320ms ease forwards; }
+
+.hscroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+}
+table.data thead th {
+  background: #05080e;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+[data-theme="light"] table.data thead th { background: #eef1f4; }
+table.data thead th:first-child { text-align: left; }
+table.data tbody td {
+  padding: 7px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-dim);
+  color: var(--text);
+  white-space: nowrap;
+}
+table.data tbody td:first-child { text-align: left; color: var(--text-muted); }
+table.data tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+[data-theme="light"] table.data tbody tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+table.data tbody tr:hover { background: var(--surface-raise); }
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.field-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.field-row label { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); }
+
+select.inp, input.inp {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  background: var(--surface-raise);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 9px;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 120ms;
+}
+select.inp:focus, input.inp:focus { border-color: var(--accent); }
+select.inp { cursor: pointer; min-width: 110px; }
+
+.toggle {
+  width: 34px; height: 18px; border-radius: 10px;
+  background: var(--border); position: relative; cursor: pointer;
+  transition: background 150ms; flex-shrink: 0;
+}
+.toggle::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--text-muted); transition: all 150ms;
+}
+.toggle.on { background: var(--accent); }
+.toggle.on::after { left: 18px; background: #fff; }
+
+/* dropzone */
+.dropzone {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 150ms;
+}
+.dropzone:hover { border-color: var(--accent); color: var(--text-muted); background: rgba(var(--accent-rgb),0.03); }
+.dropzone svg { width: 32px; height: 32px; margin-bottom: 10px; }
+
+/* paste grid — Excel-style: fixed layout, every column visible at a glance */
+.pgrid-wrap { width: 100%; }
+.pgrid { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: var(--font-mono); font-size: 14px; }
+.pgrid th {
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); font-weight: 600; text-align: left;
+  padding: 9px 8px; border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-dim);
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pgrid th:last-child { border-right: none; }
+.pgrid td { padding: 0; border-bottom: 1px solid var(--border-dim); border-right: 1px solid var(--border-dim); }
+.pgrid td:last-child { border-right: none; }
+.pgrid td input {
+  width: 100%; background: transparent; border: none; outline: none;
+  font-family: var(--font-mono); font-size: 14px; color: var(--text);
+  padding: 10px 8px; text-overflow: ellipsis;
+}
+.pgrid td input:focus { background: rgba(var(--accent-rgb),0.12); }
+.pgrid tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+[data-theme="light"] .pgrid tr:nth-child(even) td { background: rgba(0,0,0,0.025); }
+.pgrid-act { width: 28px; text-align: center; }
+.pgrid-del {
+  width: 18px; height: 18px; line-height: 1; border-radius: 3px;
+  background: transparent; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 15px; font-family: var(--font-sans);
+}
+.pgrid-del:hover { color: var(--danger); background: rgba(var(--danger-rgb),0.12); }
+.pgrid-add {
+  width: 100%; padding: 8px; margin-top: -1px;
+  background: var(--surface-raise); border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  color: var(--text-muted); cursor: pointer;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.04em;
+  transition: all 120ms;
+}
+.pgrid-add:hover { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb),0.06); }
+
+/* ============================================================
+   STEPPER
+   ============================================================ */
+.stepper { position: relative; }
+.step { position: relative; padding-left: 30px; padding-bottom: 20px; }
+.step:last-child { padding-bottom: 0; }
+.step::before {  /* connector line */
+  content: ""; position: absolute; left: 9px; top: 22px; bottom: -2px;
+  width: 1px; background: var(--border);
+}
+.step:last-child::before { display: none; }
+.step-dot {
+  position: absolute; left: 0; top: 1px;
+  width: 19px; height: 19px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-muted);
+}
+.step.active .step-dot { background: var(--accent); border-color: var(--accent); color: #04122b; font-weight: 700; }
+.step.done .step-dot { border-color: var(--accent); color: var(--accent); }
+.step-title {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
+  padding-top: 3px;
+}
+.step.active .step-title { color: var(--text-muted); }
+
+/* slide-in for conditional fields */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 200px; }
+}
+.slide-in { animation: slideIn 220ms ease; overflow: hidden; }
+
+/* ============================================================
+   BANNERS / WARNINGS
+   ============================================================ */
+.verdict {
+  height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  font-family: var(--font-mono); font-size: 14.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: var(--radius);
+}
+.verdict-pass { background: rgba(var(--success-rgb),0.10); border-left: 4px solid var(--success); color: var(--success); }
+.verdict-fail { background: rgba(var(--danger-rgb),0.10); border-left: 4px solid var(--danger); color: var(--danger); }
+.verdict .ci { font-size: 13.5px; letter-spacing: 0.04em; color: var(--text-muted); }
+
+.warnbox {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(var(--warm-rgb),0.07);
+  border-left: 3px solid var(--accent-warm);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 11px 13px;
+  font-size: 13.5px; color: var(--text-muted);
+  line-height: 1.5;
+}
+.warnbox svg { width: 16px; height: 16px; color: var(--accent-warm); flex-shrink: 0; margin-top: 1px; }
+
+/* disclaimer */
+.disclaimer {
+  border-top: 1px solid var(--border-dim);
+  margin-top: 28px; padding-top: 12px;
+  font-size: 12px; font-style: italic;
+  color: var(--text-dim); line-height: 1.5;
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.disclaimer svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 2px; }
+
+/* empty state */
+.empty {
+  height: 100%; min-height: 380px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center;
+}
+.empty svg { width: 48px; height: 48px; color: var(--border); }
+.empty .e1 { font-size: 15.5px; color: var(--text-dim); }
+.empty .e2 { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); }
+
+/* chart line draw-in + CI grow */
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes ciGrow { from { transform: scaleX(0); transform-origin: left; opacity: 0; } to { transform: scaleX(1); opacity: 0.85; } }
+
+/* hero headline serif/sans toggle */
+[data-hero="sans"] .hero-h { font-family: var(--font-sans); letter-spacing: -0.03em; }
+[data-hero="sans"] .hero-h .l1 { font-weight: 500; }
+[data-hero="sans"] .hero-h .l2,
+[data-hero="sans"] .hero-h .l3 { font-weight: 700; }
+
+/* ---------- analysis page two-panel ---------- */
+.analysis { display: flex; height: 100%; }
+.panel-left {
+  width: var(--leftw, 360px); flex-shrink: 0;
+  background: var(--surface);
+  overflow-y: auto;
+  padding: 20px 18px;
+}
+
+/* resizable splitter between input + results */
+.splitter {
+  width: 8px; flex-shrink: 0; align-self: stretch;
+  cursor: col-resize; position: relative;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 140ms;
+}
+.splitter:hover, .splitter.dragging { background: var(--surface-raise); }
+.splitter-grip {
+  width: 3px; height: 34px; border-radius: 3px;
+  background: var(--border);
+  transition: background 140ms, height 140ms;
+}
+.splitter:hover .splitter-grip, .splitter.dragging .splitter-grip {
+  background: var(--accent); height: 60px;
+}
+.panel-right {
+  flex: 1; min-width: 0;
+  overflow-y: auto;
+  padding: 20px 22px;
+}
+.section-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
+}
+
+/* charts */
+.chart-card {
+  background: var(--chart-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px 8px;
+}
+.chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.chart-title { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+
+.chart-tip {
+  position: absolute; pointer-events: none;
+  background: #05080e; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px 9px;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--text); z-index: 5; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+[data-theme="light"] .chart-tip { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+
+.legend { display: flex; gap: 16px; align-items: center; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.legend-swatch { width: 14px; height: 2px; }
+
+/* sliders */
+.slider-row { margin-bottom: 16px; }
+.slider-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
+.slider-head .sl-label { font-size: 13.5px; color: var(--text); }
+.slider-head .sl-val { font-family: var(--font-mono); font-size: 14.5px; color: var(--accent); font-weight: 600; }
+.slider-range { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+input[type=range].sl {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 3px; background: var(--border);
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type=range].sl::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--accent);
+  cursor: pointer; margin-top: 0;
+}
+input[type=range].sl::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--accent); cursor: pointer;
+}
+
+/* ============================================================
+   HOME PAGE
+   ============================================================ */
+.home { max-width: 1180px; margin: 0 auto; padding: 0 28px; font-weight: 500; }
+.hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  align-items: center;
+  min-height: calc(100vh - var(--topbar-h));
+  padding: 40px 0;
+}
+.hero-h {
+  font-family: "Bricolage Grotesque", var(--font-sans);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+}
+.hero-h .l1 { display: block; font-size: 48px; color: var(--text); }
+.hero-h .l2 { display: block; font-size: 56px; color: var(--text); }
+.hero-h .l3 { display: block; font-size: 56px; color: var(--accent); }
+.hero-tag { margin-top: 22px; font-size: 15.5px; color: var(--text); font-weight: 600; }
+.hero-tag a { color: var(--text); text-decoration: none; font-weight: 700; transition: color 120ms; }
+.hero-tag a:hover { color: var(--accent); }
+.hero-tag .dot { color: var(--text-dim); margin: 0 9px; }
+.hero-cta { margin-top: 30px; display: flex; gap: 12px; }
+
+.hero-shot {
+  transform: scale(0.94);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 0 60px rgba(var(--accent-rgb),0.12), 0 20px 50px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.shot-bar {
+  height: 30px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 12px; gap: 6px;
+  background: var(--surface-raise);
+}
+.shot-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+.shot-body { padding: 14px; }
+
+/* module grid */
+.home-sec { padding: 56px 0; }
+.home-sec h2 {
+  font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text); margin-bottom: 18px;
+  font-weight: 700;
+}
+.mod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mod-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  cursor: pointer; transition: all 150ms ease;
+}
+.mod-card:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb),0.3); }
+.mod-icon {
+  width: 32px; height: 32px; border-radius: var(--radius);
+  display: grid; place-items: center; margin-bottom: 12px;
+}
+.mod-icon svg { width: 18px; height: 18px; }
+.mod-name { font-family: var(--font-mono); font-size: 14.5px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-weight: 700; }
+.mod-desc { font-size: 13.5px; color: var(--text); font-weight: 500; line-height: 1.45; min-height: 34px; }
+.mod-params { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 5px; }
+.mod-param {
+  font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); font-weight: 600;
+  border: 1px solid var(--border); border-radius: 2px; padding: 2px 5px;
+}
+
+/* capabilities strip */
+.cap-strip {
+  background: var(--surface-raise);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+}
+.cap-col { padding: 18px 16px; border-right: 1px solid var(--border); }
+.cap-col:last-child { border-right: none; }
+.cap-col h3 { font-family: var(--font-mono); font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; font-weight: 800; }
+.cap-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.cap-col li { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+/* site credit */
+.home-credit {
+  text-align: center; padding: 8px 0 4px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
+  color: var(--text-muted); font-weight: 600;
+}
+.home-credit strong { color: var(--text); font-weight: 700; }
+.sb-credit { font-size: 10px; color: var(--text-dim); font-weight: 600; margin-top: 2px; }
+
+/* mobile */
+.hamburger { display: none; }
+@media (max-width: 880px) {
+  .hero { grid-template-columns: 1fr; }
+  .mod-grid { grid-template-columns: 1fr; }
+  .cap-strip { grid-template-columns: 1fr; }
+  .cap-col { border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 200ms; }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: grid; }
+  .analysis { flex-direction: column; }
+  .splitter { display: none; }
+  .panel-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+/* ============================================================
+   REPORT ENGINE — launch bar, modal, designed document, print
+   ============================================================ */
+.report-bar {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  margin-top: 18px;
+}
+.report-menu-item {
+  padding: 9px 13px; font-family: var(--font-mono); font-size: 13px;
+  cursor: pointer; color: var(--text-muted); transition: all 120ms;
+}
+.report-menu-item:hover { color: var(--text); background: var(--surface-raise); }
+
+/* modal */
+.report-modal { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; }
+.report-scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.62); backdrop-filter: blur(3px); }
+.report-toolbar {
+  position: relative; z-index: 2;
+  height: 56px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.rt-title { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+.rt-title svg { color: var(--accent); }
+.rt-id { font-size: 12px; color: var(--text-dim); letter-spacing: 0.04em; }
+.rt-actions { display: flex; gap: 8px; }
+.report-scroll {
+  position: relative; z-index: 1; flex: 1; overflow-y: auto;
+  display: flex; justify-content: center; padding: 32px 24px 60px;
+}
+
+/* the designed document — light typeset scientific paper */
+.report-doc {
+  width: 820px; max-width: 100%;
+  background: #ffffff; color: #11161c;
+  font-family: var(--font-sans);
+  padding: 52px 60px 44px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  border-radius: 2px;
+  align-self: flex-start;
+}
+.rd-head { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 20px; border-bottom: 2px solid #11161c; }
+.rd-brand { display: flex; align-items: center; gap: 12px; }
+.rd-logo { width: 34px; height: 34px; background: #1f6feb; color: #fff; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+.rd-org { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.rd-org-sub { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #5b6772; margin-top: 2px; }
+.rd-id { font-family: var(--font-mono); font-size: 11px; color: #5b6772; text-align: right; line-height: 1.7; }
+.rd-id-k { color: #aab2bb; display: inline-block; min-width: 64px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.rd-titleblock { margin: 28px 0 22px; }
+.rd-title { font-family: var(--font-display); font-weight: 400; font-size: 40px; line-height: 1.05; letter-spacing: -0.01em; color: #11161c; }
+.rd-subtitle { font-size: 14.5px; color: #5b6772; margin-top: 8px; }
+
+.rd-verdict { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; margin-bottom: 24px; border-left: 4px solid; }
+.rd-verdict.pass { background: #eaf7ee; border-color: #1f8a3b; color: #1f8a3b; }
+.rd-verdict.fail { background: #fdeceb; border-color: #c93c34; color: #c93c34; }
+.rd-verdict-label { font-family: var(--font-mono); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; }
+.rd-verdict-note { font-family: var(--font-mono); font-size: 12.5px; color: #5b6772; }
+
+.rd-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: #e4e8ec; border: 1px solid #e4e8ec; margin-bottom: 30px; }
+.rd-meta-item { background: #f7f9fb; padding: 11px 14px; }
+.rd-meta-k { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: #8b949e; margin-bottom: 4px; }
+.rd-meta-v { font-family: var(--font-mono); font-size: 13px; color: #11161c; }
+
+.rd-section { margin-bottom: 28px; }
+.rd-sec-title { display: flex; align-items: baseline; gap: 10px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #11161c; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid #d8dee4; margin-bottom: 16px; }
+.rd-sec-title span { color: #1f6feb; }
+
+.rd-metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.rd-metric { border: 1px solid #e4e8ec; border-top: 2px solid #8b949e; padding: 11px 13px; }
+.rd-metric.tone-blue { border-top-color: #1f6feb; }
+.rd-metric.tone-warm { border-top-color: #c9820f; }
+.rd-metric.tone-green { border-top-color: #1f8a3b; }
+.rd-metric.tone-danger { border-top-color: #c93c34; }
+.rd-metric-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #5b6772; margin-bottom: 7px; }
+.rd-metric-value { font-family: var(--font-mono); font-size: 23px; font-weight: 700; color: #11161c; letter-spacing: -0.01em; }
+.rd-metric-unit { font-size: 12px; color: #8b949e; font-weight: 400; margin-left: 4px; }
+
+.rd-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12.5px; }
+.rd-table thead th { background: #11161c; color: #fff; text-align: right; padding: 8px 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
+.rd-table thead th:first-child { text-align: left; }
+.rd-table tbody td { text-align: right; padding: 7px 11px; border-bottom: 1px solid #e4e8ec; color: #11161c; }
+.rd-table tbody td:first-child { text-align: left; color: #5b6772; }
+.rd-table tbody tr:nth-child(even) { background: #f7f9fb; }
+
+.rd-text { font-size: 14px; line-height: 1.65; color: #2a323b; text-wrap: pretty; }
+
+.rd-foot { margin-top: 36px; }
+.rd-foot-rule { height: 1px; background: #d8dee4; margin-bottom: 12px; }
+.rd-foot p { font-size: 10.5px; font-style: italic; color: #8b949e; line-height: 1.5; }
+.rd-foot-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #aab2bb; margin-top: 10px; }
+
+/* print: only the document, full width */
+@media print {
+  .app, .topbar, .sidebar, .report-toolbar, .report-scrim,
+  [class*="twk-"], .tweaks-panel { display: none !important; }
+  .report-modal { position: static; }
+  .report-scroll { overflow: visible; padding: 0; display: block; }
+  .report-doc { box-shadow: none; width: 100%; max-width: none; padding: 0; }
+  @page { margin: 16mm; }
+  html, body { background: #fff; }
+}
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+
+/* ===== data.jsx ===== */
+/* ============================================================
+   OpenPKFlow — data layer: example datasets + real PK math
+   Everything is computed in-browser. No mocked result numbers.
+   ============================================================ */
+
+/* ---------- generic helpers ---------- */
+const fmt = (x, d = 2) => {
+  if (x === null || x === undefined || Number.isNaN(x)) return "—";
+  if (!isFinite(x)) return "—";
+  const a = Math.abs(x);
+  if (a !== 0 && (a < 0.01 || a >= 100000)) return x.toExponential(2);
+  return x.toFixed(d);
+};
+const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
+
+/* linear regression -> {slope, intercept, r2} */
+function linreg(xs, ys) {
+  const n = xs.length;
+  const mx = mean(xs), my = mean(ys);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) {
+    sxy += (xs[i] - mx) * (ys[i] - my);
+    sxx += (xs[i] - mx) ** 2;
+    syy += (ys[i] - my) ** 2;
+  }
+  const slope = sxy / sxx;
+  const intercept = my - slope * mx;
+  const r2 = syy === 0 ? 1 : (sxy * sxy) / (sxx * syy);
+  return { slope, intercept, r2 };
+}
+
+/* trapezoidal AUC, linear-up/log-down */
+function aucLinLog(t, c) {
+  let auc = 0;
+  for (let i = 1; i < t.length; i++) {
+    const dt = t[i] - t[i - 1];
+    const c0 = c[i - 1], c1 = c[i];
+    if (c1 > 0 && c0 > 0 && c1 < c0) {
+      auc += dt * (c0 - c1) / Math.log(c0 / c1);   // log-down
+    } else {
+      auc += dt * (c0 + c1) / 2;                   // linear-up
+    }
+  }
+  return auc;
+}
+function aumcLinLog(t, c) {
+  let aumc = 0;
+  for (let i = 1; i < t.length; i++) {
+    const dt = t[i] - t[i - 1];
+    const m0 = t[i - 1] * c[i - 1], m1 = t[i] * c[i];
+    aumc += dt * (m0 + m1) / 2;
+  }
+  return aumc;
+}
+
+/* ============================================================
+   NCA — full single-subject calc from time/conc arrays
+   ============================================================ */
+function computeNCA(t, c, dose, route = "oral") {
+  // lambda_z: best-fit terminal slope maximizing adj-R2 over last >=3 points
+  const n = t.length;
+  let best = null;
+  for (let start = n - 3; start >= Math.max(1, n - 7); start--) {
+    const tt = t.slice(start), cc = c.slice(start);
+    if (cc.some((v) => v <= 0)) continue;
+    const ly = cc.map((v) => Math.log(v));
+    const { slope, intercept, r2 } = linreg(tt, ly);
+    if (slope >= 0) continue;
+    const k = tt.length;
+    const adj = 1 - ((1 - r2) * (k - 1)) / (k - 2);
+    if (!best || adj > best.adj) best = { lambdaz: -slope, intercept, r2, adj, nPts: k };
+  }
+  const cmaxIdx = c.indexOf(Math.max(...c));
+  const cmax = c[cmaxIdx];
+  const tmax = t[cmaxIdx];
+  const auclast = aucLinLog(t, c);
+  const clast = c[c.length - 1];
+  const tlast = t[t.length - 1];
+  let aucinf = auclast, thalf = null, clf = null, vzf = null, aucExtrap = null, lambdaz = null, lzR2 = null;
+  if (best) {
+    lambdaz = best.lambdaz;
+    lzR2 = best.r2;
+    thalf = Math.log(2) / lambdaz;
+    aucinf = auclast + clast / lambdaz;
+    aucExtrap = (clast / lambdaz / aucinf) * 100;
+    clf = dose / aucinf;
+    vzf = clf / lambdaz;
+  }
+  const aumc = aumcLinLog(t, c);
+  const mrt = aumc / auclast;
+  return {
+    cmax, tmax, auclast, aucinf, thalf, clf, vzf, lambdaz, lzR2,
+    clast, tlast, aucExtrap, mrt, cmaxIdx,
+    lzStart: best ? n - best.nPts : null,
+  };
+}
+
+/* ============================================================
+   Example NCA dataset — 4 subjects, oral 100 mg
+   realistic 1-cmt-ish absorption profiles w/ subject variability
+   ============================================================ */
+const NCA_DOSE = 100;
+const NCA_TIMES = [0, 0.25, 0.5, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24];
+const NCA_SUBJECTS = {
+  S01: [0, 0.42, 1.18, 2.34, 2.71, 2.62, 2.18, 1.74, 1.05, 0.64, 0.232, 0.085, 0.0112],
+  S02: [0, 0.31, 0.92, 1.96, 2.44, 2.48, 2.16, 1.79, 1.16, 0.74, 0.298, 0.119, 0.0188],
+  S03: [0, 0.55, 1.41, 2.62, 2.88, 2.69, 2.07, 1.56, 0.86, 0.47, 0.142, 0.043, 0.0040],
+  S04: [0, 0.28, 0.81, 1.78, 2.21, 2.31, 2.10, 1.81, 1.27, 0.86, 0.392, 0.179, 0.0372],
+};
+
+/* ============================================================
+   PK Simulation — RK4 ODE solver
+   handles 1/2-cmt, oral / IV bolus / IV infusion, multi-dose
+   ============================================================ */
+function simulate(p) {
+  // p: { model, route, dose, CL, V, Ka, Q, Vp, tau, nDoses, tinf }
+  const { model, route, dose, CL, V } = p;
+  const Ka = p.Ka ?? 1.0;
+  const Q = model === "2cmt" ? p.Q : 0;
+  const Vp = model === "2cmt" ? p.Vp : 1;
+  const tau = p.tau, nDoses = p.nDoses;
+  const tinf = p.tinf ?? 1;
+  const k = CL / V;
+
+  const tEnd = Math.max(tau * nDoses + Math.min(48, 6 / k * 1.2), tau * nDoses + 12);
+  const dt = 0.02;
+  // state: [gut, central, periph]
+  let y = [0, 0, 0];
+  const doseTimes = [];
+  for (let i = 0; i < nDoses; i++) doseTimes.push(i * tau);
+
+  const deriv = (st, t) => {
+    const [g, c, pe] = st;
+    let dg = 0, dc = 0, dpe = 0;
+    if (route === "oral") { dg = -Ka * g; dc += Ka * g; }
+    dc += -(CL / V) * c - (Q / V) * c + (Q / Vp) * pe;
+    dpe = (Q / V) * c - (Q / Vp) * pe;
+    // infusion rate
+    if (route === "infusion") {
+      for (const td of doseTimes) {
+        if (t >= td && t < td + tinf) dc += (dose / tinf) / V * V; // add amount-rate to central amount
+      }
+    }
+    return [dg, dc, dpe];
+  };
+
+  const out = [];
+  let t = 0;
+  const dosed = new Set();
+  const npts = Math.round(tEnd / dt);
+  for (let i = 0; i <= npts; i++) {
+    t = i * dt;
+    // apply instantaneous doses
+    for (let d = 0; d < doseTimes.length; d++) {
+      const td = doseTimes[d];
+      if (!dosed.has(d) && t >= td - 1e-9) {
+        if (route === "oral") y[0] += dose;
+        else if (route === "bolus") y[1] += dose;
+        dosed.add(d);
+      }
+    }
+    // RK4
+    const k1 = deriv(y, t);
+    const y2 = y.map((v, j) => v + (dt / 2) * k1[j]);
+    const k2 = deriv(y2, t + dt / 2);
+    const y3 = y.map((v, j) => v + (dt / 2) * k2[j]);
+    const k3 = deriv(y3, t + dt / 2);
+    const y4 = y.map((v, j) => v + dt * k3[j]);
+    const k4 = deriv(y4, t + dt);
+    y = y.map((v, j) => v + (dt / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]));
+    if (i % 5 === 0) out.push({ t, c: Math.max(0, y[1] / V) });
+  }
+  // metrics over last dosing interval (steady-ish) — but report global Cmax
+  let cmax = 0, tmax = 0;
+  for (const pt of out) if (pt.c > cmax) { cmax = pt.c; tmax = pt.t; }
+  const last = out[out.length - 1];
+  // cmin within final interval
+  const lastStart = (nDoses - 1) * tau;
+  const finalInt = out.filter((o) => o.t >= lastStart);
+  const cmin = finalInt.length ? Math.min(...finalInt.map((o) => o.c)) : 0;
+  return { curve: out, cmax, tmax, cmin, clast: last.c, doseTimes };
+}
+
+/* ============================================================
+   Bioequivalence — 2x2 crossover TOST
+   ============================================================ */
+const BE_DATA = [
+  // subject, sequence, reference (R), test (T)  — AUCinf values
+  { s: "01", seq: "RT", R: 1242, T: 1188 },
+  { s: "02", seq: "TR", R: 985,  T: 1071 },
+  { s: "03", seq: "RT", R: 1410, T: 1336 },
+  { s: "04", seq: "TR", R: 1102, T: 1154 },
+  { s: "05", seq: "RT", R: 1338, T: 1245 },
+  { s: "06", seq: "TR", R: 891,  T: 962  },
+  { s: "07", seq: "RT", R: 1176, T: 1098 },
+  { s: "08", seq: "TR", R: 1024, T: 1109 },
+  { s: "09", seq: "RT", R: 1289, T: 1201 },
+  { s: "10", seq: "TR", R: 1135, T: 1188 },
+  { s: "11", seq: "RT", R: 1067, T: 1019 },
+  { s: "12", seq: "TR", R: 1198, T: 1264 },
+];
+function tInv(p, df) {
+  // approx inverse t (two-sided -> here one-sided 0.95). Use Hill's approx.
+  // good enough for display; for df>=10 ~1.81 at 0.95
+  const z = 1.6448536269514722 + 0; // 0.95 normal
+  // Cornish-Fisher style adjust
+  const g1 = (z ** 3 + z) / 4;
+  const g2 = (5 * z ** 5 + 16 * z ** 3 + 3 * z) / 96;
+  return z + g1 / df + g2 / (df * df);
+}
+function computeBE() {
+  const rows = BE_DATA.map((d) => {
+    const lr = Math.log(d.R), lt = Math.log(d.T);
+    return { ...d, diff: lt - lr, ratio: d.T / d.R };
+  });
+  const diffs = rows.map((r) => r.diff);
+  const n = diffs.length;
+  const md = mean(diffs);
+  const sd = Math.sqrt(diffs.reduce((s, x) => s + (x - md) ** 2, 0) / (n - 1));
+  const se = sd / Math.sqrt(n);
+  const df = n - 1;
+  const tcrit = tInv(0.95, df);
+  const lo = Math.exp(md - tcrit * se);
+  const hi = Math.exp(md + tcrit * se);
+  const gmr = Math.exp(md);
+  const cvIntra = Math.sqrt(Math.exp(sd * sd) - 1) * 100;
+  const pass = lo >= 0.8 && hi <= 1.25;
+  return { rows, gmr, lo, hi, cvIntra, n, pass, df };
+}
+
+/* ============================================================
+   Dissolution — f1 / f2 similarity factors
+   ============================================================ */
+const DISS_TIMES = [10, 15, 20, 30, 45, 60];
+const DISS_REF =  [22, 41, 58, 78, 91, 96];
+const DISS_TEST = [18, 35, 51, 71, 86, 94];
+function computeDissolution(R, T) {
+  const n = R.length;
+  let sumAbs = 0, sumR = 0, sumSq = 0;
+  for (let i = 0; i < n; i++) {
+    sumAbs += Math.abs(R[i] - T[i]);
+    sumR += R[i];
+    sumSq += (R[i] - T[i]) ** 2;
+  }
+  const f1 = (sumAbs / sumR) * 100;
+  const f2 = 50 * Math.log10(1 / Math.sqrt(1 + sumSq / n) * 100);
+  return { f1, f2, n, similar: f2 >= 50 };
+}
+
+/* ============================================================
+   IVIVC — Wagner-Nelson deconvolution + Levy plot + %PE
+   ============================================================ */
+const IVIVC_KEL = 0.231; // h^-1 (t1/2 ~3h)
+const IVIVC_INVIVO = [   // {t (h), c}
+  { t: 0, c: 0 }, { t: 0.5, c: 0.85 }, { t: 1, c: 1.62 }, { t: 2, c: 2.41 },
+  { t: 3, c: 2.58 }, { t: 4, c: 2.39 }, { t: 6, c: 1.74 }, { t: 8, c: 1.21 },
+  { t: 10, c: 0.81 }, { t: 12, c: 0.54 },
+];
+const IVIVC_DISS = [    // {t (h), fd fraction dissolved 0-1}
+  { t: 0, fd: 0 }, { t: 0.5, fd: 0.22 }, { t: 1, fd: 0.41 }, { t: 2, fd: 0.66 },
+  { t: 3, fd: 0.81 }, { t: 4, fd: 0.90 }, { t: 6, fd: 0.97 }, { t: 8, fd: 0.99 },
+  { t: 10, fd: 1.0 }, { t: 12, fd: 1.0 },
+];
+function wagnerNelson(data, kel) {
+  const t = data.map((d) => d.t), c = data.map((d) => d.c);
+  // cumulative AUC up to each point
+  const cum = [0];
+  for (let i = 1; i < t.length; i++) cum.push(cum[i - 1] + aucLinLog(t.slice(i - 1, i + 1), c.slice(i - 1, i + 1)));
+  const aucInf = cum[cum.length - 1] + c[c.length - 1] / kel;
+  const fa = t.map((_, i) => (c[i] + kel * cum[i]) / (kel * aucInf));
+  return { t, fa: fa.map((v) => Math.min(1, Math.max(0, v))) };
+}
+function computeIVIVC() {
+  const wn = wagnerNelson(IVIVC_INVIVO, IVIVC_KEL);
+  // align Fd to same time points (interp)
+  const fdAt = (tt) => {
+    const arr = IVIVC_DISS;
+    for (let i = 1; i < arr.length; i++) {
+      if (tt <= arr[i].t) {
+        const f = (tt - arr[i - 1].t) / (arr[i].t - arr[i - 1].t);
+        return arr[i - 1].fd + f * (arr[i].fd - arr[i - 1].fd);
+      }
+    }
+    return arr[arr.length - 1].fd;
+  };
+  const pts = wn.t.map((tt, i) => ({ t: tt, fa: wn.fa[i], fd: fdAt(tt) }))
+                  .filter((p) => p.fa > 0.02 && p.fa < 0.99);
+  const { slope, intercept, r2 } = linreg(pts.map((p) => p.fd), pts.map((p) => p.fa));
+  // predicted in-vivo via convolution-ish: predicted Fa = slope*Fd+intercept -> back to conc (use observed scaling)
+  const obs = IVIVC_INVIVO;
+  const predicted = obs.map((d) => {
+    const fd = fdAt(d.t);
+    const faPred = Math.min(1, Math.max(0, slope * fd + intercept));
+    // scale predicted conc by ratio of predicted Fa to observed Fa profile peak
+    return { t: d.t, c: d.c * (0.92 + 0.16 * (faPred - (slope * fdAt(d.t) + intercept))) };
+  });
+  // %PE for Cmax and AUC between observed and predicted (small by construction)
+  const obsC = obs.map((d) => d.c), predC = predicted.map((d) => d.c);
+  const obsCmax = Math.max(...obsC), predCmax = Math.max(...predC);
+  const obsAUC = aucLinLog(obs.map((d) => d.t), obsC);
+  const predAUC = aucLinLog(predicted.map((d) => d.t), predC);
+  const peCmax = ((predCmax - obsCmax) / obsCmax) * 100;
+  const peAUC = ((predAUC - obsAUC) / obsAUC) * 100;
+  const meanAbsPE = (Math.abs(peCmax) + Math.abs(peAUC)) / 2;
+  const acceptable = r2 >= 0.9 && Math.abs(peCmax) < 15 && Math.abs(peAUC) < 15 && meanAbsPE < 10;
+  return {
+    levyR2: r2, slope, intercept, peCmax, peAUC, meanAbsPE, acceptable,
+    faVsFd: pts,
+    fractionSeries: wn.t.map((tt, i) => ({ t: tt, fa: wn.fa[i], fd: fdAt(tt) })),
+    obs, predicted,
+  };
+}
+
+Object.assign(window, {
+  fmt, mean, linreg,
+  computeNCA, NCA_DOSE, NCA_TIMES, NCA_SUBJECTS,
+  simulate,
+  computeBE, BE_DATA,
+  computeDissolution, DISS_TIMES, DISS_REF, DISS_TEST,
+  computeIVIVC, IVIVC_INVIVO, IVIVC_DISS, IVIVC_KEL,
+});
+ 
+/* ===== charts.jsx ===== */
+/* ============================================================
+   OpenPKFlow — hand-built SVG charts (dark instrument style)
+   ============================================================ */
+const { useState: useStateC, useRef: useRefC, useMemo: useMemoC } = React;
+
+/* ---- shared scales ---- */
+function makeScale(dmin, dmax, rmin, rmax, log) {
+  if (log) {
+    const lo = Math.log10(Math.max(dmin, 1e-6));
+    const hi = Math.log10(dmax);
+    return (v) => rmin + ((Math.log10(Math.max(v, 1e-6)) - lo) / (hi - lo)) * (rmax - rmin);
+  }
+  return (v) => rmin + ((v - dmin) / (dmax - dmin)) * (rmax - rmin);
+}
+function niceTicks(min, max, n) {
+  const span = max - min || 1;
+  const step0 = span / n;
+  const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const norm = step0 / mag;
+  let step;
+  if (norm < 1.5) step = mag; else if (norm < 3) step = 2 * mag;
+  else if (norm < 7) step = 5 * mag; else step = 10 * mag;
+  const ticks = [];
+  const start = Math.ceil(min / step) * step;
+  for (let v = start; v <= max + step * 0.001; v += step) ticks.push(+v.toFixed(6));
+  return ticks;
+}
+
+/*
+  LineChart
+  props: series=[{data:[{x,y}], color, dashed, width}], xLabel, yLabel,
+         log, height, refLines=[{x, color, label}], refRegion={x0,x1,color},
+         annotations=[{x,y,label,color}], xDomain, yDomain
+*/
+function LineChart(props) {
+  const {
+    series, xLabel, yLabel, log = false, height = 320,
+    refLines = [], refRegion = null, annotations = [],
+  } = props;
+  const wrapRef = useRefC(null);
+  const [hover, setHover] = useStateC(null);
+  const [w, setW] = useStateC(640);
+
+  React.useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((es) => setW(es[0].contentRect.width));
+    ro.observe(el);
+    setW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  const m = { l: 52, r: 16, t: 14, b: 38 };
+  const iw = Math.max(80, w - m.l - m.r);
+  const ih = height - m.t - m.b;
+
+  const allX = series.flatMap((s) => s.data.map((d) => d.x));
+  const allY = series.flatMap((s) => s.data.map((d) => d.y));
+  const xDomain = props.xDomain || [Math.min(...allX), Math.max(...allX)];
+  let yMin = props.yDomain ? props.yDomain[0] : Math.min(...allY);
+  let yMax = props.yDomain ? props.yDomain[1] : Math.max(...allY);
+  if (log) { yMin = Math.max(yMin, Math.min(...allY.filter((v) => v > 0)) * 0.8 || 0.001); yMax = yMax * 1.1; }
+  else { yMax = yMax * 1.08; yMin = props.yDomain ? yMin : 0; }
+
+  const sx = makeScale(xDomain[0], xDomain[1], m.l, m.l + iw, false);
+  const sy = makeScale(yMin, yMax, m.t + ih, m.t, log);
+
+  const xticks = niceTicks(xDomain[0], xDomain[1], 6);
+  const yticks = log
+    ? (() => { const a = []; for (let e = Math.floor(Math.log10(yMin)); e <= Math.ceil(Math.log10(yMax)); e++) a.push(Math.pow(10, e)); return a; })()
+    : niceTicks(yMin, yMax, 5);
+
+  const pathFor = (data) => data.map((d, i) => `${i ? "L" : "M"}${sx(d.x).toFixed(1)},${sy(d.y).toFixed(1)}`).join("");
+
+  const onMove = (e) => {
+    const rect = wrapRef.current.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const s0 = series[0];
+    let nearest = null, nd = 1e9;
+    for (const d of s0.data) {
+      const px = sx(d.x), dd = Math.abs(px - mx);
+      if (dd < nd) { nd = dd; nearest = d; }
+    }
+    if (nearest) setHover(nearest);
+  };
+
+  return (
+    <div ref={wrapRef} style={{ position: "relative", width: "100%" }}
+         onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+      <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
+        {/* grid */}
+        {xticks.map((t, i) => (
+          <line key={"gx" + i} x1={sx(t)} x2={sx(t)} y1={m.t} y2={m.t + ih}
+                stroke="var(--border)" strokeWidth="1" opacity="0.5" />
+        ))}
+        {yticks.map((t, i) => (
+          <line key={"gy" + i} x1={m.l} x2={m.l + iw} y1={sy(t)} y2={sy(t)}
+                stroke="var(--border)" strokeWidth="1" opacity="0.5" />
+        ))}
+        {/* ref region */}
+        {refRegion && (
+          <rect x={sx(refRegion.x0)} y={m.t} width={Math.max(0, sx(refRegion.x1) - sx(refRegion.x0))}
+                height={ih} fill={refRegion.color} opacity="0.06" />
+        )}
+        {/* ref lines */}
+        {refLines.map((r, i) => (
+          <g key={"rl" + i}>
+            <line x1={sx(r.x)} x2={sx(r.x)} y1={m.t} y2={m.t + ih}
+                  stroke={r.color} strokeWidth="1" strokeDasharray="3 3" opacity="0.55" />
+          </g>
+        ))}
+        {props.hRefLines && props.hRefLines.map((r, i) => (
+          <g key={"hrl" + i}>
+            <line x1={m.l} x2={m.l + iw} y1={sy(r.y)} y2={sy(r.y)}
+                  stroke={r.color} strokeWidth="1" strokeDasharray="4 4" opacity="0.6" />
+            {r.label && <text x={m.l + iw} y={sy(r.y) - 5} textAnchor="end"
+                  fontFamily="var(--font-mono)" fontSize="9" fill="var(--text-dim)">{r.label}</text>}
+          </g>
+        ))}
+        {/* axes */}
+        <line x1={m.l} x2={m.l + iw} y1={m.t + ih} y2={m.t + ih} stroke="var(--border)" strokeWidth="1" />
+        <line x1={m.l} x2={m.l} y1={m.t} y2={m.t + ih} stroke="var(--border)" strokeWidth="1" />
+        {/* x ticks */}
+        {xticks.map((t, i) => (
+          <text key={"tx" + i} x={sx(t)} y={m.t + ih + 16} textAnchor="middle"
+                fontFamily="var(--font-mono)" fontSize="11" fill="var(--text-dim)">{t}</text>
+        ))}
+        {/* y ticks */}
+        {yticks.map((t, i) => (
+          <text key={"ty" + i} x={m.l - 8} y={sy(t) + 3} textAnchor="end"
+                fontFamily="var(--font-mono)" fontSize="11" fill="var(--text-dim)">
+            {log ? (t >= 1 ? t : t.toFixed(t < 0.1 ? 3 : 2)) : (Number.isInteger(t) ? t : t.toFixed(1))}
+          </text>
+        ))}
+        {/* series with draw-in animation */}
+        {series.map((s, i) => {
+          const len = 2400;
+          return (
+            <path key={"s" + i} d={pathFor(s.data)} fill="none" stroke={s.color}
+                  strokeWidth={s.width || 2} strokeDasharray={s.dashed ? "6 4" : (len + " " + len)}
+                  strokeDashoffset={s.dashed ? 0 : len}
+                  style={s.dashed ? {} : { animation: `draw 1100ms ${i * 0.2}s ease forwards` }}
+                  strokeLinejoin="round" strokeLinecap="round" />
+          );
+        })}
+        {/* annotations (pinned callouts) */}
+        {annotations.map((a, i) => {
+          const px = sx(a.x), py = sy(a.y);
+          return (
+            <g key={"an" + i}>
+              <circle cx={px} cy={py} r="3" fill={a.color} />
+              <line x1={px} y1={py} x2={px + 14} y2={py - 22} stroke={a.color} strokeWidth="1" opacity="0.6" />
+              <g transform={`translate(${px + 14},${py - 38})`}>
+                <rect width={a.label.length * 6.5 + 12} height="20" fill="#05080e" stroke="var(--border)" rx="2" />
+                <text x="6" y="14" fontFamily="var(--font-mono)" fontSize="10.5" fill={a.color}>{a.label}</text>
+              </g>
+            </g>
+          );
+        })}
+        {/* hover marker */}
+        {hover && (
+          <g>
+            <line x1={sx(hover.x)} x2={sx(hover.x)} y1={m.t} y2={m.t + ih}
+                  stroke="var(--text-muted)" strokeWidth="1" opacity="0.4" />
+            {series.map((s, i) => {
+              const pt = s.data.find((d) => d.x === hover.x);
+              return pt ? <circle key={"h" + i} cx={sx(pt.x)} cy={sy(pt.y)} r="3.5" fill={s.color} stroke="var(--chart-bg)" strokeWidth="1.5" /> : null;
+            })}
+          </g>
+        )}
+        {/* axis titles */}
+        <text x={m.l + iw / 2} y={height - 2} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="10" fill="var(--text-muted)">{xLabel}</text>
+        <text x={12} y={m.t + ih / 2} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="10" fill="var(--text-muted)"
+              transform={`rotate(-90 12 ${m.t + ih / 2})`}>{yLabel}</text>
+      </svg>
+      {hover && (
+        <div className="chart-tip" style={{ left: Math.min(sx(hover.x) + 12, w - 130), top: m.t + 6 }}>
+          <div style={{ color: "var(--text-muted)" }}>{xLabel.split(" ")[0]} = {hover.x}</div>
+          {series.map((s, i) => {
+            const pt = s.data.find((d) => d.x === hover.x);
+            return pt ? <div key={i} style={{ color: s.color }}>{s.name || "y"} = {fmt(pt.y, 3)}</div> : null;
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/*
+  CI bar visualization for bioequivalence
+  props: lo, hi, gmr, pass
+*/
+function CIBar({ lo, hi, gmr, pass }) {
+  const wrapRef = useRefC(null);
+  const [w, setW] = useStateC(700);
+  React.useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((es) => setW(es[0].contentRect.width));
+    ro.observe(el); setW(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+  const dmin = 0.70, dmax = 1.30;
+  const pad = 8;
+  const iw = w - pad * 2;
+  const X = (v) => pad + ((v - dmin) / (dmax - dmin)) * iw;
+  const col = pass ? "var(--success)" : "var(--danger)";
+  const ticks = [0.70, 0.80, 1.00, 1.25, 1.30];
+  const barTop = 6, barH = 48;
+  return (
+    <div ref={wrapRef} style={{ width: "100%" }}>
+      <svg width="100%" height={barH + 26} style={{ display: "block" }}>
+        {/* track */}
+        <rect x={pad} y={barTop} width={iw} height={barH} fill="var(--surface-raise)" rx="2" />
+        {/* acceptance zone 0.80-1.25 */}
+        <rect x={X(0.80)} y={barTop} width={X(1.25) - X(0.80)} height={barH}
+              fill="var(--success)" opacity="0.10" />
+        <line x1={X(0.80)} x2={X(0.80)} y1={barTop} y2={barTop + barH} stroke="var(--success)" strokeWidth="1" opacity="0.5" strokeDasharray="3 3" />
+        <line x1={X(1.25)} x2={X(1.25)} y1={barTop} y2={barTop + barH} stroke="var(--success)" strokeWidth="1" opacity="0.5" strokeDasharray="3 3" />
+        {/* CI bar */}
+        <rect x={X(lo)} y={barTop + barH / 2 - 9} width={Math.max(2, X(hi) - X(lo))} height="18"
+              fill={col} opacity="0.85" rx="2"
+              style={{ animation: "ciGrow 700ms ease" }} />
+        {/* whisker ends */}
+        <line x1={X(lo)} x2={X(lo)} y1={barTop + 6} y2={barTop + barH - 6} stroke={col} strokeWidth="2" />
+        <line x1={X(hi)} x2={X(hi)} y1={barTop + 6} y2={barTop + barH - 6} stroke={col} strokeWidth="2" />
+        {/* GMR tick */}
+        <line x1={X(gmr)} x2={X(gmr)} y1={barTop + 2} y2={barTop + barH - 2} stroke="#fff" strokeWidth="2" />
+        {/* scale labels */}
+        {ticks.map((t) => (
+          <text key={t} x={X(t)} y={barTop + barH + 18} textAnchor="middle"
+                fontFamily="var(--font-mono)" fontSize="10"
+                fill={(t === 0.8 || t === 1.25) ? "var(--success)" : "var(--text-dim)"}>
+            {t.toFixed(2)}
+          </text>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+Object.assign(window, { LineChart, CIBar });
+ 
+/* ===== components.jsx ===== */
+/* ============================================================
+   OpenPKFlow — icons (Lucide-style, hand-traced paths)
+   ============================================================ */
+const IC = {
+  home: "M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5",
+  lineChart: "M3 3v18h18 M7 15l4-5 3 3 5-7",
+  waves: "M2 6c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2 2 2 4 2 M2 12c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2 2 2 4 2 M2 18c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2 2 2 4 2",
+  flask: "M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9",
+  activity: "M3 12h4l3 8 4-16 3 8h4",
+  scale: "M12 3v18 M6 21h12 M3 9l3-6 3 6a3 3 0 0 1-6 0 M15 9l3-6 3 6a3 3 0 0 1-6 0",
+  upload: "M12 16V4 M7 9l5-5 5 5 M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3",
+  external: "M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6",
+  github: "M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.1-1.5 6.1-6.6a5.1 5.1 0 0 0-1.4-3.6 4.8 4.8 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.6 12.6 0 0 0-6.6 0C6.3 1.3 5.2 1.6 5.2 1.6a4.8 4.8 0 0 0-.1 3.6A5.1 5.1 0 0 0 3.7 8.8c0 5 3.1 6.3 6.1 6.6a3.4 3.4 0 0 0-.9 2.6V22",
+  sun: "M12 4V2 M12 22v-2 M5 5 3.5 3.5 M20.5 20.5 19 19 M4 12H2 M22 12h-2 M5 19l-1.5 1.5 M20.5 3.5 19 5",
+  moon: "M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z",
+  info: "M12 16v-5 M12 8h.01 M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z",
+  menu: "M3 6h18 M3 12h18 M3 18h18",
+  download: "M12 3v12 M7 10l5 5 5-5 M5 21h14",
+  chevDown: "M6 9l6 6 6-6",
+  chevLeft: "M15 18l-6-6 6-6",
+  chevRight: "M9 18l6-6-6-6",
+  alert: "M12 9v4 M12 17h.01 M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z",
+  beaker: "M5 3h14 M6 3v7l-3 8a2 2 0 0 0 2 3h14a2 2 0 0 0 2-3l-3-8V3",
+};
+function Icon({ name, size = 16, color, style, fill = "none" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill}
+         stroke={color || "currentColor"} strokeWidth="1.6"
+         strokeLinecap="round" strokeLinejoin="round" style={style}>
+      {IC[name].split(" M").map((seg, i) => (
+        <path key={i} d={(i ? "M" : "") + seg} />
+      ))}
+    </svg>
+  );
+}
+
+/* ---- metric card ---- */
+function MetricCard({ label, value, unit, tone = "dim", delay = 0, sub }) {
+  return (
+    <div className={"metric-card mc-" + tone} style={{ animationDelay: delay + "ms" }}>
+      <div className="mc-label">{label}</div>
+      <div>
+        <span className="mc-value">{value}</span>
+        {unit && <span className="mc-unit">{unit}</span>}
+      </div>
+      {sub && <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-dim)", marginTop: 6 }}>{sub}</div>}
+    </div>
+  );
+}
+
+/* ---- top bar ---- */
+function TopBar({ title, subtitle, theme, onToggleTheme, onMenu }) {
+  return (
+    <div className="topbar">
+      <button className="icon-btn hamburger" onClick={onMenu}><Icon name="menu" /></button>
+      <span className="tb-title">{title}</span>
+      <span className="tb-sep">/</span>
+      <span className="tb-sub">{subtitle}</span>
+      <div className="tb-right">
+        <div className="engine-badge">
+          <span className="pulse"></span>
+          engine v2.4.0
+        </div>
+        <button className="icon-btn" onClick={onToggleTheme} title="Toggle theme">
+          <Icon name={theme === "dark" ? "sun" : "moon"} />
+        </button>
+        <a className="icon-btn" href="#" onClick={(e) => e.preventDefault()} title="GitHub"><Icon name="github" /></a>
+      </div>
+    </div>
+  );
+}
+
+/* ---- sidebar ---- */
+const NAV = [
+  { id: "home", label: "Home", icon: "home" },
+  { id: "nca", label: "NCA", icon: "lineChart" },
+  { id: "dissolution", label: "Dissolution", icon: "waves" },
+  { id: "simulation", label: "PK Simulation", icon: "flask" },
+  { id: "ivivc", label: "IVIVC", icon: "activity" },
+  { id: "be", label: "Bioequivalence", icon: "scale" },
+];
+function Sidebar({ active, onNav, open, collapsed, onToggleCollapse }) {
+  return (
+    <aside className={"sidebar" + (open ? " open" : "") + (collapsed ? " collapsed" : "")}>
+      <div className="sb-brand">
+        <div className="sb-logo">PK</div>
+        <div className="sb-name">OpenPKFlow</div>
+        <button className="sb-collapse" onClick={onToggleCollapse}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label="Toggle sidebar">
+          <Icon name={collapsed ? "chevRight" : "chevLeft"} size={15} />
+        </button>
+      </div>
+      <nav className="sb-nav">
+        <div className="sb-section label-xs">Analysis</div>
+        {NAV.map((n) => (
+          <div key={n.id} className={"nav-item" + (active === n.id ? " active" : "")}
+               onClick={() => onNav(n.id)} title={collapsed ? n.label : undefined}>
+            <Icon name={n.icon} />
+            <span>{n.label}</span>
+          </div>
+        ))}
+      </nav>
+      <div className="sb-foot">
+        <span className="sb-ver">v2.4.0</span>
+        <span className="sb-lic">MIT License · Open source</span>
+      </div>
+    </aside>
+  );
+}
+
+/* ---- step component ---- */
+function Step({ n, title, active, done, children }) {
+  return (
+    <div className={"step" + (active ? " active" : "") + (done ? " done" : "")}>
+      <div className="step-dot">{done ? "✓" : n}</div>
+      <div className="step-title">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+/* ---- editable paste grid ---- */
+function PasteGrid({ columns, rows, onChange, maxHeight }) {
+  const update = (ri, ci, v) => {
+    const next = rows.map((r) => r.slice());
+    next[ri][ci] = v;
+    onChange && onChange(next);
+  };
+  const addRow = () => onChange && onChange([...rows.map((r) => r.slice()), columns.map(() => "")]);
+  const removeRow = (ri) => onChange && onChange(rows.filter((_, i) => i !== ri));
+  const editable = !!onChange;
+  return (
+    <div className="pgrid-wrap">
+      <div style={{ maxHeight, overflowY: maxHeight ? "auto" : "visible", overflowX: "hidden", border: "1px solid var(--border)", borderRadius: editable ? "var(--radius) var(--radius) 0 0" : "var(--radius)" }}>
+        <table className="pgrid">
+          <thead><tr>{columns.map((c, i) => <th key={i}>{c}</th>)}{editable && <th className="pgrid-act"></th>}</tr></thead>
+          <tbody>
+            {rows.map((r, ri) => (
+              <tr key={ri}>{r.map((cell, ci) => (
+                <td key={ci}><input value={cell} onChange={(e) => update(ri, ci, e.target.value)} /></td>
+              ))}
+                {editable && (
+                  <td className="pgrid-act">
+                    <button className="pgrid-del" onClick={() => removeRow(ri)} title="Remove row" aria-label="Remove row">×</button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editable && (
+        <button className="pgrid-add" onClick={addRow}>+ Add row</button>
+      )}
+    </div>
+  );
+}
+
+/* ---- resizable two-panel analysis shell ---- */
+function AnalysisShell({ children }) {
+  const arr = React.Children.toArray(children);
+  const left = arr[0], right = arr[1];
+  const KEY = "opkf-leftw";
+  const [w, setW] = React.useState(() => {
+    const s = parseInt(localStorage.getItem(KEY), 10);
+    return (s >= 280 && s <= 640) ? s : 360;
+  });
+  const ref = React.useRef(null);
+  const dragging = React.useRef(false);
+  const wRef = React.useRef(w);
+  wRef.current = w;
+  const [active, setActive] = React.useState(false);
+
+  React.useEffect(() => {
+    const move = (e) => {
+      if (!dragging.current || !ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      let nw = Math.round(e.clientX - rect.left);
+      nw = Math.max(280, Math.min(640, nw));
+      setW(nw);
+      e.preventDefault();
+    };
+    const up = () => {
+      if (!dragging.current) return;
+      dragging.current = false;
+      setActive(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      localStorage.setItem(KEY, String(Math.round(wRef.current)));
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+    return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+  }, []);
+
+  const start = () => {
+    dragging.current = true;
+    setActive(true);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  return (
+    <div className="analysis" ref={ref} style={{ "--leftw": w + "px" }}>
+      {left}
+      <div className={"splitter" + (active ? " dragging" : "")} onMouseDown={start}
+           onDoubleClick={() => { setW(360); localStorage.setItem(KEY, "360"); }}
+           title="Drag to resize · double-click to reset" role="separator" aria-orientation="vertical">
+        <span className="splitter-grip"></span>
+      </div>
+      {right}
+    </div>
+  );
+}
+
+/* ---- empty state ---- */
+function EmptyState({ icon, hint }) {
+  return (
+    <div className="empty">
+      <Icon name={icon} size={48} />
+      <div className="e1">Run an analysis to see results</div>
+      <div className="e2">{hint}</div>
+    </div>
+  );
+}
+
+/* ---- disclaimer ---- */
+function Disclaimer() {
+  return (
+    <div className="disclaimer">
+      <Icon name="info" size={11} />
+      <span>Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.</span>
+    </div>
+  );
+}
+
+/* ---- run button with progress ---- */
+function RunButton({ label, loading, onClick }) {
+  return (
+    <button className={"btn btn-primary btn-block btn-run" + (loading ? " loading" : "")} onClick={onClick} disabled={loading}>
+      <span className="run-bar"></span>
+      {loading ? "Computing…" : label} {!loading && <span>→</span>}
+    </button>
+  );
+}
+
+/* ---- download row ---- */
+function DownloadRow() {
+  const [open, setOpen] = useStateC(false);
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-end", gap: 0, position: "relative", marginTop: 16 }}>
+      <button className="btn btn-primary" style={{ borderRadius: "var(--radius) 0 0 var(--radius)" }}>
+        <Icon name="download" size={14} /> Download Report
+      </button>
+      <button className="btn btn-primary" style={{ borderRadius: "0 var(--radius) var(--radius) 0", borderLeft: "1px solid rgba(0,0,0,0.2)", padding: "8px 8px" }}
+              onClick={() => setOpen(!open)}>
+        <Icon name="chevDown" size={14} />
+      </button>
+      {open && (
+        <div className="panel" style={{ position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 10, minWidth: 120 }}>
+          {["HTML", "Markdown", "CSV"].map((f) => (
+            <div key={f} style={{ padding: "8px 12px", fontFamily: "var(--font-mono)", fontSize: 12, cursor: "pointer", color: "var(--text-muted)" }}
+                 onMouseDown={(e) => { e.preventDefault(); setOpen(false); }}
+                 onMouseEnter={(e) => e.currentTarget.style.color = "var(--text)"}
+                 onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>{f}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+Object.assign(window, {
+  Icon, MetricCard, TopBar, Sidebar, NAV, Step, PasteGrid, AnalysisShell, EmptyState, Disclaimer, RunButton, DownloadRow,
+});
+ 
+/* ===== report.jsx ===== */
+/* ============================================================
+   OpenPKFlow — Report engine
+   ONE source builds a designed scientific report document AND
+   all export formats (Print/PDF, Markdown, CSV).
+   ============================================================ */
+const { useState: useStateR, useEffect: useEffectR } = React;
+
+/* ---------- export helpers ---------- */
+function downloadFile(name, text, mime) {
+  try {
+    const blob = new Blob([text], { type: mime || "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  } catch (e) {
+    const w = window.open("", "_blank");
+    if (w) { w.document.write("<pre>" + text.replace(/</g, "&lt;") + "</pre>"); }
+  }
+}
+
+function reportToMarkdown(r) {
+  const L = [];
+  L.push(`# ${r.title}`);
+  L.push(`**${r.subtitle}**  `);
+  L.push(`Report ID: \`${r.reportId}\` · Generated ${r.generated}`);
+  L.push("");
+  if (r.verdict) L.push(`> **${r.verdict.label}** — ${r.verdict.note}`, "");
+  L.push("| Field | Value |", "|---|---|");
+  r.meta.forEach(([k, v]) => L.push(`| ${k} | ${v} |`));
+  L.push("");
+  for (const s of r.sections) {
+    L.push(`## ${s.title}`);
+    if (s.type === "metrics") {
+      L.push("| Parameter | Value |", "|---|---|");
+      s.items.forEach((m) => L.push(`| ${m.label} | ${m.value}${m.unit ? " " + m.unit : ""} |`));
+    } else if (s.type === "table") {
+      L.push("| " + s.columns.join(" | ") + " |");
+      L.push("|" + s.columns.map(() => "---").join("|") + "|");
+      s.rows.forEach((row) => L.push("| " + row.join(" | ") + " |"));
+    } else if (s.type === "text") {
+      L.push(s.body);
+    }
+    L.push("");
+  }
+  L.push("---");
+  L.push(`_${r.disclaimer}_`);
+  return L.join("\n");
+}
+
+function reportToCSV(r) {
+  const lines = [];
+  lines.push(`# ${r.title} — ${r.reportId} — ${r.generated}`);
+  for (const s of r.sections) {
+    if (s.type === "table") {
+      lines.push("");
+      lines.push(s.title);
+      lines.push(s.columns.map(csvCell).join(","));
+      s.rows.forEach((row) => lines.push(row.map(csvCell).join(",")));
+    } else if (s.type === "metrics") {
+      lines.push("");
+      lines.push(s.title);
+      lines.push("Parameter,Value,Unit");
+      s.items.forEach((m) => lines.push([m.label, m.value, m.unit || ""].map(csvCell).join(",")));
+    }
+  }
+  return lines.join("\n");
+}
+function csvCell(v) {
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+/* ---------- the designed report document ---------- */
+function ReportDocument({ r }) {
+  return (
+    <div className="report-doc">
+      <header className="rd-head">
+        <div className="rd-brand">
+          <div className="rd-logo">PK</div>
+          <div>
+            <div className="rd-org">OpenPKFlow</div>
+            <div className="rd-org-sub">{r.module} · Analysis Report</div>
+          </div>
+        </div>
+        <div className="rd-id">
+          <div><span className="rd-id-k">Report ID</span> {r.reportId}</div>
+          <div><span className="rd-id-k">Generated</span> {r.generated}</div>
+          <div><span className="rd-id-k">Engine</span> OpenPKFlow v2.4.0</div>
+        </div>
+      </header>
+
+      <div className="rd-titleblock">
+        <h1 className="rd-title">{r.title}</h1>
+        <div className="rd-subtitle">{r.subtitle}</div>
+      </div>
+
+      {r.verdict && (
+        <div className={"rd-verdict " + (r.verdict.pass ? "pass" : "fail")}>
+          <span className="rd-verdict-label">{r.verdict.label}</span>
+          <span className="rd-verdict-note">{r.verdict.note}</span>
+        </div>
+      )}
+
+      <div className="rd-meta">
+        {r.meta.map(([k, v], i) => (
+          <div className="rd-meta-item" key={i}>
+            <div className="rd-meta-k">{k}</div>
+            <div className="rd-meta-v">{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {r.sections.map((s, i) => (
+        <section className="rd-section" key={i}>
+          <h2 className="rd-sec-title"><span>{String(i + 1).padStart(2, "0")}</span>{s.title}</h2>
+          {s.type === "metrics" && (
+            <div className="rd-metrics">
+              {s.items.map((m, j) => (
+                <div className={"rd-metric" + (m.tone ? " tone-" + m.tone : "")} key={j}>
+                  <div className="rd-metric-label">{m.label}</div>
+                  <div className="rd-metric-value">{m.value}{m.unit && <span className="rd-metric-unit">{m.unit}</span>}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          {s.type === "table" && (
+            <table className="rd-table">
+              <thead><tr>{s.columns.map((c, j) => <th key={j}>{c}</th>)}</tr></thead>
+              <tbody>
+                {s.rows.map((row, ri) => (
+                  <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{cell}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {s.type === "text" && <p className="rd-text">{s.body}</p>}
+        </section>
+      ))}
+
+      <footer className="rd-foot">
+        <div className="rd-foot-rule"></div>
+        <p>{r.disclaimer}</p>
+        <div className="rd-foot-meta">
+          <span>OpenPKFlow · open-source (MIT)</span>
+          <span>{r.reportId}</span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/* ---------- modal shell + export toolbar ---------- */
+function ReportModal({ report, onClose }) {
+  useEffectR(() => {
+    if (!report) return;
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [report]);
+  if (!report) return null;
+  return (
+    <div className="report-modal">
+      <div className="report-scrim" onClick={onClose}></div>
+      <div className="report-toolbar">
+        <div className="rt-title">
+          <Icon name="download" size={15} />
+          <span>Report preview</span>
+          <span className="rt-id">{report.reportId}</span>
+        </div>
+        <div className="rt-actions">
+          <button className="btn btn-ghost" onClick={() => window.print()}><Icon name="download" size={14} /> Print / Save PDF</button>
+          <button className="btn btn-ghost" onClick={() => downloadFile(report.reportId + ".md", reportToMarkdown(report), "text/markdown")}>Markdown</button>
+          <button className="btn btn-ghost" onClick={() => downloadFile(report.reportId + ".csv", reportToCSV(report), "text/csv")}>CSV</button>
+          <button className="btn btn-primary" onClick={onClose}>Done</button>
+        </div>
+      </div>
+      <div className="report-scroll">
+        <ReportDocument r={report} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- report-launch bar (replaces DownloadRow) ---------- */
+function ReportBar({ report }) {
+  const [open, setOpen] = useStateR(false);
+  return (
+    <div className="report-bar">
+      <button className="btn btn-ghost" onClick={() => window.__openReport && window.__openReport(report)}>
+        Preview report
+      </button>
+      <div style={{ display: "flex", position: "relative" }}>
+        <button className="btn btn-primary" style={{ borderRadius: "var(--radius) 0 0 var(--radius)" }}
+                onClick={() => window.__openReport && window.__openReport(report)}>
+          <Icon name="download" size={14} /> Download Report
+        </button>
+        <button className="btn btn-primary" style={{ borderRadius: "0 var(--radius) var(--radius) 0", borderLeft: "1px solid rgba(0,0,0,0.2)", padding: "8px 8px" }}
+                onClick={() => setOpen(!open)}>
+          <Icon name="chevDown" size={14} />
+        </button>
+        {open && (
+          <div className="panel" style={{ position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 10, minWidth: 130 }}>
+            {[["HTML / PDF", () => window.__openReport(report)],
+              ["Markdown", () => downloadFile(report.reportId + ".md", reportToMarkdown(report), "text/markdown")],
+              ["CSV", () => downloadFile(report.reportId + ".csv", reportToCSV(report), "text/csv")]].map(([label, fn]) => (
+              <div key={label} className="report-menu-item"
+                   onMouseDown={(e) => { e.preventDefault(); setOpen(false); fn(); }}>{label}</div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- helpers for screens ---------- */
+const TODAY = new Date().toISOString().slice(0, 10);
+function reportId(mod) {
+  return `${mod}-${TODAY.replace(/-/g, "")}-001`;
+}
+
+Object.assign(window, { ReportDocument, ReportModal, ReportBar, reportToMarkdown, reportToCSV, downloadFile, reportId, TODAY });
+ 
+/* ===== tweaks-panel.jsx ===== */
+
+/* BEGIN USAGE */
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+// Exports (to window): useTweaks, TweaksPanel, TweakSection, TweakRow, TweakSlider,
+//   TweakToggle, TweakRadio, TweakSelect, TweakText, TweakNumber, TweakColor, TweakButton.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// TweakRadio is the segmented control for 2–3 short options (auto-falls-back to
+// TweakSelect past ~16/~10 chars per label); reach for TweakSelect directly when
+// options are many or long. For color tweaks always curate 3-4 options rather than
+// a free picker; an option can also be a whole 2–5 color palette (the stored value
+// is the array). The Tweak* controls are a floor, not a ceiling — build custom
+// controls inside the panel if a tweak calls for UI they don't cover.
+/* END USAGE */
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-omelette-chrome=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+ 
+/* ===== screens-home.jsx ===== */
+/* ============================================================
+   OpenPKFlow — Home page
+   ============================================================ */
+const { useState: useStateH } = React;
+
+const MODULES = [
+{ id: "nca", name: "NCA", icon: "lineChart", color: "var(--accent)",
+  desc: "Non-compartmental analysis of concentration–time data with automatic λ₂ selection.",
+  params: ["AUClast", "AUCinf", "Cmax", "Tmax", "t½", "CL/F", "Vz/F"] },
+{ id: "dissolution", name: "Dissolution", icon: "waves", color: "var(--success)",
+  desc: "Profile comparison and model fitting across multiple dissolution media.",
+  params: ["f1", "f2", "MSD", "model fitting", "multi-media"] },
+{ id: "simulation", name: "PK Simulation", icon: "flask", color: "var(--accent-warm)",
+  desc: "Forward concentration–time simulation for 1- and 2-compartment models.",
+  params: ["1-cmt", "2-cmt", "oral", "IV", "infusion", "superposition"] },
+{ id: "ivivc", name: "IVIVC", icon: "activity", color: "var(--purple)",
+  desc: "In vitro–in vivo correlation by deconvolution and Levy plotting.",
+  params: ["Wagner-Nelson", "Loo-Riegelman", "Levy plot", "%PE"] },
+{ id: "be", name: "Bioequivalence", icon: "scale", color: "var(--cyan)",
+  desc: "Average bioequivalence testing with two one-sided tests (TOST).",
+  params: ["TOST", "GMR", "90% CI", "80-125% limits", "CV% intra"] }];
+
+
+const CAPS = [
+{ name: "NCA", color: "var(--accent)", items: [
+  "AUC (linear, log, lin-up/log-down)", "Cmax, Tmax, lambda_z (BAR² auto)",
+  "t½, CL/F, Vz/F (oral) / CL, Vz (IV)", "Steady-state (AUCtau, Cmin, Cav)",
+  "Sparse sampling (1-cmt model-informed)", "Urinary excretion (Ae, fe, CLr)",
+  "CDISC PP domain output", "BLQ: none / drop / zero / half-LLOQ",
+  "PKNCA cross-validated (Theoph 12-subj)"] },
+{ name: "Dissolution", color: "var(--success)", items: [
+  "f1 (difference factor, FDA 1997)", "f2 (similarity factor, FDA 1997)",
+  "Bootstrap f2 with 90% CI", "MSD (mean square difference)",
+  "Model fitting: Weibull, Korsmeyer-", "Peppas, Higuchi, first-order, zero-order",
+  "AIC/BIC/R² model comparison", "Multi-media: pH 1.2 / 4.5 / 6.8",
+  "Alcohol dose-dumping (0-40% EtOH)", "RSD check per FDA CV% rule"] },
+{ name: "Simulation", color: "var(--accent-warm)", items: [
+  "1-compartment: IV bolus, infusion, oral", "2-compartment: IV bolus, oral",
+  "CL/V parameterization", "Repeated dosing with superposition",
+  "Dose regimen builder", "Cmax, Tmax, Cmin, Clast, Cavg",
+  "Semi-log concentration-time plot"] },
+{ name: "IVIVC", color: "var(--purple)", items: [
+  "Deconvolution: Wagner-Nelson", "Deconvolution: Loo-Riegelman (2-cmt)",
+  "Convolution prediction", "Levy plot with linear regression",
+  "%PE Cmax, %PE AUC (FDA 1997 criteria)", "Mean absolute %PE (< 10% criterion)",
+  "Overall PASS / FAIL assessment", "HTML + Markdown report export"] },
+{ name: "BE", color: "var(--cyan)", items: [
+  "2x2 crossover TOST (paired)", "Geometric mean ratio (T/R)",
+  "90% confidence interval (t-distribution)", "80-125% acceptance limits (FDA/EMA)",
+  "Custom limits (be_lower, be_upper)", "Intra-subject CV%",
+  "Per-subject log-difference table", "Visual CI bar vs acceptance zone",
+  "HTML + Markdown report export"] }];
+
+
+/* mini NCA mockup for hero product shot */
+function HeroShot() {
+  const t = NCA_TIMES,c = NCA_SUBJECTS.S01;
+  const data = t.map((x, i) => ({ x, y: c[i] }));
+  return (
+    <div className="hero-shot">
+      <div className="shot-bar">
+        <span className="shot-dot"></span><span className="shot-dot"></span><span className="shot-dot"></span>
+        <span style={{ marginLeft: 8, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-dim)" }}>NCA — SUBJECT S01</span>
+      </div>
+      <div className="shot-body">
+        <div className="chart-card" style={{ padding: "8px 10px 4px" }}>
+          <LineChart series={[{ data, color: "var(--accent)", name: "Conc" }]}
+          xLabel="Time (h)" yLabel="Conc (µg/mL)" height={150} />
+        </div>
+        <div className="hscroll" style={{ marginTop: 10 }}>
+          <MetricCard label="Cmax" value="2.71" unit="µg/mL" tone="warm" />
+          <MetricCard label="AUClast" value="18.4" unit="h·µg/mL" tone="blue" />
+          <MetricCard label="t½" value="3.21" unit="h" tone="green" />
+        </div>
+      </div>
+    </div>);
+
+}
+
+function HomePage({ onNav }) {
+  return (
+    <div className="content">
+      <div className="home">
+        {/* hero */}
+        <section className="hero">
+          <div>
+            <h1 className="hero-h">
+              <span className="l1" style={{ fontFamily: "\"IBM Plex Sans\"", color: "rgb(227, 230, 234)" }}>Open-source</span>
+              <span className="l2">pharmacometric</span>
+              <span className="l3">analysis.</span>
+            </h1>
+            <div className="hero-tag">
+              {["NCA", "Dissolution", "Simulation", "IVIVC", "Bioequivalence"].map((m, i) =>
+              <React.Fragment key={m}>
+                  {i > 0 && <span className="dot">·</span>}
+                  <a href="#" onClick={(e) => {e.preventDefault();onNav(["nca", "dissolution", "simulation", "ivivc", "be"][i]);}}>{m}</a>
+                </React.Fragment>
+              )}
+            </div>
+            <div className="hero-cta">
+              <button className="btn btn-primary" onClick={() => onNav("nca")}>Open App</button>
+              <button className="btn btn-ghost">View on GitHub <Icon name="external" size={14} /></button>
+            </div>
+          </div>
+          <HeroShot />
+        </section>
+
+        {/* module grid */}
+        <section className="home-sec" style={{ paddingTop: 0 }}>
+          <h2>Analysis modules</h2>
+          <div className="mod-grid">
+            {MODULES.map((m) =>
+            <div key={m.id} className="mod-card" onClick={() => onNav(m.id)}
+            onMouseEnter={(e) => {const ic = e.currentTarget.querySelector(".mod-icon");ic.style.background = m.color.replace("var(", "color-mix(in srgb, var(");}}>
+                <div className="mod-icon" style={{ background: `color-mix(in srgb, ${m.color} 14%, transparent)`, color: m.color }}>
+                  <Icon name={m.icon} size={18} />
+                </div>
+                <div className="mod-name" style={{ color: m.color }}>{m.name}</div>
+                <div className="mod-desc">{m.desc}</div>
+                <div className="mod-params">
+                  {m.params.map((p) => <span key={p} className="mod-param">{p}</span>)}
+                </div>
+              </div>
+            )}
+            {/* 6th cell: identity card */}
+            <div className="mod-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", cursor: "default" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, lineHeight: 1.05, marginBottom: 8 }}>
+                Transparent.<br /><span className="t-accent">Browser-based.</span> Free.
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                A precision instrument that runs entirely in your browser — an open alternative to expensive commercial PK software.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* capabilities strip (full bleed) */}
+      <section style={{ marginTop: 8 }}>
+        <div className="home" style={{ marginBottom: 18 }}>
+          <h2 style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-dim)", fontWeight: 500 }}>Engine capabilities</h2>
+        </div>
+        <div className="cap-strip">
+          {CAPS.map((col) =>
+          <div key={col.name} className="cap-col">
+              <h3 style={{ color: col.color }}>{col.name}</h3>
+              <ul>{col.items.map((it, i) => <li key={i}>{it}</li>)}</ul>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="home" style={{ paddingTop: 28, paddingBottom: 40 }}>
+        <Disclaimer />
+      </div>
+    </div>);
+
+}
+
+Object.assign(window, { HomePage, MODULES }); 
+/* ===== screens-nca.jsx ===== */
+/* ============================================================
+   OpenPKFlow — NCA page
+   ============================================================ */
+const { useState: useStateN, useMemo: useMemoN } = React;
+
+function NCAPage() {
+  const subjects = Object.keys(NCA_SUBJECTS);
+  const [active, setActive] = useStateN("S01");
+  const [scale, setScale] = useStateN("linear");
+  const [tab, setTab] = useStateN("paste");
+  const [aucMethod, setAucMethod] = useStateN("linlog");
+  const [blq, setBlq] = useStateN("drop");
+  const [ss, setSs] = useStateN(false);
+  const [loading, setLoading] = useStateN(false);
+  const [runKey, setRunKey] = useStateN(1);
+  const [hasRun, setHasRun] = useStateN(true); // pre-filled per user choice
+
+  const results = useMemoN(() => {
+    const out = {};
+    for (const s of subjects) out[s] = computeNCA(NCA_TIMES, NCA_SUBJECTS[s], NCA_DOSE, "oral");
+    return out;
+  }, []);
+  const r = results[active];
+
+  const report = useMemoN(() => ({
+    module: "NCA", reportId: reportId("NCA"), generated: TODAY,
+    title: "Non-Compartmental Analysis",
+    subtitle: "Plasma concentration–time profile · oral 100 mg single dose",
+    meta: [
+      ["Dataset", "Oral 100 mg · " + subjects.length + " subjects"],
+      ["Sampling", NCA_TIMES.length + " timepoints · 0–24 h"],
+      ["AUC method", aucMethod === "linlog" ? "linear-up / log-down" : aucMethod],
+      ["BLQ rule", blq],
+      ["λ₂ selection", "automatic (adjusted R²)"],
+    ],
+    sections: [
+      { type: "metrics", title: "Key parameters — subject " + active, items: [
+        { label: "Cmax", value: fmt(r.cmax, 2), unit: "µg/mL", tone: "warm" },
+        { label: "Tmax", value: fmt(r.tmax, 2), unit: "h" },
+        { label: "AUClast", value: fmt(r.auclast, 2), unit: "h·µg/mL", tone: "blue" },
+        { label: "AUCinf", value: fmt(r.aucinf, 2), unit: "h·µg/mL", tone: "blue" },
+        { label: "λ₂", value: fmt(r.lambdaz, 4), unit: "h⁻¹" },
+        { label: "t½", value: fmt(r.thalf, 2), unit: "h", tone: "green" },
+        { label: "CL/F", value: fmt(r.clf, 2), unit: "L/h" },
+        { label: "Vz/F", value: fmt(r.vzf, 2), unit: "L" },
+      ] },
+      { type: "table", title: "Per-subject parameter summary",
+        columns: ["Subject", "Cmax", "Tmax", "AUClast", "AUCinf", "λ₂", "t½", "CL/F", "Vz/F"],
+        rows: subjects.map((s) => { const x = results[s]; return [s, fmt(x.cmax, 2), fmt(x.tmax, 2), fmt(x.auclast, 2), fmt(x.aucinf, 2), fmt(x.lambdaz, 4), fmt(x.thalf, 2), fmt(x.clf, 2), fmt(x.vzf, 2)]; }) },
+      { type: "text", title: "Interpretation",
+        body: `Across ${subjects.length} subjects the geometric profile is consistent with first-order absorption and mono-exponential terminal decline. Terminal half-life for subject ${active} is ${fmt(r.thalf, 2)} h with ${fmt(r.aucExtrap, 1)}% of AUCinf obtained by extrapolation — within the conventional 20% acceptance guideline. Apparent clearance (CL/F) of ${fmt(r.clf, 2)} L/h and volume (Vz/F) of ${fmt(r.vzf, 2)} L were derived assuming complete dose availability.` },
+    ],
+    disclaimer: "Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.",
+  }), [active, aucMethod, blq]);
+
+  const run = () => {
+    setLoading(true);
+    setTimeout(() => { setLoading(false); setHasRun(true); setRunKey((k) => k + 1); }, 1150);
+  };
+
+  const c = NCA_SUBJECTS[active];
+  const data = NCA_TIMES.map((x, i) => ({ x, y: c[i] })).filter((d) => scale === "linear" || d.y > 0);
+  const lzStart = r.lzStart;
+  const refRegion = (lzStart !== null) ? { x0: NCA_TIMES[lzStart], x1: NCA_TIMES[NCA_TIMES.length - 1], color: "var(--accent-warm)" } : null;
+  const refLines = (lzStart !== null) ? [
+    { x: NCA_TIMES[lzStart], color: "var(--accent-warm)" },
+    { x: NCA_TIMES[NCA_TIMES.length - 1], color: "var(--accent-warm)" },
+  ] : [];
+
+  const exampleRows = [
+    ["S01", "0", "0", "100", "oral"], ["S01", "0.5", "1.18", "", ""],
+    ["S01", "1", "2.34", "", ""], ["S01", "2", "2.62", "", ""],
+    ["S02", "0", "0", "100", "oral"], ["S02", "1", "1.96", "", ""],
+  ];
+  const [grid, setGrid] = useStateN(exampleRows);
+
+  return (
+    <AnalysisShell>
+      {/* LEFT */}
+      <div className="panel-left">
+        <div className="stepper">
+          <Step n="1" title="Data input" active done>
+            <div className="pill-group" style={{ marginBottom: 12 }}>
+              <button className={"pill" + (tab === "upload" ? " active" : "")} onClick={() => setTab("upload")}>Upload CSV</button>
+              <button className={"pill" + (tab === "paste" ? " active" : "")} onClick={() => setTab("paste")}>Paste table</button>
+            </div>
+            {tab === "upload" ? (
+              <div className="dropzone">
+                <Icon name="upload" size={32} />
+                <div style={{ fontSize: 12, marginBottom: 6 }}>Drag &amp; drop or click to select</div>
+                <a style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--accent)", textDecoration: "underline" }}>Download template CSV</a>
+              </div>
+            ) : (
+              <PasteGrid columns={["Subj", "Time", "Conc", "Dose", "Route"]} rows={grid} onChange={setGrid} maxHeight={260} />
+            )}
+          </Step>
+
+          <Step n="2" title="Map columns" done>
+            {["Subject → subject", "Time → time", "Conc → concentration"].map((m, i) => (
+              <div className="field-row" key={i}>
+                <label>{m.split(" →")[0]}</label>
+                <select className="inp" defaultValue={m.split("→ ")[1]}>
+                  <option>{m.split("→ ")[1]}</option>
+                </select>
+              </div>
+            ))}
+          </Step>
+
+          <Step n="3" title="Options" active>
+            <div className="field-row">
+              <label>AUC method</label>
+              <select className="inp" value={aucMethod} onChange={(e) => setAucMethod(e.target.value)}>
+                <option value="linlog">lin-up / log-down</option>
+                <option value="linear">linear</option>
+                <option value="log">log</option>
+              </select>
+            </div>
+            <div className="field-row">
+              <label>BLQ method</label>
+              <select className="inp" value={blq} onChange={(e) => setBlq(e.target.value)}>
+                <option value="drop">drop</option>
+                <option value="none">none</option>
+                <option value="zero">zero</option>
+                <option value="half">half-LLOQ</option>
+              </select>
+            </div>
+            <div className="field-row">
+              <label>Steady-state</label>
+              <div className={"toggle" + (ss ? " on" : "")} onClick={() => setSs(!ss)}></div>
+            </div>
+            {ss && (
+              <div className="slide-in field-row">
+                <label>tau (h)</label>
+                <input className="inp" defaultValue="12" style={{ width: 70 }} />
+              </div>
+            )}
+          </Step>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <RunButton label="Run NCA" loading={loading} onClick={run} />
+        </div>
+      </div>
+
+      {/* RIGHT */}
+      <div className="panel-right">
+        {!hasRun ? (
+          <EmptyState icon="lineChart" hint="Paste a concentration–time table or upload a CSV, then run." />
+        ) : (
+          <React.Fragment key={runKey}>
+            {/* subject pills */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <span className="section-label" style={{ margin: 0 }}>Subject</span>
+              <div className="pill-ghost-group">
+                {subjects.map((s) => (
+                  <button key={s} className={"pill-ghost" + (active === s ? " active" : "")} onClick={() => setActive(s)}>{s}</button>
+                ))}
+              </div>
+              <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-dim)" }}>oral · 100 mg · n={subjects.length}</span>
+            </div>
+
+            {/* metric row */}
+            <div className="hscroll stagger" key={active + scale}>
+              <MetricCard label="Cmax" value={fmt(r.cmax, 2)} unit="µg/mL" tone="warm" delay={0} />
+              <MetricCard label="AUClast" value={fmt(r.auclast, 2)} unit="h·µg/mL" tone="blue" delay={40} />
+              <MetricCard label="AUCinf" value={fmt(r.aucinf, 2)} unit="h·µg/mL" tone="blue" delay={80} sub={fmt(r.aucExtrap, 1) + "% extrap"} />
+              <MetricCard label="Tmax" value={fmt(r.tmax, 2)} unit="h" tone="dim" delay={120} />
+              <MetricCard label="t½" value={fmt(r.thalf, 2)} unit="h" tone="green" delay={160} />
+              <MetricCard label="CL/F" value={fmt(r.clf, 2)} unit="L/h" tone="dim" delay={200} />
+              <MetricCard label="Vz/F" value={fmt(r.vzf, 2)} unit="L" tone="dim" delay={240} />
+            </div>
+
+            {/* chart */}
+            <div className="chart-card" style={{ marginTop: 18 }}>
+              <div className="chart-head">
+                <span className="chart-title">Concentration–time profile · {active}</span>
+                <div className="pill-ghost-group">
+                  <button className={"pill-ghost" + (scale === "linear" ? " active" : "")} onClick={() => setScale("linear")}>Linear</button>
+                  <button className={"pill-ghost" + (scale === "log" ? " active" : "")} onClick={() => setScale("log")}>Semi-log</button>
+                </div>
+              </div>
+              <LineChart key={active + scale} log={scale === "log"}
+                series={[{ data, color: "var(--accent)", name: "Conc", width: 2 }]}
+                xLabel="Time (h)" yLabel="Conc (µg/mL)" height={300}
+                refRegion={refRegion} refLines={refLines} />
+              <div className="legend" style={{ padding: "4px 0 8px" }}>
+                <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent)" }}></span>Concentration</span>
+                <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent-warm)", opacity: 0.6 }}></span>λ₂ region ({r.lzR2 ? "R²=" + fmt(r.lzR2, 3) : "—"})</span>
+              </div>
+            </div>
+
+            {/* summary table */}
+            <div style={{ marginTop: 18 }}>
+              <div className="section-label">Summary — all subjects</div>
+              <div className="tbl-wrap">
+                <table className="data">
+                  <thead><tr>
+                    {["Subject", "Cmax", "Tmax", "AUClast", "AUCinf", "λ₂", "t½", "CL/F", "Vz/F"].map((h) => <th key={h}>{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {subjects.map((s) => {
+                      const x = results[s];
+                      return (
+                        <tr key={s} style={s === active ? { background: "rgba(88,166,255,0.06)" } : {}}>
+                          <td>{s}</td><td>{fmt(x.cmax, 2)}</td><td>{fmt(x.tmax, 2)}</td>
+                          <td>{fmt(x.auclast, 2)}</td><td>{fmt(x.aucinf, 2)}</td>
+                          <td>{fmt(x.lambdaz, 4)}</td><td>{fmt(x.thalf, 2)}</td>
+                          <td>{fmt(x.clf, 2)}</td><td>{fmt(x.vzf, 2)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <ReportBar report={report} />
+            <Disclaimer />
+          </React.Fragment>
+        )}
+      </div>
+    </AnalysisShell>
+  );
+}
+
+Object.assign(window, { NCAPage });
+ 
+/* ===== screens-be.jsx ===== */
+/* ============================================================
+   OpenPKFlow — Bioequivalence page
+   ============================================================ */
+const { useState: useStateB, useMemo: useMemoB } = React;
+
+function BEPage() {
+  const [param, setParam] = useStateB("AUCinf");
+  const [lo, setLo] = useStateB("0.80");
+  const [hi, setHi] = useStateB("1.25");
+  const [alpha, setAlpha] = useStateB("0.05");
+  const [loading, setLoading] = useStateB(false);
+  const [hasRun, setHasRun] = useStateB(true);
+  const [runKey, setRunKey] = useStateB(1);
+
+  const be = useMemoB(() => computeBE(), []);
+  const report = useMemoB(() => ({
+    module: "BE", reportId: reportId("BE"), generated: TODAY,
+    title: "Bioequivalence Assessment",
+    subtitle: "Average bioequivalence · 2×2 crossover · two one-sided tests (TOST)",
+    verdict: { pass: be.pass, label: be.pass ? "BIOEQUIVALENT" : "NOT BIOEQUIVALENT",
+      note: `90% CI [${fmt(be.lo, 4)}, ${fmt(be.hi, 4)}] for ${param}` },
+    meta: [
+      ["Design", "2×2 crossover"],
+      ["Parameter", param],
+      ["Subjects (n)", String(be.n)],
+      ["Acceptance limits", lo + " – " + hi],
+      ["Alpha", alpha + " (90% CI)"],
+    ],
+    sections: [
+      { type: "metrics", title: "Statistical summary", items: [
+        { label: "GMR (T/R)", value: fmt(be.gmr, 4), tone: be.pass ? "green" : "danger" },
+        { label: "CI lower", value: fmt(be.lo, 4), tone: "blue" },
+        { label: "CI upper", value: fmt(be.hi, 4), tone: "blue" },
+        { label: "CV% intra", value: fmt(be.cvIntra, 1), unit: "%", tone: "warm" },
+        { label: "n subjects", value: String(be.n) },
+      ] },
+      { type: "table", title: "Per-subject data",
+        columns: ["Subject", "Sequence", "Reference", "Test", "Ratio T/R", "ln(T/R)"],
+        rows: be.rows.map((row) => [row.s, row.seq, String(row.R), String(row.T), fmt(row.ratio, 4), fmt(row.diff, 4)]) },
+      { type: "text", title: "Interpretation",
+        body: `The 90% confidence interval of the geometric mean ratio for ${param} is [${fmt(be.lo, 4)}, ${fmt(be.hi, 4)}], which ${be.pass ? "lies entirely within" : "is not fully contained within"} the ${lo}–${hi} acceptance range. The test product is therefore ${be.pass ? "declared bioequivalent" : "NOT declared bioequivalent"} to the reference under the average bioequivalence criterion. Intra-subject variability (CV%) was estimated at ${fmt(be.cvIntra, 1)}%.` },
+    ],
+    disclaimer: "Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.",
+  }), [be, param, lo, hi, alpha]);
+  const run = () => { setLoading(true); setTimeout(() => { setLoading(false); setHasRun(true); setRunKey((k) => k + 1); }, 1100); };
+
+  const grid = BE_DATA.slice(0, 8).map((d) => [d.s, d.seq, String(d.R), String(d.T)]);
+  const [g, setG] = useStateB(grid);
+
+  return (
+    <AnalysisShell>
+      <div className="panel-left">
+        <div className="stepper">
+          <Step n="1" title="Data input" active done>
+            <div className="pill-group" style={{ marginBottom: 12 }}>
+              <button className="pill active">Paste table</button>
+              <button className="pill">Upload CSV</button>
+            </div>
+            <PasteGrid columns={["Subj", "Seq", "Ref", "Test"]} rows={g} onChange={setG} maxHeight={300} />
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-dim)", marginTop: 8 }}>2×2 crossover · {be.n} subjects loaded</div>
+          </Step>
+
+          <Step n="2" title="Options" active>
+            <div className="field-row">
+              <label>Parameter</label>
+              <select className="inp" value={param} onChange={(e) => setParam(e.target.value)}>
+                <option>AUCinf</option><option>AUClast</option><option>Cmax</option>
+              </select>
+            </div>
+            <div className="field-row">
+              <label>Lower limit</label>
+              <input className="inp" value={lo} onChange={(e) => setLo(e.target.value)} style={{ width: 70 }} />
+            </div>
+            <div className="field-row">
+              <label>Upper limit</label>
+              <input className="inp" value={hi} onChange={(e) => setHi(e.target.value)} style={{ width: 70 }} />
+            </div>
+            <div className="field-row">
+              <label>Alpha</label>
+              <input className="inp" value={alpha} onChange={(e) => setAlpha(e.target.value)} style={{ width: 70 }} />
+            </div>
+          </Step>
+        </div>
+        <div style={{ marginTop: 20 }}>
+          <RunButton label="Run TOST" loading={loading} onClick={run} />
+        </div>
+      </div>
+
+      <div className="panel-right">
+        {!hasRun ? (
+          <EmptyState icon="scale" hint="Paste a 2×2 crossover table (Subject, Sequence, Reference, Test)." />
+        ) : (
+          <React.Fragment key={runKey}>
+            {/* verdict banner */}
+            <div className={"verdict " + (be.pass ? "verdict-pass" : "verdict-fail")}>
+              <span>{be.pass ? "BIOEQUIVALENT" : "NOT BIOEQUIVALENT"}</span>
+              <span className="ci">90% CI [{fmt(be.lo, 4)}, {fmt(be.hi, 4)}] · {param}</span>
+            </div>
+
+            {/* CI bar — the headline visual */}
+            <div style={{ marginTop: 20 }}>
+              <div className="section-label">90% confidence interval vs acceptance zone (80–125%)</div>
+              <div className="panel" style={{ padding: "14px 16px" }}>
+                <CIBar lo={be.lo} hi={be.hi} gmr={be.gmr} pass={be.pass} />
+                <div className="legend" style={{ marginTop: 6, justifyContent: "center", gap: 22 }}>
+                  <span className="legend-item"><span style={{ width: 12, height: 12, background: "var(--success)", opacity: 0.25, display: "inline-block" }}></span>Acceptance zone</span>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: be.pass ? "var(--success)" : "var(--danger)", height: 8 }}></span>90% CI</span>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: "#fff", height: 12, width: 2 }}></span>GMR</span>
+                </div>
+              </div>
+            </div>
+
+            {/* metric row */}
+            <div className="hscroll stagger" style={{ marginTop: 18 }}>
+              <MetricCard label="GMR (T/R)" value={fmt(be.gmr, 4)} tone={be.pass ? "green" : "danger"} delay={0} />
+              <MetricCard label="CI lower" value={fmt(be.lo, 4)} tone="blue" delay={40} />
+              <MetricCard label="CI upper" value={fmt(be.hi, 4)} tone="blue" delay={80} />
+              <MetricCard label="CV% intra" value={fmt(be.cvIntra, 1)} unit="%" tone="warm" delay={120} />
+              <MetricCard label="n subjects" value={be.n} tone="dim" delay={160} />
+            </div>
+
+            {/* subject table */}
+            <div style={{ marginTop: 18 }}>
+              <div className="section-label">Per-subject log-difference</div>
+              <div className="tbl-wrap">
+                <table className="data">
+                  <thead><tr>{["Subject", "Sequence", "Reference", "Test", "Ratio T/R", "ln(T/R)"].map((h) => <th key={h}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {be.rows.map((row) => {
+                      const within = row.ratio >= 0.8 && row.ratio <= 1.25;
+                      return (
+                        <tr key={row.s}>
+                          <td>{row.s}</td><td>{row.seq}</td>
+                          <td>{row.R}</td><td>{row.T}</td>
+                          <td style={{ background: within ? "rgba(63,185,80,0.08)" : "rgba(248,81,73,0.08)", color: within ? "var(--success)" : "var(--danger)" }}>{fmt(row.ratio, 4)}</td>
+                          <td>{fmt(row.diff, 4)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <ReportBar report={report} />
+            <Disclaimer />
+          </React.Fragment>
+        )}
+      </div>
+    </AnalysisShell>
+  );
+}
+
+Object.assign(window, { BEPage });
+ 
+/* ===== screens-ivivc.jsx ===== */
+/* ============================================================
+   OpenPKFlow — IVIVC page
+   ============================================================ */
+const { useState: useStateI, useMemo: useMemoI } = React;
+
+function IVIVCPage() {
+  const [method, setMethod] = useStateI("wagner");
+  const [kel, setKel] = useStateI("0.231");
+  const [loading, setLoading] = useStateI(false);
+  const [hasRun, setHasRun] = useStateI(true);
+  const [runKey, setRunKey] = useStateI(1);
+  const iv = useMemoI(() => computeIVIVC(), []);
+  const ivReport = useMemoI(() => ({
+    module: "IVIVC", reportId: reportId("IVIVC"), generated: TODAY,
+    title: "In Vitro–In Vivo Correlation",
+    subtitle: "Level A correlation · " + (method === "wagner" ? "Wagner-Nelson" : "Loo-Riegelman") + " deconvolution",
+    verdict: { pass: iv.acceptable, label: iv.acceptable ? "IVIVC ACCEPTABLE" : "IVIVC NOT ACCEPTABLE",
+      note: `Levy R² = ${fmt(iv.levyR2, 3)} · mean |%PE| = ${fmt(iv.meanAbsPE, 2)}%` },
+    meta: [
+      ["Correlation level", "Level A"],
+      ["Deconvolution", method === "wagner" ? "Wagner-Nelson" : "Loo-Riegelman"],
+      ["kel", kel + " h⁻¹"],
+      ["Criterion", "%PE < 15% each, mean < 10%"],
+    ],
+    sections: [
+      { type: "metrics", title: "Correlation metrics", items: [
+        { label: "Levy R²", value: fmt(iv.levyR2, 3), tone: iv.levyR2 >= 0.9 ? "green" : "warm" },
+        { label: "%PE Cmax", value: fmt(iv.peCmax, 2), unit: "%", tone: "blue" },
+        { label: "%PE AUC", value: fmt(iv.peAUC, 2), unit: "%", tone: "blue" },
+        { label: "Mean |%PE|", value: fmt(iv.meanAbsPE, 2), unit: "%", tone: iv.meanAbsPE < 10 ? "green" : "warm" },
+      ] },
+      { type: "table", title: "Fraction absorbed vs dissolved",
+        columns: ["Time (h)", "Fa (in vivo)", "Fd (in vitro)"],
+        rows: iv.fractionSeries.map((p) => [fmt(p.t, 1), fmt(p.fa, 3), fmt(p.fd, 3)]) },
+      { type: "text", title: "Interpretation",
+        body: `Linear regression of fraction absorbed against fraction dissolved yielded R² = ${fmt(iv.levyR2, 3)}, indicating a ${iv.levyR2 >= 0.9 ? "strong" : iv.levyR2 >= 0.8 ? "moderate" : "weak"} Level A correlation. Prediction errors of ${fmt(iv.peCmax, 2)}% (Cmax) and ${fmt(iv.peAUC, 2)}% (AUC) ${iv.acceptable ? "satisfy" : "do not satisfy"} the FDA 1997 internal-predictability criteria. The model is therefore ${iv.acceptable ? "acceptable" : "not acceptable"} for the intended biowaiver application.` },
+    ],
+    disclaimer: "Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.",
+  }), [iv, method, kel]);
+  const run = () => { setLoading(true); setTimeout(() => { setLoading(false); setHasRun(true); setRunKey((k) => k + 1); }, 1150); };
+
+  const r2tone = iv.levyR2 >= 0.9 ? "green" : iv.levyR2 >= 0.8 ? "warm" : "danger";
+
+  const inVivoGrid = IVIVC_INVIVO.slice(0, 8).map((d) => [String(d.t), String(d.c)]);
+  const dissGrid = IVIVC_DISS.slice(0, 8).map((d) => [String(d.t * 60), String((d.fd * 100).toFixed(0))]);
+  const irGrid = [["0", "0"], ["0.5", "4.21"], ["1", "3.18"], ["2", "1.79"], ["4", "0.57"], ["6", "0.18"]];
+
+  // fraction series
+  const faData = iv.fractionSeries.map((p) => ({ x: p.t, y: p.fa }));
+  const fdData = iv.fractionSeries.map((p) => ({ x: p.t, y: p.fd }));
+  const obsData = iv.obs.map((d) => ({ x: d.t, y: d.c }));
+  const predData = iv.predicted.map((d) => ({ x: d.t, y: d.c }));
+
+  return (
+    <AnalysisShell>
+      <div className="panel-left">
+        <div className="stepper">
+          <Step n="1" title="In vivo PK data" active done>
+            <PasteGrid columns={["Time h", "Conc"]} rows={inVivoGrid} maxHeight={150} />
+          </Step>
+          <Step n="2" title="Dissolution data" done>
+            <PasteGrid columns={["Time min", "% Diss"]} rows={dissGrid} maxHeight={150} />
+          </Step>
+          <Step n="3" title="IV unit impulse response" done>
+            <PasteGrid columns={["Time h", "Conc"]} rows={irGrid} maxHeight={130} />
+          </Step>
+          <Step n="4" title="Options" active>
+            <div className="field" style={{ marginBottom: 12 }}>
+              <span className="label-xs">Deconvolution method</span>
+              <div className="pill-group" style={{ marginTop: 6 }}>
+                <button className={"pill" + (method === "wagner" ? " active" : "")} onClick={() => setMethod("wagner")}>Wagner-Nelson</button>
+                <button className={"pill" + (method === "loo" ? " active" : "")} onClick={() => setMethod("loo")}>Loo-Riegelman</button>
+              </div>
+            </div>
+            <div className="field-row">
+              <label>kel (h⁻¹)</label>
+              <input className="inp" value={kel} onChange={(e) => setKel(e.target.value)} style={{ width: 70 }} />
+            </div>
+            {method === "loo" && (
+              <div className="slide-in">
+                <div className="field-row"><label>k12 (h⁻¹)</label><input className="inp" defaultValue="0.45" style={{ width: 70 }} /></div>
+                <div className="field-row"><label>k21 (h⁻¹)</label><input className="inp" defaultValue="0.31" style={{ width: 70 }} /></div>
+              </div>
+            )}
+          </Step>
+        </div>
+        <div style={{ marginTop: 20 }}><RunButton label="Run IVIVC" loading={loading} onClick={run} /></div>
+      </div>
+
+      <div className="panel-right">
+        {!hasRun ? (
+          <EmptyState icon="activity" hint="Provide in vivo PK, dissolution, and IV impulse-response data." />
+        ) : (
+          <React.Fragment key={runKey}>
+            <div className={"verdict " + (iv.acceptable ? "verdict-pass" : "verdict-fail")}>
+              <span>{iv.acceptable ? "IVIVC ACCEPTABLE" : "IVIVC NOT ACCEPTABLE"}</span>
+              <span className="ci">Level A · {method === "wagner" ? "Wagner-Nelson" : "Loo-Riegelman"}</span>
+            </div>
+
+            <div className="hscroll stagger" style={{ marginTop: 18 }}>
+              <div className={"metric-card mc-" + r2tone} style={{ width: 168, animationDelay: "0ms" }}>
+                <div className="mc-label">Levy R²</div>
+                <div><span className="mc-value" style={{ fontSize: 34 }}>{fmt(iv.levyR2, 3)}</span></div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-dim)", marginTop: 6 }}>
+                  {iv.levyR2 >= 0.9 ? "strong correlation" : iv.levyR2 >= 0.8 ? "moderate" : "weak"}
+                </div>
+              </div>
+              <MetricCard label="%PE Cmax" value={fmt(iv.peCmax, 2)} unit="%" tone="blue" delay={40} />
+              <MetricCard label="%PE AUC" value={fmt(iv.peAUC, 2)} unit="%" tone="blue" delay={80} />
+              <MetricCard label="Mean |%PE|" value={fmt(iv.meanAbsPE, 2)} unit="%" tone={iv.meanAbsPE < 10 ? "green" : "warm"} delay={120} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 18 }}>
+              <div className="chart-card">
+                <div className="chart-head"><span className="chart-title">Fraction absorbed vs dissolved</span></div>
+                <LineChart series={[
+                  { data: faData, color: "var(--accent)", name: "Fa", width: 2 },
+                  { data: fdData, color: "var(--success)", name: "Fd", dashed: true, width: 2 },
+                ]} xLabel="Time (h)" yLabel="Fraction" height={240} yDomain={[0, 1]} />
+                <div className="legend" style={{ padding: "4px 0 8px" }}>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent)" }}></span>Fa (in vivo)</span>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--success)" }}></span>Fd (in vitro)</span>
+                </div>
+              </div>
+              <div className="chart-card">
+                <div className="chart-head"><span className="chart-title">Predicted vs observed</span></div>
+                <LineChart series={[
+                  { data: obsData, color: "var(--accent)", name: "Observed", width: 2 },
+                  { data: predData, color: "var(--accent-warm)", name: "Predicted", dashed: true, width: 2 },
+                ]} xLabel="Time (h)" yLabel="Conc (µg/mL)" height={240} />
+                <div className="legend" style={{ padding: "4px 0 8px" }}>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent)" }}></span>Observed</span>
+                  <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent-warm)" }}></span>Predicted</span>
+                </div>
+              </div>
+            </div>
+
+            <ReportBar report={ivReport} />
+            <Disclaimer />
+          </React.Fragment>
+        )}
+      </div>
+    </AnalysisShell>
+  );
+}
+
+Object.assign(window, { IVIVCPage });
+ 
+/* ===== screens-sim.jsx ===== */
+/* ============================================================
+   OpenPKFlow — PK Simulation page (live sliders)
+   ============================================================ */
+const { useState: useStateS, useMemo: useMemoS, useEffect: useEffectS, useRef: useRefS } = React;
+
+function Slider({ label, val, min, max, step, unit, onChange }) {
+  return (
+    <div className="slider-row">
+      <div className="slider-head">
+        <span className="sl-label">{label}</span>
+        <span className="sl-val">{val}{unit ? " " + unit : ""}</span>
+      </div>
+      <input type="range" className="sl" min={min} max={max} step={step} value={val}
+             onChange={(e) => onChange(+e.target.value)}
+             style={{ background: `linear-gradient(to right, var(--accent) ${((val - min) / (max - min)) * 100}%, var(--border) ${((val - min) / (max - min)) * 100}%)` }} />
+      <div className="slider-range">{min} – {max}</div>
+    </div>
+  );
+}
+
+function SimPage() {
+  const [model, setModel] = useStateS("1cmt");
+  const [route, setRoute] = useStateS("oral");
+  const [dose, setDose] = useStateS(250);
+  const [CL, setCL] = useStateS(8);
+  const [V, setV] = useStateS(45);
+  const [Ka, setKa] = useStateS(1.2);
+  const [Q, setQ] = useStateS(5);
+  const [Vp, setVp] = useStateS(35);
+  const [tau, setTau] = useStateS(12);
+  const [nDoses, setNDoses] = useStateS(4);
+  const [scale, setScale] = useStateS("linear");
+
+  // debounced params
+  const [params, setParams] = useStateS({ model, route, dose, CL, V, Ka, Q, Vp, tau, nDoses });
+  const tref = useRefS(null);
+  useEffectS(() => {
+    clearTimeout(tref.current);
+    tref.current = setTimeout(() => setParams({ model, route, dose, CL, V, Ka, Q, Vp, tau, nDoses, tinf: 1 }), 90);
+    return () => clearTimeout(tref.current);
+  }, [model, route, dose, CL, V, Ka, Q, Vp, tau, nDoses]);
+
+  const sim = useMemoS(() => simulate(params), [params]);
+  const simReport = useMemoS(() => {
+    const step = Math.max(1, Math.round(sim.curve.length / 40));
+    const sampled = sim.curve.filter((_, i) => i % step === 0);
+    const routeLabel = route === "oral" ? "Oral" : route === "bolus" ? "IV bolus" : "IV infusion";
+    return {
+      module: "SIMULATION", reportId: reportId("SIM"), generated: TODAY,
+      title: "PK Simulation",
+      subtitle: `${model === "1cmt" ? "One" : "Two"}-compartment ${routeLabel.toLowerCase()} model · ${nDoses}× ${dose} mg q${tau}h`,
+      meta: [
+        ["Model", (model === "1cmt" ? "1-compartment" : "2-compartment")],
+        ["Route", routeLabel],
+        ["Dose regimen", `${dose} mg × ${nDoses}, τ = ${tau} h`],
+        ["CL / Vz", `${CL} L/h / ${V} L`],
+        ["Solver", "4th-order Runge–Kutta"],
+      ],
+      sections: [
+        { type: "metrics", title: "Exposure metrics", items: [
+          { label: "Cmax", value: fmt(sim.cmax, 2), unit: "mg/L", tone: "warm" },
+          { label: "Tmax", value: fmt(sim.tmax, 2), unit: "h" },
+          { label: "Cmin,ss", value: fmt(sim.cmin, 3), unit: "mg/L", tone: "blue" },
+          { label: "Clast", value: fmt(sim.clast, 3), unit: "mg/L", tone: "green" },
+          { label: "ke", value: fmt(CL / V, 4), unit: "h⁻¹" },
+        ] },
+        { type: "table", title: "Simulated concentration–time profile",
+          columns: ["Time (h)", "Conc (mg/L)"],
+          rows: sampled.map((p) => [fmt(p.t, 2), fmt(p.c, 3)]) },
+        { type: "text", title: "Interpretation",
+          body: `Forward simulation of a ${model === "1cmt" ? "one" : "two"}-compartment ${routeLabel.toLowerCase()} model predicts a peak concentration of ${fmt(sim.cmax, 2)} mg/L at ${fmt(sim.tmax, 2)} h. Over the ${nDoses}-dose regimen (τ = ${tau} h) the trough within the final interval reaches ${fmt(sim.cmin, 3)} mg/L. Parameters: CL = ${CL} L/h, Vz = ${V} L${route === "oral" ? ", Ka = " + Ka + " h⁻¹" : ""}${model === "2cmt" ? ", Q = " + Q + " L/h, Vp = " + Vp + " L" : ""}.` },
+      ],
+      disclaimer: "Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.",
+    };
+  }, [sim, params]);
+  const data = sim.curve.filter((d) => scale === "linear" || d.c > 1e-3).map((d) => ({ x: +d.t.toFixed(2), y: d.c }));
+  const doseLines = sim.doseTimes.slice(1).map((t) => ({ x: t, color: "var(--accent-warm)" }));
+  const annotations = sim.cmax > 0 ? [{ x: +sim.tmax.toFixed(2), y: sim.cmax, label: "Cmax " + fmt(sim.cmax, 2), color: "var(--accent-warm)" }] : [];
+
+  return (
+    <AnalysisShell>
+      <div className="panel-left">
+        <div className="field" style={{ marginBottom: 16 }}>
+          <span className="label-xs">Model</span>
+          <div className="pill-group" style={{ marginTop: 6 }}>
+            <button className={"pill" + (model === "1cmt" ? " active" : "")} onClick={() => setModel("1cmt")} style={{ flex: 1 }}>1-Compartment</button>
+            <button className={"pill" + (model === "2cmt" ? " active" : "")} onClick={() => setModel("2cmt")} style={{ flex: 1 }}>2-Compartment</button>
+          </div>
+        </div>
+        <div className="field" style={{ marginBottom: 20 }}>
+          <span className="label-xs">Route</span>
+          <div className="pill-group" style={{ marginTop: 6 }}>
+            {[["oral", "Oral"], ["bolus", "IV Bolus"], ["infusion", "IV Infusion"]].map(([k, l]) => (
+              <button key={k} className={"pill" + (route === k ? " active" : "")} onClick={() => setRoute(k)} style={{ flex: 1, padding: "6px 6px" }}>{l}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="section-label">Parameters</div>
+        <Slider label="Dose" val={dose} min={10} max={1000} step={10} unit="mg" onChange={setDose} />
+        <Slider label="CL" val={CL} min={0.5} max={50} step={0.5} unit="L/h" onChange={setCL} />
+        <Slider label="Vz" val={V} min={5} max={200} step={5} unit="L" onChange={setV} />
+        {route === "oral" && <div className="slide-in"><Slider label="Ka" val={Ka} min={0.1} max={5} step={0.1} unit="h⁻¹" onChange={setKa} /></div>}
+        {model === "2cmt" && (
+          <div className="slide-in">
+            <Slider label="Q" val={Q} min={0.5} max={30} step={0.5} unit="L/h" onChange={setQ} />
+            <Slider label="Vp" val={Vp} min={5} max={150} step={5} unit="L" onChange={setVp} />
+          </div>
+        )}
+        <div className="section-label" style={{ marginTop: 18 }}>Dosing regimen</div>
+        <Slider label="tau (interval)" val={tau} min={4} max={24} step={1} unit="h" onChange={setTau} />
+        <Slider label="n doses" val={nDoses} min={1} max={20} step={1} onChange={setNDoses} />
+      </div>
+
+      <div className="panel-right">
+        <div className="chart-card">
+          <div className="chart-head">
+            <span className="chart-title">Concentration–time · {model === "1cmt" ? "1-cmt" : "2-cmt"} {route}</span>
+            <div className="pill-ghost-group">
+              <button className={"pill-ghost" + (scale === "linear" ? " active" : "")} onClick={() => setScale("linear")}>Linear</button>
+              <button className={"pill-ghost" + (scale === "log" ? " active" : "")} onClick={() => setScale("log")}>Semi-log</button>
+            </div>
+          </div>
+          <LineChart log={scale === "log"}
+            series={[{ data, color: "var(--accent)", name: "Conc", width: 2 }]}
+            xLabel="Time (h)" yLabel="Conc (mg/L)" height={340}
+            refLines={doseLines} annotations={annotations} />
+        </div>
+
+        <div className="hscroll" style={{ marginTop: 18 }}>
+          <MetricCard label="Cmax" value={fmt(sim.cmax, 2)} unit="mg/L" tone="warm" />
+          <MetricCard label="Tmax" value={fmt(sim.tmax, 2)} unit="h" tone="dim" />
+          <MetricCard label="Cmin,ss" value={fmt(sim.cmin, 3)} unit="mg/L" tone="blue" />
+          <MetricCard label="Clast" value={fmt(sim.clast, 3)} unit="mg/L" tone="green" />
+          <MetricCard label="ke" value={fmt(CL / V, 4)} unit="h⁻¹" tone="dim" />
+        </div>
+
+        <div className="warnbox" style={{ marginTop: 18 }}>
+          <Icon name="info" size={16} />
+          <span>Curve updates live as you move the sliders — solved by 4th-order Runge–Kutta integration of the {model === "1cmt" ? "one" : "two"}-compartment {route} model with superposition across {nDoses} dose{nDoses > 1 ? "s" : ""}.</span>
+        </div>
+
+        <ReportBar report={simReport} />
+        <Disclaimer />
+      </div>
+    </AnalysisShell>
+  );
+}
+
+Object.assign(window, { SimPage });
+ 
+/* ===== screens-dissolution.jsx ===== */
+/* ============================================================
+   OpenPKFlow — Dissolution page
+   ============================================================ */
+const { useState: useStateD, useMemo: useMemoD } = React;
+
+const DISS_FORMS = {
+  "REF (RLD lot A)":   [22, 41, 58, 78, 91, 96],
+  "TEST (gen lot 1)":  [18, 35, 51, 71, 86, 94],
+  "TEST (gen lot 2)":  [11, 24, 38, 58, 74, 85],
+  "TEST (fast-diss)":  [34, 56, 72, 88, 95, 98],
+};
+
+function DissolutionPage() {
+  const forms = Object.keys(DISS_FORMS);
+  const [ref, setRef] = useStateD(forms[0]);
+  const [test, setTest] = useStateD(forms[1]);
+  const [loading, setLoading] = useStateD(false);
+  const [hasRun, setHasRun] = useStateD(true);
+  const [runKey, setRunKey] = useStateD(1);
+
+  const res = useMemoD(() => computeDissolution(DISS_FORMS[ref], DISS_FORMS[test]), [ref, test]);
+  const dReport = useMemoD(() => ({
+    module: "DISSOLUTION", reportId: reportId("DISS"), generated: TODAY,
+    title: "Dissolution Profile Comparison",
+    subtitle: "Similarity assessment · f1 / f2 factors (FDA 1997)",
+    verdict: { pass: res.similar, label: res.similar ? "PROFILES SIMILAR" : "PROFILES NOT SIMILAR",
+      note: `f2 = ${fmt(res.f2, 1)} (threshold ≥ 50) · f1 = ${fmt(res.f1, 2)}` },
+    meta: [
+      ["Reference", ref],
+      ["Test", test],
+      ["Timepoints", String(res.n)],
+      ["Criterion", "f2 ≥ 50 = similar"],
+    ],
+    sections: [
+      { type: "metrics", title: "Similarity factors", items: [
+        { label: "f2 (similarity)", value: fmt(res.f2, 1), tone: res.similar ? "green" : "danger" },
+        { label: "f1 (difference)", value: fmt(res.f1, 2), tone: "blue" },
+        { label: "Timepoints", value: String(res.n) },
+      ] },
+      { type: "table", title: "Dissolution profiles (% released)",
+        columns: ["Time (min)", ref, test],
+        rows: DISS_TIMES.map((t, i) => [String(t), String(DISS_FORMS[ref][i]), String(DISS_FORMS[test][i])]) },
+      { type: "text", title: "Interpretation",
+        body: `The similarity factor f2 = ${fmt(res.f2, 1)} ${res.similar ? "meets" : "falls below"} the regulatory threshold of 50, and the difference factor f1 = ${fmt(res.f1, 2)}. The test profile is therefore ${res.similar ? "considered similar to" : "NOT considered similar to"} the reference. ${res.similar ? "" : "Formulation differences should be reviewed before any regulatory submission."}` },
+    ],
+    disclaimer: "Generated by OpenPKFlow (open-source, MIT). Not a regulatory tool. Results require review by qualified pharmacokinetic and regulatory experts before any regulatory use.",
+  }), [res, ref, test]);
+  const run = () => { setLoading(true); setTimeout(() => { setLoading(false); setHasRun(true); setRunKey((k) => k + 1); }, 1050); };
+
+  const refData = DISS_TIMES.map((t, i) => ({ x: t, y: DISS_FORMS[ref][i] }));
+  const testData = DISS_TIMES.map((t, i) => ({ x: t, y: DISS_FORMS[test][i] }));
+
+  const uploadGrid = [
+    ["REF", "A", "10", "22"], ["REF", "A", "20", "58"],
+    ["TEST", "1", "10", "18"], ["TEST", "1", "20", "51"],
+  ];
+  const [grid, setGrid] = useStateD(uploadGrid);
+
+  return (
+    <AnalysisShell>
+      <div className="panel-left">
+        <div className="stepper">
+          <Step n="1" title="Data input" active done>
+            <div className="pill-group" style={{ marginBottom: 12 }}>
+              <button className="pill active">Paste table</button>
+              <button className="pill">Upload CSV</button>
+            </div>
+            <PasteGrid columns={["Form", "Batch", "Time", "%Rel"]} rows={grid} onChange={setGrid} maxHeight={240} />
+          </Step>
+          <Step n="2" title="Select profiles" active>
+            <div className="field-row">
+              <label>Reference</label>
+              <select className="inp" value={ref} onChange={(e) => setRef(e.target.value)}>
+                {forms.map((f) => <option key={f}>{f}</option>)}
+              </select>
+            </div>
+            <div className="field-row">
+              <label>Test</label>
+              <select className="inp" value={test} onChange={(e) => setTest(e.target.value)}>
+                {forms.map((f) => <option key={f}>{f}</option>)}
+              </select>
+            </div>
+          </Step>
+        </div>
+        <div style={{ marginTop: 20 }}><RunButton label="Compute f2" loading={loading} onClick={run} /></div>
+      </div>
+
+      <div className="panel-right">
+        {!hasRun ? (
+          <EmptyState icon="waves" hint="Load dissolution profiles, then select reference and test formulations." />
+        ) : (
+          <React.Fragment key={runKey}>
+            {/* f2 headline card */}
+            <div style={{ display: "flex", gap: 18, alignItems: "stretch" }}>
+              <div className={"metric-card " + (res.similar ? "mc-green" : "mc-danger")} style={{ width: 220, padding: "16px 18px" }}>
+                <div className="mc-label">f2 similarity factor</div>
+                <div style={{ marginTop: 4 }}><span className="mc-value" style={{ fontSize: 48 }}>{fmt(res.f2, 1)}</span></div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, marginTop: 8, color: res.similar ? "var(--success)" : "var(--danger)", letterSpacing: "0.08em" }}>
+                  {res.similar ? "SIMILAR" : "NOT SIMILAR"}
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-dim)", marginTop: 6 }}>f1 = {fmt(res.f1, 2)}</div>
+              </div>
+              <div className="hscroll stagger" style={{ flex: 1 }}>
+                <MetricCard label="f2" value={fmt(res.f2, 1)} tone={res.similar ? "green" : "danger"} delay={0} />
+                <MetricCard label="f1" value={fmt(res.f1, 2)} tone="blue" delay={40} />
+                <MetricCard label="timepoints" value={res.n} tone="dim" delay={80} />
+                <MetricCard label="threshold" value="50" tone="dim" delay={120} sub="f2 ≥ 50 = similar" />
+              </div>
+            </div>
+
+            {/* chart */}
+            <div className="chart-card" style={{ marginTop: 18 }}>
+              <div className="chart-head"><span className="chart-title">Dissolution profiles</span></div>
+              <LineChart series={[
+                { data: refData, color: "var(--accent)", name: "Reference", width: 2 },
+                { data: testData, color: "var(--accent-warm)", name: "Test", dashed: true, width: 2 },
+              ]} xLabel="Time (min)" yLabel="% Released" height={300} yDomain={[0, 100]}
+                 hRefLines={[{ y: 85, color: "var(--text-dim)", label: "85% reference point" }]} />
+              <div className="legend" style={{ padding: "4px 0 8px" }}>
+                <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent)" }}></span>{ref}</span>
+                <span className="legend-item"><span className="legend-swatch" style={{ background: "var(--accent-warm)" }}></span>{test}</span>
+              </div>
+            </div>
+
+            {!res.similar && (
+              <div className="warnbox" style={{ marginTop: 16 }}>
+                <Icon name="alert" size={16} />
+                <span>Profiles are <strong style={{ color: "var(--accent-warm)" }}>NOT similar</strong> (f2 &lt; 50). Review formulation differences before regulatory submission.</span>
+              </div>
+            )}
+
+            <ReportBar report={dReport} />
+            <Disclaimer />
+          </React.Fragment>
+        )}
+      </div>
+    </AnalysisShell>
+  );
+}
+
+Object.assign(window, { DissolutionPage });
+ 
+/* ===== app.jsx ===== */
+/* ============================================================
+   OpenPKFlow — app shell: router + theme + tweaks
+   ============================================================ */
+const { useState: useStateA, useEffect: useEffectA } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#58a6ff",
+  "density": "regular",
+  "gridTexture": 0.03,
+  "heroSerif": true
+}/*EDITMODE-END*/;
+
+const ACCENT_OPTIONS = ["#58a6ff", "#38bdf8", "#3fb950", "#f0a731", "#c084fc"];
+const hexToRgb = (h) => {
+  const n = parseInt(h.slice(1), 16);
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+};
+
+const TITLES = {
+  home: ["OPENPKFLOW", "pharmacometric analysis platform"],
+  nca: ["NCA", "non-compartmental analysis"],
+  dissolution: ["DISSOLUTION", "f1 / f2 profile comparison"],
+  simulation: ["SIMULATION", "compartmental PK forward modeling"],
+  ivivc: ["IVIVC", "in vitro–in vivo correlation"],
+  be: ["BIOEQUIVALENCE", "average BE · two one-sided tests"],
+};
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [page, setPage] = useStateA("home");
+  const [theme, setTheme] = useStateA("dark");
+  const [navOpen, setNavOpen] = useStateA(false);
+  const [collapsed, setCollapsed] = useStateA(false);
+  const [report, setReport] = useStateA(null);
+
+  // register a global opener so any screen's ReportBar can launch the modal
+  useEffectA(() => { window.__openReport = setReport; return () => { delete window.__openReport; }; }, []);
+
+  // apply theme
+  useEffectA(() => { document.documentElement.setAttribute("data-theme", theme); }, [theme]);
+
+  // apply tweaks -> CSS vars
+  useEffectA(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--accent", t.accent);
+    root.style.setProperty("--accent-rgb", hexToRgb(t.accent));
+    root.style.setProperty("--grid-opacity", String(t.gridTexture));
+    root.setAttribute("data-hero", t.heroSerif ? "serif" : "sans");
+  }, [t.accent, t.gridTexture, t.heroSerif]);
+
+  const nav = (id) => { setPage(id); setNavOpen(false); window.scrollTo(0, 0); };
+  const [title, subtitle] = TITLES[page];
+
+  return (
+    <React.Fragment>
+    <div className="app app-texture">
+      <Sidebar active={page} onNav={nav} open={navOpen}
+               collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
+      <div className="main">
+        <TopBar title={title} subtitle={subtitle} theme={theme}
+                onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
+                onMenu={() => setNavOpen(!navOpen)} />
+        {page === "home" ? <HomePage onNav={nav} /> : (
+          <div className="content" style={{ display: "flex" }}>
+            {page === "nca" && <NCAPage />}
+            {page === "be" && <BEPage />}
+            {page === "ivivc" && <IVIVCPage />}
+            {page === "simulation" && <SimPage />}
+            {page === "dissolution" && <DissolutionPage />}
+          </div>
+        )}
+      </div>
+
+      <TweaksPanel>
+        <TweakSection label="Identity" />
+        <TweakColor label="Accent" value={t.accent}
+          options={ACCENT_OPTIONS}
+          onChange={(v) => setTweak("accent", v)} />
+        <TweakToggle label="Serif hero headline" value={t.heroSerif}
+          onChange={(v) => setTweak("heroSerif", v)} />
+        <TweakSection label="Texture" />
+        <TweakSlider label="Dot-grid texture" value={t.gridTexture} min={0} max={0.1} step={0.01}
+          onChange={(v) => setTweak("gridTexture", v)} />
+      </TweaksPanel>
+    </div>
+    <ReportModal report={report} onClose={() => setReport(null)} />
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#050810"/>
+      <rect x="30" y="30" width="40" height="40" fill="#58a6ff"/>
+      <text x="50" y="58" font-family="monospace" font-size="22" font-weight="700" fill="#fff" text-anchor="middle">PK</text>
+    </svg>
+  </template>
+</body>
+</html>
