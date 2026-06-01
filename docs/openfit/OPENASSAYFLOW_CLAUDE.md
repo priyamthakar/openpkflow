@@ -180,9 +180,18 @@ The primary regulatory reference. openassayflow must implement the acceptance cr
 
 ### Published 4PL/5PL reference datasets
 
-- DeLean, Munson & Rodbard (1978) Am J Physiol -- original ALLFIT/4PL paper with published data
-- Findlay & Dillard datasets (where publicly available)
-- R `drc` package example datasets (e.g., ryegrass, S.alba) -- for 4PL cross-validation
+**Critical finding:** No NIST-equivalent certified reference dataset exists for 4PL/5PL
+immunoassay fitting. DeLean et al. (1978) contains illustrative figures but no
+machine-readable certified data. Findlay & Dillard (2007) is methodological guidance with
+no worked numerical examples. Gottschalk & Dunn (2005) has simulated comparisons but no
+standalone certified values. FDA 2018 BMV specifies acceptance criteria but no reference
+data.
+
+**Our approach:**
+- openfit provides synthetic 4PL/5PL datasets with KNOWN exact parameters (v0.1.1)
+- openassayflow inherits this validation and adds domain-specific acceptance testing
+- Cross-validate against R `drda` (JSS 2023, actively maintained) and R `nplr` (updated 2025)
+- R `drc` is stale (no updates since 2016) -- use for historical comparison only
 
 ### Cross-validation
 

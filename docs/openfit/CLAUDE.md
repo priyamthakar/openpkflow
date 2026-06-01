@@ -214,23 +214,65 @@ These are non-negotiable. Do not violate them.
 
 The NIST Statistical Reference Datasets (https://www.itl.nist.gov/div898/strd/nls/nls_main.shtml) provide certified parameter values for 27 nonlinear regression problems at three difficulty levels.
 
-**Must-pass datasets (minimum viable validation):**
+**Complete NIST StRD nonlinear dataset inventory (all 27):**
 
-| Dataset | Model | Params | Difficulty | Why it matters |
-|---------|-------|--------|------------|----------------|
-| Misra1a | 2-param exponential | 2 | Lower | Basic convergence |
-| Chwirut2 | 3-param exponential | 3 | Lower | Weighted regression baseline |
-| Gauss1 | 8-param triple Gaussian | 8 | Lower | Multi-peak separation |
-| DanWood | 2-param power | 2 | Average | Nonlinear transform |
-| Hahn1 | 7-param rational | 7 | Average | Complex rational model |
-| Rat42 | 3-param growth | 3 | Average | Growth curve (our bread and butter) |
-| MGH17 | 5-param sum of exponentials | 5 | Higher | Notoriously ill-conditioned |
-| BoxBOD | 2-param exponential | 2 | Higher | Sensitive to initial values |
-| Thurber | 7-param rational | 7 | Higher | The hardest standard test |
-| Bennett5 | 3-param exp | 3 | Higher | Near-singular Jacobian |
-| Eckerle4 | 3-param Gaussian | 3 | Higher | Extremely narrow peak |
+LOWER difficulty (9 datasets):
 
-**Acceptance criterion:** Fitted parameters match NIST certified values to at least 6 significant digits (NIST provides 11). Residual sum of squares matches to 6 digits.
+| Dataset | Params | Obs | Model class |
+|---------|--------|-----|-------------|
+| Misra1a | 2 | 14 | Exponential (monomolecular adsorption) |
+| Misra1b | 2 | 14 | Miscellaneous |
+| Chwirut1 | 3 | 214 | Exponential (ultrasonic calibration) |
+| Chwirut2 | 3 | 54 | Exponential (ultrasonic calibration) |
+| Lanczos3 | 6 | 24 | Sum of 3 exponentials (generated) |
+| Gauss1 | 8 | 250 | Triple Gaussian (generated) |
+| Gauss2 | 8 | 250 | Triple Gaussian (generated) |
+| DanWood | 2 | 6 | Power function (radiated energy) |
+
+AVERAGE difficulty (11 datasets):
+
+| Dataset | Params | Obs | Model class |
+|---------|--------|-----|-------------|
+| Kirby2 | 5 | 151 | Rational (microscope line width) |
+| Hahn1 | 7 | 236 | Rational (thermal expansion) |
+| Nelson | 3 | 128 | Exponential (dielectric breakdown) |
+| MGH17 | 5 | 33 | Sum of exponentials (More-Garbow-Hillstrom) |
+| Lanczos1 | 6 | 24 | Sum of 3 exponentials (generated, exact) |
+| Lanczos2 | 6 | 24 | Sum of 3 exponentials (generated, exact) |
+| Gauss3 | 8 | 250 | Triple Gaussian (generated) |
+| Misra1c | 2 | 14 | Miscellaneous |
+| Misra1d | 2 | 14 | Miscellaneous |
+| Roszman1 | 4 | 25 | Miscellaneous |
+| ENSO | 9 | 168 | Miscellaneous (atmospheric pressure) |
+
+HIGHER difficulty (7 datasets):
+
+| Dataset | Params | Obs | Model class |
+|---------|--------|-----|-------------|
+| MGH09 | 4 | 11 | Rational (More-Garbow-Hillstrom) |
+| MGH10 | 3 | 16 | Exponential (More-Garbow-Hillstrom) |
+| Thurber | 7 | 37 | Rational (semiconductor electron mobility) |
+| BoxBOD | 2 | 6 | Exponential (biochemical oxygen demand) |
+| Rat42 | 3 | 9 | Exponential (pasture yield) |
+| Rat43 | 4 | 15 | Exponential (onion growth) |
+| Eckerle4 | 3 | 35 | Gaussian peak (circular interference) |
+| Bennett5 | 3 | 154 | Miscellaneous (magnetization) |
+
+**Must-pass subset (minimum viable validation):**
+Lower: Misra1a, Chwirut2, DanWood, Gauss1.
+Average: Hahn1, MGH17, Lanczos1, Nelson, ENSO.
+Higher: ALL -- BoxBOD, Eckerle4, Rat42, Rat43, MGH09, MGH10, Thurber, Bennett5.
+
+**Certified values format:** NIST provides certified parameter values, standard errors, and
+residual sum of squares -- all to 11 significant digits (computed in 128-bit precision,
+confirmed by >= 2 independent algorithms with analytic derivatives). Each dataset also
+provides two starting-value sets ("Start 1" close, "Start 2" far) to test convergence
+robustness.
+
+**Acceptance criterion:** Fitted parameters must match NIST certified values to at least
+6 significant digits. Residual sum of squares matches to 6 digits. Both start sets must
+converge. The R package `NISTnls` (CRAN, v0.9-13) provides all 27 datasets in
+machine-readable format -- use it as the data source for tests.
 
 **Test structure:**
 ```
@@ -240,11 +282,22 @@ tests/validation/
   nist_certified_values.py   -- parsed certified params + SEs + RSS
 ```
 
-### Cross-validation against R packages
+### 4PL/5PL validation (no NIST equivalent exists)
 
-For sigmoidal models (4PL/5PL), cross-validate against:
-- R `drc` package (Ritz et al., 2015, PLOS ONE) -- the standard for dose-response
-- R `nplr` package (Commo & Bot, 2015) -- n-parameter logistic regression
+**Critical finding:** There is NO NIST-equivalent certified reference dataset for 4PL/5PL
+logistic fitting. The NIST StRD does not include a logistic model among its 27 datasets.
+DeLean et al. (1978) and Gottschalk & Dunn (2005) contain illustrative data in figures
+but not machine-readable certified values. FDA 2018 BMV specifies acceptance criteria but
+provides no worked numerical examples.
+
+**Our approach:**
+1. Generate synthetic 4PL/5PL datasets with KNOWN exact parameters (ground truth).
+2. Cross-validate against R `drda` package (Marasini et al., J Stat Softw 2023,
+   DOI: 10.18637/jss.v106.i04) -- actively maintained, Newton trust-region, analytical
+   Hessian. Preferred over R `drc` which has not been updated since 2016.
+3. Cross-validate against R `nplr` package (Commo & Bot, updated 2025) for 5PL.
+4. Document the synthetic datasets + certified values so downstream packages
+   (openassayflow) can use them as their 4PL/5PL reference.
 
 Study behavior and reference outputs only. Do not copy R source code.
 
@@ -262,23 +315,54 @@ Same discipline as openpkflow:
 
 ### What Prism does that open-source tools lack (our gap targets)
 
-| Feature | Prism | scipy curve_fit | lmfit | openfit target |
-|---------|-------|-----------------|-------|----------------|
-| Smart initial guesses | Yes (per model) | No | Partial | Yes (per model) |
+| Feature | Prism | scipy curve_fit | lmfit (~1.2k stars) | openfit target |
+|---------|-------|-----------------|---------------------|----------------|
+| Smart initial guesses | Yes (per model) | No | Partial (built-in models) | Yes (per model) |
 | 1/Y, 1/Y^2 weighting | Yes (menu) | Manual | Manual | Yes (enum) |
-| Global/shared fitting | Yes (core feature) | No | No | Yes (v0.4.0) |
-| Profile-likelihood CI | Yes | No | Yes (partial) | Yes (v0.3.0) |
-| ROUT outlier removal | Yes (exclusive) | No | No | Yes (v0.5.0) |
+| Global/shared fitting | Yes (core, 1-click) | No | Power-user only (*) | Yes (v0.4.0, declarative) |
+| Profile-likelihood CI | Yes | No | Yes (conf_interval()) | Yes (v0.3.0) |
+| ROUT outlier removal | Yes | No | No | Yes (v0.5.0) -- first Python impl |
 | Model comparison F-test | Yes | No | No | Yes (v0.2.0) |
-| Reproducibility spec | No (!) | No | No | Yes (v0.1.0) -- our unique moat |
-| Publication-quality report | Yes (graph export) | No | No | Yes (v0.1.0) |
-| NIST-certified validation | Not published | N/A | Not published | Yes (v0.1.1) |
+| 4PL/5PL built-in | Yes | No | No (**) | Yes (v0.1.0) |
+| Reproducibility spec | No (!) | No | No | Yes (v0.1.0) -- unique moat |
+| Publication report | Yes (graph export) | No | No | Yes (v0.1.0) |
+| NIST validation suite | Not published | N/A | Not published | Yes (v0.1.1) |
+
+(*) lmfit supports multi-dataset fitting but requires manually constructing a joint
+objective function. It is documented in examples but not a first-class declarative API.
+See: https://lmfit.github.io/lmfit-py/examples/example_fit_multi_datasets.html
+
+(**) lmfit has Gaussian, Lorentzian, Voigt, logistic, etc. as built-in models but does NOT
+have 4PL/5PL (Hill equation) as named built-in models. Users must define them manually.
+
+### ROUT implementation status (as of 2026)
+
+The Motulsky & Brown 2006 ROUT algorithm (BMC Bioinformatics 7:123, open access:
+https://pmc.ncbi.nlm.nih.gov/articles/PMC1472692/) exists ONLY in:
+- GraphPad Prism (closed source)
+- R `OptimModel` package (CRAN v2.0-3, rout_fitter() + rout_outlier_test())
+
+**No Python implementation exists in any maintained package.** openfit will be the first.
+
+### Competitor summary
+
+| Tool | Type | Stars/Status | Strengths | Gaps (vs our goals) |
+|------|------|-------------|-----------|---------------------|
+| lmfit | Python | ~1.2k, active | Named params, constraints, profile CI, emcee MCMC | No 4PL/5PL built-in, no reports, no ROUT, global fit is manual |
+| scipy curve_fit | Python | Part of scipy | Robust LM/TRF, well-tested | Raw tool only -- no models, CIs, reports |
+| R drc | R | Gold standard | Purpose-built dose-response, ED50, many models | Stale (no updates since 2016), no reports |
+| R drda | R | Active (JSS 2023) | Newton trust-region, analytic Hessian, smart init | Logistic-only, narrow scope, no reports |
+| R nplr | R | Updated 2025 | Flexible 2-5P logistic, weighted GOF | Small user base, logistic-only |
+| fityk | C++/Python | ~290 stars | GUI peak fitting (spectroscopy) | Peak-fitting focus, not general curve fitting |
+| OriginLab | Commercial | Active | 170+ models, global fit, batch, pub-quality plots | Expensive, Windows-only, closed-source |
 
 ### What we do NOT compete with
 
-- **lmfit** -- excellent minimization wrapper with constraints and parameter expressions. We use scipy directly but could optionally wrap lmfit. lmfit is a fitting ENGINE; we are a fitting PRODUCT (engine + validation + reports + reproducibility).
-- **scipy.optimize** -- the backend we use. We add value on top.
-- **statsmodels** -- statistical modeling, not curve fitting. Different audience.
+- **lmfit** -- excellent minimization wrapper. Has features we will leverage (or learn from).
+  lmfit is a fitting ENGINE; we are a fitting PRODUCT (engine + validation + reports +
+  reproducibility). We may optionally wrap lmfit as a backend in the future.
+- **scipy.optimize** -- the numerical backend we use. We add value on top.
+- **statsmodels** -- statistical modeling (regression, time series), not curve fitting.
 
 ---
 

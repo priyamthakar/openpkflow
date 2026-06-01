@@ -35,13 +35,22 @@ v0.1.0  Core engine + essential models + reports
         - Tests: degenerate cases + hand-checkable examples for every model
         Definition of done: pip install -e . works, pytest green, wheel builds clean.
 
-v0.1.1  NIST StRD validation suite
+v0.1.1  NIST StRD validation suite + 4PL/5PL synthetic certified data
         -----------------------------------------------
         - All 27 NIST nonlinear regression datasets parsed and loaded
+          (source: R NISTnls package v0.9-13, or raw .dat files from NIST)
+          9 Lower + 11 Average + 7 Higher difficulty
         - Parametrized pytest: every dataset recovers certified values to >= 6 sig digits
+          (NIST provides 11 digits; both Start 1 and Start 2 must converge)
         - Certified values for: parameters, standard errors, residual sum of squares
+        - Higher-difficulty must all pass: BoxBOD, Eckerle4, Rat42, Rat43, MGH09, MGH10,
+          Thurber, Bennett5 -- these are the ones that break naive implementations
+        - 4PL/5PL synthetic certified datasets: generate ground-truth data with known
+          exact parameters (no NIST equivalent exists for logistic models)
+        - Cross-validate 4PL/5PL against R drda package (Marasini et al., JSS 2023)
         - CI: validation badge or matrix in README showing pass/fail per dataset
-        Definition of done: all 27 NIST datasets pass. This is the credibility anchor.
+        Definition of done: all 27 NIST datasets pass + 4PL/5PL synthetic recovery.
+        This is the credibility anchor.
 
 v0.1.2  PyPI publish + packaging
         -----------------------------------------------
