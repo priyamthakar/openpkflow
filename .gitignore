@@ -68,6 +68,10 @@ handout/
 
 # MkDocs generated site
 site/
+!site/
+site/*
+!site/app/
+!site/app/index.html
 
 # Uploaded images
 *.png
