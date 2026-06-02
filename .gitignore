@@ -65,6 +65,7 @@ handout/
 !src/**/*.html
 !examples/**/*.html
 !docs/**
+!webapp/index.html
 
 # MkDocs generated site
 site/
