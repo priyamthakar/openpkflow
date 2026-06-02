@@ -1,6 +1,6 @@
 # OpenPKFlow Web API — install the parent engine first:
 #   pip install -e ..[reports]   (from the repo root)
 fastapi>=0.111
-uvicorn[standard]>=0.30
+uvicorn[standard]>=0.48.0
 python-multipart>=0.0.9
 pydantic>=2.0
