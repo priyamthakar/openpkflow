@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Scope and boundary (read this first)
 
@@ -14,26 +14,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
-**Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
-- `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
-  In scope: adding endpoints, fixing bugs in the adapter layer, improving error handling.
-  Current routers: nca, dissolution, sim, ivivc, be.
-- `webapp/` — React + Vite + Tailwind frontend. In scope: UI improvements, new pages for
-  modules already covered by the backend, bug fixes.
-  Current pages: Home, NCA (/nca), Dissolution (/dissolution), Simulation (/sim),
-  IVIVC (/ivivc), Bioequivalence (/be).
-- Both dirs are separate from `src/openpkflow/` and do NOT modify the frozen library.
-- Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
-  first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
-- See `progress_web_app.md` for the full file map, completed features, and next candidates.
+**Web app layer (same as CLAUDE.md):**
+- `api/` — FastAPI REST adapter. Current routers: nca, dissolution, sim, ivivc, be.
+  Adding a new endpoint requires a schema (schemas/), service (services/), router (routers/),
+  and registration in main.py. Follow the existing nca router pattern exactly.
+- `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Dissolution, Sim,
+  IVIVC, BE. See `progress_web_app.md` for the full file map and next candidates.
+- Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
 - RSABE / replicate-design BE — belongs in companion BioEqPy package, not here.
-- WeasyPrint, Streamlit/Gradio GUI (as embedded GUI in the library), CDISC Define.xml, eCTD table formatting.
-  Note: The `api/` + `webapp/` web application is a separate layer, not a Streamlit/Gradio embed.
+- WeasyPrint, Streamlit/Gradio GUI, CDISC Define.xml, eCTD table formatting.
 
 **Rules for AI agents:**
 1. Before adding any feature, verify it is on the in-scope list. If not, ask the user.
@@ -42,7 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. The former covariate API in `pop/estimation/` (`CovariateModel`, `apply_covariates`)
    was a non-functional v2.2.0 skeleton and was removed in v2.3.0. Do not reintroduce
    covariate estimation without a full external validation plan.
-4. When ROADMAP.md and CLAUDE.md disagree, CLAUDE.md wins. Flag the conflict to the user.
+4. When ROADMAP.md and AGENTS.md disagree, AGENTS.md wins. Flag the conflict to the user.
 5. Never use `--no-verify` to bypass pre-commit hooks. Fix the underlying issue instead.
 
 ---

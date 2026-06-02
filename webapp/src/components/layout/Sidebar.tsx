@@ -1,78 +1,81 @@
 import { NavLink } from 'react-router-dom'
-import { FlaskConical, LineChart, Waves, Home } from 'lucide-react'
+import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const NAV = [
   { to: '/', label: 'Home', icon: Home, exact: true },
   { to: '/nca', label: 'NCA', icon: LineChart },
   { to: '/dissolution', label: 'Dissolution', icon: Waves },
   { to: '/sim', label: 'Simulation', icon: FlaskConical },
+  { to: '/ivivc', label: 'IVIVC', icon: Activity },
+  { to: '/be', label: 'Bioequivalence', icon: Scale },
 ]
 
-export function Sidebar() {
+export function Sidebar({
+  mobileOpen,
+  onClose,
+}: {
+  mobileOpen?: boolean
+  onClose?: () => void
+}) {
   return (
     <aside
-      style={{
-        width: 220,
-        minWidth: 220,
-        background: 'var(--surface)',
-        borderRight: '1px solid var(--border)',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '24px 0',
-        gap: 4,
-      }}
+      className={cn(
+        'bg-surface border-r border-border flex flex-col shrink-0 transition-all duration-300',
+        'w-[220px] lg:w-[220px]',
+        'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-60',
+        mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+        'max-md:shadow-xl',
+      )}
     >
-      {/* Logo */}
-      <div style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              background: 'var(--accent)',
-              borderRadius: 6,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#fff',
-            }}
-          >
+      <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <div className="font-mono-ui w-7 h-7 rounded-sm bg-accent flex items-center justify-center text-[#04122b] font-bold text-sm">
             PK
           </div>
-          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>OpenPKFlow</span>
+          <span className="font-semibold text-[15.5px] text-text tracking-tight">
+            OpenPKFlow
+          </span>
         </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close sidebar"
+            className="lg:hidden p-1 rounded-sm text-text-muted hover:text-text hover:bg-surface-2 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
-      <nav style={{ padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <nav className="flex-1 py-3 flex flex-col gap-0.5">
+        <div className="font-mono-ui px-4 pb-2 text-[11px] uppercase tracking-[0.16em] text-text-dim">
+          Analysis
+        </div>
         {NAV.map(({ to, label, icon: Icon, exact }) => (
           <NavLink
             key={to}
             to={to}
             end={exact}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '8px 12px',
-              borderRadius: 6,
-              color: isActive ? 'var(--text)' : 'var(--text-muted)',
-              background: isActive ? 'var(--accent-muted)' : 'transparent',
-              textDecoration: 'none',
-              fontSize: 13,
-              fontWeight: isActive ? 500 : 400,
-              transition: 'all 0.15s',
-            })}
+            onClick={onClose}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-2.5 px-4 py-2 border-l-[3px] text-[14.5px] font-medium transition-all duration-150',
+                isActive
+                  ? 'bg-surface-2 text-text border-l-accent'
+                  : 'text-text-muted hover:text-text hover:bg-surface-2 border-l-transparent',
+              )
+            }
           >
-            <Icon size={15} />
+            <Icon size={15} aria-hidden="true" />
             {label}
           </NavLink>
         ))}
       </nav>
 
-      <div style={{ marginTop: 'auto', padding: '16px 20px', fontSize: 11, color: 'var(--text-dim)' }}>
-        v2.4.0 · MIT License
+      <div className="font-mono-ui mt-auto px-4 py-3 text-xs text-text-dim border-t border-border">
+        v2.4.0 / MIT
       </div>
     </aside>
   )

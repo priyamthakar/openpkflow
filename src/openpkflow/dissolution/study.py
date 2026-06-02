@@ -326,7 +326,7 @@ class DissolutionStudy:
             If the CSV data fails validation.
         """
         df = load_dissolution_csv(path, config)
-        return cls(df, config)
+        return cls(df)
 
     @classmethod
     def from_excel(
@@ -363,7 +363,7 @@ class DissolutionStudy:
             If the data fails validation.
         """
         df = load_dissolution_excel(path, config, sheet_name=sheet_name)
-        return cls(df, config)
+        return cls(df)
 
     def formulations(self) -> list[str]:
         """List all formulation labels in the dataset.

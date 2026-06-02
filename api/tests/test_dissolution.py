@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pandas as pd
 from fastapi.testclient import TestClient
 
 from openpkflow.dissolution.loader import DissolutionCSVConfig
@@ -67,3 +68,28 @@ def test_compare_disclaimer(client: TestClient, dissolution_csv: Path) -> None:
             files={"file": ("diss.csv", f, "text/csv")},
         )
     assert "disclaimer" in resp.json()
+
+
+def test_compare_custom_columns(client: TestClient, dissolution_csv: Path, tmp_path: Path) -> None:
+    df = pd.read_csv(dissolution_csv)
+    df = df.rename(
+        columns={
+            "formulation": "FORM",
+            "batch": "LOT",
+            "time": "MINUTES",
+            "percent_released": "PCT_REL",
+        }
+    )
+    custom_csv = tmp_path / "diss_custom.csv"
+    df.to_csv(custom_csv, index=False)
+    columns = '{"formulation":"FORM","batch":"LOT","time":"MINUTES","percent_released":"PCT_REL"}'
+
+    with custom_csv.open("rb") as f:
+        resp = client.post(
+            "/api/dissolution/compare",
+            data={"reference": "reference", "test": "test", "columns": columns},
+            files={"file": ("diss_custom.csv", f, "text/csv")},
+        )
+
+    assert resp.status_code == 200
+    assert resp.json()["f2_value"] > 0

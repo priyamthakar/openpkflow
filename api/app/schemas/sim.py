@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SimParams(BaseModel):
@@ -36,6 +36,8 @@ class SimTimeGrid(BaseModel):
 
 
 class SimRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model_type: Literal["1cmt", "2cmt"] = "1cmt"
     route: Literal["iv_bolus", "iv_infusion", "oral"] = "oral"
     params: SimParams = Field(default_factory=SimParams)

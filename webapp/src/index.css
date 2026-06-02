@@ -1,22 +1,62 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-2: var(--border-2);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-muted: var(--accent-muted);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+}
+
 @layer base {
   :root {
-    --bg: #0e0f11;
-    --surface: #161819;
-    --surface-2: #1e2022;
-    --border: #2a2d31;
-    --border-2: #363a3f;
-    --accent: #5e6ad2;
-    --accent-hover: #6c79e8;
-    --accent-muted: rgba(94, 106, 210, 0.15);
-    --text: #e2e4e9;
-    --text-muted: #8b8fa8;
-    --text-dim: #5c5f7a;
-    --success: #3dd68c;
+    --bg: #f4f5f3;
+    --surface: #ffffff;
+    --surface-2: #f6f8fa;
+    --border: #d8dee4;
+    --border-2: #c7ced6;
+    --accent: #1f6feb;
+    --accent-hover: #2f81f7;
+    --accent-muted: rgba(31, 111, 235, 0.12);
+    --text: #0b0f14;
+    --text-muted: #1f2937;
+    --text-dim: #4b5563;
+    --success: #1f8a3b;
+    --warning: #b96f00;
+    --danger: #c93c34;
+    --radius: 4px;
+    --accent-rgb: 31, 111, 235;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #050810;
+    --surface: #0d1117;
+    --surface-2: #161b22;
+    --border: #21262d;
+    --border-2: #30363d;
+    --accent: #58a6ff;
+    --accent-hover: #79b8ff;
+    --accent-muted: rgba(88, 166, 255, 0.14);
+    --text: #f7f9fc;
+    --text-muted: #d0d7de;
+    --text-dim: #9aa4b2;
+    --success: #3fb950;
     --warning: #f0a731;
-    --danger: #e5534b;
-    --radius: 8px;
+    --danger: #f85149;
+    --accent-rgb: 88, 166, 255;
   }
 
   * {
@@ -28,14 +68,67 @@
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: "Inter", "Geist", system-ui, -apple-system, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
+    font-family: "IBM Plex Sans", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4 { margin: 0; font-weight: 600; color: var(--text); }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: var(--text);
+  }
+
+  input,
+  select,
+  textarea {
+    background: var(--surface-2) !important;
+    border-color: var(--border-2) !important;
+    color: var(--text) !important;
+    color-scheme: light;
+  }
+
+  :root[data-theme="light"] input,
+  :root[data-theme="light"] select,
+  :root[data-theme="light"] textarea {
+    background: #f6f8fa !important;
+    border-color: #c7ced6 !important;
+    color: #0b0f14 !important;
+  }
+
+  :root[data-theme="dark"] input,
+  :root[data-theme="dark"] select,
+  :root[data-theme="dark"] textarea {
+    background: #161b22 !important;
+    border-color: #30363d !important;
+    color: #f7f9fc !important;
+    color-scheme: dark;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-dim);
+    opacity: 1;
+  }
+
+  option {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  :root[data-theme="light"] option {
+    background: #ffffff;
+    color: #0b0f14;
+  }
+
+  :root[data-theme="dark"] option {
+    background: #0d1117;
+    color: #f7f9fc;
+  }
 
   ::selection {
     background: var(--accent-muted);
@@ -46,4 +139,115 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .font-mono-ui {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .app-texture {
+    position: relative;
+  }
+
+  .app-texture::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(var(--text) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.03;
+  }
+
+  .app-texture > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--surface-2) 25%,
+      var(--border) 50%,
+      var(--surface-2) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  background-color: #f6f8fa !important;
+  border-color: #c7ced6 !important;
+  color: #0b0f14 !important;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background-color: #161b22 !important;
+  border-color: #30363d !important;
+  color: #f7f9fc !important;
+}
+
+:root[data-theme="light"] [role="radiogroup"] [role="radio"][aria-checked="true"] {
+  background-color: #ffffff !important;
+  border-color: #d8dee4 !important;
+  color: #0b0f14 !important;
+}
+
+:root[data-theme="dark"] [role="radiogroup"] [role="radio"][aria-checked="true"] {
+  background-color: #0d1117 !important;
+  border-color: #21262d !important;
+  color: #f7f9fc !important;
+}
+
+:root[data-theme="light"] [role="radiogroup"] [role="radio"][aria-checked="false"] {
+  color: #0b0f14 !important;
+}
+
+:root[data-theme="dark"] [role="radiogroup"] [role="radio"][aria-checked="false"] {
+  color: #f7f9fc !important;
 }
