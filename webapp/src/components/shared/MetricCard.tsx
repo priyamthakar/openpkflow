@@ -1,29 +1,38 @@
+import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/Skeleton'
+
 interface Props {
   label: string
   value: string | number | null | undefined
   unit?: string
   highlight?: boolean
+  loading?: boolean
+  className?: string
 }
 
-export function MetricCard({ label, value, unit, highlight }: Props) {
-  const display = value == null || (typeof value === 'number' && !isFinite(value)) ? '—' : value
+export function MetricCard({ label, value, unit, highlight, loading, className }: Props) {
+  if (loading) return <Skeleton className="h-[88px] min-w-[140px]" />
+
+  const hasValue = value != null && (typeof value !== 'number' || isFinite(value))
 
   return (
     <div
-      style={{
-        background: highlight ? 'var(--accent-muted)' : 'var(--surface)',
-        border: `1px solid ${highlight ? 'rgba(94,106,210,0.3)' : 'var(--border)'}`,
-        borderRadius: 'var(--radius)',
-        padding: '14px 18px',
-        minWidth: 120,
-      }}
+      className={cn(
+        'rounded-sm border p-4 min-w-[130px] transition-all animate-fade-in',
+        highlight
+          ? 'border-accent/30 bg-accent-muted/50 border-l-[3px] border-l-accent'
+          : 'border-border bg-surface hover:border-border-2',
+        className,
+      )}
     >
-      <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
         {label}
       </p>
-      <p style={{ fontSize: 22, fontWeight: 600, color: highlight ? 'var(--accent)' : 'var(--text)' }}>
-        {typeof display === 'number' ? display.toFixed(3) : display}
-        {unit && <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 4 }}>{unit}</span>}
+      <p className="text-[26px] font-bold text-text tabular-nums leading-tight">
+        {hasValue ? (typeof value === 'number' ? value.toFixed(3) : value) : 'Not available'}
+        {hasValue && unit && (
+          <span className="text-sm font-medium text-text-muted ml-1">{unit}</span>
+        )}
       </p>
     </div>
   )
