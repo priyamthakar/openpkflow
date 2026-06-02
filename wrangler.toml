@@ -1,2 +1,6 @@
 name = "openpkflow"
-pages_build_output_dir = "site"
+compatibility_date = "2026-06-02"
+
+[assets]
+directory = "webapp/dist"
+not_found_handling = "single-page-application"
