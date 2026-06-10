@@ -410,8 +410,51 @@ function CiBar({
 function SubjectTable({ rows, parameter }: { rows: BeResponse['subjects']; parameter: string }) {
   const hasSequence = rows.some((r) => r.sequence != null)
   return (
-    <div className="overflow-x-auto rounded-sm border border-border">
-      <table className="w-full border-collapse text-sm">
+    <div className="rounded-sm border border-border">
+      <div className="divide-y divide-border sm:hidden">
+        {rows.map((row, i) => (
+          <div key={i} className="p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="font-mono-ui text-xs font-semibold text-text-muted">
+                Subject {row.subject}
+              </span>
+              {hasSequence && (
+                <span className="rounded-sm border border-border bg-surface-2 px-2 py-1 text-xs font-semibold text-text-muted">
+                  {row.sequence ?? 'No sequence'}
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <div>
+                <div className="text-[11px] font-semibold uppercase text-text-muted">
+                  Reference ({parameter})
+                </div>
+                <div className="text-sm font-semibold text-text tabular-nums">
+                  {row.reference.toFixed(3)}
+                </div>
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold uppercase text-text-muted">
+                  Test ({parameter})
+                </div>
+                <div className="text-sm font-semibold text-text tabular-nums">
+                  {row.test.toFixed(3)}
+                </div>
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold uppercase text-text-muted">
+                  Ratio (T/R)
+                </div>
+                <div className="text-sm font-semibold text-text tabular-nums">
+                  {row.ratio.toFixed(4)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto sm:block">
+        <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
             <th className="px-3 py-2 bg-surface text-text-muted text-left border-b border-border whitespace-nowrap font-semibold text-xs">Subject</th>
@@ -432,7 +475,8 @@ function SubjectTable({ rows, parameter }: { rows: BeResponse['subjects']; param
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   )
 }

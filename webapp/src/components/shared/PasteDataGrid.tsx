@@ -55,8 +55,8 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
       onPaste={handlePaste}
       className="bg-surface border border-border rounded-sm overflow-hidden"
     >
-      <div className="flex justify-between items-center gap-3 px-3 py-2.5 border-b border-border">
-        <div>
+      <div className="flex flex-col gap-3 px-3 py-2.5 border-b border-border sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h3 className="text-sm font-semibold text-text">Paste / edit table</h3>
           <p className="text-text-muted text-[12px] mt-0.5">
             {hint ?? 'Paste tabular data from Excel or Prism. Headers are optional.'}
@@ -65,13 +65,73 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
         <button
           type="button"
           onClick={copyCsv}
-          className="px-2.5 py-1 text-xs border border-border-2 bg-surface-2 text-text rounded-sm hover:border-accent transition-colors"
+          className="min-h-9 w-full px-2.5 py-1 text-xs border border-border-2 bg-surface-2 text-text rounded-sm hover:border-accent transition-colors sm:w-auto"
         >
           Copy CSV
         </button>
       </div>
 
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+      <div className="sm:hidden">
+        <div className="divide-y divide-border">
+          {rows.map((row, rowIndex) => (
+            <div key={rowIndex} className="p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="font-mono-ui text-xs font-semibold text-text-muted">
+                  Row {rowIndex + 1}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => addRow(rowIndex)}
+                    className="min-h-9 rounded-sm border border-border-2 bg-surface-2 px-3 text-sm font-semibold text-text hover:border-accent"
+                    aria-label={`Insert row below row ${rowIndex + 1}`}
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteRow(rowIndex)}
+                    disabled={rows.length <= 1}
+                    className="flex min-h-9 min-w-9 items-center justify-center rounded-sm border border-border-2 bg-surface-2 text-text-muted hover:border-danger/40 hover:text-danger disabled:opacity-40"
+                    aria-label={`Delete row ${rowIndex + 1}`}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
+                {columns.map((column) => {
+                  const value = row[column.key] ?? ''
+                  const strVal = String(value)
+                  const invalid =
+                    column.type === 'number' && strVal.trim() !== '' && !Number.isFinite(Number(strVal))
+                  return (
+                    <label key={column.key} className="block min-w-0">
+                      <span className="mb-1 block text-[11px] font-semibold uppercase text-text-muted">
+                        {column.label}
+                      </span>
+                      <input
+                        value={strVal}
+                        onChange={(e) => updateCell(rowIndex, column.key, e.target.value)}
+                        className={cn(
+                          'min-h-10 w-full rounded-sm border bg-surface-2 px-2.5 py-2 text-sm font-medium text-text',
+                          'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
+                          invalid
+                            ? 'border-danger/60 bg-danger/5'
+                            : 'border-border-2',
+                        )}
+                        aria-label={`${column.label}, row ${rowIndex + 1}`}
+                      />
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="hidden overflow-x-auto max-h-[400px] overflow-y-auto sm:block">
         <table
           className="w-full border-collapse text-sm"
           style={{ minWidth: columns.length * 120 }}
@@ -133,7 +193,7 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
                     <button
                       type="button"
                       onClick={() => addRow(rowIndex)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-2 text-text-dim hover:text-accent transition-all text-xs leading-none"
+                      className="p-1 rounded hover:bg-surface-2 text-text-dim hover:text-accent transition-all text-xs leading-none opacity-100 md:opacity-0 md:group-hover:opacity-100"
                       title="Insert row below"
                       aria-label={`Insert row below row ${rowIndex + 1}`}
                     >
@@ -143,7 +203,7 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
                       type="button"
                       onClick={() => deleteRow(rowIndex)}
                       disabled={rows.length <= 1}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-danger/10 text-text-dim hover:text-danger transition-all text-xs leading-none disabled:opacity-0"
+                      className="p-1 rounded hover:bg-danger/10 text-text-dim hover:text-danger transition-all text-xs leading-none opacity-100 disabled:opacity-0 md:opacity-0 md:group-hover:opacity-100"
                       title="Delete row"
                       aria-label={`Delete row ${rowIndex + 1}`}
                     >
@@ -157,15 +217,15 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
         </table>
       </div>
 
-      <div className="flex justify-between items-center gap-2 px-3 py-2 border-t border-border">
+      <div className="flex flex-col gap-2 px-3 py-2 border-t border-border sm:flex-row sm:items-center sm:justify-between">
         <span className="text-text-muted text-xs">
           {rows.length} row{rows.length !== 1 ? 's' : ''} ready for {filename}
         </span>
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:shrink-0">
           <button
             type="button"
             onClick={() => addRow(rows.length - 1)}
-            className="px-2.5 py-1 text-xs border border-border-2 bg-surface-2 text-text rounded-sm hover:border-accent transition-colors"
+            className="min-h-9 w-full px-3 py-1 text-xs border border-border-2 bg-surface-2 text-text rounded-sm hover:border-accent transition-colors sm:w-auto"
           >
             Add row
           </button>
