@@ -160,22 +160,18 @@
 
   .app-texture {
     position: relative;
+    isolation: isolate;
   }
 
   .app-texture::before {
     content: "";
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
     background-image: radial-gradient(var(--text) 1px, transparent 1px);
     background-size: 22px 22px;
     opacity: 0.03;
-  }
-
-  .app-texture > * {
-    position: relative;
-    z-index: 1;
   }
 
   .skeleton-shimmer {
