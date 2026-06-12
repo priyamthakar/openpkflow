@@ -49,7 +49,7 @@ export function AnalysisShell({ children, left, right, leftWide, resultKey }: Pr
   return (
     <div
       ref={rootRef}
-      className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-5 md:overflow-hidden md:p-6"
+      className="flex-1 overflow-x-auto overflow-y-auto p-4 sm:p-5 md:overflow-x-hidden md:overflow-hidden md:p-6"
       style={{ cursor: dragging ? 'col-resize' : undefined }}
     >
       <div className="flex min-h-full flex-col gap-5 md:h-full md:min-h-0 md:flex-row">

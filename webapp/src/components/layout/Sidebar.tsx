@@ -23,7 +23,7 @@ export function Sidebar({
       className={cn(
         'bg-surface border-r border-border flex flex-col shrink-0 transition-all duration-300',
         'w-[220px] lg:w-[220px]',
-        'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-60',
+        'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-[220px]',
         mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
         'max-md:shadow-xl',
       )}
@@ -75,7 +75,7 @@ export function Sidebar({
       </nav>
 
       <div className="font-mono-ui mt-auto px-4 py-3 text-xs text-text-dim border-t border-border">
-        v2.4.0 / MIT
+        v2.5.0 / MIT
       </div>
     </aside>
   )
