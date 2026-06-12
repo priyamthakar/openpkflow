@@ -47,6 +47,10 @@ def _weibull(t: np.ndarray, alpha: float, beta: float) -> np.ndarray:
     )
 
 
+def _hixson_crowell(t: np.ndarray, k: float) -> np.ndarray:
+    return np.asarray(100.0 * (1.0 - np.power(np.clip(1.0 - k * t, 0.0, None), 3)), dtype=float)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Per-model initial-guess + bounds helpers
 # Each returns (p0: list[float], (lower_bounds, upper_bounds))
@@ -99,6 +103,17 @@ def _p0_bounds_weibull(
     return [1.0, beta_guess], ([0.01, 0.01], [np.inf, np.inf])
 
 
+def _p0_bounds_hixson_crowell(
+    t: np.ndarray, Q: np.ndarray
+) -> tuple[list[float], tuple[list[float], list[float]]]:
+    # k: Hixson-Crowell cube-root rate constant
+    # At time when Q ~ 100%, cube root term ~ 0, so 1 - k*t ~ 0 => k ~ 1/t_max
+    q_max = min(float(Q.max()), 99.9)
+    t_at_max = float(t[int(np.argmax(Q))])
+    k_guess = (1.0 - (1.0 - q_max / 100.0) ** (1.0 / 3.0)) / max(t_at_max, 1e-9)
+    return [k_guess], ([1e-6], [np.inf])
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Model registry  {name: (func, param_names, p0_bounds_fn)}
 # ──────────────────────────────────────────────────────────────────────────────
@@ -114,6 +129,7 @@ _REGISTRY: dict[str, tuple[Callable[..., np.ndarray], list[str], _P0BoundsFn]] =
     "higuchi": (_higuchi, ["kH"], _p0_bounds_higuchi),
     "korsmeyer_peppas": (_korsmeyer_peppas, ["k", "n"], _p0_bounds_korsmeyer_peppas),
     "weibull": (_weibull, ["alpha", "beta"], _p0_bounds_weibull),
+    "hixson_crowell": (_hixson_crowell, ["k"], _p0_bounds_hixson_crowell),
 }
 
 VALID_MODELS: frozenset[str] = frozenset(_REGISTRY.keys())
@@ -567,10 +583,11 @@ def fit_dissolution_models(
     formulation_label : str
         Label for the fitted formulation (used in reports and summaries).
     models : list[str] or None, optional
-        Model names to fit. Defaults to all five:
-        ``["zero_order", "first_order", "higuchi", "korsmeyer_peppas", "weibull"]``.
+        Model names to fit. Defaults to all six:
+        ``["zero_order", "first_order", "higuchi", "korsmeyer_peppas", "weibull",
+        "hixson_crowell"]``.
         Valid names: ``zero_order``, ``first_order``, ``higuchi``,
-        ``korsmeyer_peppas``, ``weibull``.
+        ``korsmeyer_peppas``, ``weibull``, ``hixson_crowell``.
 
     Returns
     -------

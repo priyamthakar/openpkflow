@@ -362,7 +362,7 @@ class TestFitDissolutionModelsValidation:
         t = np.array([5.0, 15.0, 30.0, 45.0, 60.0, 90.0])
         Q = _first_order(t, 0.06)
         results = fit_dissolution_models(t.tolist(), Q.tolist(), "test")
-        assert len(results.fits) == 5
+        assert len(results.fits) == 6
         assert all(f.model_name in VALID_MODELS for f in results.fits)
 
     def test_formulation_label_preserved(self) -> None:
