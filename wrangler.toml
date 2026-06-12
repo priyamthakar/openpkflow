@@ -1,6 +1,11 @@
 name = "openpkflow"
 compatibility_date = "2026-06-02"
 
+# No build command here — build the webapp manually before deploying:
+#   cd webapp && npm run build
+# Vite automatically loads webapp/.env.production during `vite build`,
+# which bakes VITE_API_URL into the bundle so API calls reach the Render backend.
+
 [assets]
 directory = "webapp/dist"
 not_found_handling = "single-page-application"

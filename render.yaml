@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: openpkflow-api
+    runtime: python
+    # rootDir is NOT set so that pip can see pyproject.toml at the repo root.
+    # Render checks out the full repo; both api/ and src/openpkflow/ are present.
+    buildCommand: pip install ".[reports]" && pip install -r api/requirements.txt
+    startCommand: uvicorn app.main:app --app-dir api --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      # CORS: allow the Cloudflare Workers frontend plus local dev origins.
+      # The api/app/config.py reads this env var automatically.
+      - key: OPENPKFLOW_ALLOWED_ORIGINS
+        value: https://openpkflow.priyamthakar1.workers.dev,http://localhost:5173,http://localhost:4173
