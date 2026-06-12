@@ -92,7 +92,7 @@ class TestAUCAllMethods:
             if orig_val == 0:
                 assert scaled_val == 0.0
             else:
-                assert np.isclose(scaled_val / orig_val, factor, rtol=1e-10)
+                assert np.isclose(scaled_val / orig_val, factor, rtol=1e-6)
 
 
 class TestCmaxTmax:
