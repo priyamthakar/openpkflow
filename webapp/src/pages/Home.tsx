@@ -83,9 +83,6 @@ export default function Home() {
                 Built by
               </p>
               <h3 className="mt-1 text-xl font-semibold text-text">Priyam Thakar</h3>
-              <p className="mt-1 text-sm leading-relaxed text-text-muted">
-                Computational drug delivery specialist and PhD Scholar, Nirma University.
-              </p>
               <a
                 href="mailto:priyamthakar1@gmail.com"
                 className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent no-underline hover:text-accent-hover"
