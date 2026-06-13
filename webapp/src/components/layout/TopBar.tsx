@@ -31,16 +31,16 @@ export function TopBar({ title, subtitle, onMenuClick }: Props) {
           </button>
         )}
         <div className="min-w-0">
-          <h1 className="font-mono-ui truncate text-[12.5px] font-semibold uppercase tracking-[0.08em] text-text sm:text-[14px] sm:tracking-[0.12em]">
+          <h1 className="font-mono-ui truncate text-[12px] font-semibold uppercase tracking-[0.04em] text-text min-[380px]:text-[12.5px] sm:text-[14px] sm:tracking-[0.12em]">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-0.5 truncate text-[12px] text-text-muted sm:text-[13px]">{subtitle}</p>
+            <p className="mt-0.5 hidden truncate text-[13px] text-text-muted sm:block">{subtitle}</p>
           )}
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-3">
         <ThemeToggle />
         {data?.engine_version && (
           <Badge variant="accent">

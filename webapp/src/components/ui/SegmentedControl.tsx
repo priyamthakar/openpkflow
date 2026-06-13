@@ -16,7 +16,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div
       className={cn(
-        'inline-flex bg-surface-2 rounded-sm p-1 border border-border',
+        'flex w-full bg-surface-2 rounded-sm p-1 border border-border sm:inline-flex sm:w-auto',
         className,
       )}
       role="radiogroup"
@@ -29,7 +29,7 @@ export function SegmentedControl<T extends string>({
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            'px-4 py-1.5 text-sm font-medium rounded-sm transition-all duration-150',
+            'min-w-0 flex-1 px-3 py-1.5 text-sm font-medium rounded-sm transition-all duration-150 sm:flex-none sm:px-4',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40',
             value === o.value
               ? 'bg-surface text-text shadow-sm'
