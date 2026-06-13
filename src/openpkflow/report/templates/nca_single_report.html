@@ -156,13 +156,57 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 18px;
       font-size: 11px;
       color: #8a95a3;
     }
 
+    .report-footer span { min-width: 0; overflow-wrap: anywhere; }
+
     .report-footer a {
       color: #1a78c2;
       text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      body { background: #ffffff; font-size: 13px; }
+      .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+      .report-header { padding: 22px 18px 20px; }
+      .report-header .org-label { font-size: 10px; letter-spacing: .09em; }
+      .report-header h1 { font-size: 20px; }
+      .meta-grid { grid-template-columns: 1fr; gap: 8px; }
+      .content { padding: 28px 18px; }
+      h2 { font-size: 12px; letter-spacing: .06em; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tbody tr {
+        background: #ffffff;
+        border: 1px solid #dce7f4;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      tbody tr:nth-child(even) { background: #ffffff; }
+      tbody td {
+        display: grid;
+        grid-template-columns: minmax(112px, 45%) 1fr;
+        gap: 12px;
+        align-items: baseline;
+        padding: 9px 12px;
+        text-align: right;
+      }
+      tbody td::before {
+        content: attr(data-label);
+        color: #0d3b66;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-align: left;
+        text-transform: uppercase;
+      }
+      .disclaimer-box { padding: 14px; font-size: 13px; }
+      .report-footer { align-items: flex-start; padding: 14px 18px; }
     }
 
     /* Print styles */
@@ -214,11 +258,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Subject</td><td>{{ result.subject }}</td></tr>
-          <tr><td>Route</td><td>{{ result.route }}</td></tr>
-          <tr><td>Dose</td><td>{{ result.dose }}</td></tr>
-          <tr><td>AUC Method</td><td>{{ result.auc_method }}</td></tr>
-          <tr><td>BLQ Method</td><td>{{ result.blq_method }}</td></tr>
+          <tr><td data-label="Parameter">Subject</td><td data-label="Value">{{ result.subject }}</td></tr>
+          <tr><td data-label="Parameter">Route</td><td data-label="Value">{{ result.route }}</td></tr>
+          <tr><td data-label="Parameter">Dose</td><td data-label="Value">{{ result.dose }}</td></tr>
+          <tr><td data-label="Parameter">AUC Method</td><td data-label="Value">{{ result.auc_method }}</td></tr>
+          <tr><td data-label="Parameter">BLQ Method</td><td data-label="Value">{{ result.blq_method }}</td></tr>
         </tbody>
       </table>
     </section>
@@ -234,27 +278,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Cmax</td><td class="num">{{ fmt(result.Cmax) }}</td></tr>
-          <tr><td>Tmax</td><td class="num">{{ fmt(result.Tmax) }}</td></tr>
-          <tr><td>AUClast</td><td class="num">{{ fmt(result.AUClast) }}</td></tr>
-          <tr><td>AUCinf_obs</td><td class="num">{{ fmt(result.AUCinf_obs) }}</td></tr>
-          <tr><td>AUC% Extrapolated</td><td class="num">{{ fmt(result.AUC_percent_extrapolated) }}</td></tr>
-          <tr><td>lambda_z</td><td class="num">{{ fmt(result.lambda_z) }}</td></tr>
-          <tr><td>half_life</td><td class="num">{{ fmt(result.half_life) }}</td></tr>
+          <tr><td data-label="Parameter">Cmax</td><td class="num" data-label="Value">{{ fmt(result.Cmax) }}</td></tr>
+          <tr><td data-label="Parameter">Tmax</td><td class="num" data-label="Value">{{ fmt(result.Tmax) }}</td></tr>
+          <tr><td data-label="Parameter">AUClast</td><td class="num" data-label="Value">{{ fmt(result.AUClast) }}</td></tr>
+          <tr><td data-label="Parameter">AUCinf_obs</td><td class="num" data-label="Value">{{ fmt(result.AUCinf_obs) }}</td></tr>
+          <tr><td data-label="Parameter">AUC% Extrapolated</td><td class="num" data-label="Value">{{ fmt(result.AUC_percent_extrapolated) }}</td></tr>
+          <tr><td data-label="Parameter">lambda_z</td><td class="num" data-label="Value">{{ fmt(result.lambda_z) }}</td></tr>
+          <tr><td data-label="Parameter">half_life</td><td class="num" data-label="Value">{{ fmt(result.half_life) }}</td></tr>
           <tr>
-            <td>lambda_z method</td>
-            <td>{{ result.lambda_z_method if result.lambda_z_method is not none else "N/A" }}</td>
+            <td data-label="Parameter">lambda_z method</td>
+            <td data-label="Value">{{ result.lambda_z_method if result.lambda_z_method is not none else "N/A" }}</td>
           </tr>
           {% if result.lambda_z_n_points is not none %}
-          <tr><td>lambda_z n points</td><td class="num">{{ result.lambda_z_n_points }}</td></tr>
-          <tr><td>lambda_z adj R<sup>2</sup></td><td class="num">{{ fmt(result.lambda_z_adj_r2) }}</td></tr>
+          <tr><td data-label="Parameter">lambda_z n points</td><td class="num" data-label="Value">{{ result.lambda_z_n_points }}</td></tr>
+          <tr><td data-label="Parameter">lambda_z adj R<sup>2</sup></td><td class="num" data-label="Value">{{ fmt(result.lambda_z_adj_r2) }}</td></tr>
           {% endif %}
-          <tr><td>{{ cl_label }}</td><td class="num">{{ cl_value }}</td></tr>
-          <tr><td>{{ vz_label }}</td><td class="num">{{ vz_value }}</td></tr>
+          <tr><td data-label="Parameter">{{ cl_label }}</td><td class="num" data-label="Value">{{ cl_value }}</td></tr>
+          <tr><td data-label="Parameter">{{ vz_label }}</td><td class="num" data-label="Value">{{ vz_value }}</td></tr>
           {% if result.DN_AUClast is not none %}
-          <tr><td>DN_AUClast</td><td class="num">{{ fmt(result.DN_AUClast) }}</td></tr>
-          <tr><td>DN_AUCinf_obs</td><td class="num">{{ fmt(result.DN_AUCinf_obs) }}</td></tr>
-          <tr><td>DN_Cmax</td><td class="num">{{ fmt(result.DN_Cmax) }}</td></tr>
+          <tr><td data-label="Parameter">DN_AUClast</td><td class="num" data-label="Value">{{ fmt(result.DN_AUClast) }}</td></tr>
+          <tr><td data-label="Parameter">DN_AUCinf_obs</td><td class="num" data-label="Value">{{ fmt(result.DN_AUCinf_obs) }}</td></tr>
+          <tr><td data-label="Parameter">DN_Cmax</td><td class="num" data-label="Value">{{ fmt(result.DN_Cmax) }}</td></tr>
           {% endif %}
         </tbody>
       </table>

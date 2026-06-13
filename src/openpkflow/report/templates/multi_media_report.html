@@ -185,13 +185,57 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 18px;
       font-size: 11px;
       color: #8a95a3;
     }
 
+    .report-footer span { min-width: 0; overflow-wrap: anywhere; }
+
     .report-footer a {
       color: #1a78c2;
       text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      body { background: #ffffff; font-size: 13px; }
+      .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+      .report-header { padding: 22px 18px 20px; }
+      .report-header .org-label { font-size: 10px; letter-spacing: .09em; }
+      .report-header h1 { font-size: 20px; }
+      .meta-grid { grid-template-columns: 1fr; gap: 8px; }
+      .content { padding: 28px 18px; }
+      h2 { font-size: 12px; letter-spacing: .06em; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tbody tr {
+        background: #ffffff;
+        border: 1px solid #dce7f4;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+      tbody tr:nth-child(even) { background: #ffffff; }
+      tbody td {
+        display: grid;
+        grid-template-columns: minmax(112px, 45%) 1fr;
+        gap: 12px;
+        align-items: baseline;
+        padding: 9px 12px;
+        text-align: right;
+      }
+      tbody td::before {
+        content: attr(data-label);
+        color: #0d3b66;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-align: left;
+        text-transform: uppercase;
+      }
+      .summary-card, .disclaimer-box { padding: 14px; font-size: 13px; }
+      .report-footer { align-items: flex-start; padding: 14px 18px; }
     }
 
     @media print {
@@ -264,12 +308,12 @@
           {% for medium in media_names %}
           {% set r = per_media_results[medium] %}
           <tr>
-            <td>{{ medium }}</td>
-            <td class="num">{{ "%.2f"|format(r.f2_value) }}</td>
-            <td class="num">{{ "%.2f"|format(r.f1_value) }}</td>
-            <td class="num">{{ r.n_timepoints }}</td>
-            <td>f2 &ge; 50</td>
-            <td>
+            <td data-label="Medium">{{ medium }}</td>
+            <td class="num" data-label="f2">{{ "%.2f"|format(r.f2_value) }}</td>
+            <td class="num" data-label="f1">{{ "%.2f"|format(r.f1_value) }}</td>
+            <td class="num" data-label="Timepoints">{{ r.n_timepoints }}</td>
+            <td data-label="Criterion">f2 &ge; 50</td>
+            <td data-label="Status">
               {% if r.f2_value >= 50 %}
               <span class="badge badge-pass">PASS</span>
               {% else %}
@@ -314,10 +358,10 @@
         </thead>
         <tbody>
           <tr>
-            <td>f1 (Difference Factor)</td>
-            <td class="num">{{ "%.2f"|format(r.f1_value) }}</td>
-            <td>0 &ndash; 15</td>
-            <td>
+            <td data-label="Parameter">f1 (Difference Factor)</td>
+            <td class="num" data-label="Value">{{ "%.2f"|format(r.f1_value) }}</td>
+            <td data-label="Criterion">0 &ndash; 15</td>
+            <td data-label="Status">
               {% if r.f1_value <= 15 %}
               <span class="badge badge-pass">PASS</span>
               {% else %}
@@ -326,10 +370,10 @@
             </td>
           </tr>
           <tr>
-            <td>f2 (Similarity Factor)</td>
-            <td class="num">{{ "%.2f"|format(r.f2_value) }}</td>
-            <td>&ge; 50</td>
-            <td>
+            <td data-label="Parameter">f2 (Similarity Factor)</td>
+            <td class="num" data-label="Value">{{ "%.2f"|format(r.f2_value) }}</td>
+            <td data-label="Criterion">&ge; 50</td>
+            <td data-label="Status">
               {% if r.f2_value >= 50 %}
               <span class="badge badge-pass">PASS</span>
               {% else %}
@@ -353,10 +397,10 @@
         <tbody>
           {% for t, ref, tst in zip(r.time_points, r.reference_mean, r.test_mean) %}
           <tr>
-            <td>{{ t }}</td>
-            <td class="num">{{ "%.2f"|format(ref) }}</td>
-            <td class="num">{{ "%.2f"|format(tst) }}</td>
-            <td class="num">{{ "%.2f"|format(tst - ref) }}</td>
+            <td data-label="Time (min)">{{ t }}</td>
+            <td class="num" data-label="{{ reference_label }} Mean (%)">{{ "%.2f"|format(ref) }}</td>
+            <td class="num" data-label="{{ test_label }} Mean (%)">{{ "%.2f"|format(tst) }}</td>
+            <td class="num" data-label="Difference (%)">{{ "%.2f"|format(tst - ref) }}</td>
           </tr>
           {% endfor %}
         </tbody>
