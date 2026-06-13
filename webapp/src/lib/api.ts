@@ -50,6 +50,91 @@ async function assertReportOk(res: Response) {
   throw new Error(`Report failed: ${errorMessageFromResponse(res, body, text)}`)
 }
 
+async function reportBlobForDownload(res: Response, format: string): Promise<Blob> {
+  if (format !== 'html') return res.blob()
+  const html = await res.text()
+  return new Blob([makeHtmlReportMobileFriendly(html)], { type: 'text/html;charset=utf-8' })
+}
+
+function makeHtmlReportMobileFriendly(html: string): string {
+  if (html.includes('data-openpkflow-mobile-download="true"')) return html
+
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  if (!doc.querySelector('meta[name="viewport"]')) {
+    const meta = doc.createElement('meta')
+    meta.setAttribute('name', 'viewport')
+    meta.setAttribute('content', 'width=device-width, initial-scale=1.0')
+    doc.head.prepend(meta)
+  }
+  doc.querySelectorAll('table').forEach((table) => {
+    const headers = Array.from(table.querySelectorAll('thead th')).map((th) =>
+      (th.textContent ?? '').replace(/\s+/g, ' ').trim(),
+    )
+    if (headers.length === 0) return
+    table.querySelectorAll('tbody tr').forEach((row) => {
+      Array.from(row.querySelectorAll('td')).forEach((cell, index) => {
+        if (!cell.hasAttribute('data-label')) {
+          cell.setAttribute('data-label', headers[index] ?? 'Value')
+        }
+      })
+    })
+  })
+
+  const style = doc.createElement('style')
+  style.setAttribute('data-openpkflow-mobile-download', 'true')
+  style.textContent = `
+@media (max-width: 640px) {
+  body { margin: 0 !important; background: #ffffff !important; font-size: 13px !important; }
+  .page { width: 100% !important; max-width: none !important; margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  .report-header { padding: 22px 18px 20px !important; }
+  .report-header .org-label { font-size: 10px !important; letter-spacing: .09em !important; overflow-wrap: anywhere !important; }
+  .report-header h1 { font-size: 20px !important; overflow-wrap: anywhere !important; }
+  .meta-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .content { padding: 28px 18px !important; }
+  h2 { font-size: 12px !important; letter-spacing: .06em !important; overflow-wrap: anywhere !important; }
+  table, thead, tbody, th, td, tr { display: block !important; }
+  thead { display: none !important; }
+  tbody tr {
+    background: #ffffff !important;
+    border: 1px solid #dce7f4 !important;
+    border-radius: 6px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden !important;
+  }
+  tbody tr:nth-child(even) { background: #ffffff !important; }
+  tbody td {
+    display: grid !important;
+    grid-template-columns: minmax(112px, 45%) 1fr !important;
+    gap: 12px !important;
+    align-items: baseline !important;
+    padding: 9px 12px !important;
+    text-align: right !important;
+    overflow-wrap: anywhere !important;
+  }
+  tbody td::before {
+    content: attr(data-label) !important;
+    color: #0d3b66 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .05em !important;
+    text-align: left !important;
+    text-transform: uppercase !important;
+  }
+  .report-footer, .footer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 6px 18px !important;
+    padding: 14px 18px !important;
+    overflow-wrap: anywhere !important;
+    text-align: left !important;
+  }
+  img, svg, canvas { max-width: 100% !important; height: auto !important; }
+}`
+  doc.head.appendChild(style)
+  return `<!doctype html>\n${doc.documentElement.outerHTML}`
+}
+
 // ---------- Health ----------
 export async function fetchHealth(): Promise<HealthResponse> {
   return _json(await fetch(`${BASE}/health`))
@@ -74,7 +159,7 @@ export async function downloadNcaReport(file: File, options: object, format: str
   fd.append('format', format)
   const res = await fetch(`${BASE}/api/nca/report`, { method: 'POST', body: fd })
   await assertReportOk(res)
-  const blob = await res.blob()
+  const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `nca_report.${ext}`)
 }
@@ -116,7 +201,7 @@ export async function downloadDissolutionReport(
   fd.append('format', format)
   const res = await fetch(`${BASE}/api/dissolution/report`, { method: 'POST', body: fd })
   await assertReportOk(res)
-  const blob = await res.blob()
+  const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `dissolution_report.${ext}`)
 }
@@ -140,7 +225,7 @@ export async function downloadSimReport(req: object, format: string): Promise<vo
     body: JSON.stringify(req),
   })
   await assertReportOk(res)
-  const blob = await res.blob()
+  const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `sim_report.${ext}`)
 }
@@ -164,7 +249,7 @@ export async function downloadIvIvcReport(req: object, format: string): Promise<
     body: JSON.stringify(req),
   })
   await assertReportOk(res)
-  const blob = await res.blob()
+  const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `ivivc_report.${ext}`)
 }
@@ -184,7 +269,7 @@ export async function downloadBeReport(file: File, options: object, format: stri
   fd.append('format', format)
   const res = await fetch(`${BASE}/api/be/report`, { method: 'POST', body: fd })
   await assertReportOk(res)
-  const blob = await res.blob()
+  const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `be_report.${ext}`)
 }
