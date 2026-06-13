@@ -4,7 +4,7 @@
   <img src="docs/logo.png" alt="OpenPKFlow" width="420"/>
 </p>
 
-**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting — with full theory derivations, cross-validated formulas, and regulatory-ready documentation.**
+**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. Every formula is cross-validated against published references and the output is regulatory-ready.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/priyamthakar/openpkflow/branch/main/graph/badge.svg)](https://codecov.io/gh/priyamthakar/openpkflow)
@@ -21,13 +21,13 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; sparse NCA from 3-5 samples
-- **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) + full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
+- **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) plus full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
 - **Bioequivalence:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; research-grade replicate-design screening with CVwR and scaled-limit summaries
 - **Report generation:** Markdown, HTML, PDF, Word
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
 - **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
-- **Theory guide:** Full LaTeX formula derivations for every module -- NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK -- for regulatory review support and teaching
+- **Theory guide:** Full LaTeX formula derivations for every module (NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK) for regulatory review support and teaching
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
@@ -135,7 +135,7 @@ subject,time,conc,dose,route
 ```
 
 Required columns: `subject`, `time`, `conc`, `dose`, `route`.
-Dose units must match concentration × time (mg when conc is mg/L and time is h).
+Dose units must match concentration x time (mg when conc is mg/L and time is h).
 Route values: `"oral"`, `"iv_bolus"`, `"iv_infusion"`.
 
 Oral route yields apparent clearance and volume: `CL_F`, `Vz_F`.
@@ -324,7 +324,7 @@ vpc.report("vpc_report.html")
 | PK simulation (1/2-cmt, oral/IV) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
 | Population PK diagnostics (GOF, VPC) | :white_check_mark: | :x: | :x: | :white_check_mark: |
 | Multi-format reports (HTML, PDF, DOCX) | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| Open-source & free | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
+| Open-source and free | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
 | Python-native API | :white_check_mark: | :x: | :x: | :white_check_mark: |
 | Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | IVIVC (Level A) | :white_check_mark: (v1.2.0) | :x: | :white_check_mark: | :x: |
@@ -420,11 +420,12 @@ Final regulatory interpretation should be reviewed by qualified formulation, pha
 
 ## Documentation
 
-- **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)** -- Full LaTeX formula derivations for every module: NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK. Designed for regulatory review support and teaching.
-- **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)** -- WinNonlin / NONMEM / R user? Quick-reference mapping for every parameter and function.
-- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** -- Step-by-step worked examples for all 7 modules.
-- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/reference/validation/)** -- Every test mapped to its FDA/EMA/ICH guidance section or published DOI.
-- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** -- Full function and class reference for all 9 modules.
+- **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)** - Full LaTeX formula derivations for every module: NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK. Designed for regulatory review support and teaching.
+- **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)** - Coming from WinNonlin, NONMEM, or R? Quick-reference mapping for every parameter and function.
+- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** - Step-by-step worked examples for all 7 modules.
+- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/reference/validation/)** - Every test mapped to its FDA/EMA/ICH guidance section or published DOI.
+- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** - Full function and class reference for all 9 modules.
+
 ---
 
 ## Contributing
@@ -444,4 +445,4 @@ https://github.com/priyamthakar/openpkflow
 
 ## License
 
-MIT · see [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
