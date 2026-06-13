@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Activity, Info, LineChart, Scale, Waves, FlaskConical } from 'lucide-react'
+import { Activity, Info, LineChart, Mail, Scale, Waves, FlaskConical } from 'lucide-react'
 import { useOutletContext } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
 
@@ -77,6 +77,22 @@ export default function Home() {
                 Not a regulatory tool. Results must be reviewed by qualified experts before any
                 regulatory use.
               </span>
+            </div>
+            <div className="mt-5 border border-border bg-surface p-4 max-w-2xl">
+              <p className="font-mono-ui text-[11px] uppercase tracking-[0.14em] text-text-dim">
+                Built by
+              </p>
+              <h3 className="mt-1 text-xl font-semibold text-text">Priyam Thakar</h3>
+              <p className="mt-1 text-sm leading-relaxed text-text-muted">
+                Computational drug delivery specialist and PhD Scholar, Nirma University.
+              </p>
+              <a
+                href="mailto:priyamthakar1@gmail.com"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent no-underline hover:text-accent-hover"
+              >
+                <Mail size={15} aria-hidden="true" />
+                priyamthakar1@gmail.com
+              </a>
             </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale } from 'lucide-react'
+import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -74,8 +74,21 @@ export function Sidebar({
         ))}
       </nav>
 
-      <div className="font-mono-ui mt-auto px-4 py-3 text-xs text-text-dim border-t border-border">
-        v2.5.0 / MIT
+      <div className="mt-auto border-t border-border px-4 py-3">
+        <p className="font-mono-ui text-[10px] uppercase tracking-[0.12em] text-text-dim">
+          Priyam Thakar
+        </p>
+        <p className="mt-1 text-[11px] leading-snug text-text-dim">
+          Computational drug delivery specialist
+        </p>
+        <a
+          href="mailto:priyamthakar1@gmail.com"
+          className="mt-2 flex items-center gap-1.5 text-[11px] text-accent no-underline hover:text-accent-hover"
+        >
+          <Mail size={12} aria-hidden="true" />
+          Contact
+        </a>
+        <p className="font-mono-ui mt-3 text-xs text-text-dim">v2.5.0 / MIT</p>
       </div>
     </aside>
   )
