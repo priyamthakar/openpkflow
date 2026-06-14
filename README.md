@@ -1,7 +1,7 @@
 # OpenPKFlow
 
 <p align="center">
-  <img src="docs/logo.png" alt="OpenPKFlow" width="420"/>
+  <img src="docs/logo.png" alt="OpenPKFlow" width="640"/>
 </p>
 
 **A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. Every formula is cross-validated against published references and the output is regulatory-ready.**
