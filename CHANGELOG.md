@@ -11,6 +11,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.5.0] - 2026-06-12
+
+### Added
+
+- Student-friendly interface (`openpkflow.student`) with three one-call
+  functions: `analyze_pk()` for NCA, `fit_dissolution()` for dissolution
+  model fitting + f1/f2 comparison, and `fit_pk_model()` for 1/2-compartment
+  PK curve fitting.
+- `student/sim.py` compartmental equations delegate to validated
+  `sim/methods.py` functions (c_1cmt_oral, c_1cmt_iv_bolus, c_2cmt_oral) --
+  no duplicate math.
+- Hixson-Crowell model added to dissolution `_REGISTRY` (now 6 default
+  models: zero_order, first_order, higuchi, korsmeyer_peppas, weibull,
+  hixson_crowell).
+- External validation of NCA engine against WinNonlin(r) (Kim et al. 2018,
+  PMC6989226, Table 3): all 8 parameters within 0.02% for Theoph Subject 8
+  (Cmax, Tmax, lambda_z, t1/2, AUClast, AUCinf, CL/F, Vz/F).
+
+### Fixed
+
+- Mandated disclaimer text (CLAUDE.md rule 7) applied to all student module
+  report summaries.
+- `test_all_default_models_fit` updated to expect 6 default models.
+
+---
+
 ## [2.4.0] — 2026-05-30
 
 ### Added

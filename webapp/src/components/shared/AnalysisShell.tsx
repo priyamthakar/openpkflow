@@ -49,12 +49,12 @@ export function AnalysisShell({ children, left, right, leftWide, resultKey }: Pr
   return (
     <div
       ref={rootRef}
-      className="flex-1 overflow-hidden p-5 md:p-6"
+      className="flex-1 overflow-x-auto overflow-y-auto p-4 sm:p-5 md:overflow-x-hidden md:overflow-hidden md:p-6"
       style={{ cursor: dragging ? 'col-resize' : undefined }}
     >
-      <div className="flex h-full min-h-0 flex-col gap-5 md:flex-row">
+      <div className="flex min-h-full flex-col gap-5 md:h-full md:min-h-0 md:flex-row">
         <aside
-          className="min-h-0 shrink-0 overflow-y-auto pr-0 md:pr-1"
+          className="w-full shrink-0 pr-0 md:min-h-0 md:w-auto md:overflow-y-auto md:pr-1"
           style={{ width: `min(100%, ${resolvedLeftWidth}px)` }}
         >
           {leftPanel}
@@ -72,7 +72,7 @@ export function AnalysisShell({ children, left, right, leftWide, resultKey }: Pr
           <GripVertical size={14} />
         </button>
 
-        <main ref={resultRef} className="min-h-0 min-w-0 flex-1 overflow-y-auto pl-0 md:pl-1">
+        <main ref={resultRef} className="min-w-0 flex-1 pl-0 md:min-h-0 md:overflow-y-auto md:pl-1">
           {rightPanel}
         </main>
       </div>

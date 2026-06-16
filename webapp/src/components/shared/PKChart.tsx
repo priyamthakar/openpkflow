@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer, ReferenceLine, Brush,
+  Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import { cn } from '@/lib/utils'
 
@@ -79,7 +79,7 @@ export function PKChart({
       )}
 
       <ResponsiveContainer width="100%" height={320}>
-        <LineChart data={data} margin={{ top: 4, right: 20, bottom: 4, left: 0 }}>
+        <LineChart data={data} margin={{ top: 4, right: 20, bottom: 4, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.6} />
           <XAxis
             dataKey="time"
@@ -158,7 +158,6 @@ export function PKChart({
             <ReferenceLine key={`lz-${i}`} x={t} stroke="var(--accent)" strokeOpacity={0.5} strokeDasharray="2 2" />
           ))}
 
-          <Brush dataKey="time" height={24} stroke="var(--accent)" fill="var(--surface-2)" />
         </LineChart>
       </ResponsiveContainer>
     </div>

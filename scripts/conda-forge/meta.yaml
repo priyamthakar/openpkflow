@@ -1,5 +1,5 @@
 {% set name = "openpkflow" %}
-{% set version = "2.3.0" %}
+{% set version = "2.5.0" %}
 {% set python_min = "3.10" %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 61738e82aaae0452c5276b1cd585eb3b04798c73bed94e158495191cd01f20fa
+  sha256: 47cb91ba8b549af115eddccf781463b41cb26fa20e3ac922f4901c1a4ac3adf9
 
 build:
   number: 0
@@ -42,6 +42,7 @@ test:
     - openpkflow.ivivc
     - openpkflow.report
     - openpkflow.validation
+    - openpkflow.student
   commands:
     - pip check
     - openpkflow version

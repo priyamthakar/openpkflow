@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Download, ChevronDown, Globe, FileText, FileType, FileCode, Eye, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +24,17 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
   const [error, setError] = useState('')
   const primaryFormat = FORMATS[0]?.value ?? 'html'
 
+  useEffect(() => {
+    if (!open && !previewOpen) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      setPreviewOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, previewOpen])
+
   async function handle(fmt: string) {
     setOpen(false)
     setLoading(true)
@@ -40,11 +52,14 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
   }
 
   return (
-    <div className="relative inline-flex flex-col items-start gap-2">
-      <div className="flex flex-wrap items-stretch gap-2">
+    <div className="relative flex w-full flex-col items-stretch gap-2 sm:inline-flex sm:w-auto sm:items-start">
+      <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row">
         <button
           type="button"
-          onClick={() => setPreviewOpen(true)}
+          onClick={() => {
+            setOpen(false)
+            setPreviewOpen(true)
+          }}
           className={cn(
             'flex items-center gap-2 rounded-sm border border-border-2 px-4 py-2',
             'bg-surface text-text text-sm font-semibold hover:border-accent transition-colors',
@@ -53,12 +68,12 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
           <Eye size={15} />
           Preview report
         </button>
-        <div className="flex items-stretch rounded-sm overflow-hidden border border-border-2">
+        <div className="flex w-full items-stretch overflow-hidden rounded-sm border border-border-2 sm:w-auto">
         <button
           onClick={() => handle(primaryFormat)}
           disabled={loading}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 bg-surface-2 text-text text-sm font-semibold',
+            'flex flex-1 items-center justify-center gap-2 px-4 py-2 bg-surface-2 text-text text-sm font-semibold sm:flex-none',
             'border-0 cursor-pointer transition-colors hover:bg-surface',
             loading && 'opacity-60 cursor-not-allowed',
           )}
@@ -81,7 +96,7 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-full right-0 mt-1.5 bg-surface border border-border rounded-sm min-w-[190px] z-50 shadow-lg overflow-hidden animate-fade-in">
+          <div className="absolute left-0 top-full z-50 mt-1.5 w-full min-w-[190px] animate-fade-in overflow-hidden rounded-sm border border-border bg-surface shadow-lg sm:left-auto sm:right-0 sm:w-auto">
             {FORMATS.map((f) => {
               const Icon = f.icon
               return (
@@ -105,9 +120,12 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
         </>
       )}
 
-      {previewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
-          <div className="w-full max-w-2xl rounded-sm border border-border bg-surface shadow-2xl animate-fade-in">
+      {previewOpen && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-2 sm:p-4">
+          <div
+            className="relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-sm border border-border shadow-2xl"
+            style={{ backgroundColor: 'var(--surface)' }}
+          >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
                 <h3 className="text-sm font-semibold text-text">Report preview</h3>
@@ -125,8 +143,8 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
               </button>
             </div>
 
-            <div className="grid gap-4 p-4 md:grid-cols-[1fr_220px]">
-              <div className="min-h-[260px] border border-border bg-bg p-4">
+            <div className="grid gap-4 p-3 sm:p-4 md:grid-cols-[1fr_220px]">
+              <div className="hidden min-h-[260px] border border-border bg-bg p-4 sm:block">
                 <div className="mb-4 h-5 w-40 bg-surface-2" />
                 <div className="space-y-2">
                   <div className="h-3 w-full bg-surface-2" />
@@ -146,6 +164,9 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
               </div>
 
               <div className="space-y-2">
+                <p className="mb-3 text-sm leading-relaxed text-text-muted sm:hidden">
+                  Choose a report format for the current analysis results.
+                </p>
                 {FORMATS.map((f) => {
                   const Icon = f.icon
                   return (
@@ -168,7 +189,8 @@ export function DownloadReportButton({ onDownload, formats }: Props) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

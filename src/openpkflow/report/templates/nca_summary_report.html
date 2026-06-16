@@ -162,13 +162,58 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 18px;
       font-size: 11px;
       color: #8a95a3;
     }
 
+    .report-footer span { min-width: 0; overflow-wrap: anywhere; }
+
     .report-footer a {
       color: #1a78c2;
       text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      body { background: #ffffff; font-size: 13px; }
+      .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+      .report-header { padding: 22px 18px 20px; }
+      .report-header .org-label { font-size: 10px; letter-spacing: .09em; }
+      .report-header h1 { font-size: 20px; }
+      .meta-grid { grid-template-columns: 1fr; gap: 8px; }
+      .content { padding: 28px 18px; }
+      h2 { font-size: 12px; letter-spacing: .06em; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tbody tr {
+        background: #ffffff;
+        border: 1px solid #dce7f4;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+      tbody tr:nth-child(even) { background: #ffffff; }
+      tbody td {
+        display: grid;
+        grid-template-columns: minmax(112px, 45%) 1fr;
+        gap: 12px;
+        align-items: baseline;
+        padding: 9px 12px;
+        text-align: right;
+      }
+      tbody td::before {
+        content: attr(data-label);
+        color: #0d3b66;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-align: left;
+        text-transform: uppercase;
+      }
+      .subject-col { text-align: right; }
+      .disclaimer-box { padding: 14px; font-size: 13px; }
+      .report-footer { align-items: flex-start; padding: 14px 18px; }
     }
 
     /* Print styles */
@@ -241,22 +286,22 @@
         <tbody>
           {% for row in rows %}
           <tr>
-            <td class="subject-col">
+            <td class="subject-col" data-label="Subject">
               {{ row.result.subject }}
               {% if row.result.warnings %}
               <span class="warn-indicator">WARN</span>
               {% endif %}
             </td>
-            <td class="num">{{ fmt(row.result.AUClast) }}</td>
-            <td class="num">{{ fmt(row.result.AUCinf_obs) }}</td>
-            <td class="num">{{ fmt(row.result.AUC_percent_extrapolated) }}</td>
-            <td class="num">{{ fmt(row.result.Cmax) }}</td>
-            <td class="num">{{ fmt(row.result.Tmax) }}</td>
-            <td class="num">{{ fmt(row.result.half_life) }}</td>
-            <td class="num">{{ row.cl_value }}</td>
-            <td class="num">{{ row.vz_value }}</td>
-            <td class="num">{{ fmt(row.result.DN_AUClast) }}</td>
-            <td class="num">{{ fmt(row.result.DN_Cmax) }}</td>
+            <td class="num" data-label="AUClast">{{ fmt(row.result.AUClast) }}</td>
+            <td class="num" data-label="AUCinf_obs">{{ fmt(row.result.AUCinf_obs) }}</td>
+            <td class="num" data-label="AUC% Extr.">{{ fmt(row.result.AUC_percent_extrapolated) }}</td>
+            <td class="num" data-label="Cmax">{{ fmt(row.result.Cmax) }}</td>
+            <td class="num" data-label="Tmax">{{ fmt(row.result.Tmax) }}</td>
+            <td class="num" data-label="half_life">{{ fmt(row.result.half_life) }}</td>
+            <td class="num" data-label="CL / CL_F">{{ row.cl_value }}</td>
+            <td class="num" data-label="Vz / Vz_F">{{ row.vz_value }}</td>
+            <td class="num" data-label="DN_AUClast">{{ fmt(row.result.DN_AUClast) }}</td>
+            <td class="num" data-label="DN_Cmax">{{ fmt(row.result.DN_Cmax) }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -279,8 +324,8 @@
           {% for row in rows %}
           {% for w in row.result.warnings %}
           <tr>
-            <td class="subject-col">{{ row.result.subject }}</td>
-            <td>{{ w }}</td>
+            <td class="subject-col" data-label="Subject">{{ row.result.subject }}</td>
+            <td data-label="Warning">{{ w }}</td>
           </tr>
           {% endfor %}
           {% endfor %}

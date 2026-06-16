@@ -18,7 +18,7 @@ export function MetricCard({ label, value, unit, highlight, loading, className }
   return (
     <div
       className={cn(
-        'rounded-sm border p-4 min-w-[130px] transition-all animate-fade-in',
+        'flex-1 basis-[130px] rounded-sm border p-4 min-w-[130px] transition-all animate-fade-in',
         highlight
           ? 'border-accent/30 bg-accent-muted/50 border-l-[3px] border-l-accent'
           : 'border-border bg-surface hover:border-border-2',

@@ -452,3 +452,160 @@ def pop_saem(
             typer.echo(f"\nReport written to: {report}")
         except Exception as exc:  # noqa: BLE001
             typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+
+# ---------------------------------------------------------------------------
+# Student-friendly CLI commands
+# ---------------------------------------------------------------------------
+
+student_app = typer.Typer(help="Student-friendly one-liner commands.")
+app.add_typer(student_app, name="student")
+
+
+@student_app.command("dissolution")
+def student_dissolution(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to dissolution CSV (columns: formulation, time, percent_released).",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    reference: str | None = typer.Option(
+        None,
+        "--reference",
+        "-r",
+        help="Reference formulation label (auto-detected if 2 formulations).",
+    ),
+    test: str | None = typer.Option(None, "--test", "-t", help="Test formulation label."),
+    plot: Path | None = typer.Option(
+        None, "--plot", "-p", help="Save plot to this path (PNG/SVG/PDF)."
+    ),
+) -> None:
+    """Fit dissolution release models and compare profiles. One command, full analysis.
+
+    Example
+    -------
+    openpkflow student dissolution dissolution_data.csv
+    openpkflow student dissolution data.csv --reference Innovator --test Generic --plot out.png
+    """
+    from openpkflow.student import fit_dissolution
+
+    try:
+        result = fit_dissolution(csv_path, reference=reference, test=test)
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if plot is not None:
+        result.plot(output_path=plot)
+        typer.echo(f"\nPlot saved to: {plot}")
+
+
+@student_app.command("nca")
+def student_nca(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Path to PK CSV (columns: subject, time, conc[, dose, route]).",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    auc_method: str = typer.Option(
+        "linear_up_log_down", "--auc-method", help="AUC method: linear, log, or linear_up_log_down."
+    ),
+    plot: Path | None = typer.Option(
+        None, "--plot", "-p", help="Save concentration-time plot to this path."
+    ),
+    csv_out: Path | None = typer.Option(None, "--csv-out", "-o", help="Export NCA results to CSV."),
+) -> None:
+    """Run non-compartmental analysis on PK data. One command, full NCA.
+
+    Example
+    -------
+    openpkflow student nca pk_data.csv
+    openpkflow student nca theoph.csv --plot profiles.png --csv-out nca_results.csv
+    """
+    from openpkflow.student import analyze_pk
+
+    try:
+        result = analyze_pk(csv_path, auc_method=auc_method)
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if plot is not None:
+        result.plot(output_path=plot)
+        typer.echo(f"\nPlot saved to: {plot}")
+
+    if csv_out is not None:
+        df = result.to_dataframe()
+        if not df.empty:
+            df.to_csv(csv_out, index=False)
+            typer.echo(f"\nNCA results exported to: {csv_out}")
+
+
+@student_app.command("pk-fit")
+def student_pk_fit(
+    csv_path: Path = typer.Option(None, "--csv", help="Path to CSV with time and conc columns."),
+    time_str: str = typer.Option(
+        None, "--time", help="Comma-separated time points (alternative to CSV)."
+    ),
+    conc_str: str = typer.Option(
+        None, "--conc", help="Comma-separated concentrations (alternative to CSV)."
+    ),
+    dose: float = typer.Option(..., "--dose", "-d", help="Dose amount."),
+    route: str = typer.Option("oral", "--route", help="Route: oral or iv_bolus."),
+    model: str = typer.Option(
+        "1-compartment", "--model", help="Model: 1-compartment or 2-compartment."
+    ),
+    plot: Path | None = typer.Option(None, "--plot", "-p", help="Save fit plot to this path."),
+) -> None:
+    """Fit a PK model to concentration-time data.
+
+    Example (inline data):
+    -------
+    openpkflow student pk-fit --time "0.5,1,2,4,8,12" --conc "1,3,5,4,2,1" --dose 100
+
+    Example (CSV):
+    -------
+    openpkflow student pk-fit --csv pk_data.csv --dose 100 --route oral --model 1-compartment
+    """
+    from openpkflow.student import fit_pk_model
+
+    try:
+        if csv_path is not None:
+            import pandas as pd
+
+            df = pd.read_csv(csv_path)
+            col_map = {c.lower().strip(): c for c in df.columns}
+            t_col = col_map.get("time") or col_map.get("t")
+            c_col = col_map.get("conc") or col_map.get("concentration") or col_map.get("dv")
+            if t_col is None or c_col is None:
+                typer.echo("Error: CSV must have 'time' and 'conc' columns.", err=True)
+                raise typer.Exit(1)
+            times = df[t_col].tolist()
+            concs = df[c_col].tolist()
+        elif time_str is not None and conc_str is not None:
+            times = [float(v.strip()) for v in time_str.split(",")]
+            concs = [float(v.strip()) for v in conc_str.split(",")]
+        else:
+            typer.echo("Error: provide either --csv or both --time and --conc.", err=True)
+            raise typer.Exit(1)
+
+        result = fit_pk_model(times, concs, dose=dose, route=route, model=model)
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if plot is not None:
+        result.plot(output_path=plot)
+        typer.echo(f"\nPlot saved to: {plot}")

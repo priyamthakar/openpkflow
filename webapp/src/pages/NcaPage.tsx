@@ -421,8 +421,32 @@ function ResultTable({
   const shown = KEY_COLS.filter((c) => columns.includes(c))
   if (shown.length === 0) return null
   return (
-    <div className="overflow-x-auto rounded-sm border border-border">
-      <table className="w-full border-collapse text-sm">
+    <div className="rounded-sm border border-border">
+      <div className="divide-y divide-border sm:hidden">
+        {rows.map((row, i) => (
+          <div key={i} className="p-3">
+            <div className="mb-2 font-mono-ui text-xs font-semibold text-text-muted">
+              Subject {formatTableValue(row.subject)}
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              {shown
+                .filter((c) => c !== 'subject')
+                .map((c) => (
+                  <div key={c} className="min-w-0">
+                    <div className="text-[11px] font-semibold uppercase text-text-muted">
+                      {c}
+                    </div>
+                    <div className="truncate text-sm font-semibold text-text tabular-nums">
+                      {formatTableValue(row[c])}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto sm:block">
+        <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
             {shown.map((c) => (
@@ -449,7 +473,8 @@ function ResultTable({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   )
 }

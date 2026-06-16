@@ -34,32 +34,40 @@ const IV_UIR_COLUMNS: PasteDataColumn[] = [
 ]
 
 const EXAMPLE_IN_VIVO_ROWS: PasteDataRow[] = [
-  { time: 0, conc: 0 },
-  { time: 1, conc: 0.5 },
-  { time: 2, conc: 1.2 },
-  { time: 4, conc: 2.1 },
-  { time: 8, conc: 1.8 },
-  { time: 12, conc: 1.1 },
+  { time: 0.5, conc: 1.5 },
+  { time: 1, conc: 3.2 },
+  { time: 1.5, conc: 4.8 },
+  { time: 2, conc: 6.0 },
+  { time: 3, conc: 7.0 },
+  { time: 4, conc: 7.0 },
+  { time: 6, conc: 5.5 },
+  { time: 8, conc: 3.8 },
+  { time: 12, conc: 2.0 },
+  { time: 18, conc: 0.8 },
   { time: 24, conc: 0.3 },
 ]
 
 const EXAMPLE_DISSOLUTION_ROWS: PasteDataRow[] = [
-  { time: 0, pct_dissolved: 0 },
-  { time: 15, pct_dissolved: 20 },
-  { time: 30, pct_dissolved: 45 },
-  { time: 60, pct_dissolved: 70 },
-  { time: 120, pct_dissolved: 88 },
-  { time: 240, pct_dissolved: 98 },
+  { time: 5, pct_dissolved: 5 },
+  { time: 10, pct_dissolved: 15 },
+  { time: 20, pct_dissolved: 35 },
+  { time: 30, pct_dissolved: 55 },
+  { time: 45, pct_dissolved: 75 },
+  { time: 60, pct_dissolved: 88 },
+  { time: 90, pct_dissolved: 97 },
+  { time: 120, pct_dissolved: 100 },
 ]
 
 const EXAMPLE_IV_UIR_ROWS: PasteDataRow[] = [
-  { time: 0, conc: 0 },
-  { time: 0.25, conc: 10 },
-  { time: 0.5, conc: 8 },
-  { time: 1, conc: 6 },
-  { time: 2, conc: 4 },
-  { time: 4, conc: 2 },
-  { time: 8, conc: 0.5 },
+  { time: 0.25, conc: 10.0 },
+  { time: 0.5, conc: 8.5 },
+  { time: 1, conc: 6.5 },
+  { time: 2, conc: 4.5 },
+  { time: 3, conc: 3.2 },
+  { time: 4, conc: 2.2 },
+  { time: 6, conc: 1.0 },
+  { time: 8, conc: 0.45 },
+  { time: 12, conc: 0.1 },
 ]
 
 function rowsToNumberArrays(rows: PasteDataRow[], timeKey: string, valueKey: string) {
@@ -80,7 +88,7 @@ export default function IvIvcPage() {
   const [dissolutionRows, setDissolutionRows] = useState<PasteDataRow[]>(EXAMPLE_DISSOLUTION_ROWS)
   const [ivUirRows, setIvUirRows] = useState<PasteDataRow[]>(EXAMPLE_IV_UIR_ROWS)
   const [method, setMethod] = useState<IvIvcMethod>('wagner_nelson')
-  const [kel, setKel] = useState<string>('')
+  const [kel, setKel] = useState<string>('0.12')
   const [k12, setK12] = useState<string>('')
   const [k21, setK21] = useState<string>('')
   const [studyLabel, setStudyLabel] = useState<string>('')

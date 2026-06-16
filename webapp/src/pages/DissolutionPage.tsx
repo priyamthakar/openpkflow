@@ -91,6 +91,12 @@ export default function DissolutionPage() {
   const gridFile = useMemo(() => rowsToCsvFile(GRID_COLUMNS, gridRows, 'dissolution_pasted_data.csv'), [gridRows])
   const activeFile = inputMode === 'paste' ? gridFile : file
   const columns = useMemo(() => (inputMode === 'paste' ? PASTE_MAPPING : columnMapping), [inputMode, columnMapping])
+  const pastedFormulations = useMemo(() => {
+    const labels = gridRows
+      .map((row) => String(row.formulation ?? '').trim())
+      .filter(Boolean)
+    return Array.from(new Set(labels))
+  }, [gridRows])
 
   const onFile = useCallback((f: File) => {
     setFile(f)
@@ -110,7 +116,8 @@ export default function DissolutionPage() {
   }, [])
 
   useEffect(() => {
-    if (!activeFile || (inputMode === 'upload' && headers.length === 0) || Object.keys(columns).length === 0) return
+    if (inputMode === 'paste') return
+    if (!activeFile || headers.length === 0 || Object.keys(columns).length === 0) return
     let ignore = false
     fetchFormulations(activeFile, columns)
       .then((data) => {
@@ -128,10 +135,34 @@ export default function DissolutionPage() {
     }
   }, [activeFile, headers.length, inputMode, columns])
 
-  const compareMutation = useMutation<CompareResponse, Error>({
-    mutationFn: () => compareFormulations(activeFile!, reference, test, columns),
+  const compareMutation = useMutation<
+    CompareResponse,
+    Error,
+    { file: File; reference: string; test: string; columns: Record<string, string> }
+  >({
+    mutationFn: (payload) => (
+      compareFormulations(payload.file, payload.reference, payload.test, payload.columns)
+    ),
     onSuccess: setResult,
   })
+
+  const selectableFormulations = inputMode === 'paste' ? pastedFormulations : formulations
+  const selectedReference = selectableFormulations.includes(reference)
+    ? reference
+    : (selectableFormulations[0] ?? '')
+  const selectedTest = selectableFormulations.includes(test)
+    ? test
+    : (selectableFormulations[1] ?? selectableFormulations[0] ?? '')
+
+  const runCompare = () => {
+    if (!activeFile || !selectedReference || !selectedTest) return
+    compareMutation.mutate({
+      file: activeFile,
+      reference: selectedReference,
+      test: selectedTest,
+      columns,
+    })
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -203,7 +234,7 @@ export default function DissolutionPage() {
               </section>
             )}
 
-            {formulations.length > 0 && (
+            {selectableFormulations.length > 0 && (
               <section>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
                   {inputMode === 'upload' && headers.length > 0 ? '3.' : '2.'} Select Formulations
@@ -211,16 +242,16 @@ export default function DissolutionPage() {
                 <div className="space-y-2.5">
                   <div className="flex justify-between items-center gap-3">
                     <span className="text-sm font-semibold text-text shrink-0">Reference</span>
-                    <UiSelect value={reference} onChange={(e) => setReference(e.target.value)} className="min-w-[150px]">
-                      {formulations.map((f) => (
+                    <UiSelect value={selectedReference} onChange={(e) => setReference(e.target.value)} className="min-w-[150px]">
+                      {selectableFormulations.map((f) => (
                         <option key={f} value={f}>{f}</option>
                       ))}
                     </UiSelect>
                   </div>
                   <div className="flex justify-between items-center gap-3">
                     <span className="text-sm font-semibold text-text shrink-0">Test</span>
-                    <UiSelect value={test} onChange={(e) => setTest(e.target.value)} className="min-w-[150px]">
-                      {formulations.map((f) => (
+                    <UiSelect value={selectedTest} onChange={(e) => setTest(e.target.value)} className="min-w-[150px]">
+                      {selectableFormulations.map((f) => (
                         <option key={f} value={f}>{f}</option>
                       ))}
                     </UiSelect>
@@ -230,12 +261,12 @@ export default function DissolutionPage() {
             )}
 
             <Button
-              onClick={() => compareMutation.mutate()}
+              onClick={runCompare}
               disabled={
                 !activeFile ||
                 (inputMode === 'upload' && headers.length === 0) ||
-                !reference ||
-                !test ||
+                !selectedReference ||
+                !selectedTest ||
                 compareMutation.isPending
               }
               loading={compareMutation.isPending}
@@ -305,7 +336,7 @@ export default function DissolutionPage() {
 
               <DownloadReportButton
                 onDownload={(fmt) =>
-                  downloadDissolutionReport(activeFile!, reference, test, columns, fmt)
+                  downloadDissolutionReport(activeFile!, selectedReference, selectedTest, columns, fmt)
                 }
               />
               <Disclaimer text={result.disclaimer} />

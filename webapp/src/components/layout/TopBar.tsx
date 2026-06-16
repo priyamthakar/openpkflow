@@ -18,35 +18,36 @@ export function TopBar({ title, subtitle, onMenuClick }: Props) {
   })
 
   return (
-    <header className="h-12 px-4 lg:px-5 bg-surface border-b border-border flex items-center justify-between shrink-0">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="min-h-14 px-3 py-2 sm:h-12 sm:px-4 sm:py-0 lg:px-5 bg-surface border-b border-border flex items-center justify-between gap-2 shrink-0">
+      <div className="flex items-center gap-2 min-w-0 sm:gap-3">
         {onMenuClick && (
           <button
             type="button"
             onClick={onMenuClick}
             aria-label="Open sidebar"
-            className="lg:hidden p-1 -ml-1 rounded-sm text-text-muted hover:text-text hover:bg-surface-2 transition-colors"
+            className="lg:hidden -ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-sm text-text-muted hover:text-text hover:bg-surface-2 transition-colors"
           >
             <Menu size={20} />
           </button>
         )}
         <div className="min-w-0">
-          <h1 className="font-mono-ui text-[14px] font-semibold text-text uppercase tracking-[0.12em] truncate">
+          <h1 className="font-mono-ui truncate text-[12px] font-semibold uppercase tracking-[0.04em] text-text min-[380px]:text-[12.5px] sm:text-[14px] sm:tracking-[0.12em]">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-[13px] text-text-muted truncate mt-0.5">{subtitle}</p>
+            <p className="mt-0.5 hidden truncate text-[13px] text-text-muted sm:block">{subtitle}</p>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-3">
         <ThemeToggle />
         {data?.engine_version && (
           <Badge variant="accent">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              engine v{data.engine_version}
+              <span className="sm:hidden">v{data.engine_version}</span>
+              <span className="hidden sm:inline">engine v{data.engine_version}</span>
             </span>
           </Badge>
         )}
@@ -54,7 +55,7 @@ export function TopBar({ title, subtitle, onMenuClick }: Props) {
           href="https://github.com/priyamthakar/openpkflow"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text transition-colors no-underline"
+          className="hidden items-center gap-1.5 text-[13px] text-text-muted hover:text-text transition-colors no-underline sm:flex"
         >
           GitHub
           <ExternalLink size={11} aria-hidden="true" />
