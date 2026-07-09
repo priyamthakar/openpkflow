@@ -1,48 +1,76 @@
 # Release Workflow
 
-This checklist is for OpenPKFlow v2.x releases. It is intentionally short:
-v2.4 is a credibility sprint focused on trust, usability, and release discipline,
-not broad new scientific scope.
+This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
+
+## Current release target
+
+**v2.6.0** -- study pipeline, SUPAC/alcohol helpers, IVIVC Level B/C, transit sim,
+webapp power/multi-media polish, convolution validation.
+
+- Code commit: `b53112c` on `feat/v2.6.0-improvement-sprint`
+- PR: https://github.com/priyamthakar/openpkflow/pull/27
+- Tag `v2.6.0` and PyPI publish: **pending** (after merge + green CI)
+
+See `HANDOFF.md` for full takeover context.
 
 ## Release principles
 
-- Keep v2.x additive and avoid breaking API changes before v3.0.0.
-- Treat `docs/changelog.md` as the source for GitHub release notes.
+- Keep v2.x additive; avoid breaking API changes before v3.0.0.
+- Treat `docs/changelog.md` as the source for GitHub release notes (keep
+  `CHANGELOG.md` in sync).
 - Keep regulatory language precise: OpenPKFlow supports transparent,
   reproducible analysis; it does not replace validated jurisdiction-specific
-  workflows or expert review.
+  workflows or expert review (see `docs/positioning.md`).
+- Do not overclaim RSABE, Part 11, or FDA approval.
 - Keep static validation docs free of local verification snapshots that will
   drift over time.
+- Never use `--no-verify` to bypass hooks when cutting a release commit.
 
 ## Pre-release checks
 
-1. Confirm the version is updated in project metadata and package exports.
+1. Confirm version is **identical** in:
+   - `pyproject.toml`
+   - `src/openpkflow/__init__.py`
+   - `CHANGELOG.md` and `docs/changelog.md` dated section
 2. Confirm `docs/changelog.md` has a dated release section with user-facing
    changes, caveats, and migration notes.
 3. Run `python scripts/release_readiness.py` before tagging. Warnings are
    acceptable before the tag/release exists; failures must be fixed.
-4. Run the standard test suite and any manual or nightly slow validation checks
-   needed for the release scope.
-   - Standard: `python -m pytest -q`
-   - Slow validation: `python -m pytest -m slow tests/validation -q`
-5. Build the documentation site with `mkdocs build --strict`.
-6. Confirm package artifacts build cleanly and inspect metadata.
-7. Confirm PyPI, GitHub release, and conda-forge state before announcing.
+4. Run tests:
+   - Standard: `python -m pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc" -q`
+   - Optional slow: `python -m pytest -m slow tests/validation -q`
+   - API: `cd api && python -m pytest -q`
+5. Build docs: `mkdocs build --strict`
+6. Build package: `python -m build && python -m twine check dist/*`
+7. Confirm PR is merged to `main` and CI is green on `main`.
+8. Confirm PyPI, GitHub release, and conda-forge state before announcing.
 
 ## GitHub release notes
 
-Use the matching section from `docs/changelog.md`. Keep notes concise and
-include:
+Use the matching section from `docs/changelog.md`. Include:
 
 - What changed.
 - What users need to do.
-- Validation or regulatory caveats, especially for research-grade workflows.
+- Validation or regulatory caveats (especially research-grade tools).
 
-## v2.4 readiness focus
+## Tag and publish order
 
-- Replicate BE screening must remain clearly labelled as research-grade until
-  full FDA/EMA parity is validated against reference SAS/R workflows.
-- Release notes should emphasize external-reference validation, reportability,
-  and clearer boundaries around regulatory use.
-- Documentation should state what OpenPKFlow is and is not before making
-  capability claims.
+1. Merge PR to `main`
+2. On `main`: final `release_readiness.py` + green CI
+3. `git tag v2.6.0` (or current target) and push the tag
+4. Confirm GitHub Actions release / Trusted Publishing workflow
+5. Verify PyPI install: `pip install openpkflow==2.6.0` then `openpkflow version`
+6. Update conda-forge feedstock if automated PR does not appear promptly
+
+## v2.6.0 specific caveats for notes
+
+- SUPAC classification and alcohol dose-dumping helpers are **screening** tools,
+  not full guidance automation.
+- Replicate BE remains **research-grade** screening; formal RSABE is BioEqPy.
+- Pop PK FOCE-I/SAEM is research-grade and frozen for extension.
+- Study pipeline composes existing modules; stages without inputs are skipped.
+
+## Post-release agent handoff
+
+Update `HANDOFF.md` top section: tag created, PyPI URL, next feature priorities.
+Update AGENTS.md / CLAUDE.md "Current focus" away from "tag pending".

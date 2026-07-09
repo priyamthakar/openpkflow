@@ -7,16 +7,19 @@ regulatory systems.
 
 OpenPKFlow is a transparent, reproducible, open-source Python workflow for:
 
-- Dissolution similarity (f1, f2, bootstrap f2, MSD, model fitting, multi-media)
-- Noncompartmental analysis (NCA), including steady-state and urinary parameters
-- Analytical PK simulation (1- and 2-compartment models)
-- Level A IVIVC (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE)
-- Bioequivalence screening (2x2 TOST convenience layer and power / sample size)
+- Dissolution similarity (f1, f2, bootstrap f2, MSD, model fitting, multi-media,
+  SUPAC-IR screening helpers, alcohol dose-dumping f2 assessment)
+- Noncompartmental analysis (NCA), including steady-state, urinary, and sparse
+- Analytical PK simulation (1- and 2-compartment models, transit absorption, SS metrics)
+- IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) and
+  Level B/C helpers (MDT / MRT correlation)
+- Multi-stage study pipeline orchestration (`openpkflow.pipeline` / `study run`)
+- Bioequivalence screening (2x2 TOST, power / sample size, research-grade replicate)
 - Pharmacometric reporting (Markdown, HTML, PDF, DOCX)
-- Research-grade population PK diagnostics and estimation helpers
+- Research-grade population PK diagnostics and estimation helpers (estimation frozen)
 
 The product focus is a **formulation-to-report pipeline**: load study data,
-run validated-style calculations, and export shareable reports for formulation,
+run transparent calculations, and export shareable reports for formulation,
 PK, and regulatory review teams.
 
 Philosophy:
@@ -34,9 +37,18 @@ OpenPKFlow is **not**:
 - A full substitute for commercial platforms used under controlled, locked,
   regulated environments (e.g. Phoenix WinNonlin, NONMEM production pipelines)
 - A complete regulator-grade RSABE / replicate-design BE engine
+  (formal RSABE belongs in companion BioEqPy, not here)
+- A drop-in Part 11 validated quality system without site SOPs and controls
+- Full SUPAC automation (v2.6 helpers are screening only)
 
 Final regulatory interpretation must always be reviewed by qualified formulation,
 pharmacokinetic, and regulatory experts.
+
+## Current release context (for agents)
+
+Tree version **2.6.0** may be on a feature branch / open PR before tag and PyPI.
+Always read **`HANDOFF.md` at the repository root** in the working tree for
+branch name, PR number, verification results, and release status.
 
 ## Where formal BE and PopPK live
 

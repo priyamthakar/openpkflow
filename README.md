@@ -335,15 +335,22 @@ vpc.report("vpc_report.html")
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
 | Population PK estimation: FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
 | Replicate BE screening (CVwR/scaled-limit summaries) | :white_check_mark: (v2.4.0)\*\* | :x: | :white_check_mark: | :x: |
+| Study pipeline (dissolution + NCA + BE orchestration) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
+| SUPAC-IR screening + alcohol dose-dumping f2 | :white_check_mark: (v2.6.0)\*\*\* | :x: | :x: | :x: |
+| IVIVC Level B/C helpers (MDT/MRT) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
+| Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | Formal BE ANOVA / validated RSABE decision | :x: | :x: | :white_check_mark: | :x: |
 
-\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. nlmixr2 rerun is waiting on local Rtools/C compiler support. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
+\*\*\* Screening helper with documented thresholds; not full SUPAC guidance automation.
 
 ## Roadmap
 
-Post-1.0.0 milestones: IVIVC Level A (done), multi-media dissolution (done), steady-state NCA (done), sparse NCA (done), Bayesian PK + BE (done v2.0.0), FOCE-I + SAEM pop PK (done v2.1.0), 2-cmt + full Omega (done v2.2.0), covariate skeleton removal + FOCE-I reference validation (v2.3.0), replicate BE screening + release credibility sprint (v2.4.0).
-See [ROADMAP.md](ROADMAP.md) for the full plan.
+Post-1.0.0: IVIVC Level A, multi-media, SS/urine NCA, sparse NCA, Bayesian PK/BE,
+FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipeline +
+SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
+[HANDOFF.md](HANDOFF.md) for current PR/release state.
 
 ---
 
@@ -355,26 +362,25 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | MSD / max deviation / model-dependent comparison | Stable |
 | Bootstrap f2 | Stable |
 | Dissolution CSV loader | Stable |
-| Dissolution model fitting (5 models, AICc) | Stable |
-| IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) | Stable (v1.2.0) |
-| Multi-media dissolution (f2 across pH, ethanol dose-dumping) | Stable (v1.4.0) |
+| Dissolution model fitting (AICc ranking) | Stable |
+| SUPAC-IR screening + alcohol dose-dumping f2 | Stable screening (v2.6.0) |
+| IVIVC Level A | Stable (v1.2.0) |
+| IVIVC Level B/C helpers (MDT/MRT) | Stable (v2.6.0) |
+| Multi-media dissolution | Stable (v1.4.0) |
+| Study pipeline (`openpkflow study run`) | Stable (v2.6.0; tag pending) |
 | HTML, Markdown, PDF, Word reports | Stable |
-| NCA (AUClast, AUCinf, lambda_z, CL/F, steady-state, urinary excretion) | Stable (v1.3.0) |
-| Sparse NCA (model-informed 1-cmt oral from 3-5 samples) | Stable (v1.5.0) |
-| PK simulation (1/2-comp, oral/IV bolus/IV infusion, repeated dosing) | Stable (v0.9.1) |
-| Population PK diagnostics (GOF, VPC) | Stable (v0.6.0) |
-| FOCE-I pop PK estimation (scipy tier, 1/2-cmt, full Omega)\* | Stable (v2.3.0) |
-| SAEM pop PK estimation ([bayes] extra, 1/2-cmt, full Omega)\* | Stable (v2.3.0) |
-| Covariate modeling | Removed (v2.3.0 breaking change) |
-| Validation utilities (pct_bias, rmse, within_pct) | Stable (v0.9.1) |
-| MAP individual PK (scipy, zero extra deps) | Stable (v2.0.0) |
-| Full Bayesian PK posterior (PyMC, [bayes] extra) | Stable (v2.0.0) |
-| Bayesian 2x2 BE with P(GMR in 80-125) (PyMC) | Stable (v2.0.0) |
-| Bioequivalence convenience (paired TOST) | Stable (2x2 crossover TOST, GMR + 90% CI) |
+| NCA (incl. steady-state, urinary, sparse, CDISC PP) | Stable |
+| PK simulation (1/2-comp + transit oral + SS metrics) | Stable (v2.6.0) |
+| Population PK diagnostics (GOF, VPC) | Stable |
+| FOCE-I / SAEM pop PK estimation\* | Stable research-grade; **frozen** for extension |
+| Covariate modeling | Removed (v2.3.0) |
+| MAP / Bayesian PK + Bayesian BE | Stable (v2.0.0) |
+| Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
+| Web app (`api/` + `webapp/`) | Stable (v2.5+; v2.6 polish) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
-| Stable public release | Done (v2.0.0) |
 
-\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).
+\*\* Replicate BE is research-grade screening only.
 
 ---
 

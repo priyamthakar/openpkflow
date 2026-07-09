@@ -15,13 +15,14 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 | Module | What it covers |
 |--------|---------------|
-| `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, Weibull/Higuchi/KP/first-order/zero-order model fitting |
+| `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, multi-media, SUPAC screening, alcohol dose-dumping f2, model fitting |
 | `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, sparse NCA |
-| `be` | 2x2 crossover TOST (convenience layer), GMR + 90% CI, intra-subject CV, BioEqPy export |
+| `be` | 2x2 crossover TOST, power / sample size, GMR + 90% CI, research-grade replicate screening, BioEqPy export |
 | `bayes` | MAP individual PK (scipy), full Bayesian posterior (PyMC), Bayesian 2x2 crossover BE |
-| `pop` | FOCE-I and SAEM estimation (1/2-cmt), GOF plots (4-panel), VPC with percentile bands, NONMEM-style dataset helpers |
-| `sim` | 1- and 2-compartment IV bolus/infusion/oral, repeated dosing, superposition |
-| `ivivc` | Level A IVIVC: Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE predictability |
+| `pop` | FOCE-I and SAEM estimation (1/2-cmt; frozen for extension), GOF plots, VPC, NONMEM-style dataset helpers |
+| `sim` | 1- and 2-compartment IV bolus/infusion/oral, transit absorption, steady-state metrics, repeated dosing, superposition |
+| `ivivc` | Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy, %PE) plus Level B/C MDT/MRT helpers |
+| `pipeline` | Multi-stage study orchestration (dissolution + NCA + BE) with audit metadata and unified reports |
 | `report` | Markdown, HTML, PDF (ReportLab), Word (python-docx) |
 | `ml` | Experimental torch MLP surrogate for 1-cmt oral profiles |
 | `validation` | Utility functions for cross-checking against reference values |

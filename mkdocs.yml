@@ -52,6 +52,7 @@ nav:
     - dissolution: reference/dissolution.md
     - nca: reference/nca.md
     - sim: reference/sim.md
+    - pipeline: reference/pipeline.md
     - pop: reference/pop.md
     - be: reference/be.md
     - bayes: reference/bayes.md

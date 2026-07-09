@@ -175,6 +175,43 @@ via the FastAPI adapters. The frontend never computes pharmacometric values.
 
 ---
 
+## v2.6.0 -- Study pipeline + science helpers + web polish (2026-07-09)
+
+Scope: multi-track improvement sprint. Library code complete on branch
+`feat/v2.6.0-improvement-sprint` / PR #27. Tag/PyPI pending merge + release checklist.
+
+### Library
+
+- `pipeline/` -- `StudyPipeline`, `PipelineConfig`, multi-section HTML/Markdown reports ✅
+- CLI: `openpkflow study run config.json --report out.html` ✅
+- `dissolution/supac.py` -- SUPAC-IR level screening + alcohol dose-dumping f2 assessment ✅
+- `ivivc/level_bc.py` -- MDT, MRT, Level B/C linear correlation ✅
+- `sim`: `c_1cmt_oral_transit`, `steady_state_metrics_1cmt_oral` ✅
+- Validation: IVIVC convolution analytical reference; BE power edge cases ✅
+
+### Web layer
+
+- BE power / sample-size API + calculator tab ✅
+- Multi-media dissolution API + Dissolution page tab ✅
+- IVIVC load-example + dose_diss / dose_iv UI ✅
+- Playwright smoke coverage expanded ✅
+
+### Docs / DX
+
+- `docs/positioning.md`, `docs/tutorials/pipeline.md` ✅
+- Docker / docker-compose polish; pipeline examples ✅
+- HANDOFF.md / AGENTS.md / CLAUDE.md updated for takeover ✅
+
+### Not in v2.6.0 (follow-ups)
+
+- Formal RSABE (BioEqPy)
+- Pipeline page in React webapp
+- Sparse NCA / MAP PK API pages
+- Hosted production deploy of api + webapp
+- Extending frozen `pop/estimation/`
+
+---
+
 ## Cross-cutting workstreams (parallel to milestones)
 
 ### Documentation
