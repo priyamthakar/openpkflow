@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Select as UiSelect } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { analyzeBe, downloadBeReport } from '@/lib/api'
+import { analyzeBe, computeBePower, computeBeSampleSize, downloadBeReport } from '@/lib/api'
 import { rowsToCsvFile } from '@/lib/gridCsv'
-import type { BeResponse } from '@/lib/types'
+import type { BePowerResponse, BeResponse, BeSampleSizeResponse } from '@/lib/types'
 
 const PARAMETERS = ['AUCinf', 'AUClast', 'Cmax'] as const
 
@@ -69,6 +69,7 @@ function downloadTemplateCsv() {
 
 export default function BePage() {
   const { onMenuClick } = useOutletContext<{ onMenuClick: () => void }>()
+  const [pageTab, setPageTab] = useState<'analysis' | 'power'>('analysis')
   const [file, setFile] = useState<File | null>(null)
   const [inputMode, setInputMode] = useState<'upload' | 'paste'>('upload')
   const [gridRows, setGridRows] = useState<PasteDataRow[]>(EXAMPLE_BE_ROWS)
@@ -80,6 +81,16 @@ export default function BePage() {
   const [beUpper, setBeUpper] = useState<number>(1.25)
   const [alpha, setAlpha] = useState<number>(0.05)
   const [hasSequence, setHasSequence] = useState(true)
+
+  // Power calculator state
+  const [powerMode, setPowerMode] = useState<'power' | 'sample_size'>('power')
+  const [powerGmr, setPowerGmr] = useState(0.95)
+  const [powerCvPct, setPowerCvPct] = useState(20)
+  const [powerN, setPowerN] = useState(24)
+  const [targetPower, setTargetPower] = useState(0.80)
+  const [powerBeLower, setPowerBeLower] = useState(0.80)
+  const [powerBeUpper, setPowerBeUpper] = useState(1.25)
+  const [powerAlpha, setPowerAlpha] = useState(0.05)
 
   const gridFile = useMemo(
     () => rowsToCsvFile(GRID_COLUMNS, gridRows, 'be_pasted_data.csv'),
@@ -107,7 +118,33 @@ export default function BePage() {
     mutationFn: () => analyzeBe(activeFile!, buildOptions()),
   })
 
+  const powerMutation = useMutation<BePowerResponse, Error>({
+    mutationFn: () =>
+      computeBePower({
+        gmr: powerGmr,
+        cv: powerCvPct / 100,
+        n: powerN,
+        be_lower: powerBeLower,
+        be_upper: powerBeUpper,
+        alpha: powerAlpha,
+      }),
+  })
+
+  const sampleSizeMutation = useMutation<BeSampleSizeResponse, Error>({
+    mutationFn: () =>
+      computeBeSampleSize({
+        gmr: powerGmr,
+        cv: powerCvPct / 100,
+        target_power: targetPower,
+        be_lower: powerBeLower,
+        be_upper: powerBeUpper,
+        alpha: powerAlpha,
+      }),
+  })
+
   const result = mutation.data
+  const powerResult = powerMutation.data
+  const sampleSizeResult = sampleSizeMutation.data
 
   const onFile = useCallback(
     (uploaded: File) => {
@@ -131,6 +168,7 @@ export default function BePage() {
   )
 
   const canRun = Boolean(activeFile && !mutation.isPending)
+  const powerPending = powerMutation.isPending || sampleSizeMutation.isPending
 
   return (
     <div className="flex flex-col h-full">
@@ -140,6 +178,199 @@ export default function BePage() {
         onMenuClick={onMenuClick}
       />
 
+      <div className="px-4 pt-3 lg:px-6">
+        <SegmentedControl
+          value={pageTab}
+          onChange={setPageTab}
+          options={[
+            { value: 'analysis', label: 'Analysis' },
+            { value: 'power', label: 'Power calculator' },
+          ]}
+        />
+      </div>
+
+      {pageTab === 'power' ? (
+        <AnalysisShell
+          resultKey={Boolean(powerResult || sampleSizeResult)}
+        >
+          <div>
+            <div className="flex flex-col gap-4">
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
+                  1. Mode
+                </h3>
+                <SegmentedControl
+                  value={powerMode}
+                  onChange={(mode) => {
+                    setPowerMode(mode)
+                    powerMutation.reset()
+                    sampleSizeMutation.reset()
+                  }}
+                  options={[
+                    { value: 'power', label: 'Power for n' },
+                    { value: 'sample_size', label: 'Sample size' },
+                  ]}
+                />
+              </section>
+
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
+                  2. Assumptions
+                </h3>
+                <div className="space-y-2.5">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">GMR (T/R)</span>
+                    <input
+                      type="number"
+                      value={powerGmr}
+                      step={0.01}
+                      min={0.5}
+                      max={1.5}
+                      onChange={(e) => setPowerGmr(Number(e.target.value))}
+                      className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">CV%</span>
+                    <input
+                      type="number"
+                      value={powerCvPct}
+                      step={0.5}
+                      min={1}
+                      max={100}
+                      onChange={(e) => setPowerCvPct(Number(e.target.value))}
+                      className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                  {powerMode === 'power' ? (
+                    <div className="flex justify-between items-center gap-3">
+                      <span className="text-sm font-semibold text-text shrink-0">n subjects</span>
+                      <input
+                        type="number"
+                        value={powerN}
+                        step={2}
+                        min={4}
+                        onChange={(e) => setPowerN(Number(e.target.value))}
+                        className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center gap-3">
+                      <span className="text-sm font-semibold text-text shrink-0">Target power</span>
+                      <input
+                        type="number"
+                        value={targetPower}
+                        step={0.05}
+                        min={0.5}
+                        max={0.99}
+                        onChange={(e) => setTargetPower(Number(e.target.value))}
+                        className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                      />
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">Lower limit</span>
+                    <input
+                      type="number"
+                      value={powerBeLower}
+                      step={0.01}
+                      min={0.5}
+                      max={1}
+                      onChange={(e) => setPowerBeLower(Number(e.target.value))}
+                      className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">Upper limit</span>
+                    <input
+                      type="number"
+                      value={powerBeUpper}
+                      step={0.01}
+                      min={1}
+                      max={2}
+                      onChange={(e) => setPowerBeUpper(Number(e.target.value))}
+                      className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">Alpha</span>
+                    <input
+                      type="number"
+                      value={powerAlpha}
+                      step={0.01}
+                      min={0.01}
+                      max={0.1}
+                      onChange={(e) => setPowerAlpha(Number(e.target.value))}
+                      className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <Button
+                onClick={() => {
+                  if (powerMode === 'power') powerMutation.mutate()
+                  else sampleSizeMutation.mutate()
+                }}
+                disabled={powerPending || powerGmr <= 0 || powerCvPct <= 0}
+                loading={powerPending}
+                size="lg"
+                className="w-full"
+              >
+                {powerPending
+                  ? 'Computing...'
+                  : powerMode === 'power'
+                    ? 'Compute Power'
+                    : 'Compute Sample Size'}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0 flex flex-col gap-5">
+            {(powerMutation.isError || sampleSizeMutation.isError) && (
+              <ErrorBanner
+                message={(powerMutation.error ?? sampleSizeMutation.error)!.message}
+                onDismiss={() => {
+                  powerMutation.reset()
+                  sampleSizeMutation.reset()
+                }}
+              />
+            )}
+
+            {powerMode === 'power' && powerResult && !powerMutation.isPending && (
+              <>
+                <div className="flex gap-3 flex-wrap">
+                  <MetricCard label="Power" value={powerResult.power} highlight />
+                  <MetricCard label="n subjects" value={powerResult.n} />
+                  <MetricCard label="GMR" value={powerResult.gmr} />
+                  <MetricCard label="CV" value={powerResult.cv * 100} unit="%" />
+                </div>
+                <p className="text-sm text-text-muted">
+                  Exact non-central t TOST power for a 2x2 crossover at alpha={powerResult.alpha},
+                  limits [{powerResult.be_lower}, {powerResult.be_upper}].
+                </p>
+                <Disclaimer text={powerResult.disclaimer} />
+              </>
+            )}
+
+            {powerMode === 'sample_size' && sampleSizeResult && !sampleSizeMutation.isPending && (
+              <>
+                <div className="flex gap-3 flex-wrap">
+                  <MetricCard label="Required n" value={sampleSizeResult.n} highlight />
+                  <MetricCard label="Achieved power" value={sampleSizeResult.achieved_power} />
+                  <MetricCard label="Target power" value={sampleSizeResult.target_power} />
+                  <MetricCard label="CV" value={sampleSizeResult.cv * 100} unit="%" />
+                </div>
+                <p className="text-sm text-text-muted">
+                  Smallest even n with power &gt;= {sampleSizeResult.target_power} at GMR=
+                  {sampleSizeResult.gmr}, CV={((sampleSizeResult.cv) * 100).toFixed(1)}%.
+                </p>
+                <Disclaimer text={sampleSizeResult.disclaimer} />
+              </>
+            )}
+          </div>
+        </AnalysisShell>
+      ) : (
       <AnalysisShell leftWide={inputMode === 'paste'} resultKey={Boolean(result)}>
         {/* Left panel */}
         <div>
@@ -352,6 +583,7 @@ export default function BePage() {
           )}
         </div>
       </AnalysisShell>
+      )}
     </div>
   )
 }

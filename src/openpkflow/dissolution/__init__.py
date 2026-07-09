@@ -17,6 +17,12 @@ from .models import (
 from .multi_media import MultiMediaResult, MultiMediaStudy
 from .similarity import MSDResult, f1, f2, max_deviation, msd
 from .study import ComparisonResult, DissolutionStudy
+from .supac import (
+    AlcoholDoseDumpingResult,
+    SupacClassification,
+    alcohol_dose_dumping_assessment,
+    classify_supac_ir_level,
+)
 
 __all__ = [
     "f1",
@@ -39,4 +45,8 @@ __all__ = [
     "DissolutionFitResults",
     "MultiMediaStudy",
     "MultiMediaResult",
+    "SupacClassification",
+    "AlcoholDoseDumpingResult",
+    "classify_supac_ir_level",
+    "alcohol_dose_dumping_assessment",
 ]

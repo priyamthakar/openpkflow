@@ -42,6 +42,9 @@ features, including replicate bioequivalence screening, should be treated as
 decision-support until independently validated against the required SAS/R or
 agency-specific reference process.
 
+Full scope language, pipeline focus, PopPK / RSABE boundaries, and validation
+links: [Positioning](positioning.md).
+
 ---
 
 ## Install

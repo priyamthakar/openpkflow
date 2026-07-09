@@ -17,8 +17,10 @@ router = APIRouter(prefix="/api/ivivc", tags=["ivivc"])
 _MIME: dict[str, str] = {
     "html": "text/html",
     "markdown": "text/markdown",
+    "pdf": "application/pdf",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
-_EXT: dict[str, str] = {"html": ".html", "markdown": ".md"}
+_EXT: dict[str, str] = {"html": ".html", "markdown": ".md", "pdf": ".pdf", "docx": ".docx"}
 
 
 @router.post("/analyze", response_model=IvIvcResponse)
@@ -31,7 +33,7 @@ def analyze(req: IvIvcRequest) -> IvIvcResponse:
 @router.post("/report")
 def report(
     req: IvIvcRequest,
-    format: Literal["html", "markdown"] = Query(default="html"),
+    format: Literal["html", "markdown", "pdf", "docx"] = Query(default="html"),
 ) -> FileResponse:
     """Run IVIVC Level A analysis and stream the rendered report for download."""
     from starlette.background import BackgroundTask

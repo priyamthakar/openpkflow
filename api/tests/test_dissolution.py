@@ -93,3 +93,78 @@ def test_compare_custom_columns(client: TestClient, dissolution_csv: Path, tmp_p
 
     assert resp.status_code == 200
     assert resp.json()["f2_value"] > 0
+
+
+def _media_rows(ref: list[float], test: list[float], times: list[int] | None = None) -> list[dict]:
+    if times is None:
+        times = [5, 10, 15, 20, 30, 45, 60]
+    rows: list[dict] = []
+    for i, t in enumerate(times):
+        rows.append(
+            {
+                "formulation": "reference",
+                "batch": "R1",
+                "time": t,
+                "percent_released": ref[i],
+            }
+        )
+        rows.append(
+            {
+                "formulation": "test",
+                "batch": "T1",
+                "time": t,
+                "percent_released": test[i],
+            }
+        )
+    return rows
+
+
+def test_multi_media_analyze_pass(client: TestClient) -> None:
+    ref = [5, 15, 30, 45, 60, 80, 95]
+    tst = [6, 16, 31, 44, 58, 78, 93]
+    payload = {
+        "media": [
+            {"name": "pH 1.2", "rows": _media_rows(ref, tst)},
+            {"name": "pH 6.8", "rows": _media_rows(ref, tst)},
+        ],
+        "reference_label": "reference",
+        "test_label": "test",
+    }
+    resp = client.post("/api/dissolution/multi-media/analyze", json=payload)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["overall_pass"] is True
+    assert body["media_names"] == ["pH 1.2", "pH 6.8"]
+    assert body["f2_summary"]["pH 1.2"] >= 50
+    assert len(body["per_media"]) == 2
+    assert "disclaimer" in body
+
+
+def test_multi_media_analyze_fail(client: TestClient) -> None:
+    ref = [5, 15, 30, 45, 60, 80, 95]
+    far = [5, 60, 90, 95, 98, 99, 100]
+    tst = [6, 16, 31, 44, 58, 78, 93]
+    payload = {
+        "media": [
+            {"name": "Good", "rows": _media_rows(ref, tst)},
+            {"name": "Bad", "rows": _media_rows(ref, far)},
+        ],
+        "reference_label": "reference",
+        "test_label": "test",
+    }
+    resp = client.post("/api/dissolution/multi-media/analyze", json=payload)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["overall_pass"] is False
+    assert body["f2_summary"]["Bad"] < 50
+
+
+def test_multi_media_requires_two_media(client: TestClient) -> None:
+    ref = [5, 15, 30, 45, 60, 80, 95]
+    payload = {
+        "media": [{"name": "Only", "rows": _media_rows(ref, ref)}],
+        "reference_label": "reference",
+        "test_label": "test",
+    }
+    resp = client.post("/api/dissolution/multi-media/analyze", json=payload)
+    assert resp.status_code == 422

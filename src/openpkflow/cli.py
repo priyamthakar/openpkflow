@@ -30,11 +30,71 @@ app.add_typer(ivivc_app, name="ivivc")
 pop_app = typer.Typer(help="Population PK estimation and diagnostics.")
 app.add_typer(pop_app, name="pop")
 
+study_app = typer.Typer(help="End-to-end study pipeline commands.")
+app.add_typer(study_app, name="study")
+
 
 @app.command("version")
 def version_command() -> None:
     """Print the installed version of openpkflow."""
     typer.echo(f"openpkflow {__version__}")
+
+
+@study_app.command("run")
+def study_run(
+    config_path: Path = typer.Argument(
+        ...,
+        help="Path to pipeline config JSON (or YAML if PyYAML is installed).",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write multi-section HTML or Markdown report (format from extension).",
+    ),
+    json_out: Path | None = typer.Option(
+        None,
+        "--json",
+        help="Write pipeline result JSON (metadata + stage summaries) to this path.",
+    ),
+) -> None:
+    """Run an end-to-end study pipeline from a config file.
+
+    Enabled stages are those with inputs in the config (dissolution, NCA, BE).
+    Example::
+
+        openpkflow study run examples/study_pipeline_example.json --report out.html
+        openpkflow study run config.json --json out.json
+    """
+    from openpkflow.pipeline import StudyPipeline, load_pipeline_config
+
+    try:
+        cfg = load_pipeline_config(config_path)
+        result = StudyPipeline(cfg).run()
+    except (FileNotFoundError, ValueError, ImportError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+
+    if report is not None:
+        try:
+            out = result.report(report)
+            typer.echo(f"\nReport written to: {out}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)
+
+    if json_out is not None:
+        try:
+            payload = result.to_dict()
+            json_out.parent.mkdir(parents=True, exist_ok=True)
+            json_out.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+            typer.echo(f"JSON written to: {json_out}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write JSON: {exc}", err=True)
 
 
 @app.command("similarity")

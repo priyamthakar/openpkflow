@@ -36,9 +36,11 @@ theme:
 
 nav:
   - Home: index.md
+  - Positioning: positioning.md
   - Tutorials:
     - Dissolution Similarity: tutorials/dissolution.md
     - NCA: tutorials/nca.md
+    - Formulation-to-report pipeline: tutorials/pipeline.md
     - PK Simulation: tutorials/sim.md
     - Population PK: tutorials/pop.md
     - Bioequivalence: tutorials/be.md

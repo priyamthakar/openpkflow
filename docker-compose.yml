@@ -1,6 +1,22 @@
-# docker-compose.yml for OpenPKFlow Jupyter environment
-# Start: docker compose up -d
-# Open:  http://localhost:8888
+# docker-compose.yml for OpenPKFlow local development
+#
+# Default: Jupyter Lab with the library installed (root Dockerfile).
+#   docker compose up -d
+#   Open http://localhost:8888
+#
+# Optional stack (API + webapp) -- uncomment the services below when you need
+# the FastAPI adapter and Vite UI together.  Requires Node on the host for a
+# simple webapp dev mount, or build a static webapp image separately.
+#
+#   docker compose --profile full up -d
+#
+# API alone (without compose profile):
+#   docker build -t openpkflow-api -f api/Dockerfile .
+#   docker run --rm -p 8000:8000 openpkflow-api
+#
+# Webapp alone (host Node):
+#   cd webapp && npm install && npm run dev
+#   Vite proxies /api to http://localhost:8000 (see webapp/README.md)
 
 services:
   openpkflow:
@@ -11,6 +27,32 @@ services:
       - "8888:8888"
     volumes:
       - ./examples:/workspace/examples
-      - ./datasets:/workspace/datasets
+      - ./src:/workspace/src
     environment:
       - JUPYTER_ENABLE_LAB=yes
+
+  # --- Optional: REST API adapter (profile: full) ---
+  # api:
+  #   profiles: ["full"]
+  #   build:
+  #     context: .
+  #     dockerfile: api/Dockerfile
+  #   image: openpkflow-api:latest
+  #   container_name: openpkflow-api
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - PORT=8000
+
+  # --- Optional: static webapp behind a simple static server (profile: full) ---
+  # Build the SPA first: cd webapp && npm ci && npm run build
+  # webapp:
+  #   profiles: ["full"]
+  #   image: nginx:alpine
+  #   container_name: openpkflow-webapp
+  #   ports:
+  #     - "5173:80"
+  #   volumes:
+  #     - ./webapp/dist:/usr/share/nginx/html:ro
+  #   depends_on:
+  #     - api

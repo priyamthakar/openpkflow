@@ -16,9 +16,15 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Select as UiSelect } from '@/components/ui/Select'
-import { fetchFormulations, compareFormulations, downloadDissolutionReport } from '@/lib/api'
+import {
+  fetchFormulations,
+  compareFormulations,
+  downloadDissolutionReport,
+  analyzeMultiMedia,
+  downloadMultiMediaReport,
+} from '@/lib/api'
 import { rowsToCsvFile } from '@/lib/gridCsv'
-import type { CompareResponse } from '@/lib/types'
+import type { CompareResponse, DissolutionRowPayload, MultiMediaResponse } from '@/lib/types'
 
 const REQUIRED_COLUMNS = [
   { key: 'formulation', label: 'Formulation', default: 'formulation' },
@@ -54,6 +60,42 @@ const EXAMPLE_DISSOLUTION_ROWS: PasteDataRow[] = [
   { formulation: 'Test', batch: 'T2', time: 30, percent_released: 92 },
 ]
 
+type MediaSlot = { name: string; rows: PasteDataRow[] }
+
+function buildExampleMediaRows(offset = 0): PasteDataRow[] {
+  const times = [5, 10, 15, 20, 30, 45, 60]
+  const ref = [5, 15, 30, 45, 60, 80, 95]
+  const tst = [6 + offset, 16 + offset, 31, 44, 58, 78, 93]
+  const rows: PasteDataRow[] = []
+  for (let i = 0; i < times.length; i++) {
+    rows.push({ formulation: 'reference', batch: 'R1', time: times[i], percent_released: ref[i] })
+    rows.push({ formulation: 'test', batch: 'T1', time: times[i], percent_released: tst[i] })
+  }
+  return rows
+}
+
+const EXAMPLE_MEDIA: MediaSlot[] = [
+  { name: 'pH 1.2', rows: buildExampleMediaRows(0) },
+  { name: 'pH 4.5', rows: buildExampleMediaRows(0) },
+  { name: 'pH 6.8', rows: buildExampleMediaRows(0) },
+]
+
+function gridRowsToPayload(rows: PasteDataRow[]): DissolutionRowPayload[] {
+  return rows
+    .filter(
+      (r) =>
+        String(r.formulation ?? '').trim() !== '' &&
+        String(r.time ?? '').trim() !== '' &&
+        String(r.percent_released ?? '').trim() !== '',
+    )
+    .map((r) => ({
+      formulation: String(r.formulation),
+      batch: String(r.batch ?? '1'),
+      time: Number(r.time),
+      percent_released: Number(r.percent_released),
+    }))
+}
+
 function downloadDissolutionTemplate() {
   const rows = [
     'formulation,batch,time,percent_released',
@@ -77,6 +119,7 @@ function downloadDissolutionTemplate() {
 
 export default function DissolutionPage() {
   const { onMenuClick } = useOutletContext<{ onMenuClick: () => void }>()
+  const [pageTab, setPageTab] = useState<'single' | 'multi'>('single')
   const [file, setFile] = useState<File | null>(null)
   const [inputMode, setInputMode] = useState<'upload' | 'paste'>('upload')
   const [gridRows, setGridRows] = useState<PasteDataRow[]>(EXAMPLE_DISSOLUTION_ROWS)
@@ -87,6 +130,12 @@ export default function DissolutionPage() {
   const [test, setTest] = useState('')
   const [result, setResult] = useState<CompareResponse | null>(null)
   const [loadError, setLoadError] = useState('')
+
+  // Multi-media state
+  const [mediaSlots, setMediaSlots] = useState<MediaSlot[]>(EXAMPLE_MEDIA)
+  const [mmReference, setMmReference] = useState('reference')
+  const [mmTest, setMmTest] = useState('test')
+  const [activeMediumIdx, setActiveMediumIdx] = useState(0)
 
   const gridFile = useMemo(() => rowsToCsvFile(GRID_COLUMNS, gridRows, 'dissolution_pasted_data.csv'), [gridRows])
   const activeFile = inputMode === 'paste' ? gridFile : file
@@ -164,6 +213,31 @@ export default function DissolutionPage() {
     })
   }
 
+  const multiMediaMutation = useMutation<MultiMediaResponse, Error>({
+    mutationFn: () =>
+      analyzeMultiMedia({
+        media: mediaSlots.map((m) => ({
+          name: m.name,
+          rows: gridRowsToPayload(m.rows),
+        })),
+        reference_label: mmReference,
+        test_label: mmTest,
+      }),
+  })
+  const mmResult = multiMediaMutation.data
+
+  const mmReq = useMemo(
+    () => ({
+      media: mediaSlots.map((m) => ({
+        name: m.name,
+        rows: gridRowsToPayload(m.rows),
+      })),
+      reference_label: mmReference,
+      test_label: mmTest,
+    }),
+    [mediaSlots, mmReference, mmTest],
+  )
+
   return (
     <div className="flex flex-col h-full">
       <TopBar
@@ -172,6 +246,267 @@ export default function DissolutionPage() {
         onMenuClick={onMenuClick}
       />
 
+      <div className="px-4 pt-3 lg:px-6">
+        <SegmentedControl
+          value={pageTab}
+          onChange={setPageTab}
+          options={[
+            { value: 'single', label: 'Single medium' },
+            { value: 'multi', label: 'Multi-media' },
+          ]}
+        />
+      </div>
+
+      {pageTab === 'multi' ? (
+        <AnalysisShell leftWide resultKey={Boolean(mmResult)}>
+          <div>
+            <div className="flex flex-col gap-4">
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
+                  1. Media panels
+                </h3>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {mediaSlots.map((m, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setActiveMediumIdx(i)}
+                      className={`px-3 py-1.5 text-sm rounded-sm border transition-colors ${
+                        activeMediumIdx === i
+                          ? 'border-accent bg-accent/10 text-text font-semibold'
+                          : 'border-border bg-surface-2 text-text-muted hover:text-text'
+                      }`}
+                    >
+                      {m.name || `Medium ${i + 1}`}
+                    </button>
+                  ))}
+                  {mediaSlots.length < 6 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMediaSlots((prev) => [
+                          ...prev,
+                          { name: `Medium ${prev.length + 1}`, rows: buildExampleMediaRows() },
+                        ])
+                        setActiveMediumIdx(mediaSlots.length)
+                        multiMediaMutation.reset()
+                      }}
+                      className="px-3 py-1.5 text-sm rounded-sm border border-dashed border-border-2 text-text-muted hover:text-text"
+                    >
+                      + Add medium
+                    </button>
+                  )}
+                </div>
+                {mediaSlots[activeMediumIdx] && (
+                  <>
+                    <div className="flex justify-between items-center gap-3 mb-2">
+                      <span className="text-sm font-semibold text-text shrink-0">Medium name</span>
+                      <input
+                        type="text"
+                        value={mediaSlots[activeMediumIdx].name}
+                        onChange={(e) => {
+                          const name = e.target.value
+                          setMediaSlots((prev) =>
+                            prev.map((m, i) => (i === activeMediumIdx ? { ...m, name } : m)),
+                          )
+                          multiMediaMutation.reset()
+                        }}
+                        className="w-40 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                      />
+                    </div>
+                    <PasteDataGrid
+                      columns={GRID_COLUMNS}
+                      rows={mediaSlots[activeMediumIdx].rows}
+                      onChange={(rows) => {
+                        setMediaSlots((prev) =>
+                          prev.map((m, i) => (i === activeMediumIdx ? { ...m, rows } : m)),
+                        )
+                        multiMediaMutation.reset()
+                      }}
+                      filename={`${mediaSlots[activeMediumIdx].name || 'medium'}.csv`}
+                      hint="Paste dissolution data for this medium (formulation, batch, time, % released)."
+                    />
+                    {mediaSlots.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMediaSlots((prev) => prev.filter((_, i) => i !== activeMediumIdx))
+                          setActiveMediumIdx(0)
+                          multiMediaMutation.reset()
+                        }}
+                        className="mt-2 text-xs text-danger hover:underline"
+                      >
+                        Remove this medium
+                      </button>
+                    )}
+                  </>
+                )}
+              </section>
+
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2.5">
+                  2. Formulations
+                </h3>
+                <div className="space-y-2.5">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">Reference label</span>
+                    <input
+                      type="text"
+                      value={mmReference}
+                      onChange={(e) => {
+                        setMmReference(e.target.value)
+                        multiMediaMutation.reset()
+                      }}
+                      className="w-40 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm font-semibold text-text shrink-0">Test label</span>
+                    <input
+                      type="text"
+                      value={mmTest}
+                      onChange={(e) => {
+                        setMmTest(e.target.value)
+                        multiMediaMutation.reset()
+                      }}
+                      className="w-40 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setMediaSlots(EXAMPLE_MEDIA)
+                  setMmReference('reference')
+                  setMmTest('test')
+                  setActiveMediumIdx(0)
+                  multiMediaMutation.reset()
+                }}
+                className="w-full"
+              >
+                Load example
+              </Button>
+
+              <Button
+                onClick={() => multiMediaMutation.mutate()}
+                disabled={mediaSlots.length < 2 || multiMediaMutation.isPending}
+                loading={multiMediaMutation.isPending}
+                size="lg"
+                className="w-full"
+              >
+                {multiMediaMutation.isPending ? 'Comparing...' : 'Run Multi-Media f2'}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0 flex flex-col gap-5">
+            {multiMediaMutation.isError && (
+              <ErrorBanner
+                message={multiMediaMutation.error.message}
+                onDismiss={() => multiMediaMutation.reset()}
+              />
+            )}
+
+            {mmResult && !multiMediaMutation.isPending && (
+              <>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <Badge variant={mmResult.overall_pass ? 'success' : 'danger'}>
+                    {mmResult.overall_pass ? 'Overall PASS (all f2 >= 50)' : 'Overall FAIL'}
+                  </Badge>
+                </div>
+
+                <div className="flex gap-3 flex-wrap">
+                  {mmResult.per_media.map((m) => (
+                    <MetricCard
+                      key={m.medium}
+                      label={`f2 ${m.medium}`}
+                      value={m.f2_value}
+                      highlight={m.similar}
+                    />
+                  ))}
+                </div>
+
+                <div className="rounded-sm border border-border overflow-hidden">
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr>
+                        <th className="px-3 py-2 bg-surface text-text-muted text-left border-b border-border font-semibold text-xs">
+                          Medium
+                        </th>
+                        <th className="px-3 py-2 bg-surface text-text-muted text-left border-b border-border font-semibold text-xs">
+                          f1
+                        </th>
+                        <th className="px-3 py-2 bg-surface text-text-muted text-left border-b border-border font-semibold text-xs">
+                          f2
+                        </th>
+                        <th className="px-3 py-2 bg-surface text-text-muted text-left border-b border-border font-semibold text-xs">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mmResult.per_media.map((m, i) => (
+                        <tr key={m.medium} className={i % 2 === 0 ? 'bg-transparent' : 'bg-surface'}>
+                          <td className="px-3 py-2 text-text border-b border-border">{m.medium}</td>
+                          <td className="px-3 py-2 text-text border-b border-border tabular-nums">
+                            {m.f1_value.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-text border-b border-border tabular-nums">
+                            {m.f2_value.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 border-b border-border">
+                            <Badge variant={m.similar ? 'success' : 'danger'}>
+                              {m.similar ? 'PASS' : 'FAIL'}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {mmResult.per_media[0] && (
+                  <div className="bg-surface border border-border rounded-sm p-4 lg:p-5">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+                      Profiles ({mmResult.per_media[0].medium})
+                    </h3>
+                    <PKChart
+                      series={[
+                        {
+                          name: mmResult.reference_label,
+                          times: mmResult.per_media[0].time_points,
+                          concs: mmResult.per_media[0].reference_mean,
+                          color: '#5e6ad2',
+                        },
+                        {
+                          name: mmResult.test_label,
+                          times: mmResult.per_media[0].time_points,
+                          concs: mmResult.per_media[0].test_mean,
+                          color: '#3dd68c',
+                          dashed: true,
+                        },
+                      ]}
+                      xLabel="Time (min)"
+                      yLabel="% Dissolved"
+                      thresholdY={85}
+                      thresholdLabel="85% threshold"
+                    />
+                  </div>
+                )}
+
+                <DownloadReportButton
+                  formats={['html', 'pdf', 'docx']}
+                  onDownload={(fmt) => downloadMultiMediaReport(mmReq, fmt)}
+                />
+                <Disclaimer text={mmResult.disclaimer} />
+              </>
+            )}
+          </div>
+        </AnalysisShell>
+      ) : (
       <AnalysisShell leftWide={inputMode === 'paste'} resultKey={Boolean(result)}>
         {/* Left panel */}
         <div>
@@ -335,6 +670,7 @@ export default function DissolutionPage() {
               )}
 
               <DownloadReportButton
+                formats={['html', 'markdown', 'pdf', 'docx']}
                 onDownload={(fmt) =>
                   downloadDissolutionReport(activeFile!, selectedReference, selectedTest, columns, fmt)
                 }
@@ -344,6 +680,7 @@ export default function DissolutionPage() {
           )}
         </div>
       </AnalysisShell>
+      )}
     </div>
   )
 }

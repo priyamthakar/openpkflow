@@ -15,6 +15,21 @@ what others already do well.
 
 ---
 
+## v2.6.0 Improvement Sprint (shipped 2026-07-09)
+
+Shipped in parallel tracks:
+
+- Study pipeline (`openpkflow.pipeline` + `openpkflow study run`)
+- SUPAC screening + alcohol dose-dumping f2 assessment
+- IVIVC Level B/C MDT/MRT helpers
+- Transit oral absorption + analytical SS metrics
+- Webapp: BE power calculator, multi-media tab, IVIVC example loader
+- IVIVC convolution analytical validation; BE power edge cases
+- Positioning docs, pipeline tutorial, Docker/compose polish
+
+Remaining from earlier plans: formal BioEqPy RSABE, pipeline web page,
+sparse/MAP API pages, deployed hosted demo.
+
 ## v2.4.0 Credibility Sprint
 
 Goal: make the next release about trust, usability, and release discipline rather

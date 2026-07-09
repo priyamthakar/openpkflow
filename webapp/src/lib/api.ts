@@ -6,11 +6,17 @@
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 import type {
+  BePowerRequest,
+  BePowerResponse,
   BeResponse,
+  BeSampleSizeRequest,
+  BeSampleSizeResponse,
   CompareResponse,
   FormulationsResponse,
   HealthResponse,
   IvIvcResponse,
+  MultiMediaRequest,
+  MultiMediaResponse,
   NcaResponse,
   SimResponse,
 } from './types'
@@ -272,6 +278,49 @@ export async function downloadBeReport(file: File, options: object, format: stri
   const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `be_report.${ext}`)
+}
+
+export async function computeBePower(req: BePowerRequest): Promise<BePowerResponse> {
+  return _json(
+    await fetch(`${BASE}/api/be/power`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function computeBeSampleSize(req: BeSampleSizeRequest): Promise<BeSampleSizeResponse> {
+  return _json(
+    await fetch(`${BASE}/api/be/sample-size`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+// ---------- Multi-media dissolution ----------
+export async function analyzeMultiMedia(req: MultiMediaRequest): Promise<MultiMediaResponse> {
+  return _json(
+    await fetch(`${BASE}/api/dissolution/multi-media/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function downloadMultiMediaReport(req: MultiMediaRequest, format: string): Promise<void> {
+  const params = new URLSearchParams({ format })
+  const res = await fetch(`${BASE}/api/dissolution/multi-media/report?${params}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  _triggerDownload(blob, `multi_media_report.${format}`)
 }
 
 function _triggerDownload(blob: Blob, filename: string) {

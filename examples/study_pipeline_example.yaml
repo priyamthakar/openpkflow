@@ -1,0 +1,13 @@
+# OpenPKFlow study pipeline example (requires PyYAML for CLI loading).
+# Prefer study_pipeline_example.json if PyYAML is not installed.
+#
+# Paths are resolved relative to this file's directory.
+title: OpenPKFlow Example Study Pipeline
+
+dissolution_csv: ../src/openpkflow/datasets/example_similar.csv
+dissolution_reference: reference
+dissolution_test: test
+
+nca_csv: ../src/openpkflow/datasets/theoph.csv
+nca_auc_method: linear_up_log_down
+nca_blq_method: none

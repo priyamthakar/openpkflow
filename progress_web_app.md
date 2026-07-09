@@ -69,15 +69,22 @@ webapp/src/
     utils.ts    — cn() className helper
 ```
 
+## Completed (v2.6.0 polish)
+
+- BE power / sample-size calculator tab (`POST /api/be/power`, `/api/be/sample-size`).
+- Multi-media dissolution tab on Dissolution page + analyze/report API.
+- IVIVC load-example button and dose_diss / dose_iv inputs.
+- Playwright smoke tests for BE power, multi-media tab, IVIVC load example.
+- IVIVC report formats exposed as html/markdown/pdf/docx when library supports them.
+- Multi-media reports: html/pdf/docx.
+
 ## Next Candidates
 
 - Add richer grid controls if users request them: row deletion, column resize, keyboard navigation, drag fill.
-- Add frontend smoke tests (Playwright or Vitest) for paste-to-analysis flows.
-- Add IVIVC template download (grid-based rather than CSV, so a "reset to example" button).
-- Add dose_diss / dose_iv inputs on IVIVC page for absolute concentration scaling.
-- Add power/sample-size calculator tab to BE page (uses `be_sample_size` and `be_tost_power` from openpkflow.be).
-- Explore Vercel/Railway deployment for the FastAPI backend; update `VITE_API_URL`.
-- Consider adding a dark/light theme toggle shortcut in the TopBar.
+- Deploy FastAPI + static webapp (Railway/Render/Cloudflare); document `VITE_API_URL`.
+- Study pipeline page in the webapp (library CLI already: `openpkflow study run`).
+- Sparse NCA / MAP PK pages (library exists; API adapters needed).
+- SUPAC / alcohol dose-dumping UI (library helpers exist in `dissolution.supac`).
 
 ## Design Notes
 
@@ -85,12 +92,11 @@ webapp/src/
 - Keep the backend API stable where possible.
 - Paste mode should be useful immediately with pre-filled realistic example rows.
 - Upload mode remains the primary path for regulated or version-controlled datasets.
-- Template download buttons are inline client-side CSV generation — no backend call needed.
-- IVIVC report formats: html, markdown only (pdf/docx not yet wired in openpkflow.ivivc.reporting).
-- BE report formats: html, markdown only (same reason).
+- Template download buttons are inline client-side CSV generation - no backend call needed.
+- BE report formats: html, markdown only (library limit).
 
 ## Known Limitations / TODOs
 
 - IVIVC Loo-Riegelman method requires kel, k12, k21 to be manually specified; no auto-estimation from data yet.
 - BE page sequence_col toggle only affects the API call; the paste grid always shows a sequence column.
-- No e2e or unit tests for the webapp layer yet.
+- Pipeline orchestration is CLI/library only; not yet a webapp page.

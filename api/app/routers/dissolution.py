@@ -7,15 +7,23 @@ import tempfile
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Form, UploadFile
+from fastapi import APIRouter, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 
 from app.deps import saved_upload
-from app.schemas.dissolution import CompareResponse, DissolutionColumns, FormulationsResponse
+from app.schemas.dissolution import (
+    CompareResponse,
+    DissolutionColumns,
+    FormulationsResponse,
+    MultiMediaRequest,
+    MultiMediaResponse,
+)
 from app.services.dissolution_service import (
     get_formulations,
     run_compare,
+    run_multi_media,
     write_dissolution_report,
+    write_multi_media_report,
 )
 
 router = APIRouter(prefix="/api/dissolution", tags=["dissolution"])
@@ -27,6 +35,13 @@ _MIME: dict[str, str] = {
     "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
 _EXT: dict[str, str] = {"html": ".html", "markdown": ".md", "pdf": ".pdf", "docx": ".docx"}
+
+_MM_MIME: dict[str, str] = {
+    "html": "text/html",
+    "pdf": "application/pdf",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
+_MM_EXT: dict[str, str] = {"html": ".html", "pdf": ".pdf", "docx": ".docx"}
 
 
 @router.post("/formulations", response_model=FormulationsResponse)
@@ -75,5 +90,30 @@ def report(
         path=str(tmp_out),
         media_type=_MIME.get(format, "text/html"),
         filename=f"dissolution_report{ext}",
+        background=BackgroundTask(tmp_out.unlink, missing_ok=True),
+    )
+
+
+@router.post("/multi-media/analyze", response_model=MultiMediaResponse)
+def multi_media_analyze(req: MultiMediaRequest) -> MultiMediaResponse:
+    """Run multi-media f2 grid comparison across two or more media conditions."""
+    return MultiMediaResponse(**run_multi_media(req))
+
+
+@router.post("/multi-media/report")
+def multi_media_report(
+    req: MultiMediaRequest,
+    format: Literal["html", "pdf", "docx"] = Query(default="html"),
+) -> FileResponse:
+    """Stream multi-media dissolution report (html/pdf/docx)."""
+    from starlette.background import BackgroundTask
+
+    ext = _MM_EXT.get(format, ".html")
+    tmp_out = Path(tempfile.mktemp(suffix=ext))
+    write_multi_media_report(req, tmp_out, fmt=format)
+    return FileResponse(
+        path=str(tmp_out),
+        media_type=_MM_MIME.get(format, "text/html"),
+        filename=f"multi_media_report{ext}",
         background=BackgroundTask(tmp_out.unlink, missing_ok=True),
     )

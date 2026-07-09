@@ -140,13 +140,46 @@ class TestPowerTOSTCrossValidation:
         assert pwr > 0.999
 
     def test_power_equals_alpha_at_boundary_gmr(self) -> None:
+        """Power at lower BE limit GMR=0.80 equals alpha (size of TOST).
+
+        Reference: Phillips KF (1990). J Pharmacokinet Biopharm 18(2):137-144.
+        DOI: 10.1007/BF01063556.  At the acceptance boundary the test size is alpha.
+        """
         pwr = be_tost_power(gmr=0.80, cv=0.15, n=50)
         assert pwr == pytest.approx(0.05, abs=0.01)
+
+    def test_power_equals_alpha_at_upper_boundary_gmr(self) -> None:
+        """Power at upper BE limit GMR=1.25 equals alpha (symmetric size property).
+
+        Reference: Phillips KF (1990). J Pharmacokinet Biopharm 18(2):137-144.
+        DOI: 10.1007/BF01063556.  FDA Statistical Approaches to Establishing
+        Bioequivalence (2001) -- 80-125% log-symmetric limits.
+        """
+        pwr_lo = be_tost_power(gmr=0.80, cv=0.20, n=40)
+        pwr_hi = be_tost_power(gmr=1.25, cv=0.20, n=40)
+        assert pwr_lo == pytest.approx(0.05, abs=0.01)
+        assert pwr_hi == pytest.approx(0.05, abs=0.01)
+        # Log-symmetric limits: power at 0.80 and 1.25 should match closely
+        assert pwr_lo == pytest.approx(pwr_hi, abs=1e-4)
 
     def test_power_increases_with_n(self) -> None:
         p20 = be_tost_power(gmr=0.95, cv=0.20, n=20)
         p40 = be_tost_power(gmr=0.95, cv=0.20, n=40)
         assert p40 > p20
+
+    def test_power_monotone_in_n_ladder(self) -> None:
+        """Higher n yields higher power at fixed GMR and CV (monotone power curve).
+
+        Reference: Diletti E, Hauschke D, Steinijans VW (1991). Int J Clin
+        Pharmacol Ther Toxicol 29(1):1-8.  PowerTOST / Owen's Q exact method.
+        """
+        gmr, cv = 0.95, 0.25
+        ns = [12, 18, 24, 36, 48, 60]
+        powers = [be_tost_power(gmr=gmr, cv=cv, n=n) for n in ns]
+        for i in range(1, len(powers)):
+            assert powers[i] > powers[i - 1], (
+                f"power not monotone: n={ns[i - 1]} -> {powers[i - 1]}, n={ns[i]} -> {powers[i]}"
+            )
 
     def test_power_decreases_with_higher_cv(self) -> None:
         p_low = be_tost_power(gmr=0.95, cv=0.10, n=24)
