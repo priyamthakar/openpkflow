@@ -15,6 +15,31 @@ what others already do well.
 
 ---
 
+## v2.6.0 Improvement Sprint (code shipped 2026-07-09; tag pending)
+
+**Branch / PR:** `feat/v2.6.0-improvement-sprint` / https://github.com/priyamthakar/openpkflow/pull/27
+**Takeover doc:** [HANDOFF.md](HANDOFF.md)
+
+Shipped in parallel tracks:
+
+- Study pipeline (`openpkflow.pipeline` + `openpkflow study run`)
+- SUPAC screening + alcohol dose-dumping f2 assessment
+- IVIVC Level B/C MDT/MRT helpers
+- Transit oral absorption + analytical SS metrics
+- Webapp: BE power calculator, multi-media tab, IVIVC example loader
+- IVIVC convolution analytical validation; BE power edge cases
+- Positioning docs, pipeline tutorial, Docker/compose polish
+
+### Next up after merge + tag (ordered)
+
+1. Merge PR #27; tag `v2.6.0`; PyPI + conda-forge (`RELEASE.md`)
+2. Webapp study-pipeline page (CLI already works)
+3. Sparse NCA + MAP PK API/pages
+4. SUPAC / alcohol UI on Dissolution page
+5. Hosted api + webapp deploy (`VITE_API_URL`)
+6. Formal RSABE / BioEqPy (companion package, not openpkflow core)
+7. Optional: wire IVIVC stage into StudyPipeline (multi-array inputs)
+
 ## v2.4.0 Credibility Sprint
 
 Goal: make the next release about trust, usability, and release discipline rather
@@ -212,7 +237,11 @@ FDA and EMA increasingly require dissolution in 3+ media:
 | MAP individual PK | ✅ (v2.0.0) | — | — | — | ✅ |
 | Full Bayesian PK + BE | ✅ (v2.0.0) | — | partial | — | — |
 | HTML/PDF/DOCX reports | ✅ | ✅ | ✅ | ✅ | ✅ |
-| GUI | deferred | ✅ | — | — | ✅ |
+| Study pipeline (multi-stage + report) | ✅ (v2.6) | — | — | — | ✅ |
+| SUPAC screening helpers | ✅ (v2.6 screening) | — | — | — | ✅ |
+| IVIVC Level B/C helpers | ✅ (v2.6) | — | — | — | ✅ |
+| Transit oral absorption | ✅ (v2.6) | — | — | — | ✅ |
+| GUI / web app | ✅ React webapp | ✅ | — | — | ✅ |
 | ML surrogate | ✅ (exp.) | — | — | — | — |
 
 ---

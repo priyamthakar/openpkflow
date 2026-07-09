@@ -204,6 +204,125 @@ def c_1cmt_oral(
     return (dose * ka / (Vz_F * (ka - k))) * (np.exp(-k * t) - np.exp(-ka * t))
 
 
+def c_1cmt_oral_transit(
+    times: list[float] | np.ndarray,
+    dose: float,
+    CL: float,
+    Vz: float,
+    ka: float,
+    n_transit: int,
+    mtt: float,
+) -> np.ndarray:
+    """Simulate 1-cmt oral PK with Erlang transit-compartment absorption.
+
+    Model structure
+    ---------------
+    Dose starts in transit compartment 1 of a chain of ``n_transit`` equal-
+    rate transit compartments. Inter-transit transfer rate::
+
+        ktr = n_transit / mtt
+
+    (Savic-style n/MTT convention; MTT is the mean transit time through the
+    n transit compartments). From the last transit compartment, drug absorbs
+    into the central compartment with first-order rate ``ka``. Central
+    disposition is one-compartment with ``k = CL / Vz``.
+
+    Special case ``n_transit == 1``: the single transit compartment is the
+    absorption depot exiting at rate ``ka``, which is exactly the classical
+    Bateman 1-cmt oral solution (``mtt`` is retained for API consistency and
+    must be > 0, but does not affect the profile when n=1).
+
+    Parameters
+    ----------
+    times : array-like
+        Simulation time points (>= 0, strictly increasing).
+    dose : float
+        Nominal dose amount (bioavailability absorbed into CL and Vz if
+        those are apparent oral parameters).
+    CL : float
+        Clearance (use CL/F for oral apparent clearance). Must be > 0.
+    Vz : float
+        Volume of distribution (use Vz/F for oral apparent volume). Must be > 0.
+    ka : float
+        First-order absorption rate from the last transit compartment into
+        the central compartment. Must be > 0.
+    n_transit : int
+        Number of transit compartments (>= 1).
+    mtt : float
+        Mean transit time through the n transit compartments. Must be > 0.
+        Defines ``ktr = n_transit / mtt``.
+
+    Returns
+    -------
+    np.ndarray
+        Central concentration at each time point.
+
+    Raises
+    ------
+    ValueError
+        If parameters are non-positive, n_transit < 1, dose < 0, or times
+        are invalid.
+
+    Notes
+    -----
+    Evaluation uses the exact matrix exponential of the linear multi-
+    compartment system (transit chain + central amount), which is stable for
+    moderate n_transit. Concentrations are non-negative for valid parameters.
+
+    References
+    ----------
+    Savic, R. M., Jonker, D. M., van Houten, P., & Karlsson, M. O. (2007).
+    Implementation of a transit compartment model for describing drug
+    absorption in pharmacokinetic studies. Journal of Pharmacokinetics and
+    Pharmacodynamics, 34(5), 711-726. DOI: 10.1007/s10928-007-9066-0
+
+    Gibaldi, M., & Perrier, D. (1982). Pharmacokinetics (2nd ed.). Marcel Dekker.
+    """
+    _validate_positive(CL=CL, Vz=Vz, ka=ka, mtt=mtt)
+    _validate_nonneg(dose=dose)
+    if not isinstance(n_transit, int) or isinstance(n_transit, bool):
+        raise ValueError(f"n_transit must be an int (got {type(n_transit).__name__}).")
+    if n_transit < 1:
+        raise ValueError(f"n_transit must be >= 1 (got {n_transit}).")
+    t = _prepare_times(times)
+    k = CL / Vz
+    ktr = n_transit / mtt
+
+    # n_transit == 1: classical first-order oral absorption (Bateman)
+    if n_transit == 1:
+        return c_1cmt_oral(t, dose=dose, CL_F=CL, Vz_F=Vz, ka=ka)
+
+    # State: [T1, T2, ..., Tn, Ac] amounts; C = Ac / Vz
+    # dT1/dt = -ktr * T1
+    # dTi/dt = ktr * T(i-1) - ktr * Ti   for i = 2..n-1
+    # dTn/dt = ktr * T(n-1) - ka * Tn
+    # dAc/dt = ka * Tn - k * Ac
+    n = n_transit
+    dim = n + 1
+    A = np.zeros((dim, dim), dtype=float)
+    for i in range(n - 1):
+        A[i, i] = -ktr
+        A[i + 1, i] = ktr
+    A[n - 1, n - 1] = -ka
+    A[n, n - 1] = ka
+    A[n, n] = -k
+
+    from scipy.linalg import expm
+
+    y0 = np.zeros(dim, dtype=float)
+    y0[0] = dose
+    conc = np.empty_like(t)
+    for i, ti in enumerate(t):
+        if ti == 0.0:
+            conc[i] = 0.0
+        else:
+            y = expm(A * float(ti)) @ y0
+            conc[i] = y[n] / Vz
+    # Numerical noise floor
+    conc = np.maximum(conc, 0.0)
+    return conc
+
+
 # ---------------------------------------------------------------------------
 # 2-compartment models
 # ---------------------------------------------------------------------------
@@ -482,3 +601,118 @@ def superpose(
         if mask.any():
             C_total[mask] += unit_fn(t_rel[mask], amount)
     return C_total
+
+
+# ---------------------------------------------------------------------------
+# Analytical steady-state metrics (1-cmt oral)
+# ---------------------------------------------------------------------------
+
+
+def steady_state_metrics_1cmt_oral(
+    dose: float,
+    tau: float,
+    CL: float,
+    Vz: float,
+    ka: float,
+) -> dict[str, float]:
+    """Closed-form steady-state metrics for 1-compartment oral multi-dose.
+
+    Assumes linear kinetics, constant dose and interval, and complete
+    bioavailability absorbed into the apparent parameters CL and Vz (i.e.
+    pass CL/F and Vz/F for oral data).
+
+    Parameters
+    ----------
+    dose : float
+        Dose amount per administration. Must be > 0.
+    tau : float
+        Dosing interval. Must be > 0.
+    CL : float
+        Clearance (use CL/F for oral). Must be > 0.
+    Vz : float
+        Volume of distribution (use Vz/F for oral). Must be > 0.
+    ka : float
+        First-order absorption rate constant. Must be > 0.
+
+    Returns
+    -------
+    dict[str, float]
+        ``Css_max``, ``Css_min``, ``Css_avg``, ``AUCtau``, ``fluctuation``
+        where fluctuation = (Css_max - Css_min) / Css_avg (fraction, not %).
+
+    Raises
+    ------
+    ValueError
+        If any parameter is non-positive, or ka is numerically equal to k
+        (degenerate multi-dose closed form).
+
+    Notes
+    -----
+    With k = CL/Vz::
+
+        AUCtau = dose / CL
+        Css_avg = AUCtau / tau = dose / (CL * tau)
+
+        Css(t) = (dose*ka)/(Vz*(ka-k)) * [
+            exp(-k*t)/(1-exp(-k*tau)) - exp(-ka*t)/(1-exp(-ka*tau))
+        ]
+
+        t_max,ss = ln[ ka*(1-exp(-k*tau)) / (k*(1-exp(-ka*tau))) ] / (ka-k)
+        Css_max = Css(t_max,ss)
+        Css_min = Css(tau)
+
+    References
+    ----------
+    Gibaldi, M., & Perrier, D. (1982). Pharmacokinetics (2nd ed.), Chapter 3
+    (multiple-dose regimens), Eqs. for one-compartment first-order absorption.
+
+    Rowland, M., & Tozer, T. N. Clinical Pharmacokinetics and Pharmacodynamics
+    (concepts of Css_avg, fluctuation at steady state).
+    """
+    _validate_positive(dose=dose, tau=tau, CL=CL, Vz=Vz, ka=ka)
+    k = CL / Vz
+    if math.isclose(ka, k, rel_tol=1e-8, abs_tol=1e-12):
+        raise ValueError(
+            f"ka ({ka:.6g}) is numerically equal to k=CL/Vz ({k:.6g}); "
+            "the multi-dose closed form is undefined in the flip-flop limit."
+        )
+
+    auctau = dose / CL
+    css_avg = auctau / tau
+
+    denom_k = 1.0 - math.exp(-k * tau)
+    denom_ka = 1.0 - math.exp(-ka * tau)
+    if denom_k <= 0.0 or denom_ka <= 0.0:
+        raise ValueError("Invalid exp(-k*tau) or exp(-ka*tau); check tau and rates.")
+
+    pref = (dose * ka) / (Vz * (ka - k))
+
+    def css_at(t: float) -> float:
+        return pref * (math.exp(-k * t) / denom_k - math.exp(-ka * t) / denom_ka)
+
+    # Time of peak within the dosing interval at steady state
+    ratio = (ka * denom_k) / (k * denom_ka)
+    if ratio <= 0.0:
+        raise ValueError("Invalid ratio for t_max,ss; check parameters.")
+    t_max_ss = math.log(ratio) / (ka - k)
+    # Clamp into (0, tau] for numerical edge cases
+    if t_max_ss <= 0.0:
+        t_max_ss = 0.0
+    elif t_max_ss > tau:
+        t_max_ss = tau
+
+    css_max = css_at(t_max_ss)
+    css_min = css_at(tau)
+    # Guard tiny negative numerical noise
+    css_max = max(css_max, 0.0)
+    css_min = max(css_min, 0.0)
+
+    fluctuation = (css_max - css_min) / css_avg if css_avg > 0.0 else float("nan")
+
+    return {
+        "Css_max": float(css_max),
+        "Css_min": float(css_min),
+        "Css_avg": float(css_avg),
+        "AUCtau": float(auctau),
+        "fluctuation": float(fluctuation),
+    }

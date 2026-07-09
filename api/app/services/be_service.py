@@ -7,7 +7,8 @@ from typing import Any
 
 import pandas as pd
 
-from app.schemas.be import BeOptions, SubjectRow
+from app.schemas.be import BeOptions, PowerRequest, SampleSizeRequest, SubjectRow
+from openpkflow.be.methods import be_sample_size, be_tost_power
 from openpkflow.be.study import BEStudy
 
 _DISCLAIMER = (
@@ -77,3 +78,50 @@ def write_be_report(path: Path, opts: BeOptions, out_path: Path, fmt: str) -> No
     )
     result = study.analyze(be_lower=opts.be_lower, be_upper=opts.be_upper, alpha=opts.alpha)
     result.report(out_path, format=fmt)
+
+
+def run_be_power(req: PowerRequest) -> dict[str, Any]:
+    power = be_tost_power(
+        req.gmr,
+        req.cv,
+        req.n,
+        be_lower=req.be_lower,
+        be_upper=req.be_upper,
+        alpha=req.alpha,
+    )
+    return {
+        "power": float(power),
+        "gmr": float(req.gmr),
+        "cv": float(req.cv),
+        "n": int(req.n),
+        "be_lower": float(req.be_lower),
+        "be_upper": float(req.be_upper),
+        "alpha": float(req.alpha),
+        "disclaimer": _DISCLAIMER,
+    }
+
+
+def run_be_sample_size(req: SampleSizeRequest) -> dict[str, Any]:
+    try:
+        n, achieved = be_sample_size(
+            req.gmr,
+            req.cv,
+            req.target_power,
+            be_lower=req.be_lower,
+            be_upper=req.be_upper,
+            alpha=req.alpha,
+            max_n=req.max_n,
+        )
+    except RuntimeError as exc:
+        raise ValueError(str(exc)) from exc
+    return {
+        "n": int(n),
+        "achieved_power": float(achieved),
+        "gmr": float(req.gmr),
+        "cv": float(req.cv),
+        "target_power": float(req.target_power),
+        "be_lower": float(req.be_lower),
+        "be_upper": float(req.be_upper),
+        "alpha": float(req.alpha),
+        "disclaimer": _DISCLAIMER,
+    }

@@ -11,8 +11,15 @@ from fastapi import APIRouter, Form, UploadFile
 from fastapi.responses import FileResponse
 
 from app.deps import saved_upload
-from app.schemas.be import BeOptions, BeResponse
-from app.services.be_service import run_be, write_be_report
+from app.schemas.be import (
+    BeOptions,
+    BeResponse,
+    PowerRequest,
+    PowerResponse,
+    SampleSizeRequest,
+    SampleSizeResponse,
+)
+from app.services.be_service import run_be, run_be_power, run_be_sample_size, write_be_report
 
 router = APIRouter(prefix="/api/be", tags=["be"])
 
@@ -55,3 +62,15 @@ def report(
         filename=f"be_report{ext}",
         background=BackgroundTask(tmp_out.unlink, missing_ok=True),
     )
+
+
+@router.post("/power", response_model=PowerResponse)
+def power(req: PowerRequest) -> PowerResponse:
+    """Compute TOST power for a given GMR, CV, and sample size."""
+    return PowerResponse(**run_be_power(req))
+
+
+@router.post("/sample-size", response_model=SampleSizeResponse)
+def sample_size(req: SampleSizeRequest) -> SampleSizeResponse:
+    """Compute required sample size for a target TOST power."""
+    return SampleSizeResponse(**run_be_sample_size(req))

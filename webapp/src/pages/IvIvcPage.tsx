@@ -91,6 +91,8 @@ export default function IvIvcPage() {
   const [kel, setKel] = useState<string>('0.12')
   const [k12, setK12] = useState<string>('')
   const [k21, setK21] = useState<string>('')
+  const [doseDiss, setDoseDiss] = useState<string>('')
+  const [doseIv, setDoseIv] = useState<string>('')
   const [studyLabel, setStudyLabel] = useState<string>('')
 
   const req = useMemo(() => {
@@ -108,11 +110,25 @@ export default function IvIvcPage() {
       kel: kel.trim() !== '' ? Number(kel) : null,
       k12: method === 'loo_riegelman' && k12.trim() !== '' ? Number(k12) : null,
       k21: method === 'loo_riegelman' && k21.trim() !== '' ? Number(k21) : null,
-      dose_diss: null,
-      dose_iv: null,
+      dose_diss: doseDiss.trim() !== '' ? Number(doseDiss) : null,
+      dose_iv: doseIv.trim() !== '' ? Number(doseIv) : null,
       study_label: studyLabel,
     }
-  }, [inVivoRows, dissolutionRows, ivUirRows, method, kel, k12, k21, studyLabel])
+  }, [inVivoRows, dissolutionRows, ivUirRows, method, kel, k12, k21, doseDiss, doseIv, studyLabel])
+
+  function loadExample() {
+    setInVivoRows(EXAMPLE_IN_VIVO_ROWS)
+    setDissolutionRows(EXAMPLE_DISSOLUTION_ROWS)
+    setIvUirRows(EXAMPLE_IV_UIR_ROWS)
+    setMethod('wagner_nelson')
+    setKel('0.12')
+    setK12('')
+    setK21('')
+    setDoseDiss('')
+    setDoseIv('')
+    setStudyLabel('Example IR tablet')
+    mutation.reset()
+  }
 
   const mutation = useMutation<IvIvcResponse, Error>({
     mutationFn: () => analyzeIvIvc(req),
@@ -253,6 +269,30 @@ export default function IvIvcPage() {
                   </>
                 )}
                 <div className="flex justify-between items-center gap-3">
+                  <span className="text-sm font-semibold text-text shrink-0">
+                    Dose (dissolution, optional)
+                  </span>
+                  <input
+                    type="number"
+                    value={doseDiss}
+                    onChange={(e) => setDoseDiss(e.target.value)}
+                    placeholder="optional"
+                    className="w-28 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                  />
+                </div>
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-sm font-semibold text-text shrink-0">
+                    Dose (IV, optional)
+                  </span>
+                  <input
+                    type="number"
+                    value={doseIv}
+                    onChange={(e) => setDoseIv(e.target.value)}
+                    placeholder="optional"
+                    className="w-28 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                  />
+                </div>
+                <div className="flex justify-between items-center gap-3">
                   <span className="text-sm font-semibold text-text shrink-0">Study label</span>
                   <input
                     type="text"
@@ -264,6 +304,15 @@ export default function IvIvcPage() {
                 </div>
               </div>
             </section>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={loadExample}
+              className="w-full"
+            >
+              Load example
+            </Button>
 
             <Button
               onClick={() => mutation.mutate()}
@@ -375,7 +424,7 @@ export default function IvIvcPage() {
               </div>
 
               <DownloadReportButton
-                formats={['html', 'markdown']}
+                formats={['html', 'markdown', 'pdf', 'docx']}
                 onDownload={(fmt) => downloadIvIvcReport(req, fmt)}
               />
               <Disclaimer text={result.disclaimer} />

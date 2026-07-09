@@ -11,6 +11,37 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.6.0] - 2026-07-09
+
+### Added
+
+- **Study pipeline** (`openpkflow.pipeline`): compose dissolution, NCA, and BE
+  stages into one run with audit metadata, HTML/Markdown multi-section reports,
+  and CLI `openpkflow study run config.json --report out.html`.
+- **SUPAC-IR screening** helpers: `classify_supac_ir_level()` and
+  `alcohol_dose_dumping_assessment()` in `dissolution/supac.py` (screening only;
+  not a substitute for full guidance interpretation).
+- **IVIVC Level B/C**: MDT, MRT, and linear correlation helpers
+  (`mean_dissolution_time`, `mean_residence_time`, `level_b_correlation`,
+  `level_c_correlation`).
+- **Transit-compartment oral absorption**: `c_1cmt_oral_transit()` (Savic-style
+  n/MTT convention) and closed-form `steady_state_metrics_1cmt_oral()`.
+- **Web API / app**: BE power and sample-size endpoints + calculator tab;
+  multi-media dissolution analyze/report + Dissolution page tab; IVIVC load
+  example and dose_diss/dose_iv UI; expanded Playwright smoke tests.
+- **Validation**: analytical IVIVC convolution cross-check
+  (`tests/validation/test_ivivc_convolution_reference.py`); BE power edge
+  cases (boundary GMR ~ alpha, monotonicity in n).
+- **Docs**: positioning page, pipeline tutorial, validation matrix updates,
+  Docker/compose polish, `examples/pipeline_walkthrough.py`.
+
+### Notes
+
+- Pop PK estimation remains frozen (bug fixes only). Formal RSABE remains out
+  of scope (companion BioEqPy). SUPAC and replicate BE are screening tools.
+
+---
+
 ## [2.5.0] - 2026-06-12
 
 ### Added

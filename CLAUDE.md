@@ -5,27 +5,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Scope and boundary (read this first)
 
 **In scope — build, extend, polish:**
-- `dissolution/` — f1, f2, MSD, model fitting, multi-media (greenfield moat vs competitors)
+- `dissolution/` — f1, f2, MSD, model fitting, multi-media, SUPAC screening, alcohol f2
 - `nca/` — sparse, steady-state, urinary, CDISC PP (greenfield moat)
-- `ivivc/` — Level A (greenfield moat)
-- `sim/` — analytical compartment models
+- `ivivc/` — Level A + Level B/C helpers (MDT/MRT correlation)
+- `sim/` — analytical compartment models, transit oral, SS metrics
+- `pipeline/` — multi-stage study orchestration + unified reports (v2.6.0)
 - `bayes/` — MAP individual PK (scipy, screening tool, not regulatory primary)
-- `be/` — paired TOST convenience layer + BioEqPy export
+- `be/` — paired TOST convenience layer + power/n + BioEqPy export
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
 **Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
-  In scope: adding endpoints, fixing bugs in the adapter layer, improving error handling.
-  Current routers: nca, dissolution, sim, ivivc, be.
-- `webapp/` — React + Vite + Tailwind frontend. In scope: UI improvements, new pages for
-  modules already covered by the backend, bug fixes.
-  Current pages: Home, NCA (/nca), Dissolution (/dissolution), Simulation (/sim),
-  IVIVC (/ivivc), Bioequivalence (/be).
-- Both dirs are separate from `src/openpkflow/` and do NOT modify the frozen library.
+  Current routers: nca, dissolution (incl. multi-media), sim, ivivc, be (incl. power/n).
+- `webapp/` — React + Vite + Tailwind frontend.
+  Current pages: Home, NCA, Dissolution (single + multi-media tab), Simulation, IVIVC,
+  Bioequivalence (analysis + power tab).
+- Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
 - See `progress_web_app.md` for the full file map, completed features, and next candidates.
+- Takeover state: read `HANDOFF.md` first (branch, PR #27, release checklist).
 
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
@@ -109,17 +109,19 @@ openpkflow dissolution compare data.csv --reference reference --test test --repo
 ### Module map
 
 ```
-dissolution/   -- f1, f2, bootstrap_f2, model fitting, loader, reporting   <- DONE v0.1-v0.2
-nca/           -- AUC, lambda_z, PK parameters, steady-state, urine, tlast  <- DONE v0.4.0, v1.3.0
-ivivc/         -- Wagner-Nelson, Loo-Riegelman, convolution, Levy, %PE     <- DONE v1.2.0
-sim/           -- analytical compartment models, dosing, superposition      <- DONE v0.5.0
-pop/           — GOF plots (4-panel), VPC (simulation-based), dataset      ← DONE v0.6.0
-bayes/         — ImportError guards; [bayes] extras wired; PyMC deferred   ← v0.8.0 deferred
-ml/            — PKSurrogate (torch MLP, EXPERIMENTAL)                     ← DONE v0.9.0
-report/        — Markdown, HTML, PDF (ReportLab), Word (python-docx)       ← DONE v0.3.0
-datasets/      — example CSVs (dissolution + theoph NCA reference)
-validation/    — reference comparison utilities
-cli.py         — Typer CLI entry point
+dissolution/   -- f1, f2, bootstrap, MSD, models, multi_media, supac       DONE (+ v2.6)
+nca/           -- AUC, lambda_z, SS, urine, sparse, CDISC PP               DONE
+ivivc/         -- Level A WN/LR/convolution/Levy + Level B/C helpers       DONE (+ v2.6)
+sim/           -- 1/2-cmt, dosing, transit oral, SS metrics                DONE (+ v2.6)
+pipeline/      -- StudyPipeline multi-stage orchestration + reports        DONE v2.6.0
+pop/           -- GOF/VPC + estimation/ FROZEN (bug fixes only)            DONE
+bayes/         -- MAP + optional PyMC                                      DONE
+ml/            -- PKSurrogate (torch MLP, EXPERIMENTAL)                    DONE
+report/        -- Markdown, HTML, PDF (ReportLab), Word (python-docx)      DONE
+datasets/      -- example CSVs (dissolution + theoph NCA reference)
+validation/    -- reference comparison utilities
+student/       -- simplified teaching APIs                                 DONE v2.5
+cli.py         -- Typer: dissolution, be, ivivc, pop, study run
 ```
 
 ### NCA module layout
@@ -247,9 +249,15 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-v2.3.0 is current — Pop PK FOCE-I validated against nlme reference, covariate skeleton removed.
-Next focus: conda-forge distribution + PowerTOST cross-validation (nice-to-have).
-See `ROADMAP.md` for the full ladder.
+**v2.6.0** is the current tree version (pipeline, SUPAC/alcohol, IVIVC B/C, transit sim,
+webapp polish, convolution validation). Code lives on PR #27 until merge.
+
+**Immediate next work (in order):**
+1. Merge PR #27 when CI is green; tag/release v2.6.0 (`RELEASE.md`, `HANDOFF.md`).
+2. Webapp: study pipeline page; sparse NCA / MAP adapters; SUPAC UI; deploy.
+3. Keep validation discipline; do not extend frozen `pop/estimation/`.
+
+See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 
@@ -258,29 +266,14 @@ See `ROADMAP.md` for the full ladder.
 ## Release Ladder
 
 ```
-0.1.0  f1, f2, input validation, CSV loader, CLI, Markdown+HTML report stub, tests          DONE
-0.1.1  bootstrap_f2, profile plots in HTML reports, CI, example datasets, py.typed          DONE
-0.1.2  PyPI publish, Trusted Publishing workflow                                         DONE
-0.1.3  README polish, f2_method="regulatory" option, CV% warning in compare()
-0.2.0  dissolution model fitting (Weibull, Korsmeyer-Peppas, Higuchi, first-order,
-       zero-order) — scipy curve_fit, AIC/BIC/R2, fit overlay in HTML report
-0.3.0  full Markdown + HTML + ReportLab PDF report generator
-0.4.0  NCA engine (AUC, Cmax, Tmax, lambda_z, t1/2, CL/F, Vz/F)
-0.5.0  PK simulation (1-comp, 2-comp, oral, IV, infusion, repeated dosing)       DONE
-0.6.0  population PK diagnostics, GOF plots, VPC helpers                         DONE
-0.7.0  Pharmpy bridge                                                             SKIPPED (reserved)
-0.8.0  Bayesian PK (PyMC, CmdStanPy)                                             DEFERRED (extras wired)
-0.9.0  ML surrogate (torch MLP, EXPERIMENTAL)                                    DONE
-1.0.0  stable public release                                                      DONE
-1.1.0  dissolution regulatory toolkit: MSD, model-dependent comparison, RSD check  DONE
-1.2.0  IVIVC Level A: Wagner-Nelson, Loo-Riegelman, convolution predict, %PE      DONE
-1.3.0  NCA expansion: steady-state, urinary excretion, CDISC PP output             DONE
-1.4.0  multi-media dissolution: pH 1.2/4.5/6.8 panel, alcohol dose-dumping         DONE
-1.5.0  Sparse-sampling NCA: model-informed 1-cmt oral from 3-5 data points         DONE
-2.0.0  Bayesian PK: MAP individual estimation + full posterior + Bayesian BE (PyMC) DONE
-2.1.0  FOCE-I & SAEM population PK (1-cmt, diagonal Omega)                         DONE
-2.2.0  2-cmt models, full Omega matrix, covariate skeleton                          DONE
-2.3.0  Remove covariate skeleton, FOCE-I nlme cross-validation, conda-forge prep    DONE
+0.1.0 - 1.0.0  core dissolution, NCA, sim, reports, stable release              DONE
+1.1.0 - 1.5.0  MSD, IVIVC Level A, SS/urine NCA, multi-media, sparse NCA        DONE
+2.0.0          Bayesian MAP + PyMC BE                                           DONE
+2.1.0 - 2.3.0  FOCE-I/SAEM, 2-cmt Omega, freeze pop estimation + nlme val       DONE
+2.4.0          replicate BE screening + release credibility sprint              DONE
+2.5.0          web app (api/ + webapp/) + student helpers                       DONE
+2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    CODE DONE (tag pending)
+0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 
 See `ROADMAP.md` for full milestone detail, scope rationale, and definition of done.

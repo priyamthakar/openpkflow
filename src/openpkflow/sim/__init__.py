@@ -8,9 +8,11 @@ from openpkflow.sim.methods import (
     c_1cmt_iv_bolus,
     c_1cmt_iv_infusion,
     c_1cmt_oral,
+    c_1cmt_oral_transit,
     c_2cmt_iv_bolus,
     c_2cmt_iv_infusion,
     c_2cmt_oral,
+    steady_state_metrics_1cmt_oral,
     superpose,
 )
 from openpkflow.sim.models import OneCompartmentModel, TwoCompartmentModel
@@ -27,8 +29,10 @@ __all__ = [
     "c_1cmt_iv_bolus",
     "c_1cmt_iv_infusion",
     "c_1cmt_oral",
+    "c_1cmt_oral_transit",
     "c_2cmt_iv_bolus",
     "c_2cmt_iv_infusion",
     "c_2cmt_oral",
     "superpose",
+    "steady_state_metrics_1cmt_oral",
 ]

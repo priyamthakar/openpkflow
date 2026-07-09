@@ -16,9 +16,9 @@ const MODULES = [
     to: '/dissolution',
     icon: Waves,
     title: 'Dissolution Similarity',
-    desc: 'Compare reference vs. test dissolution profiles using FDA f1/f2 metrics. View regulatory warnings and download reports.',
+    desc: 'Compare reference vs. test dissolution profiles using FDA f1/f2 metrics. Multi-media pH panel (ICH M13A/B) and professional reports.',
     accent: 'var(--success)',
-    hint: 'Multi-batch formulation profiles',
+    hint: 'Single-medium f2 or multi-media grid',
   },
   {
     to: '/sim',
@@ -40,9 +40,9 @@ const MODULES = [
     to: '/be',
     icon: Scale,
     title: 'Bioequivalence',
-    desc: 'Analyze paired 2x2 crossover data using TOST, GMR, 90% confidence intervals, intra-subject CV, and clear pass/fail reporting.',
+    desc: 'Analyze paired 2x2 crossover data using TOST, GMR, 90% confidence intervals, and a power / sample-size calculator.',
     accent: '#38bdf8',
-    hint: 'Upload CSV or paste subject-level T/R values',
+    hint: 'TOST analysis + PowerTOST-style calculator',
   },
 ]
 

@@ -142,3 +142,85 @@ test('BE paste-run flow renders bioequivalence verdict', async ({ page }) => {
   await expect(page.getByText('BIOEQUIVALENT')).toBeVisible()
   await expect(page.getByText('0.960')).toBeVisible()
 })
+
+test('BE power calculator happy path', async ({ page }) => {
+  await page.route('**/api/be/power', async (route) => {
+    await route.fulfill({
+      json: {
+        power: 0.834,
+        gmr: 0.95,
+        cv: 0.2,
+        n: 24,
+        be_lower: 0.8,
+        be_upper: 1.25,
+        alpha: 0.05,
+        disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/be')
+  await page.getByRole('radio', { name: 'Power calculator' }).click()
+  await page.getByRole('button', { name: 'Compute Power' }).click()
+  await expect(page.getByText('Power').first()).toBeVisible()
+  await expect(page.getByText('0.834')).toBeVisible()
+})
+
+test('Multi-media dissolution tab renders overall pass', async ({ page }) => {
+  await page.route('**/api/dissolution/multi-media/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        reference_label: 'reference',
+        test_label: 'test',
+        media_names: ['pH 1.2', 'pH 4.5', 'pH 6.8'],
+        f2_summary: { 'pH 1.2': 72.1, 'pH 4.5': 68.4, 'pH 6.8': 70.2 },
+        overall_pass: true,
+        per_media: [
+          {
+            medium: 'pH 1.2',
+            f1_value: 3.2,
+            f2_value: 72.1,
+            similar: true,
+            n_timepoints: 7,
+            time_points: [5, 10, 15, 20, 30, 45, 60],
+            reference_mean: [5, 15, 30, 45, 60, 80, 95],
+            test_mean: [6, 16, 31, 44, 58, 78, 93],
+          },
+          {
+            medium: 'pH 4.5',
+            f1_value: 3.5,
+            f2_value: 68.4,
+            similar: true,
+            n_timepoints: 7,
+            time_points: [5, 10, 15, 20, 30, 45, 60],
+            reference_mean: [5, 15, 30, 45, 60, 80, 95],
+            test_mean: [6, 16, 31, 44, 58, 78, 93],
+          },
+          {
+            medium: 'pH 6.8',
+            f1_value: 3.1,
+            f2_value: 70.2,
+            similar: true,
+            n_timepoints: 7,
+            time_points: [5, 10, 15, 20, 30, 45, 60],
+            reference_mean: [5, 15, 30, 45, 60, 80, 95],
+            test_mean: [6, 16, 31, 44, 58, 78, 93],
+          },
+        ],
+        disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/dissolution')
+  await page.getByRole('radio', { name: 'Multi-media' }).click()
+  await page.getByRole('button', { name: 'Run Multi-Media f2' }).click()
+  await expect(page.getByText('Overall PASS (all f2 >= 50)')).toBeVisible()
+  await expect(page.getByText('72.100')).toBeVisible()
+})
+
+test('IVIVC load example restores paste grids', async ({ page }) => {
+  await page.goto('/ivivc')
+  await page.getByRole('button', { name: 'Load example' }).click()
+  await expect(page.locator('input[value="Example IR tablet"]')).toBeVisible()
+})

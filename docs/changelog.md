@@ -11,6 +11,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.6.0] -- 2026-07-09
+
+### Added
+
+- Study pipeline package and CLI (`openpkflow study run`) with multi-section reports.
+- SUPAC-IR screening and alcohol dose-dumping f2 assessment helpers.
+- IVIVC Level B/C MDT/MRT correlation helpers.
+- Transit-compartment oral absorption and 1-cmt oral steady-state metrics.
+- Webapp: BE power calculator, multi-media dissolution tab, IVIVC example loader.
+- IVIVC convolution analytical validation tests; BE power edge-case tests.
+- Positioning page and pipeline tutorial.
+
+---
+
 ## [2.4.0] -- 2026-05-30
 
 ### Added

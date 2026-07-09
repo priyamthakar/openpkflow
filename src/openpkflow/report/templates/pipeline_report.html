@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #f4f6f9;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    .report-header {
+      background: #0d3b66;
+      color: #ffffff;
+      padding: 28px 36px 24px;
+      border-bottom: 4px solid #1a78c2;
+    }
+
+    .report-header .org-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 6px;
+    }
+
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px 24px;
+    }
+
+    .meta-item {
+      font-size: 12px;
+      color: #c6ddf0;
+    }
+
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #90bfe8;
+      margin-bottom: 1px;
+    }
+
+    .content { padding: 32px 36px; }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0d3b66;
+      border-bottom: 2px solid #e2ecf8;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+
+    section { margin-bottom: 32px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #e8f0fb;
+      color: #0d3b66;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #c6d8f0;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fbfe; }
+
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8eef6;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .badge-pass  { background: #d4edda; color: #155724; border: 1px solid #b8dac2; }
+    .badge-fail  { background: #f8d7da; color: #721c24; border: 1px solid #e8b4b8; }
+    .badge-info  { background: #e8f0fb; color: #0d3b66; border: 1px solid #c6d8f0; }
+
+    .interp-box {
+      background: #f0f6ff;
+      border-left: 4px solid #1a78c2;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #1a3a5c;
+      margin-top: 12px;
+    }
+
+    .warn-box {
+      background: #fff8e6;
+      border-left: 4px solid #e0a800;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #5c4a00;
+    }
+
+    .warn-box ul { margin: 8px 0 0 18px; }
+
+    .kv-table td:first-child {
+      font-weight: 600;
+      color: #0d3b66;
+      width: 40%;
+    }
+
+    .disclaimer-box {
+      background: #f7f7f7;
+      border: 1px solid #dde1e7;
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #666c74;
+      line-height: 1.55;
+    }
+
+    .disclaimer-box strong {
+      color: #444c55;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .report-footer {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      padding: 14px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+      font-size: 11px;
+      color: #8a95a3;
+    }
+
+    .report-footer a {
+      color: #1a78c2;
+      text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      body { background: #ffffff; font-size: 13px; }
+      .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+      .report-header { padding: 22px 18px 20px; }
+      .content { padding: 28px 18px; }
+      .report-footer { padding: 14px 18px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; }
+      .report-footer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="report-header">
+    <p class="org-label">OpenPKFlow &mdash; End-to-End Study Pipeline Report</p>
+    <h1>{{ title }}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Generated (UTC)</strong>
+        {{ generated_at }}
+      </div>
+      <div class="meta-item">
+        <strong>Software</strong>
+        OpenPKFlow {{ openpkflow_version }}
+      </div>
+      <div class="meta-item">
+        <strong>Stages Completed</strong>
+        {{ stages_completed | join(", ") if stages_completed else "none" }}
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <section>
+      <h2>Pipeline Overview</h2>
+      <table class="kv-table">
+        <tbody>
+          <tr>
+            <td>Stages requested</td>
+            <td>{{ stages_requested | join(", ") if stages_requested else "none" }}</td>
+          </tr>
+          <tr>
+            <td>Stages completed</td>
+            <td>{{ stages_completed | join(", ") if stages_completed else "none" }}</td>
+          </tr>
+          {% if methods %}
+          {% for key, value in methods.items() %}
+          {% if value is not none %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+
+      {% if stage_status %}
+      <table style="margin-top: 16px;">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, status in stage_status.items() %}
+          <tr>
+            <td>{{ name }}</td>
+            <td>
+              {% if status == "completed" %}
+              <span class="badge badge-pass">{{ status }}</span>
+              {% elif status.startswith("failed") %}
+              <span class="badge badge-fail">{{ status }}</span>
+              {% else %}
+              <span class="badge badge-info">{{ status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+
+    {% if warnings %}
+    <section>
+      <h2>Warnings</h2>
+      <div class="warn-box">
+        <strong>{{ warnings | length }} warning(s) collected during pipeline run</strong>
+        <ul>
+          {% for w in warnings %}
+          <li>{{ w }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if dissolution is not none %}
+    <section>
+      <h2>Dissolution Similarity (f1 / f2)</h2>
+      <table class="kv-table">
+        <tbody>
+          <tr>
+            <td>Reference</td>
+            <td>{{ dissolution.reference_label }}</td>
+          </tr>
+          <tr>
+            <td>Test</td>
+            <td>{{ dissolution.test_label }}</td>
+          </tr>
+          <tr>
+            <td>Timepoints</td>
+            <td>{{ dissolution.n_timepoints }}</td>
+          </tr>
+          <tr>
+            <td>f1 (difference)</td>
+            <td class="num">{{ "%.4g"|format(dissolution.f1_value) }}</td>
+          </tr>
+          <tr>
+            <td>f2 (similarity)</td>
+            <td class="num">
+              {{ "%.4g"|format(dissolution.f2_value) }}
+              {% if dissolution.f2_value >= 50 %}
+              <span class="badge badge-pass">f2 &gt;= 50</span>
+              {% else %}
+              <span class="badge badge-fail">f2 &lt; 50</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="interp-box">
+        {% if dissolution.f2_value >= 50 %}
+        f2 &gt;= 50 supports similarity between the reference and test profiles (FDA 1997 guidance threshold).
+        {% else %}
+        f2 &lt; 50 does not support similarity between the reference and test profiles.
+        {% endif %}
+      </div>
+
+      {% if dissolution.time_points %}
+      <table style="margin-top: 16px;">
+        <thead>
+          <tr>
+            <th class="num">Time</th>
+            <th class="num">Reference mean</th>
+            <th class="num">Test mean</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t, rm, tm in zip(dissolution.time_points, dissolution.reference_mean, dissolution.test_mean) %}
+          <tr>
+            <td class="num">{{ t }}</td>
+            <td class="num">{{ "%.4g"|format(rm) }}</td>
+            <td class="num">{{ "%.4g"|format(tm) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if nca is not none %}
+    <section>
+      <h2>Non-Compartmental Analysis</h2>
+      <table class="kv-table">
+        <tbody>
+          <tr>
+            <td>AUC method</td>
+            <td>{{ nca.auc_method }}</td>
+          </tr>
+          <tr>
+            <td>BLQ method</td>
+            <td>{{ nca.blq_method }}</td>
+          </tr>
+          <tr>
+            <td>Subjects</td>
+            <td>{{ nca.results | length }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table style="margin-top: 16px;">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th class="num">AUClast</th>
+            <th class="num">AUCinf_obs</th>
+            <th class="num">Cmax</th>
+            <th class="num">Tmax</th>
+            <th class="num">half_life</th>
+            <th class="num">CL / CL_F</th>
+            <th class="num">Vz / Vz_F</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in nca_rows %}
+          <tr>
+            <td>{{ row.subject }}</td>
+            <td class="num">{{ fmt(row.AUClast) }}</td>
+            <td class="num">{{ fmt(row.AUCinf_obs) }}</td>
+            <td class="num">{{ fmt(row.Cmax) }}</td>
+            <td class="num">{{ fmt(row.Tmax) }}</td>
+            <td class="num">{{ fmt(row.half_life) }}</td>
+            <td class="num">{{ fmt(row.cl) }}</td>
+            <td class="num">{{ fmt(row.vz) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {% if be is not none %}
+    <section>
+      <h2>Bioequivalence (Paired TOST)</h2>
+      <table class="kv-table">
+        <tbody>
+          <tr>
+            <td>Parameter</td>
+            <td>{{ be.parameter }}</td>
+          </tr>
+          <tr>
+            <td>Subjects (n)</td>
+            <td>{{ be.n }}</td>
+          </tr>
+          <tr>
+            <td>GMR (T/R)</td>
+            <td class="num">{{ "%.4f"|format(be.gmr) }}</td>
+          </tr>
+          <tr>
+            <td>90% CI</td>
+            <td class="num">[{{ "%.4f"|format(be.gmr_lower_90ci) }}, {{ "%.4f"|format(be.gmr_upper_90ci) }}]</td>
+          </tr>
+          <tr>
+            <td>Limits</td>
+            <td class="num">[{{ "%.2f"|format(be.be_lower) }}, {{ "%.2f"|format(be.be_upper) }}]</td>
+          </tr>
+          <tr>
+            <td>CV intra (%)</td>
+            <td class="num">{{ "%.1f"|format(be.cv_intra_pct) }}</td>
+          </tr>
+          <tr>
+            <td>Conclusion</td>
+            <td>
+              {% if be.bioequivalent %}
+              <span class="badge badge-pass">BIOEQUIVALENT</span>
+              {% else %}
+              <span class="badge badge-fail">NOT BIOEQUIVALENT</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="interp-box">
+        Paired TOST screening inside OpenPKFlow. For formal regulator-facing BE analysis,
+        export to BioEqPy and run ANOVA/TOST with the full study design.
+      </div>
+    </section>
+    {% endif %}
+
+    <section>
+      <h2>Disclaimer</h2>
+      <div class="disclaimer-box">
+        <strong>Regulatory Notice</strong>
+        {{ disclaimer }}
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="report-footer">
+    <span>
+      Generated by <strong>OpenPKFlow {{ openpkflow_version }}</strong>
+      &mdash; <a href="https://github.com/priyamthakar/openpkflow">github.com/priyamthakar/openpkflow</a>
+    </span>
+    <span>{{ generated_at }}</span>
+  </footer>
+
+</div>
+</body>
+</html>

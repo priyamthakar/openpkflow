@@ -12,6 +12,13 @@ Evaluation, and Application of In Vitro/In Vivo Correlations (1997). CDER.
 
 from __future__ import annotations
 
+from .level_bc import (
+    LinearCorrelationResult,
+    level_b_correlation,
+    level_c_correlation,
+    mean_dissolution_time,
+    mean_residence_time,
+)
 from .methods import (
     convolution_predict,
     ivivc_predictability,
@@ -30,4 +37,9 @@ __all__ = [
     "levy_plot_data",
     "loo_riegelman",
     "wagner_nelson",
+    "LinearCorrelationResult",
+    "mean_dissolution_time",
+    "mean_residence_time",
+    "level_b_correlation",
+    "level_c_correlation",
 ]
