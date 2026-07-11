@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Correction sprint landed on `main` and passed the full test suite. Tag/PyPI
+publish still gated on the release-hardening checklist (see HANDOFF.md).
+
+### Fixed
+
+- BE paired-design intra-subject CV variance-halving before CV back-transform.
+- NCA/pipeline fail-closed config validation; stricter BLQ and `auc_tau` handling.
+- Sim transit model rebuilt on the Savic absorption-chain structure.
+- IVIVC unit conversion, dissolution-rescale, and single-formulation verdict fixes.
+- Dissolution `f2_method` now defaults explicitly to `regulatory`; ICH M13B
+  Step 2 absolute-SD check.
+- SUPAC-IR function-specific threshold tables.
+- Webapp stale-result guard extended to BE, Dissolution, and Sim pages.
+- `publish.yml` now requires a tag's commit to be reachable from `main`.
+
 ---
 
 ## [2.6.0] -- 2026-07-09

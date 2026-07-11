@@ -15,9 +15,10 @@ what others already do well.
 
 ---
 
-## v2.6.0 Improvement Sprint (code shipped 2026-07-09; tag pending)
+## v2.6.0 Improvement Sprint (code merged to main 2026-07-09; correction sprint merged 2026-07-11; tag pending)
 
-**Branch / PR:** `feat/v2.6.0-improvement-sprint` / https://github.com/priyamthakar/openpkflow/pull/27
+**PR:** https://github.com/priyamthakar/openpkflow/pull/27 (merged); correction-hardening
+follow-up merged directly to `main` (branch deleted after merge).
 **Takeover doc:** [HANDOFF.md](HANDOFF.md)
 
 Shipped in parallel tracks:
@@ -30,9 +31,11 @@ Shipped in parallel tracks:
 - IVIVC convolution analytical validation; BE power edge cases
 - Positioning docs, pipeline tutorial, Docker/compose polish
 
-### Next up after merge + tag (ordered)
+### Next up after tag (ordered)
 
-1. Merge PR #27; tag `v2.6.0`; PyPI + conda-forge (`RELEASE.md`)
+1. Finish release-hardening checklist (HANDOFF.md), then tag `v2.6.0`; PyPI +
+   re-verify conda-forge feedstock (`anaconda.org/conda-forge/openpkflow` currently
+   404s despite an earlier claim it was live) (`RELEASE.md`)
 2. Webapp study-pipeline page (CLI already works)
 3. Sparse NCA + MAP PK API/pages
 4. SUPAC / alcohol UI on Dissolution page

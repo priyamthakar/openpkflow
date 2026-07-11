@@ -9,7 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Fixed (correction sprint; do not tag as v2.6.0 until complete)
+Correction sprint has landed on `main` and passed the full test suite
+(1273 passed). The v2.6.0 tag/PyPI publish is still gated on the remaining
+release-hardening checklist in [HANDOFF.md](HANDOFF.md) (CI hardening, API
+security headers, GitHub Release for v2.5.0).
+
+### Fixed (correction sprint)
 
 - **BE**: paired-design intra-subject CV now uses variance-halving
   (`sigma_w^2 = s_d^2 / 2`) before log-normal CV back-transform.
@@ -31,7 +36,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Packaging**: Hatch sdist allowlist excludes `node_modules`, Wrangler
   state, Hypothesis caches, Playwright artifacts; `.gitignore` extended.
 - **Webapp**: NCA/IVIVC snapshot request with result; stale forms disable
-  report download until re-run.
+  report download until re-run. Extended the same guard to the BE and
+  Dissolution analysis tabs (parameter/limit/alpha/sequence/column-mapping
+  changes now invalidate the on-screen result); Sim page disables report
+  download while a live re-fetch is in flight.
+- **CI/CD**: `publish.yml` now refuses to publish to PyPI unless the pushed
+  tag's commit is reachable from `main`.
 
 ---
 

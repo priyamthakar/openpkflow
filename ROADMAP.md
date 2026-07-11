@@ -177,8 +177,9 @@ via the FastAPI adapters. The frontend never computes pharmacometric values.
 
 ## v2.6.0 -- Study pipeline + science helpers + web polish (2026-07-09)
 
-Scope: multi-track improvement sprint. Library code complete on branch
-`feat/v2.6.0-improvement-sprint` / PR #27. Tag/PyPI pending merge + release checklist.
+Scope: multi-track improvement sprint. Library code merged to `main` via PR #27,
+plus a follow-on correction-hardening sprint (2026-07-11, also merged to `main`).
+Tag/PyPI publish still pending the release checklist in HANDOFF.md.
 
 ### Library
 
@@ -268,7 +269,7 @@ Scope: multi-track improvement sprint. Library code complete on branch
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
 | Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
-| Medium | conda-forge recipe | 3 h | ✅ Done — `conda install -c conda-forge openpkflow` is live |
+| Medium | conda-forge recipe | 3 h | ⚠️ Recipe PR was submitted but `anaconda.org/conda-forge/openpkflow` currently 404s -- feedstock needs re-verification, not actually live |
 | Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done (v2.2.0 — CDISC PP row split, PKNCA claims corrected, caveat added) |
 | Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 

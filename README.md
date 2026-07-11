@@ -388,15 +388,13 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~19,600 |
-| Lines of tests (`tests/`) | ~15,200 |
-| Total Python files | 141 (69 src + 72 tests) |
-| Tests | 900 |
-| Public functions / methods | 195 |
-| Classes | 34 |
+| Lines of source code (`src/`) | ~23,900 |
+| Lines of tests (`tests/`) | ~17,200 |
+| Total Python files | 162 (80 src + 82 tests) |
+| Tests | 1,334 |
 | HTML report templates | 12 |
 | Bundled example datasets | 4 |
-| Git commits | 100+ |
+| Git commits | 139 |
 
 ---
 

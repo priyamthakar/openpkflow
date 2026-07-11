@@ -1,12 +1,10 @@
 # OpenPKFlow Handoff
 
-**Current version in tree:** 2.5.0 package metadata on `main` at PR #27 merge (`2eed9d7`); correction sprint branch `fix/v2.6.0-correction-hardening`.
+**Current version in tree:** 2.6.0 package metadata (`pyproject.toml`, `CITATION.cff`) on `main` at `5433882`. The correction sprint has landed and merged directly to `main` (branch `fix/v2.6.0-correction-hardening` is deleted); no divergent branches remain except `gh-pages`.
 
-**Do not tag v2.6.0 yet.** Feature merge (#27) is on `origin/main`, but scientific correctness and release-hardening issues remain.
+**Do not tag v2.6.0 yet.** Code is complete and the full test suite passes (1273 passed), but the release-hardening checklist below is not finished. PyPI's latest published release is still 2.5.0 -- verify this hasn't changed before trusting any "current version" claim elsewhere in the docs.
 
-## Correction sprint (2026-07-11)
-
-Started from clean, updated `main` at `2eed9d7` (not the divergent `feat/v2.6.0-improvement-sprint` at `4d49958`).
+## Correction sprint (2026-07-11) -- COMPLETE, merged to main
 
 ### Completed in this sprint (library + packaging + key web fixes)
 
@@ -24,15 +22,23 @@ Started from clean, updated `main` at `2eed9d7` (not the divergent `feat/v2.6.0-
 | CITATION.cff -> 2.5.0; CHANGELOG Unreleased correction notes | Done |
 | VALIDATION.md correction-sprint entries | Done |
 
-### Still open (Priority 0 product / Priority 1 CI)
+### Also completed (2026-07-11, after the sprint above)
 
-- Vite high-severity advisory (npm audit / lockfile update)
-- Full HANDOFF/ROADMAP/docs claim scrub (conda-forge live, v2.5 GitHub Release)
-- CI: remove mypy continue-on-error, Codecov auth, API/frontend jobs, Python 3.13 + Windows smoke
-- publish.yml tag-must-match-main hardening
+| Area | Status |
+|------|--------|
+| Vite high-severity advisory | Verified already resolved (`npm audit`: 0 vulnerabilities) |
+| `publish.yml` tag-must-match-main hardening | Done -- refuses to publish unless the tag's commit is reachable from `main` |
+| BE / Dissolution / Sim stale-result guard | Done -- extended the NCA/IVIVC pattern (BE/Dissolution: reset mutation on previously-missed inputs; Sim: disable download while a live re-fetch is in flight) |
+| HANDOFF/ROADMAP/README/CHANGELOG doc scrub | Done -- see this commit; conda-forge claim was false (404 on anaconda.org, corrected in ROADMAP.md) |
+
+### Still open (Priority 1 CI / Priority 2 release)
+
+- CI: remove `mypy continue-on-error` -- blocked on 69 pre-existing errors, mostly in frozen `pop/estimation/` and `student/`; needs its own triage pass, not a blind flag removal
+- CI: Codecov auth, API/frontend test jobs, Python 3.13 + Windows smoke
 - Public API upload limits / security headers
-- Remaining analysis pages (BE, Dissolution, Sim) stale-result snapshot pattern
-- GitHub Release for v2.5.0 (manual owner step)
+- `conda-forge` recipe: verify the feedstock -- `anaconda.org/conda-forge/openpkflow` currently 404s despite ROADMAP.md previously claiming it was live
+- GitHub Release for v2.5.0 (manual owner step, cannot be automated)
+- Git tag `v2.6.0` + PyPI publish -- gated on the above
 
 ### After corrections
 
