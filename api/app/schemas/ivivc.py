@@ -19,6 +19,8 @@ class IvIvcRequest(BaseModel):
     dose_diss: float | None = None
     dose_iv: float | None = None
     study_label: str = ""
+    # Web UI dissolution grid is labeled minutes; library converts to hours.
+    dissolution_time_unit: str = "minutes"
 
 
 class IvIvcResponse(BaseModel):
@@ -37,5 +39,6 @@ class IvIvcResponse(BaseModel):
     pe_cmax: float | None
     pe_auc: float | None
     mean_abs_pe: float | None
-    overall_pass: bool
+    overall_pass: bool | None
+    predictability_note: str | None = None
     disclaimer: str

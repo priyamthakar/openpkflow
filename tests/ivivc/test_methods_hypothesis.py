@@ -52,14 +52,13 @@ class TestIVIVCPredictability:
             assert result["%PE_Cmax"] < 0.0
 
     @given(st.floats(min_value=0.1, max_value=100.0))
-    def test_overall_pass_all_required(self, obs):
+    def test_single_form_no_overall_verdict(self, obs):
         result = ivivc_predictability(obs, obs, obs, obs)
-        assert result["overall_pass"] is True
+        assert result["overall_pass"] is None
         assert result["passes_cmax"] is True
         assert result["passes_auc"] is True
-        assert result["passes_mean"] is True
 
-    def test_fails_when_cmax_fails(self):
+    def test_flags_when_cmax_exceeds_15(self):
         result = ivivc_predictability(
             observed_cmax=100.0,
             predicted_cmax=120.0,
@@ -68,4 +67,4 @@ class TestIVIVCPredictability:
         )
         assert result["passes_cmax"] is False
         assert result["passes_auc"] is True
-        assert result["overall_pass"] is False
+        assert result["overall_pass"] is None

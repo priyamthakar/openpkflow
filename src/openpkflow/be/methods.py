@@ -148,9 +148,11 @@ def be_tost(
 
     bioequivalent = gmr_lower >= be_lower and gmr_upper <= be_upper
 
-    # Intra-subject CV%: back-transformed from within-subject log-difference SD
-    # CV% = sqrt(exp(s_d^2) - 1) * 100  (Chow & Liu 2008, eq. 3.3.4)
-    cv_intra = math.sqrt(math.exp(s_d**2) - 1.0) * 100.0
+    # Intra-subject CV% for a paired/crossover design:
+    # Var(log T - log R) = 2 * sigma_w^2, so sigma_w^2 = s_d^2 / 2.
+    # CV% = sqrt(exp(sigma_w^2) - 1) * 100  (Chow & Liu 2008; Hauschke et al.)
+    sigma_w2 = (s_d**2) / 2.0
+    cv_intra = math.sqrt(math.exp(sigma_w2) - 1.0) * 100.0
 
     return BETOSTResult(
         n=n,

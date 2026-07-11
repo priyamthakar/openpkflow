@@ -67,7 +67,8 @@ export interface IvIvcResponse {
   pe_cmax: number | null
   pe_auc: number | null
   mean_abs_pe: number | null
-  overall_pass: boolean
+  overall_pass: boolean | null
+  predictability_note?: string | null
   disclaimer: string
 }
 

@@ -972,7 +972,11 @@ def render_ivivc_docx_report(
     meta_para.runs[0].font.size = Pt(9)
 
     document.add_heading("Predictability Assessment (FDA 1997)", level=2)
-    overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
+    overall_raw = pp.get("overall_pass")
+    overall = "N/A (single-form)" if overall_raw is None else ("PASS" if overall_raw else "FAIL")
+    mean_abs = pp.get("mean_abs_%PE")
+    mean_abs_str = "N/A" if mean_abs is None else f"{float(mean_abs):.2f}%"
+    mean_status = "N/A" if mean_abs is None else ("PASS" if pp.get("passes_mean") else "FAIL")
     pp_table = document.add_table(rows=1, cols=4)
     pp_table.style = "Table Grid"
     for i, h in enumerate(["Metric", "Value", "Criterion", "Status"]):
@@ -994,10 +998,10 @@ def render_ivivc_docx_report(
             "PASS" if pp.get("passes_auc", False) else "FAIL",
         ),
         (
-            "Mean abs %PE",
-            f"{pp.get('mean_abs_%PE', 0):.2f}%",
-            "<= 10%",
-            "PASS" if pp.get("passes_mean", False) else "FAIL",
+            "Cross-form mean abs %PE",
+            mean_abs_str,
+            "<= 10% / metric",
+            mean_status,
         ),
         ("Overall", "", "", overall),
     ]:

@@ -9,9 +9,39 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (correction sprint; do not tag as v2.6.0 until complete)
+
+- **BE**: paired-design intra-subject CV now uses variance-halving
+  (`sigma_w^2 = s_d^2 / 2`) before log-normal CV back-transform.
+- **NCA / pipeline**: fail-closed config (unknown keys rejected; explicit
+  AUC/BLQ methods required for NCA stages); `auc_tau` enforces times in
+  `[0, tau]` and rejects unknown methods; string BLQ markers such as
+  `<0.5` no longer become observed concentrations under `blq_method="none"`.
+- **Sim transit**: Savic transit chain + absorption depot; `CL_F`/`Vz_F`
+  naming; MTT is applied for all `n_transit` including 1.
+- **IVIVC**: dissolution minutes converted to hours when requested;
+  incomplete dissolution no longer renormalised to 100%; default `kel=0.1`
+  removed; single-formulation FDA overall-pass disabled (use multi-
+  formulation aggregate for Cmax and AUC separately).
+- **Dissolution**: `compare(f2_method=...)` defaults to `regulatory`;
+  prerequisite warnings persisted on `ComparisonResult`; ICH M13B Step 2
+  absolute SD > 8% at any time point (not RSD only when mean <= 60%).
+- **SUPAC-IR**: function-specific threshold tables (filler, binder,
+  disintegrants, stearates, glidants, film coat).
+- **Packaging**: Hatch sdist allowlist excludes `node_modules`, Wrangler
+  state, Hypothesis caches, Playwright artifacts; `.gitignore` extended.
+- **Webapp**: NCA/IVIVC snapshot request with result; stale forms disable
+  report download until re-run.
+
 ---
 
 ## [2.6.0] - 2026-07-09
+
+### Notes
+
+- **Not a corrected release.** Feature merge (#27). Correction sprint must
+  land before any scientific claim or tag re-cut for this version line.
+
 
 ### Added
 

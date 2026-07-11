@@ -78,10 +78,32 @@ class TestLoadNcaCsvBLQHandling:
         """
         return _write_csv(tmp_path, csv)
 
-    def test_blq_method_none_keeps_all_rows(self, tmp_path: Path) -> None:
+    def test_blq_method_none_without_blq_flags_keeps_all_rows(self, tmp_path: Path) -> None:
+        """blq_method='none' is allowed only when no BLQ flags/markers are present."""
+        p = _write_csv(tmp_path, _BASIC_CSV)
+        df = load_nca_csv(p, blq_method="none")
+        assert len(df) == 6
+
+    def test_blq_method_none_with_flags_raises(self, tmp_path: Path) -> None:
+        """Fail closed: BLQ flags with method 'none' must not pass through as observed.
+
+        Reference: pharmacometric correctness rule 4 (explicit BLQ handling).
+        """
         p = self._blq_csv(tmp_path)
-        df = load_nca_csv(p, blq_col="blq", blq_method="none")
-        assert len(df) == 5
+        with pytest.raises(ValueError, match="BLQ observation"):
+            load_nca_csv(p, blq_col="blq", blq_method="none")
+
+    def test_string_blq_with_none_raises(self, tmp_path: Path) -> None:
+        """Strings like '<0.5' must not silently become observed 0.5 under method none."""
+        csv = """\
+            subject,time,conc,dose,route
+            1,0.0,0.0,320.0,oral
+            1,1.0,5.0,320.0,oral
+            1,2.0,<0.5,320.0,oral
+        """
+        p = _write_csv(tmp_path, csv)
+        with pytest.raises(ValueError, match="BLQ observation"):
+            load_nca_csv(p, blq_method="none")
 
     def test_blq_method_drop(self, tmp_path: Path) -> None:
         p = self._blq_csv(tmp_path)

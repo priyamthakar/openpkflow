@@ -207,13 +207,13 @@ def c_1cmt_oral(
 def c_1cmt_oral_transit(
     times: list[float] | np.ndarray,
     dose: float,
-    CL: float,
-    Vz: float,
+    CL_F: float,
+    Vz_F: float,
     ka: float,
     n_transit: int,
     mtt: float,
 ) -> np.ndarray:
-    """Simulate 1-cmt oral PK with Erlang transit-compartment absorption.
+    """Simulate 1-cmt oral PK with Savic transit-compartment absorption.
 
     Model structure
     ---------------
@@ -222,30 +222,38 @@ def c_1cmt_oral_transit(
 
         ktr = n_transit / mtt
 
-    (Savic-style n/MTT convention; MTT is the mean transit time through the
-    n transit compartments). From the last transit compartment, drug absorbs
-    into the central compartment with first-order rate ``ka``. Central
-    disposition is one-compartment with ``k = CL / Vz``.
+    (Savic 2007 n/MTT convention for the transit chain). From the last transit
+    compartment, drug enters a first-order absorption depot exiting at rate
+    ``ka`` into the central compartment. Central disposition is one-compartment
+    with ``k = CL_F / Vz_F``.
 
-    Special case ``n_transit == 1``: the single transit compartment is the
-    absorption depot exiting at rate ``ka``, which is exactly the classical
-    Bateman 1-cmt oral solution (``mtt`` is retained for API consistency and
-    must be > 0, but does not affect the profile when n=1).
+    State vector (amounts)::
+
+        [T1, T2, ..., Tn, Depot, Ac]
+
+        dT1/dt     = -ktr * T1
+        dTi/dt     = ktr * T(i-1) - ktr * Ti     for i = 2..n
+        dDepot/dt  = ktr * Tn - ka * Depot
+        dAc/dt     = ka * Depot - k * Ac
+        C(t)       = Ac(t) / Vz_F
+
+    Both ``mtt`` and ``ka`` affect the profile for every ``n_transit >= 1``
+    (including n=1). Classical Bateman oral absorption is recovered as
+    ``mtt -> 0`` (instant transit fill of the depot).
 
     Parameters
     ----------
     times : array-like
         Simulation time points (>= 0, strictly increasing).
     dose : float
-        Nominal dose amount (bioavailability absorbed into CL and Vz if
-        those are apparent oral parameters).
-    CL : float
-        Clearance (use CL/F for oral apparent clearance). Must be > 0.
-    Vz : float
-        Volume of distribution (use Vz/F for oral apparent volume). Must be > 0.
+        Nominal dose amount (F absorbed into apparent oral parameters).
+    CL_F : float
+        Apparent oral clearance. Must be > 0.
+    Vz_F : float
+        Apparent oral volume of distribution. Must be > 0.
     ka : float
-        First-order absorption rate from the last transit compartment into
-        the central compartment. Must be > 0.
+        First-order absorption rate from the depot into the central
+        compartment. Must be > 0.
     n_transit : int
         Number of transit compartments (>= 1).
     mtt : float
@@ -266,8 +274,8 @@ def c_1cmt_oral_transit(
     Notes
     -----
     Evaluation uses the exact matrix exponential of the linear multi-
-    compartment system (transit chain + central amount), which is stable for
-    moderate n_transit. Concentrations are non-negative for valid parameters.
+    compartment system, which is stable for moderate n_transit.
+    Concentrations are non-negative for valid parameters.
 
     References
     ----------
@@ -278,47 +286,42 @@ def c_1cmt_oral_transit(
 
     Gibaldi, M., & Perrier, D. (1982). Pharmacokinetics (2nd ed.). Marcel Dekker.
     """
-    _validate_positive(CL=CL, Vz=Vz, ka=ka, mtt=mtt)
+    _validate_positive(CL_F=CL_F, Vz_F=Vz_F, ka=ka, mtt=mtt)
     _validate_nonneg(dose=dose)
     if not isinstance(n_transit, int) or isinstance(n_transit, bool):
         raise ValueError(f"n_transit must be an int (got {type(n_transit).__name__}).")
     if n_transit < 1:
         raise ValueError(f"n_transit must be >= 1 (got {n_transit}).")
     t = _prepare_times(times)
-    k = CL / Vz
+    k = CL_F / Vz_F
     ktr = n_transit / mtt
 
-    # n_transit == 1: classical first-order oral absorption (Bateman)
-    if n_transit == 1:
-        return c_1cmt_oral(t, dose=dose, CL_F=CL, Vz_F=Vz, ka=ka)
-
-    # State: [T1, T2, ..., Tn, Ac] amounts; C = Ac / Vz
-    # dT1/dt = -ktr * T1
-    # dTi/dt = ktr * T(i-1) - ktr * Ti   for i = 2..n-1
-    # dTn/dt = ktr * T(n-1) - ka * Tn
-    # dAc/dt = ka * Tn - k * Ac
+    # State: [T1, ..., Tn, Depot, Ac]; C = Ac / Vz_F
     n = n_transit
-    dim = n + 1
+    dim = n + 2
     A = np.zeros((dim, dim), dtype=float)
-    for i in range(n - 1):
+    for i in range(n):
         A[i, i] = -ktr
-        A[i + 1, i] = ktr
-    A[n - 1, n - 1] = -ka
-    A[n, n - 1] = ka
-    A[n, n] = -k
+        if i + 1 < n:
+            A[i + 1, i] = ktr
+        else:
+            A[n, i] = ktr  # last transit -> Depot
+    A[n, n] = -ka
+    A[n + 1, n] = ka
+    A[n + 1, n + 1] = -k
 
     from scipy.linalg import expm
 
     y0 = np.zeros(dim, dtype=float)
     y0[0] = dose
     conc = np.empty_like(t)
+    central_idx = n + 1
     for i, ti in enumerate(t):
         if ti == 0.0:
             conc[i] = 0.0
         else:
             y = expm(A * float(ti)) @ y0
-            conc[i] = y[n] / Vz
-    # Numerical noise floor
+            conc[i] = y[central_idx] / Vz_F
     conc = np.maximum(conc, 0.0)
     return conc
 

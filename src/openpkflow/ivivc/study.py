@@ -37,6 +37,7 @@ class IVIVCStudy:
         k12: float | None = None,
         k21: float | None = None,
         study_label: str = "",
+        dissolution_time_unit: str = "hours",
     ) -> None:
         """Initialise an IVIVC study.
 
@@ -47,7 +48,7 @@ class IVIVCStudy:
         in_vivo_concs : list[float] | np.ndarray
             Plasma concentrations at each in vivo time point.
         dissolution_times : list[float] | np.ndarray
-            In vitro dissolution time points (minutes or hours).
+            In vitro dissolution time points (see ``dissolution_time_unit``).
         dissolution_pct : list[float] | np.ndarray
             Cumulative percent dissolved at each dissolution time point.
         iv_uir_times : list[float] | np.ndarray
@@ -61,14 +62,18 @@ class IVIVCStudy:
         dose_iv : float or None, optional
             Dose for the IV unit impulse response.
         kel : float or None, optional
-            Terminal elimination rate constant (1/h) for Wagner-Nelson.
-            Estimated from UIR if None.
+            Terminal elimination rate constant (1/h). Required for AUCinf
+            extrapolation in predictability; also used by Wagner-Nelson when
+            not estimated from UIR. Must not be silently defaulted.
         k12 : float or None, optional
             Central-to-peripheral transfer rate (1/h) for Loo-Riegelman.
         k21 : float or None, optional
             Peripheral-to-central transfer rate (1/h) for Loo-Riegelman.
         study_label : str, optional
             Optional label for this study.
+        dissolution_time_unit : {"hours", "minutes"}, optional
+            Unit of dissolution times. Minutes are converted to hours for
+            convolution and Levy matching. Default ``"hours"``.
         """
         self._in_vivo_times = np.asarray(in_vivo_times, dtype=float)
         self._in_vivo_concs = np.asarray(in_vivo_concs, dtype=float)
@@ -83,6 +88,7 @@ class IVIVCStudy:
         self._k12 = k12
         self._k21 = k21
         self._study_label = study_label
+        self._diss_time_unit = dissolution_time_unit
 
     def analyze(self) -> IVIVCResult:
         """Run the complete IVIVC Level A workflow.
@@ -131,13 +137,27 @@ class IVIVCStudy:
                 "Use 'wagner_nelson' or 'loo_riegelman'."
             )
 
+        # Align dissolution times to hours for Levy matching against Fa(t)
+        unit = self._diss_time_unit.lower().strip()
+        if unit in ("min", "mins", "minute", "minutes"):
+            diss_t_h = diss_t / 60.0
+        elif unit in ("h", "hr", "hrs", "hour", "hours"):
+            diss_t_h = diss_t
+        else:
+            raise ValueError(
+                f"dissolution_time_unit must be 'hours' or 'minutes' "
+                f"(got {self._diss_time_unit!r})."
+            )
+
         # Step 2: Levy plot -- match dissolution fraction to in vivo absorption
+        # at common times (hours). Levy regression uses fraction dissolved vs
+        # fraction absorbed; times are only used for the interpolation grid.
         diss_frac = diss_pct / 100.0
-        fa_interp = np.interp(diss_t, iv_t, fa, left=0.0, right=min(fa[-1], 1.0))
+        fa_interp = np.interp(diss_t_h, iv_t, fa, left=0.0, right=min(float(fa[-1]), 1.0))
 
-        levy = levy_plot_data(diss_t, diss_frac, fa_interp)
+        levy = levy_plot_data(diss_t_h, diss_frac, fa_interp)
 
-        # Step 3: Convolution prediction
+        # Step 3: Convolution prediction (dissolution times converted internally)
         pred_times, pred_concs = convolution_predict(
             diss_t,
             diss_pct,
@@ -145,20 +165,28 @@ class IVIVCStudy:
             iv_unit_impulse_concs=uir_c,
             dose_diss=self._dose_diss,
             dose_iv=self._dose_iv,
+            dissolution_time_unit=self._diss_time_unit,
         )
 
-        # Step 4: Predictability assessment
+        # Step 4: Predictability assessment (%PE only; no false FDA verdict)
         obs_cmax = float(np.max(iv_c))
         pred_cmax = float(np.max(pred_concs))
 
-        # Observed AUC via linear trapezoidal
         from .methods import _trapz_linear
 
+        if self._kel is None or self._kel <= 0:
+            raise ValueError(
+                "kel must be a positive terminal elimination rate (1/h) for "
+                "AUCinf extrapolation in predictability assessment. "
+                "Silent default kel is not allowed."
+            )
+        kel = float(self._kel)
+
         obs_auc_t = _trapz_linear(iv_t, iv_c)
-        obs_aucinf = float(obs_auc_t[-1] + iv_c[-1] / (self._kel if self._kel else 0.1))
+        obs_aucinf = float(obs_auc_t[-1] + iv_c[-1] / kel)
 
         pred_auc_t = _trapz_linear(pred_times, pred_concs)
-        pred_aucinf = float(pred_auc_t[-1] + pred_concs[-1] / (self._kel if self._kel else 0.1))
+        pred_aucinf = float(pred_auc_t[-1] + pred_concs[-1] / kel)
 
         predictability = ivivc_predictability(
             obs_cmax,

@@ -130,6 +130,33 @@ class TestBETOSTCVIntra:
         result = be_tost(ref, tst)
         assert result.cv_intra_pct > 0.0
 
+    def test_cv_intra_uses_variance_halving(self) -> None:
+        """Paired log-difference SD is halved before CV back-transform.
+
+        Hand-checkable fixture
+        ----------------------
+        log_diffs = [0.0, 0.0, 0.2, -0.2]
+        s_d^2 = (0 + 0 + 0.04 + 0.04) / 3 = 0.08/3
+        sigma_w^2 = s_d^2 / 2
+        CV% = sqrt(exp(sigma_w^2) - 1) * 100
+
+        Without variance-halving the CV would be sqrt(2) times larger on the
+        log-scale variance, overstating intra-subject CV for crossover designs.
+
+        Reference: Chow SC, Liu JP (2008). Design and Analysis of
+        Bioavailability and Bioequivalence Studies, 3rd ed., Ch. 3;
+        Hauschke D et al. (2007). Bioequivalence Studies in Drug Development.
+        """
+        ref = [100.0, 100.0, 100.0, 100.0]
+        tst = [100.0, 100.0, math.exp(0.2) * 100.0, math.exp(-0.2) * 100.0]
+        result = be_tost(ref, tst)
+        s_d2 = (0.0 + 0.0 + 0.04 + 0.04) / 3.0
+        sigma_w2 = s_d2 / 2.0
+        expected = math.sqrt(math.exp(sigma_w2) - 1.0) * 100.0
+        wrong_no_halve = math.sqrt(math.exp(s_d2) - 1.0) * 100.0
+        assert result.cv_intra_pct == pytest.approx(expected, rel=1e-9)
+        assert result.cv_intra_pct < wrong_no_halve
+
 
 class TestBETOSTNTILimits:
     def test_nti_limits_stricter(self) -> None:

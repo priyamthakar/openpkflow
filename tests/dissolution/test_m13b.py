@@ -1,7 +1,8 @@
-"""Tests for ICH M13B RSD constraint warning in DissolutionStudy.compare().
+"""Tests for ICH M13B Step 2 absolute SD variability check.
 
-ICH M13B requires RSD <= 8% at time points with mean percent released <= 60%.
-This is stricter than the legacy FDA CV limits.
+ICH M13B Step 2 draft (2025-02-12) defines high variability as absolute
+SD > 8% at any time point. When SD > 8%, point-estimate f2 alone is not
+sufficient and bootstrap f2 CI is indicated.
 """
 
 from __future__ import annotations
@@ -11,17 +12,12 @@ import warnings
 import pandas as pd
 
 from openpkflow.dissolution.loader import DissolutionCSVConfig
-from openpkflow.dissolution.study import _check_ich_m13b_rsd
+from openpkflow.dissolution.study import _check_ich_m13b_sd
 
 
-@pd.api.extensions.register_dataframe_accessor("_test_attr")
-class _TestAccessor:
-    pass
-
-
-class TestICHM13BRSD:
-    def test_no_warning_when_rsd_below_8pct(self) -> None:
-        """Profiles with tight RSD below 8% should produce no warnings."""
+class TestICHM13BSD:
+    def test_no_warning_when_sd_below_8pct(self) -> None:
+        """Profiles with absolute SD below 8% produce no warnings."""
         df = pd.DataFrame(
             {
                 "formulation": ["Ref", "Ref", "Ref", "Ref"],
@@ -31,40 +27,50 @@ class TestICHM13BRSD:
             }
         )
         cfg = DissolutionCSVConfig()
-        issues = _check_ich_m13b_rsd(df, "Ref", cfg)
+        issues = _check_ich_m13b_sd(df, "Ref", cfg)
         assert issues == []
 
-    def test_warns_when_rsd_exceeds_8pct_at_early_timepoint(self) -> None:
-        """RSD of ~10% at t=10 (mean 30%) should trigger a warning."""
+    def test_warns_when_sd_exceeds_8pct_any_timepoint(self) -> None:
+        """Absolute SD > 8% at any time point triggers a warning.
+
+        Hand-checkable: values 20, 30, 40 at one time -> mean=30, sample SD
+        = 10 > 8.
+
+        Reference: ICH M13B Step 2 draft (2025-02-12), high variability
+        defined as SD > 8% at any time point.
+        """
         df = pd.DataFrame(
             {
                 "formulation": ["Ref", "Ref", "Ref"],
                 "batch": [1, 2, 3],
                 "time": [10, 10, 10],
-                "percent_released": [30.0, 27.0, 33.0],
+                "percent_released": [20.0, 30.0, 40.0],
             }
         )
         cfg = DissolutionCSVConfig()
-        issues = _check_ich_m13b_rsd(df, "Ref", cfg)
+        issues = _check_ich_m13b_sd(df, "Ref", cfg)
         assert len(issues) >= 1
-        assert any("RSD" in w and "ICH M13B" in w for w in issues)
+        assert any("SD=" in w and "ICH M13B" in w for w in issues)
 
-    def test_no_warning_when_mean_above_60pct(self) -> None:
-        """ICH M13B RSD check only applies when mean <= 60%."""
+    def test_warns_even_when_mean_above_60pct(self) -> None:
+        """Step 2 applies absolute SD at all means, not only mean <= 60%.
+
+        Reference: ICH M13B Step 2 draft - SD across all time points.
+        """
         df = pd.DataFrame(
             {
                 "formulation": ["Ref", "Ref", "Ref"],
                 "batch": [1, 2, 3],
-                "time": [10, 10, 10],
-                "percent_released": [70.0, 60.0, 80.0],
+                "time": [45, 45, 45],
+                "percent_released": [60.0, 75.0, 90.0],
             }
         )
         cfg = DissolutionCSVConfig()
-        issues = _check_ich_m13b_rsd(df, "Ref", cfg)
-        assert issues == []
+        issues = _check_ich_m13b_sd(df, "Ref", cfg)
+        assert len(issues) >= 1
 
     def test_single_vessel_skipped(self) -> None:
-        """Single vessel at a timepoint cannot compute RSD, so no warning."""
+        """Single vessel at a timepoint cannot compute SD, so no warning."""
         df = pd.DataFrame(
             {
                 "formulation": ["Ref"],
@@ -74,15 +80,11 @@ class TestICHM13BRSD:
             }
         )
         cfg = DissolutionCSVConfig()
-        issues = _check_ich_m13b_rsd(df, "Ref", cfg)
+        issues = _check_ich_m13b_sd(df, "Ref", cfg)
         assert issues == []
 
     def test_integration_with_dissolution_study(self) -> None:
-        """End-to-end: DissolutionStudy.compare() warns when ICH M13B RSD violated.
-
-        Creates a 3-vessel dataset where RSD at t=5 (mean ~25%) is >8%.
-        Three timepoints required for f2 computation.
-        """
+        """End-to-end: DissolutionStudy.compare() warns when M13B SD violated."""
         from openpkflow.dissolution.study import DissolutionStudy
 
         df = pd.DataFrame(
@@ -90,7 +92,7 @@ class TestICHM13BRSD:
                 "formulation": ["Ref", "Ref", "Ref", "Ref", "Ref", "Ref", "Ref", "Ref", "Ref"],
                 "batch": [1, 2, 3, 1, 2, 3, 1, 2, 3],
                 "time": [5, 5, 5, 15, 15, 15, 30, 30, 30],
-                "percent_released": [23.0, 30.0, 22.0, 45.0, 48.0, 46.0, 70.0, 68.0, 72.0],
+                "percent_released": [15.0, 30.0, 45.0, 45.0, 48.0, 46.0, 70.0, 68.0, 72.0],
             }
         )
 
@@ -117,6 +119,7 @@ class TestICHM13BRSD:
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            study.compare("Ref", "Test")
+            result = study.compare("Ref", "Test", f2_method="all_points")
             ich_warnings = [x for x in w if "ICH M13B" in str(x.message)]
         assert len(ich_warnings) >= 1
+        assert any("ICH M13B" in msg for msg in result.warnings)

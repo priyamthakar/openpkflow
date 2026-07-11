@@ -37,11 +37,13 @@ def run_ivivc(req: IvIvcRequest) -> dict[str, Any]:
         dose_diss=req.dose_diss,
         dose_iv=req.dose_iv,
         study_label=req.study_label,
+        dissolution_time_unit=req.dissolution_time_unit,
     )
     result = study.analyze()
 
     lp = result.levy_plot
     pp = result.predictability
+    overall = pp.get("overall_pass")
 
     return {
         "method": result.method,
@@ -59,7 +61,8 @@ def run_ivivc(req: IvIvcRequest) -> dict[str, Any]:
         "pe_cmax": _safe(pp.get("%PE_Cmax")),
         "pe_auc": _safe(pp.get("%PE_AUC")),
         "mean_abs_pe": _safe(pp.get("mean_abs_%PE")),
-        "overall_pass": bool(pp.get("overall_pass", False)),
+        "overall_pass": overall if overall is None else bool(overall),
+        "predictability_note": pp.get("note"),
         "disclaimer": _DISCLAIMER,
     }
 
@@ -79,6 +82,7 @@ def write_ivivc_report(req: IvIvcRequest, out_path: Path, fmt: str) -> None:
         dose_diss=req.dose_diss,
         dose_iv=req.dose_iv,
         study_label=req.study_label,
+        dissolution_time_unit=req.dissolution_time_unit,
     )
     result = study.analyze()
     result.report(out_path, format=fmt)

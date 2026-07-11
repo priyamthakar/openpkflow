@@ -22,6 +22,8 @@ ENV/
 .coverage
 htmlcov/
 .tox/
+.hypothesis/
+.ruff_cache/
 
 # Type checking
 .mypy_cache/
@@ -77,3 +79,20 @@ site/*
 # Uploaded images
 *.png
 !docs/**/*.png
+
+# Frontend tooling (never ship in sdist)
+webapp/node_modules/
+webapp/test-results/
+webapp/playwright-report/
+webapp/vite-dev.log
+**/node_modules/
+
+# Cloudflare / Wrangler local state (account metadata)
+.wrangler/
+wrangler.toml.bak
+
+# Local handoff archives / extraction (not package source)
+Untitled-handoff.zip
+untitled-handoff-extracted/
+*-handoff.zip
+*-handoff-extracted/

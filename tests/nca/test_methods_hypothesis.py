@@ -414,7 +414,7 @@ class TestSteadyState:
     )
     def test_cmax_ss_ge_cmin_ss(self, conc, tau):
         times = [float(i) / len(conc) * tau for i in range(len(conc))]
-        result = steady_state_parameters(times, conc, tau=tau)
+        result = steady_state_parameters(times, conc, tau=tau, auc_method="linear")
         assert result["Cmax_ss"] >= result["Cmin_ss"]
 
     @given(
@@ -423,7 +423,7 @@ class TestSteadyState:
     )
     def test_fluctuation_nonnegative(self, conc, tau):
         times = [float(i) / len(conc) * tau for i in range(len(conc))]
-        result = steady_state_parameters(times, conc, tau=tau)
+        result = steady_state_parameters(times, conc, tau=tau, auc_method="linear")
         assert result["fluctuation_pct"] >= 0.0
 
     @given(
@@ -432,7 +432,7 @@ class TestSteadyState:
     )
     def test_swing_nonnegative_when_cmin_positive(self, conc, tau):
         times = [float(i) / len(conc) * tau for i in range(len(conc))]
-        result = steady_state_parameters(times, conc, tau=tau)
+        result = steady_state_parameters(times, conc, tau=tau, auc_method="linear")
         if result["Cmin_ss"] > 0:
             assert result["swing"] >= 0.0
 
@@ -442,11 +442,13 @@ class TestSteadyState:
     )
     def test_cavg_ss_equals_auctau_over_tau(self, conc, tau):
         times = [float(i) / len(conc) * tau for i in range(len(conc))]
-        result = steady_state_parameters(times, conc, tau=tau)
+        result = steady_state_parameters(times, conc, tau=tau, auc_method="linear")
         assert np.isclose(result["Cavg_ss"], result["AUCtau"] / tau, rtol=1e-10)
 
     def test_cmin_zero_swing_is_none(self):
-        result = steady_state_parameters([0.0, 4.0, 8.0, 12.0], [10.0, 5.0, 0.0, 0.0], tau=12.0)
+        result = steady_state_parameters(
+            [0.0, 4.0, 8.0, 12.0], [10.0, 5.0, 0.0, 0.0], tau=12.0, auc_method="linear"
+        )
         assert result["swing"] is None
 
 

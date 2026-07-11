@@ -96,24 +96,6 @@ export default function NcaPage() {
   const activeFile = inputMode === 'paste' ? gridFile : file
   const activeColumns = inputMode === 'paste' ? PASTE_MAPPING : columnMapping
 
-  const mutation = useMutation<NcaResponse, Error>({
-    mutationFn: () =>
-      analyzeNca(activeFile!, {
-        auc_method: aucMethod,
-        blq_method: blqMethod,
-        steady_state: steadyState,
-        tau: steadyState ? tau : undefined,
-        columns: activeColumns,
-      }),
-    onSuccess: (data) => {
-      if (data.subjects.length > 0) setSelectedSubject(String(data.subjects[0].subject))
-    },
-  })
-
-  const result = mutation.data
-  const profile = result?.profiles.find((p) => p.subject === selectedSubject)
-  const subjectRow = result?.subjects.find((r) => String(r.subject) === selectedSubject)
-
   const options = useMemo(
     () => ({
       auc_method: aucMethod,
@@ -124,6 +106,34 @@ export default function NcaPage() {
     }),
     [aucMethod, blqMethod, steadyState, tau, activeColumns],
   )
+
+  const [runSnapshot, setRunSnapshot] = useState<{
+    options: typeof options
+    fileKey: string
+  } | null>(null)
+
+  const mutation = useMutation<NcaResponse, Error>({
+    mutationFn: () =>
+      analyzeNca(activeFile!, options),
+    onSuccess: (data) => {
+      setRunSnapshot({
+        options: { ...options, columns: { ...options.columns } },
+        fileKey: `${activeFile?.name ?? ''}:${activeFile?.size ?? 0}:${activeFile?.lastModified ?? 0}`,
+      })
+      if (data.subjects.length > 0) setSelectedSubject(String(data.subjects[0].subject))
+    },
+  })
+
+  const result = mutation.data
+  const profile = result?.profiles.find((p) => p.subject === selectedSubject)
+  const subjectRow = result?.subjects.find((r) => String(r.subject) === selectedSubject)
+
+  const fileKey = `${activeFile?.name ?? ''}:${activeFile?.size ?? 0}:${activeFile?.lastModified ?? 0}`
+  const resultsStale =
+    Boolean(result) &&
+    (runSnapshot === null ||
+      runSnapshot.fileKey !== fileKey ||
+      JSON.stringify(runSnapshot.options) !== JSON.stringify(options))
 
   const onFile = useCallback(
     (uploaded: File) => {
@@ -301,6 +311,15 @@ export default function NcaPage() {
 
           {result && !mutation.isPending && (
             <>
+              {resultsStale && (
+                <div className="rounded-sm border border-warning/30 bg-warning/10 p-3 text-warning text-sm">
+                  <p className="font-semibold mb-1">Results are stale</p>
+                  <p>
+                    Options or input data changed after the last run. Re-run NCA before
+                    downloading a report so the visible results and the report match.
+                  </p>
+                </div>
+              )}
               {result.warnings.length > 0 && (
                 <div className="rounded-sm border border-warning/20 bg-warning/5 p-3 text-warning text-sm">
                   <p className="font-semibold mb-1">Warnings</p>
@@ -365,9 +384,17 @@ export default function NcaPage() {
               )}
 
               <ResultTable columns={result.columns} rows={result.subjects} />
-              <DownloadReportButton
-                onDownload={(fmt) => downloadNcaReport(activeFile!, options, fmt)}
-              />
+              {resultsStale ? (
+                <p className="text-sm text-text-muted">
+                  Report download disabled until you re-run with the current options.
+                </p>
+              ) : (
+                <DownloadReportButton
+                  onDownload={(fmt) =>
+                    downloadNcaReport(activeFile!, runSnapshot!.options, fmt)
+                  }
+                />
+              )}
               <Disclaimer text={result.disclaimer} />
             </>
           )}

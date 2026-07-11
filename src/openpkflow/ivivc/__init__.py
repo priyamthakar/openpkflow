@@ -22,6 +22,7 @@ from .level_bc import (
 from .methods import (
     convolution_predict,
     ivivc_predictability,
+    ivivc_predictability_aggregate,
     levy_plot_data,
     loo_riegelman,
     wagner_nelson,
@@ -34,6 +35,7 @@ __all__ = [
     "IVIVCStudy",
     "convolution_predict",
     "ivivc_predictability",
+    "ivivc_predictability_aggregate",
     "levy_plot_data",
     "loo_riegelman",
     "wagner_nelson",

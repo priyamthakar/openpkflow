@@ -86,6 +86,41 @@ packages = ["src/openpkflow"]
 [tool.hatch.build.targets.wheel.force-include]
 "src/openpkflow/py.typed" = "openpkflow/py.typed"
 
+# Explicit sdist allowlist: never ship webapp/node_modules, wrangler state,
+# hypothesis caches, Playwright artifacts, or local handoff archives.
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "src/openpkflow",
+  "tests",
+  "scripts",
+  "docs",
+  "examples",
+  "README.md",
+  "LICENSE",
+  "CHANGELOG.md",
+  "CITATION.cff",
+  "VALIDATION.md",
+  "pyproject.toml",
+  "mkdocs.yml",
+  "codecov.yml",
+  "SECURITY.md",
+  "CONTRIBUTING.md",
+  "CODE_OF_CONDUCT.md",
+  "AGENTS.md",
+  "CLAUDE.md",
+]
+exclude = [
+  "**/__pycache__",
+  "**/.pytest_cache",
+  "**/.mypy_cache",
+  "**/.ruff_cache",
+  "**/.hypothesis",
+  "**/node_modules",
+  "**/*.pyc",
+  "**/test-results",
+  "**/playwright-report",
+]
+
 [tool.ruff]
 line-length = 100
 src = ["src"]

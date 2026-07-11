@@ -51,6 +51,11 @@ class ComparisonResult:
         Mean percent released for the test formulation at each time point.
     time_points : list[float]
         Shared time points used in the comparison.
+    f2_method : str
+        Explicit f2 time-point selection method (``"all_points"`` or
+        ``"regulatory"``).
+    warnings : list[str]
+        Prerequisite / variability warnings captured during compare().
     """
 
     reference_label: str
@@ -61,6 +66,8 @@ class ComparisonResult:
     reference_mean: list[float]
     test_mean: list[float]
     time_points: list[float] = field(default_factory=list)
+    f2_method: str = "all_points"
+    warnings: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
         """Return a human-readable text summary of the comparison result.
@@ -70,25 +77,46 @@ class ComparisonResult:
         str
             Multi-line summary including f1, f2, interpretation, and disclaimer.
         """
-        interpretation = (
-            "f2 >= 50 supports similarity between profiles."
-            if self.f2_value >= 50.0
-            else "f2 < 50 does not support similarity between profiles."
+        method_note = (
+            "regulatory (FDA 85% rule time-point trimming)"
+            if self.f2_method == "regulatory"
+            else "all_points (no 85% rule trimming; not the FDA default selection)"
         )
+        if self.f2_method == "regulatory":
+            interpretation = (
+                "f2 >= 50 supports similarity under the regulatory time-point method."
+                if self.f2_value >= 50.0
+                else "f2 < 50 does not support similarity under the regulatory time-point method."
+            )
+        else:
+            interpretation = (
+                f"f2 = {self.f2_value:.2f} with method=all_points. "
+                "Do not claim FDA-supporting similarity from all_points alone; "
+                "re-run with f2_method='regulatory' for the FDA 85% rule selection."
+            )
         lines = [
             "Dissolution Similarity Analysis",
             "================================",
             f"Reference: {self.reference_label}  |  Test: {self.test_label}",
-            f"Timepoints: {self.n_timepoints}  |  Method: f1/f2 (FDA 1997 guidance)",
+            f"Timepoints used: {self.n_timepoints}  |  f2_method: {self.f2_method} ({method_note})",
             "",
             f"f1 (difference factor): {self.f1_value:.2f}",
             f"f2 (similarity factor): {self.f2_value:.2f}",
             "",
             f"Interpretation: {interpretation}",
-            "",
-            "Disclaimer: This output was generated using OpenPKFlow (open-source).",
-            "Final regulatory interpretation should be reviewed by qualified experts.",
         ]
+        if self.warnings:
+            lines.append("")
+            lines.append("Warnings / prerequisites:")
+            for w in self.warnings:
+                lines.append(f"  - {w}")
+        lines.extend(
+            [
+                "",
+                "Disclaimer: This output was generated using OpenPKFlow (open-source).",
+                "Final regulatory interpretation should be reviewed by qualified experts.",
+            ]
+        )
         return "\n".join(lines)
 
     def report(
@@ -236,20 +264,26 @@ def _check_cv(
     return warnings_out
 
 
-def _check_ich_m13b_rsd(
+def _check_ich_m13b_sd(
     df: pd.DataFrame,
     formulation: str,
     config: DissolutionCSVConfig,
 ) -> list[str]:
-    """Check ICH M13B RSD constraint at early time points (RSD <= 8%).
+    """Check ICH M13B Step 2 absolute SD criterion (SD <= 8% at all time points).
 
-    ICH M13B requires RSD <= 8% at time points with mean percent released
-    <= 60%. This is stricter than the legacy FDA CV limits.
+    ICH M13B Step 2 draft (2025) defines high variability as absolute SD > 8%
+    at any time point (not relative SD restricted to mean <= 60%). When SD > 8%,
+    point-estimate f2 alone is not sufficient; bootstrap f2 CI is indicated.
 
     Returns
     -------
     list[str]
-        Warning strings for timepoints where RSD exceeds the ICH M13B threshold.
+        Warning strings for timepoints where absolute SD exceeds 8%.
+
+    References
+    ----------
+    ICH M13B Draft Guideline Step 2 (2025-02-12): Bioequivalence for Immediate-
+    Release Solid Oral Dosage Forms - Additional Strengths Biowaiver.
     """
     col_form = config.formulation_col
     col_time = config.time_col
@@ -262,17 +296,18 @@ def _check_ich_m13b_rsd(
         vals = group[col_pct].values
         if len(vals) < 2:
             continue
-        mean_val = float(vals.mean())
-        if mean_val <= 0.0 or mean_val > 60.0:
-            continue
-        rsd = float(vals.std(ddof=1) / abs(mean_val) * 100.0)
-        if rsd > 8.0:
+        sd = float(vals.std(ddof=1))
+        if sd > 8.0:
             warnings_out.append(
-                f"{formulation} at t={time_val}: RSD={rsd:.1f}% exceeds "
-                f"ICH M13B limit of 8% (mean {mean_val:.1f}%)"
+                f"{formulation} at t={time_val}: SD={sd:.1f}% exceeds "
+                f"ICH M13B Step 2 limit of 8% absolute SD (mean {float(vals.mean()):.1f}%)"
             )
 
     return warnings_out
+
+
+# Backward-compatible alias (deprecated name; uses Step 2 absolute SD logic)
+_check_ich_m13b_rsd = _check_ich_m13b_sd
 
 
 class DissolutionStudy:
@@ -379,6 +414,8 @@ class DissolutionStudy:
         self,
         reference: str,
         test: str,
+        *,
+        f2_method: str = "regulatory",
     ) -> ComparisonResult:
         """Compare two formulations using f1 and f2.
 
@@ -391,18 +428,26 @@ class DissolutionStudy:
             Label of the reference formulation.
         test : str
             Label of the test formulation.
+        f2_method : {"regulatory", "all_points"}, optional
+            Time-point selection for f2. Default ``"regulatory"`` applies the
+            FDA 85% rule. ``"all_points"`` uses every supplied time point and
+            must not be reported as FDA-supporting without stating the method.
 
         Returns
         -------
         ComparisonResult
-            Computed f1, f2, and associated metadata.
+            Computed f1, f2, method label, and persisted prerequisite warnings.
 
         Raises
         ------
         ValueError
-            If either formulation label is not found in the dataset, or if the
-            reference and test profiles do not share the same time points.
+            If either formulation label is not found in the dataset, if the
+            reference and test profiles do not share the same time points,
+            or if f2_method is unknown.
         """
+        if f2_method not in ("regulatory", "all_points"):
+            raise ValueError(f"f2_method must be 'regulatory' or 'all_points' (got {f2_method!r}).")
+
         available = self.formulations()
 
         if reference not in available:
@@ -422,53 +467,72 @@ class DissolutionStudy:
                 f"  Test time points:      {tst_times}"
             )
 
+        persisted: list[str] = []
+
         # Regulatory 85% check: warn if more than one timepoint exceeds 85%
         for label, means in ((reference, ref_means), (test, tst_means)):
             n_above_85 = sum(1 for v in means if v > 85.0)
             if n_above_85 > 1:
-                warnings.warn(
-                    _85_PCT_WARNING % (label, n_above_85),
-                    UserWarning,
-                    stacklevel=2,
-                )
+                msg = _85_PCT_WARNING % (label, n_above_85)
+                persisted.append(msg)
+                warnings.warn(msg, UserWarning, stacklevel=2)
 
         # CV check per FDA dissolution guidance (CV <= 20% early, <= 10% later)
         cv_issues: list[str] = []
         cv_issues.extend(_check_cv(self._df, reference, self._config))
         cv_issues.extend(_check_cv(self._df, test, self._config))
         if cv_issues:
-            warnings.warn(
+            msg = (
                 "High CV detected - FDA guidance recommends CV <= 20% at early "
                 "timepoints (<=15 min) and CV <= 10% at later timepoints:\n  "
-                + "\n  ".join(cv_issues),
-                UserWarning,
-                stacklevel=2,
+                + "\n  ".join(cv_issues)
             )
+            persisted.append(msg)
+            warnings.warn(msg, UserWarning, stacklevel=2)
 
-        # ICH M13B RSD constraint check: RSD > 8% at early time points (mean <= 60%)
-        rsd_issues: list[str] = []
-        rsd_issues.extend(_check_ich_m13b_rsd(self._df, reference, self._config))
-        rsd_issues.extend(_check_ich_m13b_rsd(self._df, test, self._config))
-        if rsd_issues:
-            warnings.warn(
-                "ICH M13B RSD constraint violated - RSD should be <= 8% at time points "
-                "with mean percent released <= 60%:\n  " + "\n  ".join(rsd_issues),
-                UserWarning,
-                stacklevel=2,
+        # ICH M13B Step 2: absolute SD > 8% at any time point (not RSD@mean<=60%)
+        sd_issues: list[str] = []
+        sd_issues.extend(_check_ich_m13b_sd(self._df, reference, self._config))
+        sd_issues.extend(_check_ich_m13b_sd(self._df, test, self._config))
+        if sd_issues:
+            msg = (
+                "ICH M13B (Step 2 draft) high variability: absolute SD > 8% at one "
+                "or more time points (use bootstrap f2 CI when SD > 8%):\n  "
+                + "\n  ".join(sd_issues)
             )
+            persisted.append(msg)
+            warnings.warn(msg, UserWarning, stacklevel=2)
 
         f1_value = f1(ref_means, tst_means)
-        f2_value = f2(ref_means, tst_means)
+        f2_value = f2(ref_means, tst_means, method=f2_method)  # type: ignore[arg-type]
+
+        # n_timepoints after regulatory trimming may differ from input length
+        n_used = len(ref_times)
+        if f2_method == "regulatory":
+            cutoff = len(ref_means)
+            for i, (r, t) in enumerate(zip(ref_means, tst_means, strict=True)):
+                if r > 85.0 and t > 85.0:
+                    cutoff = i + 1
+                    break
+            n_used = cutoff
+
+        if f2_method == "all_points":
+            persisted.append(
+                "f2_method='all_points' was used. FDA-supporting similarity claims "
+                "require f2_method='regulatory' (85% rule) and documented prerequisites."
+            )
 
         return ComparisonResult(
             reference_label=reference,
             test_label=test,
             f1_value=f1_value,
             f2_value=f2_value,
-            n_timepoints=len(ref_times),
+            n_timepoints=n_used,
             reference_mean=ref_means,
             test_mean=tst_means,
             time_points=ref_times,
+            f2_method=f2_method,
+            warnings=persisted,
         )
 
     def bootstrap_compare(

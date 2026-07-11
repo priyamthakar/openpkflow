@@ -7,13 +7,17 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
+_VALID_AUC_METHODS = ("linear", "log", "linear_up_log_down")
+_VALID_BLQ_METHODS = ("none", "drop", "zero", "half_lloq", "lloq", "m1", "m2")
+
 
 @dataclass
 class PipelineConfig:
     """Configuration for an end-to-end OpenPKFlow study pipeline.
 
-    Only stages with inputs provided are run. AUC and BLQ methods for NCA
-    are always explicit (no silent defaults beyond these named fields).
+    Only stages with inputs provided are run. When an NCA stage is enabled,
+    ``nca_auc_method`` and ``nca_blq_method`` must be set explicitly (no silent
+    scientific defaults).
 
     Parameters
     ----------
@@ -27,10 +31,11 @@ class PipelineConfig:
         Test formulation label.
     nca_csv : Path or None, optional
         Path to NCA concentration-time CSV.
-    nca_auc_method : str, optional
+    nca_auc_method : str or None, optional
         AUC method: ``"linear"``, ``"log"``, or ``"linear_up_log_down"``.
-    nca_blq_method : str, optional
-        BLQ handling method identifier (e.g. ``"none"``).
+        Required when ``nca_csv`` is set.
+    nca_blq_method : str or None, optional
+        BLQ handling method. Required when ``nca_csv`` is set.
     be_csv : Path or None, optional
         Path to wide-format BE CSV (subject, reference, test[, sequence]).
     be_parameter : str, optional
@@ -54,8 +59,8 @@ class PipelineConfig:
     dissolution_reference: str | None = None
     dissolution_test: str | None = None
     nca_csv: Path | None = None
-    nca_auc_method: str = "linear_up_log_down"
-    nca_blq_method: str = "none"
+    nca_auc_method: str | None = None
+    nca_blq_method: str | None = None
     be_csv: Path | None = None
     be_parameter: str = "AUCinf"
     be_reference_col: str = "reference"
@@ -88,7 +93,8 @@ class PipelineConfig:
         Raises
         ------
         ValueError
-            If no stages are configured, or dissolution lacks reference/test labels.
+            If no stages are configured, dissolution lacks reference/test labels,
+            or NCA methods are missing/invalid when NCA is enabled.
         """
         stages = self.enabled_stages()
         if not stages:
@@ -100,11 +106,27 @@ class PipelineConfig:
             not self.dissolution_reference or not self.dissolution_test
         ):
             raise ValueError("dissolution_csv requires dissolution_reference and dissolution_test.")
-        valid_auc = ("linear", "log", "linear_up_log_down")
-        if self.nca_csv is not None and self.nca_auc_method not in valid_auc:
-            raise ValueError(
-                f"nca_auc_method must be one of {valid_auc!r} (got {self.nca_auc_method!r})."
-            )
+        if self.nca_csv is not None:
+            if self.nca_auc_method is None:
+                raise ValueError(
+                    "nca_csv requires explicit nca_auc_method "
+                    f"(one of {_VALID_AUC_METHODS!r}); no silent default."
+                )
+            if self.nca_auc_method not in _VALID_AUC_METHODS:
+                raise ValueError(
+                    f"nca_auc_method must be one of {_VALID_AUC_METHODS!r} "
+                    f"(got {self.nca_auc_method!r})."
+                )
+            if self.nca_blq_method is None:
+                raise ValueError(
+                    "nca_csv requires explicit nca_blq_method "
+                    f"(one of {_VALID_BLQ_METHODS!r}); no silent default."
+                )
+            if self.nca_blq_method not in _VALID_BLQ_METHODS:
+                raise ValueError(
+                    f"nca_blq_method must be one of {_VALID_BLQ_METHODS!r} "
+                    f"(got {self.nca_blq_method!r})."
+                )
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable snapshot of this config.
@@ -130,7 +152,8 @@ class PipelineConfig:
         Parameters
         ----------
         data : dict
-            Config keys matching PipelineConfig fields. Unknown keys are ignored.
+            Config keys matching PipelineConfig fields. Unknown keys raise
+            ValueError (fail-closed).
         base_dir : Path or None, optional
             Resolve relative path fields against this directory.
 
@@ -142,9 +165,17 @@ class PipelineConfig:
         Raises
         ------
         ValueError
-            If the resulting config fails :meth:`validate`.
+            If unknown keys are present or the resulting config fails
+            :meth:`validate`.
         """
+        if not isinstance(data, dict):
+            raise ValueError(f"Pipeline config must be a mapping (got {type(data).__name__}).")
         known = {f.name for f in fields(cls)}
+        unknown = sorted(set(data) - known)
+        if unknown:
+            raise ValueError(
+                f"Unknown pipeline config key(s): {unknown}. Known keys: {sorted(known)}."
+            )
         kwargs: dict[str, Any] = {}
         path_fields = {
             "dissolution_csv",
@@ -152,8 +183,6 @@ class PipelineConfig:
             "be_csv",
         }
         for key, value in data.items():
-            if key not in known:
-                continue
             if key in path_fields and value is not None:
                 p = Path(str(value))
                 if not p.is_absolute() and base_dir is not None:

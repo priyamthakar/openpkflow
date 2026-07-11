@@ -72,7 +72,14 @@ class IVIVCResult:
         lp = self.levy_plot
         pp = self.predictability
 
-        overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
+        overall_raw = pp.get("overall_pass")
+        if overall_raw is None:
+            overall = "N/A (single-formulation %PE only; multi-form aggregate required)"
+        else:
+            overall = "PASS" if overall_raw else "FAIL"
+
+        mean_abs = pp.get("mean_abs_%PE")
+        mean_abs_str = "N/A" if mean_abs is None else f"{float(mean_abs):.2f}%"
 
         lines = [
             "IVIVC Level A Analysis",
@@ -89,9 +96,9 @@ class IVIVCResult:
             "",
             "Predictability Assessment (FDA 1997)",
             "-------------------------------------",
-            f"Cmax %PE: {pp.get('%PE_Cmax', float('nan')):.2f}% (limit <= 15%)",
-            f"AUCinf %PE: {pp.get('%PE_AUC', float('nan')):.2f}% (limit <= 15%)",
-            f"Mean abs %PE: {pp.get('mean_abs_%PE', float('nan')):.2f}% (limit <= 10%)",
+            f"Cmax %PE: {pp.get('%PE_Cmax', float('nan')):.2f}% (formulation limit <= 15%)",
+            f"AUCinf %PE: {pp.get('%PE_AUC', float('nan')):.2f}% (formulation limit <= 15%)",
+            f"Cross-form mean abs %PE: {mean_abs_str} (FDA limit <= 10% per metric)",
             f"Overall: {overall}",
             "",
             f"Disclaimer: {_DISCLAIMER}",

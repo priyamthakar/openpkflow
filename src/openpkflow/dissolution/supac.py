@@ -1,8 +1,8 @@
 """SUPAC-IR change-level screening and alcohol dose-dumping helpers.
 
-Transparent screening utilities based on FDA SUPAC-IR (1995) style thresholds.
-These helpers do NOT replace a full SUPAC guidance interpretation, regulatory
-filing strategy, or qualified CMC judgement.
+Transparent screening utilities based on FDA SUPAC-IR (1995) excipient-function
+tables. These helpers do NOT replace a full SUPAC guidance interpretation,
+regulatory filing strategy, or qualified CMC judgement.
 
 References
 ----------
@@ -21,24 +21,38 @@ from typing import Literal
 
 from openpkflow.dissolution.similarity import f2
 
-# Component categories used by the simplified screening table.
-# non_critical: fillers/diluents and similar bulk excipients (SUPAC-IR Level 1
-#   filler band is +/-5% of total formulation weight).
-# critical: release-affecting or high-risk functional excipients with tighter
-#   bands (binder / disintegrant / lubricant style thresholds collapsed).
-ComponentCategory = Literal["non_critical", "critical"]
+# Excipient functional classes from SUPAC-IR composition tables (percent of
+# total target dosage-form weight). Level 1 max and Level 2 max absolute %.
+ComponentCategory = Literal[
+    "filler",
+    "binder",
+    "disintegrant_starch",
+    "disintegrant_other",
+    "lubricant_stearate",
+    "lubricant_other",
+    "glidant",
+    "film_coat",
+    # Deprecated collapsed aliases (map to nearest function-specific class)
+    "non_critical",
+    "critical",
+]
 
 SupacLevel = Literal[1, 2, 3]
 
-# Thresholds are percent change of the total target dosage-form weight
-# (absolute magnitude). Documented screening assumptions, not a full SUPAC
-# multi-row table for every functional class.
-#
-# non_critical (filler-like): L1 <= 5%, L2 <= 10%, else L3
-# critical (binder/disintegrant/lubricant-like collapse): L1 <= 1%, L2 <= 2.5%, else L3
-_THRESHOLDS: dict[ComponentCategory, tuple[float, float]] = {
-    "non_critical": (5.0, 10.0),
-    "critical": (1.0, 2.5),
+# Absolute percent change of total formulation weight (SUPAC-IR 1995 tables).
+# L1: change_pct <= l1_max; L2: l1_max < change_pct <= l2_max; else L3.
+_THRESHOLDS: dict[str, tuple[float, float]] = {
+    "filler": (5.0, 10.0),
+    "binder": (0.5, 1.0),
+    "disintegrant_starch": (3.0, 6.0),
+    "disintegrant_other": (1.0, 2.0),
+    "lubricant_stearate": (0.25, 0.5),
+    "lubricant_other": (1.0, 2.0),
+    "glidant": (1.0, 2.0),
+    "film_coat": (1.0, 2.0),
+    # Collapsed aliases retained for backward compatibility only
+    "non_critical": (5.0, 10.0),  # filler-like
+    "critical": (0.5, 1.0),  # maps to binder (tightest common functional band)
 }
 
 _LEVEL_TESTS: dict[SupacLevel, list[str]] = {
@@ -68,8 +82,8 @@ class SupacClassification:
         Screened change level (1 = small, 2 = moderate, 3 = large).
     change_pct : float
         Absolute percent change supplied by the caller.
-    component_category : {"non_critical", "critical"}
-        Excipient risk category used for threshold selection.
+    component_category : str
+        Excipient functional class used for threshold selection.
     rationale : str
         Human-readable explanation of the level assignment.
     recommended_tests : list[str]
@@ -78,7 +92,7 @@ class SupacClassification:
 
     level: SupacLevel
     change_pct: float
-    component_category: ComponentCategory
+    component_category: str
     rationale: str
     recommended_tests: list[str]
 
@@ -107,38 +121,33 @@ class AlcoholDoseDumpingResult:
 
 def classify_supac_ir_level(
     change_pct: float,
-    component_category: ComponentCategory,
+    component_category: ComponentCategory | str,
 ) -> SupacClassification:
-    """Classify a SUPAC-IR style composition change level (screening only).
+    """Classify a SUPAC-IR composition change level by excipient function.
 
-    This is a simplified, transparent helper. It does not implement the full
-    multi-row SUPAC-IR component table, site/scale/equipment changes, or
-    biowaiver eligibility logic. Final regulatory classification requires
-    review of the complete SUPAC-IR guidance by qualified CMC experts.
+    Screening only. Does not implement cumulative multi-component totals,
+    site/scale/equipment changes, or biowaiver eligibility.
 
-    Screening thresholds (absolute % of total formulation weight)
-    -------------------------------------------------------------
-    non_critical (filler-like)::
+    Function-specific Level 1 / Level 2 ceilings (% of total formulation weight)
+    ---------------------------------------------------------------------------
+    filler                 : L1 <= 5%,   L2 <= 10%
+    binder                 : L1 <= 0.5%, L2 <= 1%
+    disintegrant_starch    : L1 <= 3%,   L2 <= 6%
+    disintegrant_other     : L1 <= 1%,   L2 <= 2%
+    lubricant_stearate     : L1 <= 0.25%, L2 <= 0.5%  (Ca/Mg stearate)
+    lubricant_other        : L1 <= 1%,   L2 <= 2%
+    glidant                : L1 <= 1%,   L2 <= 2%
+    film_coat              : L1 <= 1%,   L2 <= 2%
 
-        Level 1: change_pct <= 5
-        Level 2: 5 < change_pct <= 10
-        Level 3: change_pct > 10
-
-    critical (release-affecting / functional, tighter band)::
-
-        Level 1: change_pct <= 1
-        Level 2: 1 < change_pct <= 2.5
-        Level 3: change_pct > 2.5
+    Deprecated aliases: ``non_critical`` (filler), ``critical`` (binder band).
 
     Parameters
     ----------
     change_pct : float
-        Absolute magnitude of the component change as percent of the total
-        target dosage-form weight. Must be >= 0.
-    component_category : {"non_critical", "critical"}
-        Excipient category. Use ``"non_critical"`` for bulk fillers/diluents;
-        use ``"critical"`` for binders, disintegrants, lubricants, and other
-        release-affecting functional excipients (collapsed tighter band).
+        Absolute magnitude of the component change as percent of total target
+        dosage-form weight. Must be >= 0.
+    component_category : str
+        Excipient functional class (see table above).
 
     Returns
     -------
@@ -151,23 +160,15 @@ def classify_supac_ir_level(
         If change_pct is negative or non-finite, or component_category is
         not a supported value.
 
-    Notes
-    -----
-    Caveats: (1) screening only -- not a substitute for full SUPAC-IR
-    interpretation; (2) per-function SUPAC rows (e.g. starch vs other
-    disintegrant, Mg stearate vs other lubricant) are collapsed into two
-    categories; (3) cumulative multi-component changes and process changes
-    are out of scope.
-
     References
     ----------
     FDA Guidance for Industry: Immediate Release Solid Oral Dosage Forms:
     Scale-Up and Postapproval Changes (SUPAC-IR, 1995). CDER.
     """
-    if component_category not in _THRESHOLDS:
+    cat = str(component_category)
+    if cat not in _THRESHOLDS:
         raise ValueError(
-            f"component_category must be one of {sorted(_THRESHOLDS)!r} "
-            f"(got {component_category!r})."
+            f"component_category must be one of {sorted(_THRESHOLDS)!r} (got {cat!r})."
         )
     pct = float(change_pct)
     if pct != pct or pct == float("inf") or pct == float("-inf"):  # NaN/inf
@@ -175,7 +176,7 @@ def classify_supac_ir_level(
     if pct < 0.0:
         raise ValueError(f"change_pct must be >= 0 (got {pct}).")
 
-    l1_max, l2_max = _THRESHOLDS[component_category]
+    l1_max, l2_max = _THRESHOLDS[cat]
     if pct <= l1_max:
         level: SupacLevel = 1
         band = f"<= {l1_max:g}%"
@@ -186,16 +187,25 @@ def classify_supac_ir_level(
         level = 3
         band = f"> {l2_max:g}%"
 
+    alias_note = ""
+    if cat in ("non_critical", "critical"):
+        alias_note = (
+            f" Note: {cat!r} is a deprecated collapsed alias; prefer an "
+            "excipient-function class (filler, binder, disintegrant_*, "
+            "lubricant_*, glidant, film_coat)."
+        )
+
     rationale = (
-        f"Screening Level {level} for component_category={component_category!r} "
+        f"Screening Level {level} for component_category={cat!r} "
         f"with |change|={pct:g}% (band: {band}). "
-        f"Thresholds: L1 <= {l1_max:g}%, L2 <= {l2_max:g}%, else L3. "
+        f"SUPAC-IR function table: L1 <= {l1_max:g}%, L2 <= {l2_max:g}%, else L3."
+        f"{alias_note} "
         "Screening only; see FDA SUPAC-IR 1995 for full classification."
     )
     return SupacClassification(
         level=level,
         change_pct=pct,
-        component_category=component_category,
+        component_category=cat,
         rationale=rationale,
         recommended_tests=list(_LEVEL_TESTS[level]),
     )

@@ -113,8 +113,11 @@ export default function IvIvcPage() {
       dose_diss: doseDiss.trim() !== '' ? Number(doseDiss) : null,
       dose_iv: doseIv.trim() !== '' ? Number(doseIv) : null,
       study_label: studyLabel,
+      dissolution_time_unit: 'minutes' as const,
     }
   }, [inVivoRows, dissolutionRows, ivUirRows, method, kel, k12, k21, doseDiss, doseIv, studyLabel])
+
+  const [runSnapshot, setRunSnapshot] = useState<typeof req | null>(null)
 
   function loadExample() {
     setInVivoRows(EXAMPLE_IN_VIVO_ROWS)
@@ -127,19 +130,27 @@ export default function IvIvcPage() {
     setDoseDiss('')
     setDoseIv('')
     setStudyLabel('Example IR tablet')
+    setRunSnapshot(null)
     mutation.reset()
   }
 
   const mutation = useMutation<IvIvcResponse, Error>({
     mutationFn: () => analyzeIvIvc(req),
+    onSuccess: () => {
+      setRunSnapshot(JSON.parse(JSON.stringify(req)) as typeof req)
+    },
   })
 
   const result = mutation.data
+  const resultsStale =
+    Boolean(result) &&
+    (runSnapshot === null || JSON.stringify(runSnapshot) !== JSON.stringify(req))
 
   const canRun =
     inVivoRows.some((r) => String(r.time ?? '').trim() !== '') &&
     dissolutionRows.some((r) => String(r.time ?? '').trim() !== '') &&
     ivUirRows.some((r) => String(r.time ?? '').trim() !== '') &&
+    kel.trim() !== '' &&
     !mutation.isPending
 
   return (
@@ -423,10 +434,25 @@ export default function IvIvcPage() {
                 </div>
               </div>
 
-              <DownloadReportButton
-                formats={['html', 'markdown', 'pdf', 'docx']}
-                onDownload={(fmt) => downloadIvIvcReport(req, fmt)}
-              />
+              {resultsStale && (
+                <div className="rounded-sm border border-warning/30 bg-warning/10 p-3 text-warning text-sm">
+                  <p className="font-semibold mb-1">Results are stale</p>
+                  <p>
+                    Inputs or options changed after the last run. Re-run IVIVC before
+                    downloading a report so the visible results and the report match.
+                  </p>
+                </div>
+              )}
+              {resultsStale ? (
+                <p className="text-sm text-text-muted">
+                  Report download disabled until you re-run with the current options.
+                </p>
+              ) : (
+                <DownloadReportButton
+                  formats={['html', 'markdown', 'pdf', 'docx']}
+                  onDownload={(fmt) => downloadIvIvcReport(runSnapshot!, fmt)}
+                />
+              )}
               <Disclaimer text={result.disclaimer} />
             </>
           )}

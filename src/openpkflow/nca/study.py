@@ -317,8 +317,27 @@ class NCAStudy:
             accum_ratio: float | None = None
 
             if self._steady_state and self._tau is not None:
+                # AUCtau is defined over one dosing interval [0, tau] only.
+                import numpy as np
+
+                t_arr = np.asarray(t, dtype=float)
+                c_arr = np.asarray(c, dtype=float)
+                in_tau = (t_arr >= 0.0) & (t_arr <= self._tau)
+                if not bool(np.any(in_tau)):
+                    raise ValueError(
+                        f"Steady-state analysis requires sample times in [0, tau] "
+                        f"(tau={self._tau}); none found for this subject."
+                    )
+                if not bool(np.all(in_tau)):
+                    n_drop = int(np.size(t_arr) - int(np.count_nonzero(in_tau)))
+                    nca_warnings.append(
+                        f"Dropped {n_drop} sample(s) outside [0, tau={self._tau}] "
+                        "before AUCtau / steady-state parameter calculation."
+                    )
+                t_ss = t_arr[in_tau].tolist()
+                c_ss = c_arr[in_tau].tolist()
                 ss_params = steady_state_parameters(
-                    t, c, tau=self._tau, auc_method=self._auc_method
+                    t_ss, c_ss, tau=self._tau, auc_method=self._auc_method
                 )
                 cmax_ss = ss_params["Cmax_ss"]
                 cmin_ss = ss_params["Cmin_ss"]

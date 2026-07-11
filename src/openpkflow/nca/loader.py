@@ -140,9 +140,23 @@ def load_nca_csv(
     # NaN rows that are NOT from string-BLQ parsing (failed numeric parse)
     nan_mask = df["conc"].isna() & ~string_blq_mask
 
-    # --- 8. Apply BLQ method ---
+    # --- 8. Apply BLQ method (fail-closed for string/flagged BLQ) ---
     if normalised_method == "none":
-        pass  # pass concentrations through as-is
+        # Strings like "<0.5" must not silently become observed 0.5.
+        if bool(combined_blq_mask.any()):
+            n_blq = int(combined_blq_mask.sum())
+            raise ValueError(
+                f"Found {n_blq} BLQ observation(s) (string markers such as '<0.5' "
+                "and/or blq_col flags) but blq_method='none'. Choose an explicit "
+                "BLQ method: 'drop', 'zero', 'half_lloq', or 'lloq'."
+            )
+        # Unparseable non-BLQ NaNs are also rejected under fail-closed loading.
+        if bool(nan_mask.any()):
+            n_nan = int(nan_mask.sum())
+            raise ValueError(
+                f"Found {n_nan} non-numeric concentration value(s) that are not "
+                "BLQ markers. Fix the input or use blq_method='drop'."
+            )
 
     elif normalised_method == "drop":
         drop_mask = combined_blq_mask | nan_mask
@@ -153,11 +167,16 @@ def load_nca_csv(
 
     elif normalised_method == "half_lloq":
         assert lloq is not None  # already validated above
-        df.loc[combined_blq_mask, "conc"] = lloq * 0.5
+        # Prefer explicit LLOQ; fall back to parsed "<x" threshold per row.
+        for idx in df.index[combined_blq_mask]:
+            df.loc[idx, "conc"] = float(lloq) * 0.5
 
     elif normalised_method == "lloq":
         assert lloq is not None
         df.loc[combined_blq_mask, "conc"] = float(lloq)
+
+    else:
+        raise ValueError(f"Unknown blq_method after normalisation: {normalised_method!r}.")
 
     # --- 9. Final type coercion ---
     df["conc"] = df["conc"].astype(float)

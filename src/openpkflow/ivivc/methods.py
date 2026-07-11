@@ -244,6 +244,7 @@ def convolution_predict(
     iv_unit_impulse_concs: Sequence[float] | np.ndarray,
     dose_diss: float | None = None,
     dose_iv: float | None = None,
+    dissolution_time_unit: str = "hours",
 ) -> tuple[np.ndarray, np.ndarray]:
     """Predict in vivo concentration-time profile via numerical convolution.
 
@@ -254,11 +255,12 @@ def convolution_predict(
     Parameters
     ----------
     dissolution_times : Sequence[float]
-        Time points for the in vitro dissolution profile (minutes or hours).
+        Time points for the in vitro dissolution profile.
     dissolution_pct : Sequence[float]
-        Cumulative percent dissolved at each dissolution time point.
+        Cumulative percent dissolved at each dissolution time point
+        (0-100 scale). Incomplete profiles are NOT re-normalised to 100%.
     iv_unit_impulse_times : Sequence[float]
-        IV bolus plasma sampling times, hours.
+        IV bolus plasma sampling times in hours.
     iv_unit_impulse_concs : Sequence[float]
         IV bolus plasma concentrations at each UIR time.
     dose_diss : float or None, optional
@@ -267,11 +269,14 @@ def convolution_predict(
     dose_iv : float or None, optional
         Dose administered IV for UIR. Defaults to unity for relative
         prediction.
+    dissolution_time_unit : {"hours", "minutes"}, optional
+        Unit of ``dissolution_times``. Minutes are converted to hours so
+        dissolution and UIR share a consistent time base. Default ``"hours"``.
 
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        (predicted_times, predicted_concentrations) arrays.
+        (predicted_times, predicted_concentrations) arrays in hours.
 
     Notes
     -----
@@ -280,8 +285,8 @@ def convolution_predict(
         C_pred(t) = dose_diss/dose_iv * integrate(R_in(tau) * UIR(t - tau), dtau, 0, t)
 
     where R_in is the dissolution input rate (derivative of cumulative
-    dissolution) and UIR is the unit impulse response.  The discretised
-    convolution uses the trapezoidal approximation.
+    dissolution fraction) and UIR is the unit impulse response.  The
+    discretised convolution uses the trapezoidal approximation.
     """
     import numpy as np
 
@@ -290,22 +295,37 @@ def convolution_predict(
     u_t = np.asarray(iv_unit_impulse_times, dtype=float)
     u_c = np.asarray(iv_unit_impulse_concs, dtype=float)
 
+    unit = dissolution_time_unit.lower().strip()
+    if unit in ("min", "mins", "minute", "minutes"):
+        d_t = d_t / 60.0
+    elif unit not in ("h", "hr", "hrs", "hour", "hours"):
+        raise ValueError(
+            f"dissolution_time_unit must be 'hours' or 'minutes' (got {dissolution_time_unit!r})."
+        )
+
     dose_ratio = 1.0
     if dose_diss is not None and dose_iv is not None and dose_iv > 0:
         dose_ratio = dose_diss / dose_iv
 
-    # Normalise dissolution to fraction (0-1)
-    max_pct = np.max(d_pct)
+    # Convert percent dissolved to fraction. Do NOT re-scale incomplete profiles
+    # to 100% -- that invents mass that was never dissolved.
+    if np.any(d_pct < 0) or np.any(d_pct > 100.0 + 1e-9):
+        raise ValueError("dissolution_pct values must be in [0, 100].")
+    max_pct = float(np.max(d_pct))
     if max_pct <= 0:
         raise ValueError("Dissolution profile must have positive values")
-    d_frac = d_pct / max_pct
+    d_frac = d_pct / 100.0
 
     # Create a uniform time grid spanning the combined range
     t_min = 0.0
-    t_max = u_t[-1]
+    t_max = float(u_t[-1])
+    if t_max <= 0:
+        raise ValueError("UIR times must extend beyond 0.")
+    positive_d = np.diff(d_t[d_t > 0]) if len(d_t) > 1 else np.array([])
+    positive_u = np.diff(u_t[u_t > 0]) if len(u_t) > 1 else np.array([])
     dt = min(
-        np.min(np.diff(d_t[d_t > 0])) if len(d_t) > 1 else 0.1,
-        np.min(np.diff(u_t[u_t > 0])) if len(u_t) > 1 else 0.1,
+        float(np.min(positive_d)) if len(positive_d) else 0.1,
+        float(np.min(positive_u)) if len(positive_u) else 0.1,
         0.5,
     )
     dt = max(dt, 0.01)
@@ -316,11 +336,9 @@ def convolution_predict(
     # Interpolate UIR onto the uniform grid
     uir_interp = np.interp(t_grid, u_t, u_c, left=u_c[0], right=0.0)
 
-    # Input rate: derivative of cumulative dissolution
-    # Interpolate the dissolution fraction curve and compute its derivative
+    # Input rate: derivative of cumulative dissolution fraction
     d_interp = np.interp(t_grid, d_t, d_frac, left=0.0, right=d_frac[-1])
     input_rate = np.gradient(d_interp, dt, edge_order=2)
-    # Clamp negative rates to zero (numerical noise edge case)
     input_rate = np.maximum(input_rate, 0.0)
 
     # Convolution via cumulative sum (discrete trapezoidal)
@@ -407,55 +425,122 @@ def ivivc_predictability(
     predicted_cmax: float,
     observed_auc: float,
     predicted_auc: float,
-) -> dict[str, float]:
-    """FDA IVIVC predictability assessment (%PE).
+) -> dict[str, float | bool | str | None]:
+    """FDA IVIVC percent prediction error (%PE) for one formulation.
 
-    Computes the percent prediction error (%PE) for Cmax and AUCinf.
-    Per the FDA guidance, predictability is established when the
-    mean absolute %PE is <= 10% and the %PE for each formulation
-    is <= 15%.
+    Computes %PE for Cmax and AUCinf separately. FDA evaluates internal
+    predictability by averaging absolute %PE **across formulations for each
+    metric** (Cmax and AUC separately), with formulation-level |%PE| <= 15%
+    and cross-formulation mean absolute %PE <= 10% per metric. Averaging
+    Cmax and AUC %PE within a single formulation is **not** the FDA criterion.
+
+    This helper returns per-formulation %PE only. Regulatory pass/fail requires
+    multi-formulation aggregation via :func:`ivivc_predictability_aggregate`.
+    Single-formulation ``overall_pass`` is always ``None`` (not evaluated).
 
     Parameters
     ----------
     observed_cmax : float
-        Observed (in vivo) Cmax for the test formulation.
+        Observed (in vivo) Cmax for the formulation.
     predicted_cmax : float
         IVIVC-predicted Cmax.
     observed_auc : float
-        Observed AUCinf for the test formulation.
+        Observed AUCinf for the formulation.
     predicted_auc : float
         IVIVC-predicted AUCinf.
 
     Returns
     -------
-    dict[str, float]
-        Dictionary with ``%PE_Cmax``, ``%PE_AUC``, ``mean_abs_%PE``,
-        ``passes_cmax`` (<= 15%), ``passes_auc`` (<= 15%),
-        ``passes_mean`` (<= 10%), and ``overall_pass``.
+    dict
+        ``%PE_Cmax``, ``%PE_AUC``, ``abs_%PE_Cmax``, ``abs_%PE_AUC``,
+        ``formulation_cmax_within_15``, ``formulation_auc_within_15``,
+        ``overall_pass`` (always None for single-formulation calls),
+        and ``note``.
 
     References
     ----------
-    FDA Guidance for Industry: Extended Release Oral Dosage Forms (1997),
-    Section V.B: IVIVC Evaluation (Predictability).
+    FDA Guidance for Industry: Extended Release Oral Dosage Forms:
+    Development, Evaluation, and Application of In Vitro/In Vivo Correlations
+    (1997), Section V.B (Predictability).
     """
-    pe_cmax = (
-        ((predicted_cmax - observed_cmax) / observed_cmax) * 100.0 if observed_cmax > 0 else 0.0
-    )
-    pe_auc = ((predicted_auc - observed_auc) / observed_auc) * 100.0 if observed_auc > 0 else 0.0
+    if observed_cmax <= 0:
+        raise ValueError(f"observed_cmax must be > 0 (got {observed_cmax}).")
+    if observed_auc <= 0:
+        raise ValueError(f"observed_auc must be > 0 (got {observed_auc}).")
 
-    abs_pe = (abs(pe_cmax) + abs(pe_auc)) / 2.0
-
-    passes_cmax = abs(pe_cmax) <= 15.0
-    passes_auc = abs(pe_auc) <= 15.0
-    passes_mean = abs_pe <= 10.0
-    overall_pass = passes_cmax and passes_auc and passes_mean
+    pe_cmax = ((predicted_cmax - observed_cmax) / observed_cmax) * 100.0
+    pe_auc = ((predicted_auc - observed_auc) / observed_auc) * 100.0
+    abs_cmax = abs(pe_cmax)
+    abs_auc = abs(pe_auc)
 
     return {
         "%PE_Cmax": round(pe_cmax, 2),
         "%PE_AUC": round(pe_auc, 2),
-        "mean_abs_%PE": round(abs_pe, 2),
-        "passes_cmax": passes_cmax,
-        "passes_auc": passes_auc,
-        "passes_mean": passes_mean,
-        "overall_pass": overall_pass,
+        "abs_%PE_Cmax": round(abs_cmax, 2),
+        "abs_%PE_AUC": round(abs_auc, 2),
+        "formulation_cmax_within_15": abs_cmax <= 15.0,
+        "formulation_auc_within_15": abs_auc <= 15.0,
+        # Backward-compat keys: not FDA cross-formulation mean criteria
+        "passes_cmax": abs_cmax <= 15.0,
+        "passes_auc": abs_auc <= 15.0,
+        "mean_abs_%PE": None,
+        "passes_mean": None,
+        "overall_pass": None,
+        "note": (
+            "Single-formulation %PE only. FDA internal predictability requires "
+            "cross-formulation mean |%PE| <= 10% for Cmax and for AUC separately "
+            "(not the average of Cmax and AUC within one formulation). "
+            "Use ivivc_predictability_aggregate for multi-formulation verdicts."
+        ),
+    }
+
+
+def ivivc_predictability_aggregate(
+    formulation_results: Sequence[dict[str, float | bool | str | None]],
+) -> dict[str, float | bool | str]:
+    """Aggregate multi-formulation %PE using FDA internal predictability rules.
+
+    Parameters
+    ----------
+    formulation_results : sequence of dict
+        Outputs of :func:`ivivc_predictability` (one per formulation).
+
+    Returns
+    -------
+    dict
+        Cross-formulation mean absolute %PE for Cmax and AUC, whether each
+        mean is <= 10%, whether every formulation is within 15% for each
+        metric, and ``overall_pass``.
+
+    References
+    ----------
+    FDA Guidance for Industry: Extended Release Oral Dosage Forms (1997),
+    Section V.B.
+    """
+    if not formulation_results:
+        raise ValueError("formulation_results must be non-empty.")
+
+    abs_cmax = [float(r["abs_%PE_Cmax"]) for r in formulation_results]  # type: ignore[arg-type]
+    abs_auc = [float(r["abs_%PE_AUC"]) for r in formulation_results]  # type: ignore[arg-type]
+    mean_cmax = sum(abs_cmax) / len(abs_cmax)
+    mean_auc = sum(abs_auc) / len(abs_auc)
+    all_cmax_15 = all(bool(r["formulation_cmax_within_15"]) for r in formulation_results)
+    all_auc_15 = all(bool(r["formulation_auc_within_15"]) for r in formulation_results)
+    mean_cmax_ok = mean_cmax <= 10.0
+    mean_auc_ok = mean_auc <= 10.0
+    overall = all_cmax_15 and all_auc_15 and mean_cmax_ok and mean_auc_ok
+
+    return {
+        "n_formulations": len(formulation_results),
+        "mean_abs_%PE_Cmax": round(mean_cmax, 2),
+        "mean_abs_%PE_AUC": round(mean_auc, 2),
+        "mean_cmax_within_10": mean_cmax_ok,
+        "mean_auc_within_10": mean_auc_ok,
+        "all_formulations_cmax_within_15": all_cmax_15,
+        "all_formulations_auc_within_15": all_auc_15,
+        "overall_pass": overall,
+        "note": (
+            "FDA internal predictability: for each of Cmax and AUC, mean |%PE| "
+            "across formulations <= 10% and each formulation |%PE| <= 15%."
+        ),
     }

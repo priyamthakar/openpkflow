@@ -75,16 +75,20 @@
         <div class="metric-value">{{ pe_auc }}%</div>
         <div class="metric-unit">limit &lt;= 15%</div>
       </div>
-      <div class="metric-box {{ 'pass' if passes_mean else 'fail' }}">
-        <div class="metric-label">Mean Abs %PE</div>
-        <div class="metric-value">{{ mean_abs_pe }}%</div>
-        <div class="metric-unit">limit &lt;= 10%</div>
+      <div class="metric-box {% if passes_mean is none %}{% elif passes_mean %}pass{% else %}fail{% endif %}">
+        <div class="metric-label">Cross-form Mean Abs %PE</div>
+        <div class="metric-value">{% if mean_abs_pe == 'N/A' %}N/A{% else %}{{ mean_abs_pe }}%{% endif %}</div>
+        <div class="metric-unit">limit &lt;= 10% per metric (multi-form)</div>
       </div>
     </div>
     <p style="text-align:center;">
+      {% if overall_pass is none %}
+      <span class="overall-badge">N/A -- single-formulation %PE only</span>
+      {% else %}
       <span class="overall-badge {{ 'pass' if overall_pass else 'fail' }}">
         {{ 'PASS' if overall_pass else 'FAIL' }} -- IVIVC Predictability
       </span>
+      {% endif %}
     </p>
 
     <h2>IVIVC Plots</h2>

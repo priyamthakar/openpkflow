@@ -859,7 +859,7 @@ def auc_tau(
     concs: list[float],
     *,
     tau: float,
-    method: Literal["linear", "log", "linear_up_log_down"] = "linear_up_log_down",
+    method: Literal["linear", "log", "linear_up_log_down"],
 ) -> float:
     """Compute AUC over one steady-state dosing interval (AUCtau).
 
@@ -867,12 +867,13 @@ def auc_tau(
     ----------
     times : list[float]
         Sample times within one steady-state interval [0, tau].
+        All times must satisfy 0 <= t <= tau (fail-closed; no silent trim).
     concs : list[float]
         Observed concentrations at each time point.
     tau : float
         Dosing interval length.
-    method : {"linear", "log", "linear_up_log_down"}, optional
-        AUC integration method. Default "linear_up_log_down".
+    method : {"linear", "log", "linear_up_log_down"}
+        AUC integration method. Required; no silent default.
 
     Returns
     -------
@@ -882,22 +883,29 @@ def auc_tau(
     Raises
     ------
     ValueError
-        If tau <= 0, or standard time/conc validation fails.
+        If tau <= 0, method is unknown, times fall outside [0, tau],
+        or standard time/conc validation fails.
     """
     if tau <= 0:
         raise ValueError(f"tau must be positive (got {tau}).")
+    valid_methods = ("linear", "log", "linear_up_log_down")
+    if method not in valid_methods:
+        raise ValueError(f"method must be one of {valid_methods!r} (got {method!r}).")
     t, c = _validate_time_conc(times, concs, min_points=2)
 
-    # Force times to stay within [0, tau]
     t_arr = np.asarray(t, dtype=float)
     c_arr = np.asarray(c, dtype=float)
+    if np.any(t_arr < 0.0) or np.any(t_arr > tau):
+        raise ValueError(
+            f"auc_tau requires all sample times in [0, tau] (tau={tau}); "
+            f"got min={float(t_arr.min())}, max={float(t_arr.max())}."
+        )
 
     if method == "linear":
         return auc_linear(t_arr.tolist(), c_arr.tolist())
-    elif method == "log":
+    if method == "log":
         return auc_log(t_arr.tolist(), c_arr.tolist()).value
-    else:
-        return auc_linear_up_log_down(t_arr.tolist(), c_arr.tolist()).value
+    return auc_linear_up_log_down(t_arr.tolist(), c_arr.tolist()).value
 
 
 def steady_state_parameters(
@@ -905,7 +913,7 @@ def steady_state_parameters(
     concs: list[float],
     *,
     tau: float,
-    auc_method: Literal["linear", "log", "linear_up_log_down"] = "linear_up_log_down",
+    auc_method: Literal["linear", "log", "linear_up_log_down"],
 ) -> dict[str, float | None]:
     """Compute steady-state NCA parameters from a single-dose PK profile
     projected to steady state via linear superposition.
@@ -921,8 +929,8 @@ def steady_state_parameters(
         Concentrations at each time point at steady state.
     tau : float
         Dosing interval length.
-    auc_method : {"linear", "log", "linear_up_log_down"}, optional
-        AUC integration method.
+    auc_method : {"linear", "log", "linear_up_log_down"}
+        AUC integration method. Required; no silent default.
 
     Returns
     -------
@@ -942,13 +950,7 @@ def steady_state_parameters(
     cmax_ss = float(np.max(c_arr))
     cmin_ss = float(np.min(c_arr))
 
-    # AUCtau
-    if auc_method == "linear":
-        auctau = auc_linear(t_arr.tolist(), c_arr.tolist())
-    elif auc_method == "log":
-        auctau = auc_log(t_arr.tolist(), c_arr.tolist()).value
-    else:
-        auctau = auc_linear_up_log_down(t_arr.tolist(), c_arr.tolist()).value
+    auctau = auc_tau(t_arr.tolist(), c_arr.tolist(), tau=tau, method=auc_method)
 
     # Average concentration at steady state
     cavg_ss = auctau / tau if tau > 0 else None

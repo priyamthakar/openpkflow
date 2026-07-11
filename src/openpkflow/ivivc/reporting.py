@@ -42,7 +42,14 @@ def render_ivivc_markdown_report(
     lp = result.levy_plot
     pp = result.predictability
 
-    overall = "PASS" if pp.get("overall_pass", False) else "FAIL"
+    overall_raw = pp.get("overall_pass")
+    if overall_raw is None:
+        overall = "N/A (single-formulation)"
+    else:
+        overall = "PASS" if overall_raw else "FAIL"
+    mean_abs = pp.get("mean_abs_%PE")
+    mean_abs_str = "N/A" if mean_abs is None else f"{float(mean_abs):.2f}%"
+    mean_status = "N/A" if mean_abs is None else ("PASS" if pp.get("passes_mean") else "FAIL")
     study_name = result.study_label or "IVIVC Level A"
 
     lines: list[str] = []
@@ -84,8 +91,7 @@ def render_ivivc_markdown_report(
         f"{'PASS' if pp.get('passes_auc', False) else 'FAIL'} |"
     )
     lines.append(
-        f"| Mean abs %PE | {pp.get('mean_abs_%PE', float('nan')):.2f}% | <= 10% | "
-        f"{'PASS' if pp.get('passes_mean', False) else 'FAIL'} |"
+        f"| Cross-form mean abs %PE | {mean_abs_str} | <= 10% per metric | {mean_status} |"
     )
     lines.append(f"| **Overall** | | | **{overall}** |")
     lines.append("")
@@ -305,11 +311,13 @@ def render_ivivc_html_report(
         levy_n=len(lp.get("x", [])),
         pe_cmax=f"{pp.get('%PE_Cmax', float('nan')):.2f}",
         pe_auc=f"{pp.get('%PE_AUC', float('nan')):.2f}",
-        mean_abs_pe=f"{pp.get('mean_abs_%PE', float('nan')):.2f}",
+        mean_abs_pe=(
+            "N/A" if pp.get("mean_abs_%PE") is None else f"{float(pp['mean_abs_%PE']):.2f}"  # type: ignore[arg-type]
+        ),
         passes_cmax=pp.get("passes_cmax", False),
         passes_auc=pp.get("passes_auc", False),
-        passes_mean=pp.get("passes_mean", False),
-        overall_pass=pp.get("overall_pass", False),
+        passes_mean=pp.get("passes_mean"),
+        overall_pass=pp.get("overall_pass"),
         data_rows=data_rows,
         pred_rows=pred_rows,
         plot_b64=plot_b64,

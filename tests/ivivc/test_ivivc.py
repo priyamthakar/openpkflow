@@ -321,43 +321,59 @@ class TestLevyPlot:
 
 
 class TestIVIVCPredictability:
-    """FDA 1997 IVIVC predictability assessment."""
+    """FDA 1997 IVIVC predictability: per-formulation %PE + multi-form aggregate."""
 
-    def test_perfect_prediction_passes(self) -> None:
+    def test_perfect_prediction_pe_zero(self) -> None:
         result = ivivc_predictability(100.0, 100.0, 500.0, 500.0)
         assert result["passes_cmax"]
         assert result["passes_auc"]
-        assert result["passes_mean"]
-        assert result["overall_pass"]
+        assert result["overall_pass"] is None  # single-form: no FDA verdict
         assert result["%PE_Cmax"] == 0.0
         assert result["%PE_AUC"] == 0.0
 
-    def test_small_error_passes(self) -> None:
+    def test_small_error_within_15(self) -> None:
         result = ivivc_predictability(100.0, 110.0, 500.0, 545.0)
         assert result["passes_cmax"]  # 10%
         assert result["passes_auc"]  # 9%
-        assert result["passes_mean"]  # 9.5% mean
-        assert result["overall_pass"]
+        assert result["overall_pass"] is None
 
-    def test_large_auc_error_fails(self) -> None:
+    def test_large_auc_error_flagged(self) -> None:
         result = ivivc_predictability(100.0, 105.0, 500.0, 600.0)
         assert not result["passes_auc"]
-        assert not result["overall_pass"]
-        assert not result["passes_mean"]  # mean abs > 10%
+        assert result["overall_pass"] is None
 
-    def test_large_cmax_error_fails(self) -> None:
+    def test_large_cmax_error_flagged(self) -> None:
         result = ivivc_predictability(100.0, 120.0, 500.0, 500.0)
         assert not result["passes_cmax"]
-        assert not result["overall_pass"]
+        assert result["overall_pass"] is None
 
-    def test_both_fail(self) -> None:
-        result = ivivc_predictability(100.0, 120.0, 500.0, 600.0)
-        assert not result["overall_pass"]
+    def test_zero_observed_raises(self) -> None:
+        with pytest.raises(ValueError, match="observed_cmax"):
+            ivivc_predictability(0.0, 5.0, 100.0, 5.0)
 
-    def test_zero_observed_handled(self) -> None:
-        result = ivivc_predictability(0.0, 5.0, 0.0, 5.0)
-        assert isinstance(result["%PE_Cmax"], float)
-        assert isinstance(result["%PE_AUC"], float)
+    def test_aggregate_does_not_average_cmax_with_auc(self) -> None:
+        """FDA mean |%PE| is across formulations per metric, not Cmax+AUC average.
+
+        Hand-checkable two-formulation case
+        -----------------------------------
+        Form A: |%PE_Cmax|=4, |%PE_AUC|=14
+        Form B: |%PE_Cmax|=4, |%PE_AUC|=14
+        Mean |%PE_Cmax| = 4 <= 10 (pass metric)
+        Mean |%PE_AUC| = 14 > 10 (fail metric)
+        Wrong within-form average of Cmax and AUC would be 9% and could pass.
+
+        Reference: FDA ER IVIVC guidance (1997), Section V.B.
+        """
+        from openpkflow.ivivc.methods import ivivc_predictability_aggregate
+
+        a = ivivc_predictability(100.0, 104.0, 100.0, 114.0)
+        b = ivivc_predictability(100.0, 104.0, 100.0, 114.0)
+        agg = ivivc_predictability_aggregate([a, b])
+        assert agg["mean_abs_%PE_Cmax"] == pytest.approx(4.0)
+        assert agg["mean_abs_%PE_AUC"] == pytest.approx(14.0)
+        assert agg["mean_cmax_within_10"] is True
+        assert agg["mean_auc_within_10"] is False
+        assert agg["overall_pass"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -372,6 +388,7 @@ class TestIVIVCStudy:
         """Return synthesisable IVIVC data for a one-compartment oral drug."""
         in_vivo_t = [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0, 18.0, 24.0]
         in_vivo_c = [1.5, 3.2, 4.8, 6.0, 7.0, 7.0, 5.5, 3.8, 2.0, 0.8, 0.3]
+        # Dissolution times in minutes (explicit unit required for analyze())
         diss_t = [5.0, 10.0, 20.0, 30.0, 45.0, 60.0, 90.0, 120.0]
         diss_pct = [5.0, 15.0, 35.0, 55.0, 75.0, 88.0, 97.0, 100.0]
         uir_t = [0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0]
@@ -389,6 +406,7 @@ class TestIVIVCStudy:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.12,
+            dissolution_time_unit="minutes",
             study_label="Test Formulation A",
         )
         result = study.analyze()
@@ -411,6 +429,7 @@ class TestIVIVCStudy:
             k12=0.3,
             k21=0.4,
             study_label="Test Formulation B",
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         assert result.method == "loo_riegelman"
@@ -425,6 +444,7 @@ class TestIVIVCStudy:
             iv_uir_times=uir_t,
             iv_uir_concs=uir_c,
             method="unknown_method",
+            dissolution_time_unit="minutes",
         )
         with pytest.raises(ValueError, match="Unknown deconvolution method"):
             study.analyze()
@@ -440,6 +460,7 @@ class TestIVIVCStudy:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.12,
+            dissolution_time_unit="minutes",
             study_label="Test",
         )
         result = study.analyze()
@@ -459,6 +480,7 @@ class TestIVIVCStudy:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.12,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         d = result.to_dict()
@@ -477,6 +499,7 @@ class TestIVIVCStudy:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.12,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         out = tmp_path / "test_ivivc.md"
@@ -516,6 +539,7 @@ class TestIVIVCPDFReport:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.15,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         pdf = render_ivivc_pdf_report(result=result)
@@ -541,6 +565,7 @@ class TestIVIVCPDFReport:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.15,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         out = tmp_path / "test.pdf"
@@ -570,6 +595,7 @@ class TestIVIVCDOCXReport:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.15,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         docx = render_ivivc_docx_report(result=result)
@@ -596,6 +622,7 @@ class TestIVIVCDOCXReport:
             iv_uir_concs=uir_c,
             method="wagner_nelson",
             kel=0.15,
+            dissolution_time_unit="minutes",
         )
         result = study.analyze()
         out = tmp_path / "test.docx"

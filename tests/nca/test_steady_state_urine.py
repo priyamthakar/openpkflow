@@ -39,11 +39,24 @@ class TestAUCTau:
 
     def test_tau_must_be_positive(self) -> None:
         with pytest.raises(ValueError, match="tau must be positive"):
-            auc_tau([0.0, 1.0], [1.0, 2.0], tau=0.0)
+            auc_tau([0.0, 1.0], [1.0, 2.0], tau=0.0, method="linear")
 
     def test_negative_tau_raises(self) -> None:
         with pytest.raises(ValueError, match="tau must be positive"):
-            auc_tau([0.0, 1.0], [1.0, 2.0], tau=-1.0)
+            auc_tau([0.0, 1.0], [1.0, 2.0], tau=-1.0, method="linear")
+
+    def test_times_outside_interval_raises(self) -> None:
+        """Times outside [0, tau] fail closed (no silent trim).
+
+        Reference: FDA/EMA steady-state NCA - AUCtau is defined over one dosing
+        interval [0, tau] only (Gabrial & Rowland; FDA BA/BE 2003).
+        """
+        with pytest.raises(ValueError, match=r"\[0, tau\]"):
+            auc_tau([0.0, 6.0, 14.0], [1.0, 2.0, 1.0], tau=12.0, method="linear")
+
+    def test_unknown_method_raises(self) -> None:
+        with pytest.raises(ValueError, match="method must be one of"):
+            auc_tau([0.0, 6.0, 12.0], [1.0, 2.0, 1.0], tau=12.0, method="trapezoid")  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -55,7 +68,7 @@ class TestSteadyStateParameters:
     def test_full_parameters(self) -> None:
         t = [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0]
         c = [3.0, 12.0, 15.0, 11.0, 8.0, 5.5, 3.5]
-        result = steady_state_parameters(t, c, tau=12.0)
+        result = steady_state_parameters(t, c, tau=12.0, auc_method="linear")
         assert result["Cmax_ss"] == 15.0
         assert result["Cmin_ss"] == 3.0
         assert result["AUCtau"] > 0
@@ -69,7 +82,7 @@ class TestSteadyStateParameters:
     def test_zero_cmin_handled(self) -> None:
         t = [0.0, 2.0, 4.0, 6.0]
         c = [0.0, 10.0, 5.0, 0.0]
-        result = steady_state_parameters(t, c, tau=6.0)
+        result = steady_state_parameters(t, c, tau=6.0, auc_method="linear")
         assert result["Cmin_ss"] == 0.0
         assert result["swing"] is None
 

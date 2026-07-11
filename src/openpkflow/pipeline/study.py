@@ -127,6 +127,8 @@ class StudyPipelineResult:
                 "time_points": list(d.time_points),
                 "reference_mean": list(d.reference_mean),
                 "test_mean": list(d.test_mean),
+                "f2_method": getattr(d, "f2_method", "regulatory"),
+                "warnings": list(getattr(d, "warnings", [])),
             }
 
         if self.nca is not None:
@@ -319,6 +321,8 @@ class StudyPipeline:
             )
         typed_auc: Literal["linear", "log", "linear_up_log_down"] = auc_method  # type: ignore[assignment]
 
+        if cfg.nca_blq_method is None:
+            raise ValueError("nca_blq_method is required when nca_csv is set.")
         study = NCAStudy.from_csv(
             path,
             auc_method=typed_auc,
