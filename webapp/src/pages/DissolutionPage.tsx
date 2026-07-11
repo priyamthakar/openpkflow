@@ -564,7 +564,10 @@ export default function DissolutionPage() {
                   headers={headers}
                   required={REQUIRED_COLUMNS}
                   value={columnMapping}
-                  onChange={setColumnMapping}
+                  onChange={(mapping) => {
+                    setColumnMapping(mapping)
+                    compareMutation.reset()
+                  }}
                 />
               </section>
             )}
@@ -577,7 +580,14 @@ export default function DissolutionPage() {
                 <div className="space-y-2.5">
                   <div className="flex justify-between items-center gap-3">
                     <span className="text-sm font-semibold text-text shrink-0">Reference</span>
-                    <UiSelect value={selectedReference} onChange={(e) => setReference(e.target.value)} className="min-w-[150px]">
+                    <UiSelect
+                      value={selectedReference}
+                      onChange={(e) => {
+                        setReference(e.target.value)
+                        compareMutation.reset()
+                      }}
+                      className="min-w-[150px]"
+                    >
                       {selectableFormulations.map((f) => (
                         <option key={f} value={f}>{f}</option>
                       ))}
@@ -585,7 +595,14 @@ export default function DissolutionPage() {
                   </div>
                   <div className="flex justify-between items-center gap-3">
                     <span className="text-sm font-semibold text-text shrink-0">Test</span>
-                    <UiSelect value={selectedTest} onChange={(e) => setTest(e.target.value)} className="min-w-[150px]">
+                    <UiSelect
+                      value={selectedTest}
+                      onChange={(e) => {
+                        setTest(e.target.value)
+                        compareMutation.reset()
+                      }}
+                      className="min-w-[150px]"
+                    >
                       {selectableFormulations.map((f) => (
                         <option key={f} value={f}>{f}</option>
                       ))}

@@ -236,7 +236,13 @@ export default function SimPage() {
                 </div>
               )}
 
-              <DownloadReportButton onDownload={(fmt) => downloadSimReport(req!, fmt)} />
+              {isFetching ? (
+                <p className="text-sm text-text-muted">
+                  Report download disabled while parameters are updating.
+                </p>
+              ) : (
+                <DownloadReportButton onDownload={(fmt) => downloadSimReport(req!, fmt)} />
+              )}
               <Disclaimer text={data.disclaimer} />
             </>
           )}

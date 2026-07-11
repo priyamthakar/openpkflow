@@ -431,7 +431,10 @@ export default function BePage() {
                     ...(hasSequence ? [OPTIONAL_SEQUENCE_COL] : []),
                   ]}
                   value={columnMapping}
-                  onChange={setColumnMapping}
+                  onChange={(mapping) => {
+                    setColumnMapping(mapping)
+                    mutation.reset()
+                  }}
                 />
               </section>
             )}
@@ -446,7 +449,10 @@ export default function BePage() {
                   <span className="text-sm font-semibold text-text shrink-0">Parameter</span>
                   <UiSelect
                     value={parameter}
-                    onChange={(e) => setParameter(e.target.value)}
+                    onChange={(e) => {
+                      setParameter(e.target.value)
+                      mutation.reset()
+                    }}
                     className="min-w-[130px]"
                   >
                     {PARAMETERS.map((p) => (
@@ -462,7 +468,10 @@ export default function BePage() {
                     step={0.01}
                     min={0.5}
                     max={1}
-                    onChange={(e) => setBeLower(Number(e.target.value))}
+                    onChange={(e) => {
+                      setBeLower(Number(e.target.value))
+                      mutation.reset()
+                    }}
                     className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
                   />
                 </div>
@@ -474,7 +483,10 @@ export default function BePage() {
                     step={0.01}
                     min={1}
                     max={2}
-                    onChange={(e) => setBeUpper(Number(e.target.value))}
+                    onChange={(e) => {
+                      setBeUpper(Number(e.target.value))
+                      mutation.reset()
+                    }}
                     className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
                   />
                 </div>
@@ -486,7 +498,10 @@ export default function BePage() {
                     step={0.01}
                     min={0.01}
                     max={0.1}
-                    onChange={(e) => setAlpha(Number(e.target.value))}
+                    onChange={(e) => {
+                      setAlpha(Number(e.target.value))
+                      mutation.reset()
+                    }}
                     className="w-24 bg-surface-2 border border-border-2 rounded-sm px-2.5 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
                   />
                 </div>
@@ -494,7 +509,10 @@ export default function BePage() {
                   <input
                     type="checkbox"
                     checked={hasSequence}
-                    onChange={(e) => setHasSequence(e.target.checked)}
+                    onChange={(e) => {
+                      setHasSequence(e.target.checked)
+                      mutation.reset()
+                    }}
                     className="w-4 h-4 rounded border-border-2 text-accent focus:ring-accent/30"
                   />
                   <span className="text-sm font-semibold text-text">Dataset has sequence column (RT/TR)</span>
