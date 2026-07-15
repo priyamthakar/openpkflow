@@ -98,7 +98,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev,reports,ml]"
+      # NumPy 2.5 stubs require a Python 3.12 mypy target; this project checks its 3.10 floor.
+      - run: pip install -e ".[dev,reports]" "numpy<2.5"
       - run: mypy src/openpkflow
 
   lint:
