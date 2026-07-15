@@ -37,6 +37,8 @@ Release references:
 
 Branch: `agent/pipeline-web-audit-bundle`
 
+Draft PR: <https://github.com/priyamthakar/openpkflow/pull/30>
+
 Implemented:
 
 - `write_audit_bundle()` in the core pipeline reporting layer.

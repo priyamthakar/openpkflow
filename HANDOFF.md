@@ -9,6 +9,7 @@
 - GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
 - PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
 - Working branch: `agent/pipeline-web-audit-bundle`.
+- Draft PR: <https://github.com/priyamthakar/openpkflow/pull/30>
 - Active post-release work: pipeline API plus downloadable audit bundle. The React
   pipeline page has not been started.
 - Detailed session record: `SESSION_SUMMARY_2026-07-15.md`.
@@ -49,7 +50,8 @@ the adapter layer.
 
 ## Resume here
 
-1. Inspect `git status` and the current branch before editing.
+1. Check out draft PR #30 / `agent/pipeline-web-audit-bundle`, then inspect
+   `git status` before editing.
 2. Build the React pipeline page using the new endpoints. Add typed API wrappers,
    result types, route/sidebar registration, report download, and audit-bundle
    download.
