@@ -85,7 +85,7 @@ export function Sidebar({
           <Mail size={12} aria-hidden="true" />
           priyamthakar1@gmail.com
         </a>
-        <p className="font-mono-ui mt-3 text-xs text-text-dim">v2.5.0 / MIT</p>
+        <p className="font-mono-ui mt-3 text-xs text-text-dim">Open-source / MIT</p>
       </div>
     </aside>
   )
