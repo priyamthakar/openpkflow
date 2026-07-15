@@ -230,7 +230,7 @@ def load_pipeline_config(path: str | Path) -> PipelineConfig:
 
     if suffix in (".yaml", ".yml"):
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
         except ImportError as exc:
             raise ImportError(
                 "YAML config requires PyYAML. Install with `pip install pyyaml`, "

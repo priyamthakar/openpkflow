@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Literal, cast
 
 import typer
 
@@ -659,7 +660,13 @@ def student_pk_fit(
             typer.echo("Error: provide either --csv or both --time and --conc.", err=True)
             raise typer.Exit(1)
 
-        result = fit_pk_model(times, concs, dose=dose, route=route, model=model)
+        result = fit_pk_model(
+            times,
+            concs,
+            dose=dose,
+            route=cast(Literal["oral", "iv_bolus"], route),
+            model=cast(Literal["1-compartment", "2-compartment"], model),
+        )
     except (FileNotFoundError, ValueError) as exc:
         typer.echo(f"Error: {exc}", err=True)
         raise typer.Exit(1)

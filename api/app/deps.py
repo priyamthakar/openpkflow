@@ -27,9 +27,9 @@ def _check_extension(filename: str | None) -> str:
 def saved_upload(upload: UploadFile) -> Iterator[Path]:
     """Save uploaded file to a temp path, yield it, delete on exit."""
     suffix = _check_extension(upload.filename)
-    data = upload.file.read()
+    data = upload.file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
-        raise HTTPException(status_code=413, detail="Upload exceeds 10 MB size limit.")
+        raise HTTPException(status_code=413, detail="Upload exceeds configured size limit.")
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(data)
         tmp.flush()

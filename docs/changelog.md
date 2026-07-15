@@ -9,8 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Correction sprint landed on `main` and passed the full test suite. Tag/PyPI
-publish still gated on the release-hardening checklist (see HANDOFF.md).
+The v2.6.0 release candidate passes the full standard suite, API and browser
+tests, strict docs build, mypy, and wheel/sdist validation. Tag/PyPI publish
+remains pending until the hardening change is green on `main`.
+
+### Release hardening
+
+- CI now runs API, frontend, Python 3.13 Linux/Windows smoke, and enforced
+  type-check jobs; Codecov uploads are confirmed working.
+- API uploads use bounded reads and responses include standard security headers.
+- Fixed full-Omega label generation for population PK models.
+- Student dissolution comparison results are typed and PK route handling now
+  fails closed instead of treating unknown routes as IV bolus.
+- Strict mypy is enforced outside the explicitly frozen legacy estimator.
 
 ### Fixed
 

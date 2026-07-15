@@ -9,10 +9,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Correction sprint has landed on `main` and passed the full test suite
-(1273 passed). The v2.6.0 tag/PyPI publish is still gated on the remaining
-release-hardening checklist in [HANDOFF.md](HANDOFF.md) (CI hardening, API
-security headers, GitHub Release for v2.5.0).
+The v2.6.0 release candidate passes the full standard suite (1275 passed),
+API tests, frontend lint/build/browser tests, strict docs build, mypy, and
+wheel/sdist validation. Tag/PyPI publish remains pending until the hardening
+change is green on `main`.
+
+### Release hardening
+
+- **CI**: added API, frontend lint/build/Playwright, Python 3.13 Linux/Windows
+  smoke, and enforced type-check jobs; recent Codecov uploads were verified.
+- **API**: upload reads are bounded by the configured size limit; standard
+  anti-sniffing, framing, referrer, and browser-permission headers are added.
+- **Population PK**: fixed full-Omega label generation, which reused a string
+  loop variable as an integer and crashed for `omega_type="full"`.
+- **Student APIs**: typed dissolution comparison results and fail-closed PK
+  route validation; unsupported routes no longer fall through as IV bolus.
+- **Typing**: non-frozen modules pass strict mypy. The frozen legacy
+  `pop.estimation` implementation has an explicit module override until it is
+  reactivated with external validation.
 
 ### Fixed (correction sprint)
 

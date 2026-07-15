@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import math
 import warnings
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from scipy.optimize import OptimizeWarning, curve_fit
@@ -303,6 +304,8 @@ def fit_pk_model(
         raise ValueError(f"Need at least 3 data points for fitting (got {len(t)}).")
     if np.any(c < 0):
         raise ValueError("Concentrations must be non-negative.")
+    if route not in ("oral", "iv_bolus"):
+        raise ValueError(f"route must be 'oral' or 'iv_bolus' (got {route!r}).")
 
     fit_warnings: list[str] = []
 
@@ -359,9 +362,10 @@ def _fit_1cmt(
         p0 = [cl_f_guess, vz_f_guess, ka_guess]
         bounds = ([1e-6, 1e-6, 1e-6], [np.inf, np.inf, np.inf])
 
-        def model_fn(t_arr: np.ndarray, cl_f: float, vz_f: float, ka: float) -> np.ndarray:
+        def oral_model(t_arr: np.ndarray, cl_f: float, vz_f: float, ka: float) -> np.ndarray:
             return _oral_1cmt(t_arr, dose, cl_f, vz_f, ka)
 
+        model_fn: Callable[..., np.ndarray[Any, Any]] = oral_model
         param_names = ["CL_F", "Vz_F", "ka"]
 
     else:  # iv_bolus
@@ -374,9 +378,10 @@ def _fit_1cmt(
         p0 = [cl_guess, vz_guess]
         bounds = ([1e-6, 1e-6], [np.inf, np.inf])
 
-        def model_fn(t_arr: np.ndarray, cl: float, vz: float) -> np.ndarray:
+        def iv_model(t_arr: np.ndarray, cl: float, vz: float) -> np.ndarray:
             return _iv_1cmt(t_arr, dose, cl, vz)
 
+        model_fn = iv_model
         param_names = ["CL", "Vz"]
 
     popt, pcov = curve_fit(model_fn, t, c, p0=p0, bounds=bounds, maxfev=10000)

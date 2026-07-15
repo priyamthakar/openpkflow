@@ -170,7 +170,7 @@ class NCAAnalysis:
             axes = np.array([axes])
         axes = np.atleast_2d(axes)
 
-        colors = plt.cm.tab10(np.linspace(0, 1, min(n_subjects, 10)))
+        colors = plt.get_cmap("tab10")(np.linspace(0, 1, min(n_subjects, 10)))
 
         for idx, (subj_id, prof) in enumerate(self.subjects.items()):
             row, col = divmod(idx, cols)

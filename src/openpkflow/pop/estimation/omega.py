@@ -134,13 +134,13 @@ def make_param_labels_omega(
         Parameter labels.
     """
     labels: list[str] = []
-    for n in param_names:
-        labels.append(f"log_cholesky_{n}")
+    for name in param_names:
+        labels.append(f"log_cholesky_{name}")
 
     if omega_type == "full":
-        n = len(param_names)
-        for col in range(n):
-            for row in range(col + 1, n):
+        n_params = len(param_names)
+        for col in range(n_params):
+            for row in range(col + 1, n_params):
                 labels.append(f"cholesky_{param_names[row]}_{param_names[col]}")
 
     return labels

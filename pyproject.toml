@@ -144,6 +144,11 @@ python_version = "3.10"
 strict = true
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# ponytail: frozen legacy estimator; remove when this module is reactivated and revalidated.
+module = "openpkflow.pop.estimation.*"
+ignore_errors = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--tb=short -m 'not slow'"

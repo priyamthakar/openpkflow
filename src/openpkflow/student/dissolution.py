@@ -45,6 +45,20 @@ class FormulationProfile:
 
 
 @dataclass
+class ComparisonResult:
+    """Pairwise dissolution-profile comparison."""
+
+    reference_label: str
+    test_label: str
+    f1_value: float
+    f2_value: float
+    n_timepoints: int
+    reference_mean: list[float]
+    test_mean: list[float]
+    time_points: list[float]
+
+
+@dataclass
 class DissolutionAnalysis:
     """Result of a student-friendly dissolution analysis.
 
@@ -60,7 +74,7 @@ class DissolutionAnalysis:
 
     formulations: dict[str, FormulationProfile] = field(default_factory=dict)
     fits: dict[str, DissolutionFitResults] = field(default_factory=dict)
-    comparison: object | None = None
+    comparison: ComparisonResult | None = None
 
     def summary(self) -> str:
         """Print a human-readable summary of all results.
@@ -457,8 +471,10 @@ def fit_dissolution(
             )
 
     # Auto-detect comparison if exactly two formulations
-    comparison = None
+    comparison: ComparisonResult | None = None
     labels = list(profiles.keys())
+    ref_label: str | None
+    test_label: str | None
 
     if reference is not None and test is not None:
         ref_label, test_label = reference, test
@@ -475,20 +491,7 @@ def fit_dissolution(
             f1_val = f1(ref_prof.mean_released, test_prof.mean_released)
             f2_val = f2(ref_prof.mean_released, test_prof.mean_released)
 
-            from dataclasses import dataclass as _dc
-
-            @_dc
-            class _CompResult:
-                reference_label: str
-                test_label: str
-                f1_value: float
-                f2_value: float
-                n_timepoints: int
-                reference_mean: list[float]
-                test_mean: list[float]
-                time_points: list[float]
-
-            comparison = _CompResult(
+            comparison = ComparisonResult(
                 reference_label=ref_label,
                 test_label=test_label,
                 f1_value=f1_val,

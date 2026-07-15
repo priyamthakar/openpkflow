@@ -1,8 +1,8 @@
 # OpenPKFlow Handoff
 
-**Current version in tree:** 2.6.0 package metadata (`pyproject.toml`, `CITATION.cff`) on `main` at `5433882`. The correction sprint has landed and merged directly to `main` (branch `fix/v2.6.0-correction-hardening` is deleted); no divergent branches remain except `gh-pages`.
+**Current version in tree:** 2.6.0 package metadata (`pyproject.toml`, `CITATION.cff`). PR #27 and the correction sprint are on `main`; final release hardening is on `agent/v2.6-release-hardening` pending CI and merge.
 
-**Do not tag v2.6.0 yet.** Code is complete and the full test suite passes (1273 passed), but the release-hardening checklist below is not finished. PyPI's latest published release is still 2.5.0 -- verify this hasn't changed before trusting any "current version" claim elsewhere in the docs.
+**Do not tag v2.6.0 until the hardening branch is green on `main`.** The local release candidate passes 1275 standard tests plus API, browser, mypy, docs, build, and twine checks. PyPI's latest published release is still 2.5.0 as of 2026-07-15.
 
 ## Correction sprint (2026-07-11) -- COMPLETE, merged to main
 
@@ -31,14 +31,21 @@
 | BE / Dissolution / Sim stale-result guard | Done -- extended the NCA/IVIVC pattern (BE/Dissolution: reset mutation on previously-missed inputs; Sim: disable download while a live re-fetch is in flight) |
 | HANDOFF/ROADMAP/README/CHANGELOG doc scrub | Done -- see this commit; conda-forge claim was false (404 on anaconda.org, corrected in ROADMAP.md) |
 
-### Still open (Priority 1 CI / Priority 2 release)
+### Release hardening (2026-07-15)
 
-- CI: remove `mypy continue-on-error` -- blocked on 69 pre-existing errors, mostly in frozen `pop/estimation/` and `student/`; needs its own triage pass, not a blind flag removal
-- CI: Codecov auth, API/frontend test jobs, Python 3.13 + Windows smoke
-- Public API upload limits / security headers
-- `conda-forge` recipe: verify the feedstock -- `anaconda.org/conda-forge/openpkflow` currently 404s despite ROADMAP.md previously claiming it was live
-- GitHub Release for v2.5.0 (manual owner step, cannot be automated)
-- Git tag `v2.6.0` + PyPI publish -- gated on the above
+- Enforced mypy job added; non-frozen modules pass strict mypy. Frozen
+  `pop/estimation/` has an explicit override until reactivation and validation.
+- Codecov uploads verified; API/frontend jobs and Python 3.13 Linux/Windows smoke added.
+- Upload reads are size-bounded and public API security headers are tested.
+- Full-Omega label crash and unknown-route IV fallback fixed with regression tests.
+
+### Still open
+
+- `conda-forge/staged-recipes` PR #33461 is open with green checks but still targets
+  2.3.0; no feedstock/package exists yet. Update it after v2.6.0 reaches PyPI.
+- Merge the hardening PR after CI, then tag `v2.6.0` and verify Trusted Publishing.
+
+The missing v2.5.0 GitHub Release was backfilled on 2026-07-15 from the existing tag.
 
 ### After corrections
 

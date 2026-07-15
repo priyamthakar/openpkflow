@@ -298,6 +298,7 @@ def render_ivivc_html_report(
             }
         )
 
+    mean_abs_pe = pp.get("mean_abs_%PE")
     rendered = template.render(
         title=f"IVIVC Level A Report: {study_name}",
         generated_at=datetime.now(timezone.utc).isoformat(),
@@ -311,9 +312,7 @@ def render_ivivc_html_report(
         levy_n=len(lp.get("x", [])),
         pe_cmax=f"{pp.get('%PE_Cmax', float('nan')):.2f}",
         pe_auc=f"{pp.get('%PE_AUC', float('nan')):.2f}",
-        mean_abs_pe=(
-            "N/A" if pp.get("mean_abs_%PE") is None else f"{float(pp['mean_abs_%PE']):.2f}"  # type: ignore[arg-type]
-        ),
+        mean_abs_pe="N/A" if mean_abs_pe is None else f"{float(mean_abs_pe):.2f}",
         passes_cmax=pp.get("passes_cmax", False),
         passes_auc=pp.get("passes_auc", False),
         passes_mean=pp.get("passes_mean"),

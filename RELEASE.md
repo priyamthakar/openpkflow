@@ -7,8 +7,8 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 **v2.6.0** -- study pipeline, SUPAC/alcohol helpers, IVIVC Level B/C, transit sim,
 webapp power/multi-media polish, convolution validation.
 
-- Code commit: `5433882` on `main` (PR #27 merged 2026-07-09; correction-hardening
-  sprint merged directly to `main` 2026-07-11)
+- Code baseline: PR #27 plus the correction sprint on `main`; final hardening is
+  on `agent/v2.6-release-hardening` pending CI and merge.
 - Tag `v2.6.0` and PyPI publish: **pending** (release-hardening checklist in
   `HANDOFF.md` not yet complete)
 
