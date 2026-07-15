@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 from app.config import settings
-from app.routers import be, dissolution, ivivc, nca, sim
+from app.routers import be, dissolution, ivivc, nca, pipeline, sim
 from openpkflow import __version__ as engine_version
 
 app = FastAPI(
@@ -60,3 +60,4 @@ app.include_router(dissolution.router)
 app.include_router(sim.router)
 app.include_router(ivivc.router)
 app.include_router(be.router)
+app.include_router(pipeline.router)

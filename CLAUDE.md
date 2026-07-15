@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
 - See `progress_web_app.md` for the full file map, completed features, and next candidates.
-- Takeover state: read `HANDOFF.md` first (branch, PR #27, release checklist).
+- Takeover state: read `HANDOFF.md` first (release state, active branch, resume checklist).
 
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
@@ -249,13 +249,15 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.6.0** is the current tree version (pipeline, SUPAC/alcohol, IVIVC B/C, transit sim,
-webapp polish, convolution validation). Code lives on PR #27 until merge.
+**v2.6.0** is the latest published release (2026-07-15). It includes the study
+pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
+convolution validation.
 
 **Immediate next work (in order):**
-1. Merge PR #27 when CI is green; tag/release v2.6.0 (`RELEASE.md`, `HANDOFF.md`).
-2. Webapp: study pipeline page; sparse NCA / MAP adapters; SUPAC UI; deploy.
-3. Keep validation discipline; do not extend frozen `pop/estimation/`.
+1. Finish the pipeline API/audit-bundle branch and React pipeline page.
+2. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
+3. Then add sparse NCA / MAP adapters, SUPAC UI, and deployment in that order.
+4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
@@ -272,7 +274,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.1.0 - 2.3.0  FOCE-I/SAEM, 2-cmt Omega, freeze pop estimation + nlme val       DONE
 2.4.0          replicate BE screening + release credibility sprint              DONE
 2.5.0          web app (api/ + webapp/) + student helpers                       DONE
-2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    CODE DONE (tag pending)
+2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 

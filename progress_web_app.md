@@ -8,7 +8,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-09 (v2.6.0 polish)
+**Last updated:** 2026-07-15 (post-v2.6.0 pipeline API work)
 
 ---
 
@@ -22,6 +22,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 - IVIVC: three paste grids (in vivo PK, dissolution, IV UIR) + load example.
 - BE: TOST analysis tab + power / sample-size calculator tab.
 - Dissolution: single-medium compare tab + multi-media tab.
+- Pipeline API: analyze, report, and audit-bundle endpoints exist on the active
+  feature branch; the React page is not implemented yet.
 
 ---
 
@@ -55,6 +57,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 | `/api/sim` | `/simulate`, `/report` | `sim_service.py` |
 | `/api/ivivc` | `/analyze`, `/report` | `ivivc_service.py` |
 | `/api/be` | `/analyze`, `/report`, `/power`, `/sample-size` | `be_service.py` |
+| `/api/pipeline` | `/analyze`, `/report`, `/audit-bundle` | `pipeline_service.py` |
 | `/health` | GET | engine version badge |
 
 ---
@@ -89,8 +92,9 @@ webapp/src/
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
-1. **Study pipeline page** -- wrap `openpkflow.pipeline` / study config upload;
-   library CLI already works: `openpkflow study run`.
+1. **Finish the study pipeline page** -- backend adapters and audit ZIP are on
+   `agent/pipeline-web-audit-bundle`; add frontend types, API wrappers, route,
+   sidebar entry, results, downloads, and Playwright coverage.
 2. **Sparse NCA / MAP PK pages** -- library exists; need API adapters first.
 3. **SUPAC / alcohol UI** -- library helpers in `openpkflow.dissolution.supac`.
 4. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
@@ -113,5 +117,6 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 
 - IVIVC Loo-Riegelman requires kel, k12, k21 manually; no auto-estimation yet.
 - BE sequence_col toggle only affects the API call; paste grid always shows sequence.
-- No dedicated pipeline route yet.
+- No React pipeline route yet. The API route is implemented on the active feature
+  branch but has not passed the full repository suite or merged.
 - Playwright tests mock the backend for CI; live e2e against a running API is optional.

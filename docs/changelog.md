@@ -9,9 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-The v2.6.0 release candidate passes the full standard suite, API and browser
-tests, strict docs build, mypy, and wheel/sdist validation. Tag/PyPI publish
-remains pending until the hardening change is green on `main`.
+### Added
+
+- **Pipeline audit bundle**: core ZIP export containing normalized inputs,
+  configuration, serialized results, HTML report, and SHA-256 manifest.
+- **Pipeline API**: analyze, report, and audit-bundle FastAPI endpoints with
+  schemas, adapter service, registration, and regression tests.
+
+### In progress
+
+- React pipeline page and Playwright coverage. The backend slice is on
+  `agent/pipeline-web-audit-bundle` and is not part of v2.6.0.
+
+---
+
+## [2.6.0] -- 2026-07-15
+
+The released build passed the full standard suite (1275 passed), API tests,
+frontend lint/build/browser tests, strict docs build, mypy, wheel/sdist
+validation, Trusted Publishing, and a fresh-install CLI smoke check.
 
 ### Release hardening
 
@@ -34,10 +50,6 @@ remains pending until the hardening change is green on `main`.
 - SUPAC-IR function-specific threshold tables.
 - Webapp stale-result guard extended to BE, Dissolution, and Sim pages.
 - `publish.yml` now requires a tag's commit to be reachable from `main`.
-
----
-
-## [2.6.0] -- 2026-07-09
 
 ### Added
 

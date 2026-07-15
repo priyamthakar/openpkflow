@@ -177,6 +177,23 @@ class StudyPipelineResult:
 
         return report_pipeline(self, path)
 
+    def audit_bundle(self, path: str | Path) -> Path:
+        """Write a reproducibility ZIP with inputs, results, report, and checksums.
+
+        Parameters
+        ----------
+        path : str or Path
+            Destination ZIP path.
+
+        Returns
+        -------
+        Path
+            Resolved archive path written.
+        """
+        from openpkflow.pipeline.reporting import write_audit_bundle
+
+        return write_audit_bundle(self, path)
+
 
 class StudyPipeline:
     """Run configured dissolution, NCA, and/or BE stages in sequence.

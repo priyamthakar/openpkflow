@@ -15,10 +15,11 @@ what others already do well.
 
 ---
 
-## v2.6.0 Improvement Sprint (code merged to main 2026-07-09; correction sprint merged 2026-07-11; tag pending)
+## v2.6.0 Improvement Sprint (published 2026-07-15)
 
-**PR:** https://github.com/priyamthakar/openpkflow/pull/27 (merged); correction-hardening
-follow-up merged directly to `main` (branch deleted after merge).
+**PRs:** <https://github.com/priyamthakar/openpkflow/pull/27> (features) and
+<https://github.com/priyamthakar/openpkflow/pull/29> (correction/release hardening),
+both merged.
 **Takeover doc:** [HANDOFF.md](HANDOFF.md)
 
 Shipped in parallel tracks:
@@ -31,17 +32,17 @@ Shipped in parallel tracks:
 - IVIVC convolution analytical validation; BE power edge cases
 - Positioning docs, pipeline tutorial, Docker/compose polish
 
-### Next up after tag (ordered)
+### Next work (ordered)
 
-1. Finish release-hardening checklist (HANDOFF.md), then tag `v2.6.0`; PyPI +
-   re-verify conda-forge feedstock (`anaconda.org/conda-forge/openpkflow` currently
-   404s despite an earlier claim it was live) (`RELEASE.md`)
-2. Webapp study-pipeline page (CLI already works)
-3. Sparse NCA + MAP PK API/pages
-4. SUPAC / alcohol UI on Dissolution page
-5. Hosted api + webapp deploy (`VITE_API_URL`)
-6. Formal RSABE / BioEqPy (companion package, not openpkflow core)
-7. Optional: wire IVIVC stage into StudyPipeline (multi-array inputs)
+1. Finish the pipeline React page and audit-bundle flow; the core/API slice is on
+   `agent/pipeline-web-audit-bundle`.
+2. Update conda-forge staged-recipes PR #33461 from 2.3.0 to 2.6.0. No feedstock
+   or conda-forge package exists yet.
+3. Sparse NCA + MAP PK API/pages.
+4. SUPAC / alcohol UI on the Dissolution page.
+5. Hosted API + webapp deploy (`VITE_API_URL`).
+6. Formal RSABE in BioEqPy, not OpenPKFlow core.
+7. Optional: wire the IVIVC stage into StudyPipeline after validation planning.
 
 ## v2.4.0 Credibility Sprint
 

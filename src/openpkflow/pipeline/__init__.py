@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from openpkflow.pipeline.config import PipelineConfig, load_pipeline_config
-from openpkflow.pipeline.reporting import report_pipeline
+from openpkflow.pipeline.reporting import report_pipeline, write_audit_bundle
 from openpkflow.pipeline.study import StudyPipeline, StudyPipelineResult
 
 __all__ = [
@@ -12,4 +12,5 @@ __all__ = [
     "StudyPipelineResult",
     "load_pipeline_config",
     "report_pipeline",
+    "write_audit_bundle",
 ]

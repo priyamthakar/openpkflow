@@ -2,15 +2,16 @@
 
 This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
-## Current release target
+## Current release state
 
-**v2.6.0** -- study pipeline, SUPAC/alcohol helpers, IVIVC Level B/C, transit sim,
-webapp power/multi-media polish, convolution validation.
+**v2.6.0 was published on 2026-07-15.** The GitHub Release, TestPyPI/PyPI
+Trusted Publishing workflow, and fresh-install CLI smoke checks all succeeded.
 
-- Code baseline: PR #27 plus the correction sprint on `main`; final hardening is
-  on `agent/v2.6-release-hardening` pending CI and merge.
-- Tag `v2.6.0` and PyPI publish: **pending** (release-hardening checklist in
-  `HANDOFF.md` not yet complete)
+- Release commit: `8a3298a`
+- GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
+- PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
+- Next version is not assigned. Keep post-release work under `[Unreleased]` until
+  scope and version are chosen.
 
 See `HANDOFF.md` for full takeover context.
 
@@ -58,9 +59,9 @@ Use the matching section from `docs/changelog.md`. Include:
 
 1. Merge PR to `main`
 2. On `main`: final `release_readiness.py` + green CI
-3. `git tag v2.6.0` (or current target) and push the tag
+3. Tag the current target and push the tag
 4. Confirm GitHub Actions release / Trusted Publishing workflow
-5. Verify PyPI install: `pip install openpkflow==2.6.0` then `openpkflow version`
+5. Verify the exact PyPI version in a fresh environment, then run CLI smoke checks
 6. Update conda-forge feedstock if automated PR does not appear promptly
 
 ## v2.6.0 specific caveats for notes
@@ -73,5 +74,6 @@ Use the matching section from `docs/changelog.md`. Include:
 
 ## Post-release agent handoff
 
-Update `HANDOFF.md` top section: tag created, PyPI URL, next feature priorities.
-Update AGENTS.md / CLAUDE.md "Current focus" away from "tag pending".
+Update `HANDOFF.md`, `SESSION_SUMMARY_<date>.md`, AGENTS.md, CLAUDE.md,
+ROADMAP.md, and `progress_web_app.md` with the released version, verified checks,
+active branch, incomplete work, and exact resume commands.
