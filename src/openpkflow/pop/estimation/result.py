@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -238,7 +239,7 @@ class PopPKResult:
             "study_label": self.study_label,
         }
 
-    def plot(self, output_path=None, show=False):
+    def plot(self, output_path: str | Path | None = None, show: bool = False) -> None:
         """Generate a 6-panel population PK diagnostic plot."""
         import matplotlib.pyplot as plt
 
@@ -252,7 +253,7 @@ class PopPKResult:
         else:
             plt.close(fig)
 
-    def report(self, output_path, *, fmt="html"):
+    def report(self, output_path: str | Path, *, fmt: str = "html") -> str:
         """Generate a population PK estimation report."""
         from .reporting import report_pop_pk
 

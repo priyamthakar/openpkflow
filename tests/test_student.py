@@ -337,6 +337,11 @@ class TestFitPKModel:
         with pytest.raises(ValueError, match="non-negative"):
             fit_pk_model([1, 2, 3], [1, -1, 2], dose=100)
 
+    def test_invalid_route_raises(self):
+        """Unsupported routes should not be treated as IV bolus."""
+        with pytest.raises(ValueError, match="route must be"):
+            fit_pk_model([1, 2, 3], [3, 2, 1], dose=100, route="iv")  # type: ignore[arg-type]
+
     def test_noisy_data_graceful(self):
         """Noisy data should still converge (or fail gracefully)."""
         np.random.seed(42)

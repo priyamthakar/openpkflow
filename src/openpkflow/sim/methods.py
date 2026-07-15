@@ -323,7 +323,7 @@ def c_1cmt_oral_transit(
             y = expm(A * float(ti)) @ y0
             conc[i] = y[central_idx] / Vz_F
     conc = np.maximum(conc, 0.0)
-    return conc
+    return np.asarray(conc, dtype=float)
 
 
 # ---------------------------------------------------------------------------

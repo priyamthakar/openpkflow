@@ -40,9 +40,67 @@ jobs:
           files: coverage.xml
           flags: ${{ matrix.python-version }}
 
-      - name: Check types
-        run: mypy src/openpkflow --ignore-missing-imports
-        continue-on-error: true
+  api:
+    name: API
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,reports]" -r api/requirements.txt
+      - run: pytest api/tests -q
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webapp
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
+  compatibility:
+    name: ${{ matrix.os }} / Python 3.13 smoke
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install -e .
+      - run: openpkflow version
+      - run: openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
+
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      # NumPy 2.5 stubs require a Python 3.12 mypy target; this project checks its 3.10 floor.
+      - run: pip install -e ".[dev,reports]" "numpy<2.5"
+      - run: mypy src/openpkflow
 
   lint:
     name: pre-commit
