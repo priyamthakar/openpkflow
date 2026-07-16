@@ -5,13 +5,15 @@
 ## Current state
 
 - Latest release: **v2.6.0**, published on 2026-07-15.
-- Main release commit: `8a3298a` (`chore(release): harden v2.6.0 CI and API (#29)`).
+- Main post-release commit: `6087cd9` (`feat(pipeline): add web workflow and reproducibility audit bundle (#30)`).
 - GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
 - PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
-- Working branch: `agent/pipeline-web-audit-bundle`.
-- Draft PR: <https://github.com/priyamthakar/openpkflow/pull/30>
-- Active post-release work: pipeline API, React page, unified report download, and
-  downloadable audit bundle are implemented on the draft PR branch.
+- Working branch: `agent/sparse-nca-web`.
+- Pipeline API/page/audit bundle: merged in PR #30.
+- Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes the linter plus
+  Linux, Windows, and macOS builds; it awaits maintainer review.
+- Active post-release work: sparse NCA external validation, API/report endpoints,
+  and React page are implemented on the working branch.
 - Detailed session record: `SESSION_SUMMARY_2026-07-15.md`.
 
 ## v2.6.0 release verification
@@ -27,7 +29,7 @@
 - Fresh install of `openpkflow==2.6.0` verified `openpkflow version` and
   `openpkflow similarity`.
 
-## Current branch: implemented and verified
+## Pipeline slice: merged and verified
 
 The branch adds an additive core/API slice without adding pharmacometric math to
 the adapter layer.
@@ -62,28 +64,46 @@ the adapter layer.
   - standard Python suite -> 1276 passed, 22 deselected
   - package build and Twine checks -> passed
 
+## Sparse NCA branch: implemented and verified
+
+- Core input validation rejects non-finite values, negative values, non-increasing
+  times, all-zero profiles, and non-positive doses before nonlinear fitting.
+- Independent cross-validation matches R 4.6.0 `stats::nls` on five samples from
+  published `nlme::Theoph` subject 1 for CL_F, Vz_F, ka, and fitted concentrations.
+- Reproducible reference script: `scripts/sparse_nca_theoph_crossval.R`.
+- Core HTML/Markdown screening reports include the required disclaimer and explicit
+  model-informed/non-primary scope caveat.
+- API endpoints: `POST /api/nca/sparse/analyze` and `/api/nca/sparse/report`.
+- React `/nca/sparse` page provides a published Theoph example, paste grid, fit
+  diagnostics, observed/fitted chart and table, and report downloads.
+- Verification on 2026-07-16:
+  - frontend ESLint and production build -> passed
+  - Playwright -> 10 passed
+  - full API suite -> 33 passed
+  - NCA plus validation suites -> 517 passed, 22 deselected
+  - targeted Ruff and strict mypy -> passed
+  - standard Python suite -> 1285 passed, 22 deselected
+  - package build and Twine checks -> passed
+
 ## Resume here
 
-1. Review the uncommitted React pipeline-page diff on
-   `agent/pipeline-web-audit-bundle` and commit it intentionally.
-2. Push the branch and update draft PR #30 with the 2026-07-16 verification results.
-3. Review and merge PR #30 when CI is green.
-4. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
-5. Only then begin the sparse NCA API/page slice.
+1. Inspect and commit the completed sparse NCA slice on `agent/sparse-nca-web`.
+2. Push the branch, open a draft PR, and monitor CI.
+3. Merge after review and required checks.
+4. Await conda-forge maintainer action on PR #33461; do not recreate the recipe.
+5. Only then begin the MAP individual-PK API/page slice.
 
 Do not extend frozen `pop/estimation/`. Keep formal RSABE in BioEqPy. Validation
 work outranks new modules.
 
 ## Future plan, in priority order
 
-1. Review and merge the completed pipeline web page plus audit-bundle flow.
-2. Update conda-forge staged-recipes PR #33461 from 2.3.0 to 2.6.0 and refresh
-   hashes; no feedstock/package exists yet.
-3. Add sparse NCA API/page, with explicit AUC and BLQ methods.
-4. Add MAP individual PK API/page, preserving screening-only positioning and
+1. Review and merge the completed sparse NCA validation/API/page slice.
+2. Await conda-forge maintainer review of the green v2.6.0 recipe in PR #33461.
+3. Add MAP individual PK API/page, preserving screening-only positioning and
    fail-closed diagnostics.
-5. Add SUPAC/alcohol screening UI with prominent scope caveats.
-6. Deploy the API/static webapp and document `VITE_API_URL`, health checks,
+4. Add SUPAC/alcohol screening UI with prominent scope caveats.
+5. Deploy the API/static webapp and document `VITE_API_URL`, health checks,
    file-size limits, and rollback steps.
 
 ## Commands

@@ -203,20 +203,20 @@ published to PyPI on 2026-07-15.
 - Docker / docker-compose polish; pipeline examples ✅
 - HANDOFF.md / AGENTS.md / CLAUDE.md updated for takeover ✅
 
-### Not in v2.6.0 (follow-ups)
+### Post-v2.6.0 follow-ups
 
 - Formal RSABE (BioEqPy)
-- Pipeline page in React webapp
-- Sparse NCA / MAP PK API pages
+- Pipeline page in React webapp ✅ merged in PR #30
+- Sparse NCA API/page ✅ implemented with R `stats::nls` cross-validation
+- MAP PK API/page
 - Hosted production deploy of api + webapp
 - Extending frozen `pop/estimation/`
 
-### Post-v2.6.0 active work (2026-07-15)
+### Post-v2.6.0 active work (2026-07-16)
 
-- Pipeline audit ZIP in the core library: implemented and targeted tests pass.
-- Pipeline FastAPI analyze/report/audit-bundle endpoints: implemented and targeted
-  tests pass.
-- React pipeline page: not started; this is the next implementation boundary.
+- Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
+- Sparse NCA validation/API/page: implemented on `agent/sparse-nca-web`.
+- Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds.
 - See `HANDOFF.md` and `SESSION_SUMMARY_2026-07-15.md` for exact branch state and
   resume commands.
 

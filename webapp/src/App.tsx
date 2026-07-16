@@ -8,6 +8,7 @@ import { PageLoader } from '@/components/layout/PageLoader'
 
 const Home = lazy(() => import('@/pages/Home'))
 const NcaPage = lazy(() => import('@/pages/NcaPage'))
+const SparseNcaPage = lazy(() => import('@/pages/SparseNcaPage'))
 const DissolutionPage = lazy(() => import('@/pages/DissolutionPage'))
 const SimPage = lazy(() => import('@/pages/SimPage'))
 const IvIvcPage = lazy(() => import('@/pages/IvIvcPage'))
@@ -30,6 +31,7 @@ export default function App() {
                 <Route element={<AppShell />}>
                   <Route index element={<Home />} />
                   <Route path="nca" element={<NcaPage />} />
+                  <Route path="nca/sparse" element={<SparseNcaPage />} />
                   <Route path="dissolution" element={<DissolutionPage />} />
                   <Route path="sim" element={<SimPage />} />
                   <Route path="ivivc" element={<IvIvcPage />} />

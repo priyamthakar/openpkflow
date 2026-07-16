@@ -22,6 +22,8 @@ import type {
   PipelineOptions,
   PipelineResponse,
   SimResponse,
+  SparseNcaRequest,
+  SparseNcaResponse,
 } from './types'
 
 async function _json<T>(res: Response): Promise<T> {
@@ -372,6 +374,33 @@ export async function downloadPipelineAuditBundle(
   })
   await assertReportOk(res)
   _triggerDownload(await res.blob(), 'openpkflow_audit_bundle.zip')
+}
+
+// ---------- Sparse NCA ----------
+export async function analyzeSparseNca(req: SparseNcaRequest): Promise<SparseNcaResponse> {
+  return _json(
+    await fetch(`${BASE}/api/nca/sparse/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function downloadSparseNcaReport(
+  req: SparseNcaRequest,
+  format: string,
+): Promise<void> {
+  const params = new URLSearchParams({ format })
+  const res = await fetch(`${BASE}/api/nca/sparse/report?${params}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  const ext = format === 'markdown' ? 'md' : format
+  _triggerDownload(blob, `sparse_nca_report.${ext}`)
 }
 
 function _triggerDownload(blob: Blob, filename: string) {

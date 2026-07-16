@@ -38,3 +38,36 @@ class NcaResponse(BaseModel):
     profiles: list[SubjectProfile]
     warnings: list[str]
     disclaimer: str
+
+
+class SparseNcaRequest(BaseModel):
+    subject: str = ""
+    times: list[float] = Field(min_length=3)
+    concentrations: list[float] = Field(min_length=3)
+    dose: float = Field(gt=0)
+
+
+class SparseNcaResponse(BaseModel):
+    subject: str
+    dose: float
+    route: Literal["oral"]
+    n_samples: int
+    converged: bool
+    CL_F: float
+    Vz_F: float
+    ka: float
+    k: float
+    half_life: float
+    CL_F_se: float | None
+    Vz_F_se: float | None
+    ka_se: float | None
+    AUClast: float
+    AUCinf: float
+    Cmax: float
+    Tmax: float
+    time_points: list[float]
+    observed_conc: list[float]
+    fitted_conc: list[float]
+    warnings: list[str]
+    scope_note: str
+    disclaimer: str

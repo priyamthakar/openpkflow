@@ -294,3 +294,54 @@ test('Study pipeline runs uploaded stages and downloads report and audit bundle'
   await page.getByRole('button', { name: 'Download Audit ZIP' }).click()
   await expect((await auditDownload).suggestedFilename()).toBe('openpkflow_audit_bundle.zip')
 })
+
+test('Sparse NCA example renders model fit and downloads screening report', async ({ page }) => {
+  await page.route('**/api/nca/sparse/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        subject: 'Theoph subject 1',
+        dose: 320,
+        route: 'oral',
+        n_samples: 5,
+        converged: true,
+        CL_F: 1.58688,
+        Vz_F: 28.6106,
+        ka: 1.77941,
+        k: 0.05546,
+        half_life: 12.4972,
+        CL_F_se: 0.4375,
+        Vz_F_se: 4.2897,
+        ka_se: 0.7595,
+        AUClast: 149.9665,
+        AUCinf: 201.654,
+        Cmax: 10.0031,
+        Tmax: 1.9779,
+        time_points: [0.25, 1.12, 3.82, 9.05, 24.37],
+        observed_conc: [2.84, 10.5, 8.58, 6.89, 3.28],
+        fitted_conc: [3.9865, 9.2758, 9.3273, 6.9884, 2.9878],
+        warnings: [],
+        scope_note: 'Model-informed one-compartment oral screening estimate.',
+        disclaimer,
+      },
+    })
+  })
+  await page.route('**/api/nca/sparse/report?format=html', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      headers: { 'content-disposition': 'attachment; filename="sparse_nca_report.html"' },
+      body: '<!doctype html><html><head></head><body><h1>Sparse NCA</h1></body></html>',
+    })
+  })
+
+  await page.goto('/nca/sparse')
+  await page.getByRole('button', { name: 'Run Sparse NCA' }).click()
+
+  await expect(page.getByText('Fit converged')).toBeVisible()
+  await expect(page.getByText('1.587')).toBeVisible()
+  await expect(page.getByText('Model-informed one-compartment oral screening estimate.')).toBeVisible()
+
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Report' }).click()
+  await expect((await download).suggestedFilename()).toBe('sparse_nca_report.html')
+})

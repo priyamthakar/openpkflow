@@ -34,12 +34,10 @@ Shipped in parallel tracks:
 
 ### Next work (ordered)
 
-1. Finish the pipeline React page and audit-bundle flow; the core/API slice is on
-   `agent/pipeline-web-audit-bundle`.
-2. Update conda-forge staged-recipes PR #33461 from 2.3.0 to 2.6.0. No feedstock
-   or conda-forge package exists yet.
-3. Sparse NCA + MAP PK API/pages.
-4. SUPAC / alcohol UI on the Dissolution page.
+1. Review and merge the sparse NCA validation/API/page slice.
+2. Await conda-forge maintainer review of the green v2.6.0 staged-recipes PR #33461.
+3. Add the MAP individual-PK API/page with fail-closed screening diagnostics.
+4. Add SUPAC / alcohol UI on the Dissolution page.
 5. Hosted API + webapp deploy (`VITE_API_URL`).
 6. Formal RSABE in BioEqPy, not OpenPKFlow core.
 7. Optional: wire the IVIVC stage into StudyPipeline after validation planning.

@@ -6,14 +6,20 @@ import math
 from pathlib import Path
 from typing import Any
 
-from app.schemas.nca import NcaOptions, SubjectProfile
+from app.schemas.nca import NcaOptions, SparseNcaRequest, SubjectProfile
 from openpkflow.nca.loader import load_nca_csv
+from openpkflow.nca.sparse import SparseNCAResult, fit_sparse_1cmt_oral
 from openpkflow.nca.study import NCAStudy
 
 _DISCLAIMER = (
     "This report was generated using OpenPKFlow (open-source). Final regulatory "
     "interpretation should be reviewed by qualified formulation, pharmacokinetic, "
     "and regulatory experts."
+)
+
+_SPARSE_SCOPE = (
+    "Model-informed one-compartment oral screening estimate. This is not a regulatory "
+    "primary analysis and requires study-specific validation before decision use."
 )
 
 
@@ -97,3 +103,30 @@ def write_nca_report(path: Path, options: NcaOptions, out_path: Path, fmt: str) 
     )
     summary = study.analyze()
     summary.report(out_path, format=fmt)
+
+
+def run_sparse_nca(request: SparseNcaRequest) -> tuple[SparseNCAResult, dict[str, Any]]:
+    result = fit_sparse_1cmt_oral(request.times, request.concentrations, request.dose)
+    result.subject = request.subject
+    warnings: list[str] = []
+    if not result.converged:
+        warnings.append("The nonlinear fit did not converge; parameter estimates are unreliable.")
+    if any(value is None for value in (result.CL_F_se, result.Vz_F_se, result.ka_se)):
+        warnings.append(
+            "Parameter standard errors are unavailable; the fit may be weakly identified."
+        )
+    if result.n_samples < 5:
+        warnings.append(
+            "Fewer than five samples provide limited support for a three-parameter fit."
+        )
+    return result, {
+        **result.to_dict(),
+        "warnings": warnings,
+        "scope_note": _SPARSE_SCOPE,
+        "disclaimer": _DISCLAIMER,
+    }
+
+
+def write_sparse_nca_report(request: SparseNcaRequest, out_path: Path, fmt: str) -> None:
+    result, _payload = run_sparse_nca(request)
+    result.report(out_path, format=fmt)

@@ -244,3 +244,36 @@ export interface PipelineResponse {
   be: PipelineBeResult | null
   disclaimer: string
 }
+
+export interface SparseNcaRequest {
+  subject: string
+  times: number[]
+  concentrations: number[]
+  dose: number
+}
+
+export interface SparseNcaResponse {
+  subject: string
+  dose: number
+  route: 'oral'
+  n_samples: number
+  converged: boolean
+  CL_F: number
+  Vz_F: number
+  ka: number
+  k: number
+  half_life: number
+  CL_F_se: number | null
+  Vz_F_se: number | null
+  ka_se: number | null
+  AUClast: number
+  AUCinf: number
+  Cmax: number
+  Tmax: number
+  time_points: number[]
+  observed_conc: number[]
+  fitted_conc: number[]
+  warnings: string[]
+  scope_note: string
+  disclaimer: string
+}

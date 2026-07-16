@@ -8,7 +8,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-16 (pipeline web page implemented)
+**Last updated:** 2026-07-16 (sparse NCA page implemented)
 
 ---
 
@@ -16,7 +16,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 
 - React + Vite frontend in `webapp/`.
 - FastAPI adapter in `api/`.
-- Pages: Home, NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence, Study Pipeline.
+- Pages: Home, NCA, Sparse NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence,
+  Study Pipeline.
 - NCA / Dissolution / BE: multipart upload + paste grid.
 - PK Simulation: parameter sliders + pasteable parameter grid.
 - IVIVC: three paste grids (in vivo PK, dissolution, IV UIR) + load example.
@@ -56,13 +57,22 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 - File dropzones notify parent state when a selected input is removed.
 - Mocked Playwright coverage verifies analysis, report download, and audit download.
 
+### Post-v2.6.0 sparse NCA slice
+
+- `/nca/sparse` route and Sparse NCA sidebar entry.
+- Typed JSON analyze/report adapters over `fit_sparse_1cmt_oral()`.
+- Published `nlme::Theoph` example, editable paste grid, explicit oral dose, fit
+  diagnostics, observed/fitted visualization, and HTML/Markdown report downloads.
+- Prominent model-informed screening scope; no pharmacometric math in the frontend.
+- Independent R `stats::nls` cross-validation added before exposing the core fit.
+
 ---
 
 ## API Layer -- Registered Routers
 
 | Prefix | Endpoints | Service |
 |--------|-----------|---------|
-| `/api/nca` | `/analyze`, `/report` | `nca_service.py` |
+| `/api/nca` | `/analyze`, `/report`, `/sparse/analyze`, `/sparse/report` | `nca_service.py` |
 | `/api/dissolution` | `/formulations`, `/compare`, `/report`, `/multi-media/analyze`, `/multi-media/report` | `dissolution_service.py` |
 | `/api/sim` | `/simulate`, `/report` | `sim_service.py` |
 | `/api/ivivc` | `/analyze`, `/report` | `ivivc_service.py` |
@@ -76,10 +86,11 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 
 ```
 webapp/src/
-  App.tsx                          routes: /, /nca, /dissolution, /sim, /ivivc, /be, /*
+  App.tsx                          routes include /nca/sparse and /pipeline
   pages/
     Home.tsx
     NcaPage.tsx
+    SparseNcaPage.tsx              model-informed oral sparse fit
     DissolutionPage.tsx            single + multi-media tabs
     SimPage.tsx
     IvIvcPage.tsx                  load example + dose inputs
@@ -103,8 +114,8 @@ webapp/src/
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
-1. **Merge the study pipeline slice** after PR #30 review and CI.
-2. **Sparse NCA / MAP PK pages** -- library exists; need API adapters first.
+1. **Merge the sparse NCA slice** after review and CI.
+2. **MAP individual PK page** -- preserve screening scope and fail-closed diagnostics.
 3. **SUPAC / alcohol UI** -- library helpers in `openpkflow.dissolution.supac`.
 4. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
    `VITE_API_URL` for production builds.
@@ -126,5 +137,5 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 
 - IVIVC Loo-Riegelman requires kel, k12, k21 manually; no auto-estimation yet.
 - BE sequence_col toggle only affects the API call; paste grid always shows sequence.
-- The pipeline API/page remains on draft PR #30 and is not merged into `main` yet.
+- The sparse NCA API/page remains on its feature branch until reviewed and merged.
 - Playwright tests mock the backend for CI; live e2e against a running API is optional.
