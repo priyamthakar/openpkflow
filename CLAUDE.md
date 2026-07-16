@@ -17,10 +17,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
-  Current routers: nca, dissolution (incl. multi-media), sim, ivivc, be (incl. power/n).
+  Current routers: nca (including sparse), dissolution (including multi-media), sim,
+  ivivc, be (including power/sample size), and pipeline.
 - `webapp/` — React + Vite + Tailwind frontend.
-  Current pages: Home, NCA, Dissolution (single + multi-media tab), Simulation, IVIVC,
-  Bioequivalence (analysis + power tab).
+  Current pages: Home, NCA, Sparse NCA, Dissolution (single + multi-media tab),
+  Simulation, IVIVC, Bioequivalence (analysis + power tab), and Study Pipeline.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.

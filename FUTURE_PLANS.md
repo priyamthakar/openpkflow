@@ -97,7 +97,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 - SUPAC/MR change level auto-classification (Level 1/2/3)
 - Dissolution safe-space contour plots (dissolution parameters vs. bioequivalence)
 
-### Sparse-sampling NCA ✅ DONE (v1.5.0)
+### Sparse oral PK screening ✅ DONE (v1.5.0)
 
 - ~~Model-informed AUC from 2-5 samples per subject~~ — **DONE**: `fit_sparse_1cmt_oral()`, `SparseNCAResult`
 - ~~Rich-vs-sparse sampling comparison diagnostics~~ — **DONE**: `sparse_nca_bias_analysis()`
@@ -230,7 +230,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 | IVIVC (Level A) | ✅ | — | — | — | ✅ |
 | NCA | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Steady-state NCA + urine | ✅ | — | — | — | ✅ |
-| Sparse NCA | ✅ | ✅ | — | — | ✅ |
+| Sparse oral PK screening | ✅ | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
 | RSABE / replicate BE | research-grade screening; validated RSABE future | — | — | — | ✅ |

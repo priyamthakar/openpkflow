@@ -22,7 +22,7 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
 | Formal RSABE / replicate-design BE | Planned in BioEqPy (companion package) |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
-| Sparse NCA (model-informed AUC from 2-5 samples) | OpenPKFlow ✅ |
+| Sparse oral PK (model-informed fit from 3+ samples) | OpenPKFlow ✅ screening |
 
 ---
 
@@ -278,7 +278,7 @@ published to PyPI on 2026-07-15.
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
 | Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
-| Medium | conda-forge recipe | 3 h | ⚠️ [staged-recipes PR #33461](https://github.com/conda-forge/staged-recipes/pull/33461) is open with green checks but still targets 2.3.0; no feedstock/package exists yet |
+| Medium | conda-forge recipe | 3 h | [staged-recipes PR #33461](https://github.com/conda-forge/staged-recipes/pull/33461) now targets 2.6.0 and passes linter plus Linux, Windows, and macOS builds; awaiting maintainer review, with no feedstock/package yet |
 | Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done (v2.2.0 — CDISC PP row split, PKNCA claims corrected, caveat added) |
 | Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 

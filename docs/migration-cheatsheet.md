@@ -27,7 +27,7 @@ A quick-reference guide for scientists transitioning from Phoenix WinNonlin and 
 | CDISC PP output | `summary.to_cdisc_pp()` | PPTESTCD/PPORRES/PPORRESU format |
 | Dose-normalised params | `NCAResult.dn_auclast`, `.dn_cmax` | Per-mg normalisation |
 | C0 back-extrapolation (IV bolus) | `c0_back_extrapolated(times, concs)` | OLS log-linear on first 2 points; prepend t=0, C0 to profile |
-| Sparse NCA (model-informed) | `fit_sparse_1cmt_oral()` | Model-based NCA for 3-5 samples per subject |
+| Sparse oral PK (model-informed) | `fit_sparse_1cmt_oral()` | One-compartment oral screening from 3+ samples; not a replacement for standard NCA |
 
 ### Example
 

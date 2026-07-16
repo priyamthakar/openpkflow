@@ -80,7 +80,7 @@ the adapter layer.
 - Verification on 2026-07-16:
   - frontend ESLint and production build -> passed
   - Playwright -> 10 passed
-  - full API suite -> 33 passed
+  - full API suite -> 34 passed
   - NCA plus validation suites -> 517 passed, 22 deselected
   - targeted Ruff and strict mypy -> passed
   - standard Python suite -> 1285 passed, 22 deselected

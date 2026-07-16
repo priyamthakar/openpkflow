@@ -1,6 +1,8 @@
 # OpenPKFlow
 
-**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting — with full theory derivations, cross-validated formulas, and regulatory-ready documentation.**
+**A transparent, reproducible, open-source Python workflow for dissolution, NCA,
+PK/PD simulation, and pharmacometric reporting, backed by executable reference and
+analytical tests with report-first documentation.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/openpkflow)](https://pypi.org/project/openpkflow/)
@@ -16,13 +18,13 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 | Module | What it covers |
 |--------|---------------|
 | `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, multi-media, SUPAC screening, alcohol dose-dumping f2, model fitting |
-| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, sparse NCA |
+| `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, plus model-informed sparse oral screening |
 | `be` | 2x2 crossover TOST, power / sample size, GMR + 90% CI, research-grade replicate screening, BioEqPy export |
 | `bayes` | MAP individual PK (scipy), full Bayesian posterior (PyMC), Bayesian 2x2 crossover BE |
 | `pop` | FOCE-I and SAEM estimation (1/2-cmt; frozen for extension), GOF plots, VPC, NONMEM-style dataset helpers |
 | `sim` | 1- and 2-compartment IV bolus/infusion/oral, transit absorption, steady-state metrics, repeated dosing, superposition |
 | `ivivc` | Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy, %PE) plus Level B/C MDT/MRT helpers |
-| `pipeline` | Multi-stage study orchestration (dissolution + NCA + BE) with audit metadata and unified reports |
+| `pipeline` | Multi-stage study orchestration (dissolution + NCA + BE) with unified reports and reproducibility audit bundles |
 | `report` | Markdown, HTML, PDF (ReportLab), Word (python-docx) |
 | `ml` | Experimental torch MLP surrogate for 1-cmt oral profiles |
 | `validation` | Utility functions for cross-checking against reference values |
@@ -88,10 +90,10 @@ See the [Tutorials](tutorials/dissolution.md) section for complete worked exampl
 
 - **[Theory Guide](theory.md)** — Full LaTeX formula derivations for every module
 - **[Migration Guide](migration-cheatsheet.md)** — WinNonlin / NONMEM / R quick-reference mapping
-- **[Tutorials](tutorials/dissolution.md)** — Step-by-step worked examples for all 7 modules
+- **[Tutorials](tutorials/dissolution.md)** — Step-by-step worked examples for supported analysis workflows
 - **[Validation Matrix](validation-matrix.md)** — External comparators and executable reference tests
 - **[Validation API](reference/validation.md)** — Bias, RMSE, and percent-tolerance helper reference
-- **[API Reference](reference/dissolution.md)** — Full function and class reference for all 9 modules
+- **[API Reference](reference/dissolution.md)** — Function and class reference across public analysis modules
 
 ---
 

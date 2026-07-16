@@ -45,10 +45,24 @@ cfg = PipelineConfig(
 result = StudyPipeline(cfg).run()
 print(result.summary())
 result.report("out/study.html")
+result.audit_bundle("out/study-audit.zip")
 ```
 
 AUC and BLQ methods must be explicit (never silent defaults). Stages without
 inputs are skipped. Failures are not swallowed; see `result.metadata`.
+
+The audit ZIP preserves copied inputs, normalized configuration, serialized results,
+an HTML report, and a SHA-256/size manifest for reproducibility review.
+
+### Web and API workflow
+
+With the backend and frontend running, open `/pipeline`. Upload any combination of
+dissolution, NCA, and paired-BE CSVs, configure the enabled stages, then download a
+unified HTML/Markdown report or the audit ZIP.
+
+Programmatic clients can call `/api/pipeline/analyze`, `/api/pipeline/report`, and
+`/api/pipeline/audit-bundle`. The adapter only orchestrates public core APIs and does
+not contain pharmacometric formulas.
 
 The sections below show each stage in isolation (still useful for debugging).
 

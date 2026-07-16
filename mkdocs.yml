@@ -40,6 +40,7 @@ nav:
   - Tutorials:
     - Dissolution Similarity: tutorials/dissolution.md
     - NCA: tutorials/nca.md
+    - Sparse oral PK fitting: tutorials/sparse-nca.md
     - Formulation-to-report pipeline: tutorials/pipeline.md
     - PK Simulation: tutorials/sim.md
     - Population PK: tutorials/pop.md

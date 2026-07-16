@@ -112,3 +112,13 @@ The CSV may contain BLQ flags as `"<0.5"` string values; these are parsed automa
 - **IV route:** `CL` (absolute clearance), `Vz` (absolute volume)
 
 These are never mixed in the same output column.
+
+---
+
+## 8. Sparse oral profiles
+
+For three or more oral samples, OpenPKFlow also provides a model-informed
+one-compartment fit. Its outputs are fitted-model estimates, not conventional NCA
+parameters from a rich profile. See the dedicated
+[sparse oral PK tutorial](sparse-nca.md) for inputs, diagnostics, reports, web/API
+usage, validation evidence, and scope limits.

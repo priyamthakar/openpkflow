@@ -4,7 +4,9 @@
   <img src="docs/logo.png" alt="OpenPKFlow" width="640"/>
 </p>
 
-**A transparent, reproducible, open-source Python toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. Every formula is cross-validated against published references and the output is regulatory-ready.**
+**A transparent, reproducible, open-source Python workflow for dissolution, NCA,
+PK/PD simulation, and pharmacometric reporting. Core calculations are backed by
+executable reference and analytical tests, with report-first outputs for review.**
 
 [![CI](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml/badge.svg)](https://github.com/priyamthakar/openpkflow/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/priyamthakar/openpkflow/branch/main/graph/badge.svg)](https://codecov.io/gh/priyamthakar/openpkflow)
@@ -20,10 +22,12 @@
 OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
-- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; sparse NCA from 3-5 samples
+- **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; model-informed one-compartment oral screening from 3+ samples
 - **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) plus full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
 - **Bioequivalence:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; research-grade replicate-design screening with CVwR and scaled-limit summaries
 - **Report generation:** Markdown, HTML, PDF, Word
+- **Study pipeline and web app:** optional dissolution, NCA, and paired-BE orchestration;
+  unified reports; reproducibility audit ZIP; React pages backed by a thin FastAPI adapter
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
 - **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
@@ -329,7 +333,7 @@ vpc.report("vpc_report.html")
 | Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
 | IVIVC (Level A) | :white_check_mark: (v1.2.0) | :x: | :white_check_mark: | :x: |
 | Multi-media dissolution | :white_check_mark: (v1.4.0) | :x: | :white_check_mark: | :x: |
-| Sparse-sampling NCA | :white_check_mark: (v1.5.0) | :white_check_mark: | :x: | :x: |
+| Sparse oral PK screening (model-informed) | :white_check_mark: (v1.5.0) | :white_check_mark: | :x: | :x: |
 | Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
 | MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
@@ -369,14 +373,15 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | Multi-media dissolution | Stable (v1.4.0) |
 | Study pipeline (`openpkflow study run`) | Stable (v2.6.0) |
 | HTML, Markdown, PDF, Word reports | Stable |
-| NCA (incl. steady-state, urinary, sparse, CDISC PP) | Stable |
+| NCA (incl. steady-state, urinary, CDISC PP) | Stable |
+| Sparse one-compartment oral fit | Model-informed screening; externally cross-checked |
 | PK simulation (1/2-comp + transit oral + SS metrics) | Stable (v2.6.0) |
 | Population PK diagnostics (GOF, VPC) | Stable |
 | FOCE-I / SAEM pop PK estimation\* | Stable research-grade; **frozen** for extension |
 | Covariate modeling | Removed (v2.3.0) |
 | MAP / Bayesian PK + Bayesian BE | Stable (v2.0.0) |
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
-| Web app (`api/` + `webapp/`) | Stable (v2.5+; v2.6 polish) |
+| Web app (`api/` + `webapp/`) | Stable core pages; post-v2.6 pipeline and sparse pages in PR #31 |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).
@@ -386,22 +391,24 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 
 ## By the numbers
 
+Measured from the `agent/sparse-nca-web` working tree on 2026-07-16:
+
 | Stat | Value |
 |---|---|
-| Lines of source code (`src/`) | ~23,900 |
-| Lines of tests (`tests/`) | ~17,200 |
-| Total Python files | 162 (80 src + 82 tests) |
-| Tests | 1,334 |
-| HTML report templates | 12 |
-| Bundled example datasets | 4 |
-| Git commits | 139 |
+| Lines of Python source (`src/`) | 20,658 |
+| Lines of Python tests (`tests/`) | 14,308 |
+| Python files | 164 (80 source + 84 tests) |
+| Standard test selection | 1,285 selected, 22 deselected |
+| HTML report templates | 13 |
+| Bundled example datasets | 5 |
 
 ---
 
 ## Validation
 
-All formula implementations are validated against published FDA/EMA guidance examples.
-Each test case cites its source: paper DOI, FDA guidance ID, or R-package vignette.
+Validation combines published/public comparator outputs, analytical solutions, and
+hand-checkable sanity cases. Each scientific reference test identifies its comparator
+or source; the exact scope is documented in [VALIDATION.md](VALIDATION.md).
 
 **NCA: four-way cross-validation against Phoenix WinNonlin:**
 NCA results are cross-validated against Phoenix WinNonlin (Certara), PKNCA 0.12.1, and NonCompart 0.8.0
@@ -410,6 +417,11 @@ indomethacin) datasets. Key validated parameters: AUClast, AUCinf, CL/F, Vz/F, l
 C0 back-extrapolation for IV bolus data (WinNonlin's approach: OLS regression on the first 2 points,
 linear trapezoid area added from t=0 to t_first) is implemented in `c0_back_extrapolated()` and verified
 to match WinNonlin reference values within 2% for all 6 Indometh subjects.
+
+The model-informed sparse oral fit is independently cross-checked against R 4.6.0
+`stats::nls` on five samples from published `nlme::Theoph` subject 1. This single
+structural-model cross-check does not establish general suitability for every drug or
+sampling design.
 
 See [VALIDATION.md](VALIDATION.md) for the full regulatory test traceability matrix.
 
@@ -426,9 +438,9 @@ Final regulatory interpretation should be reviewed by qualified formulation, pha
 
 - **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)** - Full LaTeX formula derivations for every module: NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK. Designed for regulatory review support and teaching.
 - **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)** - Coming from WinNonlin, NONMEM, or R? Quick-reference mapping for every parameter and function.
-- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** - Step-by-step worked examples for all 7 modules.
-- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/reference/validation/)** - Every test mapped to its FDA/EMA/ICH guidance section or published DOI.
-- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** - Full function and class reference for all 9 modules.
+- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** - Step-by-step worked examples for the supported analysis workflows.
+- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/validation-matrix/)** - External comparators, analytical checks, test locations, and current limits.
+- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** - Function and class reference across the public analysis modules.
 
 ---
 

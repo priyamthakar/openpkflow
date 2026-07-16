@@ -16,12 +16,14 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `validation/` — cross-checks against published references
 
 **Web app layer (same as CLAUDE.md):**
-- `api/` — FastAPI REST adapter. Current routers: nca, dissolution (incl. multi-media),
-  sim, ivivc, be (incl. power / sample-size). Adding a new endpoint requires a schema
+- `api/` — FastAPI REST adapter. Current routers: nca (including sparse), dissolution
+  (including multi-media), sim, ivivc, be (including power / sample-size), and pipeline.
+  Adding a new endpoint requires a schema
   (schemas/), service (services/), router (routers/), and registration in main.py.
   Follow the existing nca router pattern exactly.
-- `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Dissolution
-  (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab).
+- `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
+  Dissolution (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab), and
+  Study Pipeline.
   See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 

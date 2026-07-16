@@ -21,6 +21,7 @@ from openpkflow.pipeline import (
 | `StudyPipelineResult` | Aggregated results + audit `metadata` |
 | `.summary()` | ASCII multi-section text + disclaimer |
 | `.report(path)` | HTML (default) or Markdown by extension |
+| `.audit_bundle(path)` | ZIP with copied inputs, config, results, HTML report, and SHA-256 manifest |
 | `.to_dict()` | JSON-serializable audit payload |
 
 ## Stages
@@ -32,6 +33,18 @@ from openpkflow.pipeline import (
 | BE | `be_csv` | `BEStudy` TOST |
 
 IVIVC is not wired yet (needs multi-array inputs, not a single CSV).
+
+## API and web app
+
+The FastAPI adapter exposes:
+
+- `POST /api/pipeline/analyze`
+- `POST /api/pipeline/report`
+- `POST /api/pipeline/audit-bundle`
+
+The React page at `/pipeline` accepts one to three stage uploads, requires explicit
+NCA AUC and BLQ methods when NCA is enabled, renders unified results, and downloads
+the report or audit bundle. All calculations remain in `src/openpkflow/`.
 
 ## CLI
 

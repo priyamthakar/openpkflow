@@ -27,15 +27,32 @@ Open `http://localhost:8000/docs` for the interactive Swagger UI.
 | GET | `/health` | Liveness + engine version |
 | POST | `/api/nca/analyze` | Run NCA on uploaded CSV |
 | POST | `/api/nca/report` | Download NCA report (html/pdf/docx/md) |
+| POST | `/api/nca/sparse/analyze` | Fit a model-informed 1-cmt oral sparse profile |
+| POST | `/api/nca/sparse/report` | Download sparse-fit screening report (html/md) |
 | POST | `/api/dissolution/formulations` | List formulation labels from CSV |
 | POST | `/api/dissolution/compare` | f1/f2 comparison |
 | POST | `/api/dissolution/report` | Download dissolution report |
+| POST | `/api/dissolution/multi-media/analyze` | Compare profiles across media |
+| POST | `/api/dissolution/multi-media/report` | Download multi-media report |
 | POST | `/api/sim/simulate` | Run PK simulation (JSON body) |
 | POST | `/api/sim/report` | Download sim report |
+| POST | `/api/ivivc/analyze` | Run Level A IVIVC analysis |
+| POST | `/api/ivivc/report` | Download IVIVC report |
+| POST | `/api/be/analyze` | Run paired 2x2 TOST screening |
+| POST | `/api/be/report` | Download BE report |
+| POST | `/api/be/power` | Calculate exact TOST power |
+| POST | `/api/be/sample-size` | Calculate exact TOST sample size |
+| POST | `/api/pipeline/analyze` | Run optional dissolution, NCA, and BE stages |
+| POST | `/api/pipeline/report` | Download unified pipeline report |
+| POST | `/api/pipeline/audit-bundle` | Download inputs, config, results, report, and manifest ZIP |
+
+Sparse NCA is a model-informed screening fit, not a replacement for standard NCA or
+a primary regulatory analysis. Endpoint responses and generated reports preserve that
+scope caveat.
 
 ## Tests
 
-```bash
-cd api
-pytest tests/ -q
+```powershell
+$env:PYTHONPATH='src;api'
+python -m pytest api/tests -q
 ```

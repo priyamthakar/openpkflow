@@ -9,7 +9,8 @@ OpenPKFlow is a transparent, reproducible, open-source Python workflow for:
 
 - Dissolution similarity (f1, f2, bootstrap f2, MSD, model fitting, multi-media,
   SUPAC-IR screening helpers, alcohol dose-dumping f2 assessment)
-- Noncompartmental analysis (NCA), including steady-state, urinary, and sparse
+- Noncompartmental analysis (NCA), including steady-state and urinary workflows,
+  plus model-informed sparse oral screening
 - Analytical PK simulation (1- and 2-compartment models, transit absorption, SS metrics)
 - IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) and
   Level B/C helpers (MDT / MRT correlation)
@@ -40,6 +41,8 @@ OpenPKFlow is **not**:
   (formal RSABE belongs in companion BioEqPy, not here)
 - A drop-in Part 11 validated quality system without site SOPs and controls
 - Full SUPAC automation (v2.6 helpers are screening only)
+- A primary regulatory sparse-PK method; the one-compartment oral sparse fit is a
+  model-informed screening tool and requires study-specific validation
 
 Final regulatory interpretation must always be reviewed by qualified formulation,
 pharmacokinetic, and regulatory experts.

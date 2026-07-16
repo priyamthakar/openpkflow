@@ -35,8 +35,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 - Shared `FileDropzone`, `ColumnMapper`, `PasteDataGrid`.
 - NCA / Dissolution / Sim / IVIVC / BE result UIs and report downloads.
 - Template CSV download buttons on NCA, Dissolution, BE.
-- Sidebar + routing for all 6 pages.
-- FastAPI routers: nca, dissolution, sim, ivivc, be.
+- Sidebar + routing for the original six pages.
+- FastAPI routers for the original NCA, dissolution, simulation, IVIVC, and BE pages.
 
 ### v2.6.0 polish
 
