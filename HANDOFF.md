@@ -9,6 +9,7 @@
 - GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
 - PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
 - Working branch: `agent/sparse-nca-web`.
+- Draft PR: <https://github.com/priyamthakar/openpkflow/pull/31>
 - Pipeline API/page/audit bundle: merged in PR #30.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes the linter plus
   Linux, Windows, and macOS builds; it awaits maintainer review.
@@ -87,9 +88,9 @@ the adapter layer.
 
 ## Resume here
 
-1. Inspect and commit the completed sparse NCA slice on `agent/sparse-nca-web`.
-2. Push the branch, open a draft PR, and monitor CI.
-3. Merge after review and required checks.
+1. Review draft PR #31 and its CI results.
+2. Address actionable review feedback, if any.
+3. Mark ready and merge after review and required checks.
 4. Await conda-forge maintainer action on PR #33461; do not recreate the recipe.
 5. Only then begin the MAP individual-PK API/page slice.
 
