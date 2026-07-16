@@ -114,7 +114,7 @@ webapp/src/
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
-1. **Merge the sparse NCA slice** after review and CI.
+1. **Merge the sparse NCA slice** after review; PR #31 CI and preview checks are green.
 2. **MAP individual PK page** -- preserve screening scope and fail-closed diagnostics.
 3. **SUPAC / alcohol UI** -- library helpers in `openpkflow.dissolution.supac`.
 4. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document

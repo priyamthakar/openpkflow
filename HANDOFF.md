@@ -10,11 +10,16 @@
 - PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
 - Working branch: `agent/sparse-nca-web`.
 - Draft PR: <https://github.com/priyamthakar/openpkflow/pull/31>
+- Verified baseline: `bb5170c` (`docs(project): synchronize sparse and pipeline documentation`).
+- At that baseline, PR #31 is mergeable. Python 3.10/3.11/3.12, API, frontend, Python 3.13
+  Linux/Windows smoke, type check, pre-commit, and Cloudflare Workers preview checks
+  are green. There are no reviews or actionable comments as of this update.
 - Pipeline API/page/audit bundle: merged in PR #30.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes the linter plus
   Linux, Windows, and macOS builds; it awaits maintainer review.
-- Active post-release work: sparse NCA external validation, API/report endpoints,
-  and React page are implemented on the working branch.
+- Active post-release work: sparse NCA external validation, reports, API endpoints,
+  React page, and synchronized user/developer documentation are complete on the
+  working branch and awaiting review/merge.
 - Detailed session record: `SESSION_SUMMARY_2026-07-15.md`.
 
 ## v2.6.0 release verification
@@ -85,14 +90,32 @@ the adapter layer.
   - targeted Ruff and strict mypy -> passed
   - standard Python suite -> 1285 passed, 22 deselected
   - package build and Twine checks -> passed
+  - strict MkDocs build and repository-wide pre-commit -> passed
+  - GitHub CI and Cloudflare Workers branch preview -> passed at `bb5170c`
+
+## Sparse NCA change map
+
+- Core fit and reports: `src/openpkflow/nca/sparse.py`,
+  `src/openpkflow/nca/reporting.py`.
+- Independent reference: `scripts/sparse_nca_theoph_crossval.R`,
+  `tests/validation/test_sparse_nca_theoph_reference.py`.
+- Core regression tests: `tests/nca/test_sparse_nca.py`.
+- API adapter: `api/app/schemas/nca.py`, `api/app/services/nca_service.py`,
+  `api/app/routers/nca.py`, `api/tests/test_nca.py`.
+- React workflow: `webapp/src/pages/SparseNcaPage.tsx`, route/sidebar registration,
+  typed API contracts, and `webapp/tests/paste-run.spec.ts`.
+- User docs: `docs/tutorials/sparse-nca.md`, NCA reference/theory/validation pages,
+  API/web READMEs, changelogs, positioning, roadmap, and migration guide.
 
 ## Resume here
 
-1. Review draft PR #31 and its CI results.
-2. Address actionable review feedback, if any.
-3. Mark ready and merge after review and required checks.
+1. Confirm the checkout is `agent/sparse-nca-web`, contains verified baseline
+   `bb5170c`, and has a clean tree.
+2. Review PR #31. CI is already green and there is currently no review feedback.
+3. Mark ready and merge only after the required human/scientific review.
 4. Await conda-forge maintainer action on PR #33461; do not recreate the recipe.
-5. Only then begin the MAP individual-PK API/page slice.
+5. After merge, update local `main` and only then begin the MAP individual-PK
+   API/page slice.
 
 Do not extend frozen `pop/estimation/`. Keep formal RSABE in BioEqPy. Validation
 work outranks new modules.
@@ -111,10 +134,17 @@ work outranks new modules.
 
 ```powershell
 git status -sb
-python -m pytest tests/pipeline -q
+git log -1 --oneline
+gh pr view 31
+gh pr checks 31
+python -m pytest tests/nca/test_sparse_nca.py tests/validation/test_sparse_nca_theoph_reference.py -q
 $env:PYTHONPATH='src;api'; python -m pytest api/tests -q --basetemp D:\openpkflow\.test-tmp
-python -m ruff check src/openpkflow/pipeline api/app/routers/pipeline.py api/app/schemas/pipeline.py api/app/services/pipeline_service.py api/tests/test_pipeline.py tests/pipeline
-python -m mypy src/openpkflow/pipeline api/app/routers/pipeline.py api/app/schemas/pipeline.py api/app/services/pipeline_service.py
+python -m mkdocs build --strict --site-dir D:\openpkflow\.mkdocs-tmp
+python -m pre_commit run --all-files
+cd webapp
+npm run lint
+npm run build
+npm run test:e2e
 ```
 
 Full release checks remain documented in `RELEASE.md`.

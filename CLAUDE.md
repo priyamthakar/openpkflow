@@ -255,7 +255,8 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge the sparse NCA validation/API/page branch.
+1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
+   all CI and the Cloudflare preview are green at `bb5170c`.
 2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
 3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.

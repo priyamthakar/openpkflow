@@ -86,9 +86,12 @@ bundle is written.
 - Sparse NCA input hardening, independent R `stats::nls` validation, reports, API
   endpoints, and React page are implemented in draft PR #31 on
   `agent/sparse-nca-web`.
+- The full documentation/takeover sync is committed at `bb5170c`; all PR #31 CI and
+  Cloudflare preview checks are green, with no reviews or actionable comments.
 
 ## Recommended next session
 
-Review draft PR #31 and merge it after required checks and review. Then begin the
+Review draft PR #31 and merge it after human/scientific review. Automated checks
+are already green. Then begin the
 MAP individual-PK API/page slice. Do not recreate the conda-forge recipe, and keep
 SUPAC UI work behind the MAP slice.
