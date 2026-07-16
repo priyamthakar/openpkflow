@@ -12,6 +12,7 @@ const DissolutionPage = lazy(() => import('@/pages/DissolutionPage'))
 const SimPage = lazy(() => import('@/pages/SimPage'))
 const IvIvcPage = lazy(() => import('@/pages/IvIvcPage'))
 const BePage = lazy(() => import('@/pages/BePage'))
+const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ export default function App() {
                   <Route path="sim" element={<SimPage />} />
                   <Route path="ivivc" element={<IvIvcPage />} />
                   <Route path="be" element={<BePage />} />
+                  <Route path="pipeline" element={<PipelinePage />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>

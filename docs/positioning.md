@@ -46,7 +46,7 @@ pharmacokinetic, and regulatory experts.
 
 ## Current release context (for agents)
 
-Tree version **2.6.0** may be on a feature branch / open PR before tag and PyPI.
+Version **2.6.0** was published to PyPI and GitHub Releases on 2026-07-15.
 Always read **`HANDOFF.md` at the repository root** in the working tree for
 branch name, PR number, verification results, and release status.
 

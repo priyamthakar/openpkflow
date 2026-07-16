@@ -177,9 +177,9 @@ via the FastAPI adapters. The frontend never computes pharmacometric values.
 
 ## v2.6.0 -- Study pipeline + science helpers + web polish (2026-07-09)
 
-Scope: multi-track improvement sprint. Library code merged to `main` via PR #27,
-plus a follow-on correction-hardening sprint (2026-07-11, also merged to `main`).
-Tag/PyPI publish still pending the release checklist in HANDOFF.md.
+Scope: multi-track improvement sprint. Library code merged via PR #27, followed by
+the correction and release-hardening work merged via PR #29. v2.6.0 was tagged and
+published to PyPI on 2026-07-15.
 
 ### Library
 
@@ -210,6 +210,15 @@ Tag/PyPI publish still pending the release checklist in HANDOFF.md.
 - Sparse NCA / MAP PK API pages
 - Hosted production deploy of api + webapp
 - Extending frozen `pop/estimation/`
+
+### Post-v2.6.0 active work (2026-07-15)
+
+- Pipeline audit ZIP in the core library: implemented and targeted tests pass.
+- Pipeline FastAPI analyze/report/audit-bundle endpoints: implemented and targeted
+  tests pass.
+- React pipeline page: not started; this is the next implementation boundary.
+- See `HANDOFF.md` and `SESSION_SUMMARY_2026-07-15.md` for exact branch state and
+  resume commands.
 
 ---
 

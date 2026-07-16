@@ -4,12 +4,19 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   onFile: (f: File) => void
+  onClear?: () => void
   accept?: string
   label?: string
   maxSizeMB?: number
 }
 
-export function FileDropzone({ onFile, accept = '.csv', label = 'Upload CSV', maxSizeMB = 10 }: Props) {
+export function FileDropzone({
+  onFile,
+  onClear,
+  accept = '.csv',
+  label = 'Upload CSV',
+  maxSizeMB = 10,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -51,6 +58,7 @@ export function FileDropzone({ onFile, accept = '.csv', label = 'Upload CSV', ma
     setFile(null)
     setFileError('')
     if (inputRef.current) inputRef.current.value = ''
+    onClear?.()
   }
 
   const Icon = over ? FolderOpen : file ? FileIcon : Upload

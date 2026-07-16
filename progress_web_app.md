@@ -8,7 +8,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-09 (v2.6.0 polish)
+**Last updated:** 2026-07-16 (pipeline web page implemented)
 
 ---
 
@@ -16,12 +16,14 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 
 - React + Vite frontend in `webapp/`.
 - FastAPI adapter in `api/`.
-- Pages: Home, NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence.
+- Pages: Home, NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence, Study Pipeline.
 - NCA / Dissolution / BE: multipart upload + paste grid.
 - PK Simulation: parameter sliders + pasteable parameter grid.
 - IVIVC: three paste grids (in vivo PK, dissolution, IV UIR) + load example.
 - BE: TOST analysis tab + power / sample-size calculator tab.
 - Dissolution: single-medium compare tab + multi-media tab.
+- Pipeline API and React page: analyze one to three uploaded stages, render unified
+  results, download HTML/Markdown reports, and download the audit ZIP.
 
 ---
 
@@ -44,6 +46,16 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 - IVIVC report formats: html / markdown / pdf / docx when library supports them.
 - Multi-media reports: html / pdf / docx.
 
+### Post-v2.6.0 pipeline web slice
+
+- `/pipeline` route and Study Pipeline sidebar entry.
+- Typed pipeline options, response sections, files, and API wrappers.
+- Optional dissolution, NCA, and paired-BE CSV uploads with explicit methods/options.
+- Unified stage status and result summaries, NCA subject table, report downloads,
+  and audit ZIP download.
+- File dropzones notify parent state when a selected input is removed.
+- Mocked Playwright coverage verifies analysis, report download, and audit download.
+
 ---
 
 ## API Layer -- Registered Routers
@@ -55,6 +67,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 | `/api/sim` | `/simulate`, `/report` | `sim_service.py` |
 | `/api/ivivc` | `/analyze`, `/report` | `ivivc_service.py` |
 | `/api/be` | `/analyze`, `/report`, `/power`, `/sample-size` | `be_service.py` |
+| `/api/pipeline` | `/analyze`, `/report`, `/audit-bundle` | `pipeline_service.py` |
 | `/health` | GET | engine version badge |
 
 ---
@@ -71,6 +84,7 @@ webapp/src/
     SimPage.tsx
     IvIvcPage.tsx                  load example + dose inputs
     BePage.tsx                     analysis + power calculator tabs
+    PipelinePage.tsx               multi-stage run + report/audit downloads
     NotFound.tsx
   components/
     layout/   AppShell, Sidebar, TopBar, ErrorBoundary, PageLoader, Theme*
@@ -89,8 +103,7 @@ webapp/src/
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
-1. **Study pipeline page** -- wrap `openpkflow.pipeline` / study config upload;
-   library CLI already works: `openpkflow study run`.
+1. **Merge the study pipeline slice** after PR #30 review and CI.
 2. **Sparse NCA / MAP PK pages** -- library exists; need API adapters first.
 3. **SUPAC / alcohol UI** -- library helpers in `openpkflow.dissolution.supac`.
 4. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
@@ -113,5 +126,5 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 
 - IVIVC Loo-Riegelman requires kel, k12, k21 manually; no auto-estimation yet.
 - BE sequence_col toggle only affects the API call; paste grid always shows sequence.
-- No dedicated pipeline route yet.
+- The pipeline API/page remains on draft PR #30 and is not merged into `main` yet.
 - Playwright tests mock the backend for CI; live e2e against a running API is optional.

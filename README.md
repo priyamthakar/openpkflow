@@ -367,7 +367,7 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | IVIVC Level A | Stable (v1.2.0) |
 | IVIVC Level B/C helpers (MDT/MRT) | Stable (v2.6.0) |
 | Multi-media dissolution | Stable (v1.4.0) |
-| Study pipeline (`openpkflow study run`) | Stable (v2.6.0; tag pending) |
+| Study pipeline (`openpkflow study run`) | Stable (v2.6.0) |
 | HTML, Markdown, PDF, Word reports | Stable |
 | NCA (incl. steady-state, urinary, sparse, CDISC PP) | Stable |
 | PK simulation (1/2-comp + transit oral + SS metrics) | Stable (v2.6.0) |

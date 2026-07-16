@@ -18,6 +18,9 @@ import type {
   MultiMediaRequest,
   MultiMediaResponse,
   NcaResponse,
+  PipelineFiles,
+  PipelineOptions,
+  PipelineResponse,
   SimResponse,
 } from './types'
 
@@ -321,6 +324,54 @@ export async function downloadMultiMediaReport(req: MultiMediaRequest, format: s
   await assertReportOk(res)
   const blob = await reportBlobForDownload(res, format)
   _triggerDownload(blob, `multi_media_report.${format}`)
+}
+
+// ---------- Study pipeline ----------
+function pipelineFormData(files: PipelineFiles, options: PipelineOptions): FormData {
+  const fd = new FormData()
+  fd.append('options', JSON.stringify(options))
+  if (files.dissolution) fd.append('dissolution_file', files.dissolution)
+  if (files.nca) fd.append('nca_file', files.nca)
+  if (files.be) fd.append('be_file', files.be)
+  return fd
+}
+
+export async function analyzePipeline(
+  files: PipelineFiles,
+  options: PipelineOptions,
+): Promise<PipelineResponse> {
+  return _json(
+    await fetch(`${BASE}/api/pipeline/analyze`, {
+      method: 'POST',
+      body: pipelineFormData(files, options),
+    }),
+  )
+}
+
+export async function downloadPipelineReport(
+  files: PipelineFiles,
+  options: PipelineOptions,
+  format: string,
+): Promise<void> {
+  const fd = pipelineFormData(files, options)
+  fd.append('format', format)
+  const res = await fetch(`${BASE}/api/pipeline/report`, { method: 'POST', body: fd })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  const ext = format === 'markdown' ? 'md' : format
+  _triggerDownload(blob, `study_pipeline_report.${ext}`)
+}
+
+export async function downloadPipelineAuditBundle(
+  files: PipelineFiles,
+  options: PipelineOptions,
+): Promise<void> {
+  const res = await fetch(`${BASE}/api/pipeline/audit-bundle`, {
+    method: 'POST',
+    body: pipelineFormData(files, options),
+  })
+  await assertReportOk(res)
+  _triggerDownload(await res.blob(), 'openpkflow_audit_bundle.zip')
 }
 
 function _triggerDownload(blob: Blob, filename: string) {

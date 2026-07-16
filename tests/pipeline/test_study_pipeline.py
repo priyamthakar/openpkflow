@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -186,6 +188,32 @@ def test_to_dict_json_serializable() -> None:
     assert "metadata" in encoded
     assert payload["dissolution"] is not None
     assert payload["dissolution"]["f2_value"] == result.dissolution.f2_value  # type: ignore[union-attr]
+
+
+def test_audit_bundle_contains_inputs_report_and_valid_checksums(tmp_path: Path) -> None:
+    """Audit ZIP must contain normalized inputs and a verifiable manifest."""
+    cfg = PipelineConfig(
+        dissolution_csv=Path(example_similar_path()),
+        dissolution_reference="reference",
+        dissolution_test="test",
+    )
+    result = StudyPipeline(cfg).run()
+    bundle = result.audit_bundle(tmp_path / "audit.zip")
+
+    with zipfile.ZipFile(bundle) as archive:
+        names = set(archive.namelist())
+        assert names == {
+            "config.json",
+            "inputs/dissolution.csv",
+            "manifest.json",
+            "report.html",
+            "results.json",
+        }
+        config = json.loads(archive.read("config.json"))
+        manifest = json.loads(archive.read("manifest.json"))
+        assert config["dissolution_csv"] == "inputs/dissolution.csv"
+        for name, record in manifest["files"].items():
+            assert record["sha256"] == hashlib.sha256(archive.read(name)).hexdigest()
 
 
 def test_load_pipeline_config_json(tmp_path: Path) -> None:

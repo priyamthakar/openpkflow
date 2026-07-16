@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import copy
+import hashlib
+import json
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -248,3 +252,55 @@ def report_pipeline(result: StudyPipelineResult, path: str | Path) -> Path:
         content = render_pipeline_html(result)
     out.write_text(content, encoding="utf-8")
     return out.resolve()
+
+
+def write_audit_bundle(result: StudyPipelineResult, path: str | Path) -> Path:
+    """Write inputs, results, report, and checksums to a ZIP archive.
+
+    Parameters
+    ----------
+    result : StudyPipelineResult
+        Completed pipeline result.
+    path : str or Path
+        Destination ZIP path.
+
+    Returns
+    -------
+    Path
+        Resolved archive path written.
+    """
+    out = Path(path).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    payload = copy.deepcopy(result.to_dict())
+    config = payload.get("metadata", {}).get("config", {})
+    files: dict[str, bytes] = {}
+    for stage, key in (
+        ("dissolution", "dissolution_csv"),
+        ("nca", "nca_csv"),
+        ("be", "be_csv"),
+    ):
+        source = config.get(key)
+        if not source:
+            continue
+        source_path = Path(source)
+        archive_name = f"inputs/{stage}{source_path.suffix.lower() or '.csv'}"
+        files[archive_name] = source_path.read_bytes()
+        config[key] = archive_name
+
+    files["config.json"] = json.dumps(config, indent=2, sort_keys=True).encode()
+    files["results.json"] = json.dumps(payload, indent=2, sort_keys=True, default=str).encode()
+    files["report.html"] = render_pipeline_html(result).encode()
+    manifest = {
+        "openpkflow_version": payload.get("metadata", {}).get("openpkflow_version", __version__),
+        "generated_at_utc": payload.get("metadata", {}).get("generated_at_utc"),
+        "files": {
+            name: {"sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)}
+            for name, data in sorted(files.items())
+        },
+    }
+    files["manifest.json"] = json.dumps(manifest, indent=2, sort_keys=True).encode()
+
+    with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, data in sorted(files.items()):
+            archive.writestr(name, data)
+    return out
