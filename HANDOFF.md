@@ -1,6 +1,6 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-15
+**Last updated:** 2026-07-16
 
 ## Current state
 
@@ -10,8 +10,8 @@
 - PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
 - Working branch: `agent/pipeline-web-audit-bundle`.
 - Draft PR: <https://github.com/priyamthakar/openpkflow/pull/30>
-- Active post-release work: pipeline API plus downloadable audit bundle. The React
-  pipeline page has not been started.
+- Active post-release work: pipeline API, React page, unified report download, and
+  downloadable audit bundle are implemented on the draft PR branch.
 - Detailed session record: `SESSION_SUMMARY_2026-07-15.md`.
 
 ## v2.6.0 release verification
@@ -40,6 +40,11 @@ the adapter layer.
   - `POST /api/pipeline/audit-bundle`
 - Pipeline schema, service, router registration, and API tests follow the existing
   adapter pattern.
+- React `/pipeline` page supports one to three stage uploads, explicit dissolution,
+  NCA/BLQ, and paired-BE options, unified stage results, report download, and audit
+  ZIP download.
+- Typed frontend contracts/API wrappers, route/sidebar registration, and mocked
+  Playwright coverage are included.
 - Verification on 2026-07-15:
   - `python -m pytest tests/pipeline -q` -> 12 passed
   - pipeline API tests -> 3 passed
@@ -47,25 +52,31 @@ the adapter layer.
   - targeted Ruff -> passed
   - targeted mypy -> passed (7 source files)
   - strict MkDocs build -> passed
+- Verification on 2026-07-16 after the React page was added:
+  - frontend ESLint -> passed
+  - frontend production build -> passed
+  - Playwright -> 9 passed
+  - full API suite -> 30 passed
+  - pipeline core suite -> 12 passed
+  - targeted Ruff and strict mypy -> passed
+  - standard Python suite -> 1276 passed, 22 deselected
+  - package build and Twine checks -> passed
 
 ## Resume here
 
-1. Check out draft PR #30 / `agent/pipeline-web-audit-bundle`, then inspect
-   `git status` before editing.
-2. Build the React pipeline page using the new endpoints. Add typed API wrappers,
-   result types, route/sidebar registration, report download, and audit-bundle
-   download.
-3. Add Playwright coverage with mocked pipeline responses, then run frontend lint,
-   build, and browser tests.
-4. Run the full API suite from `api/` or with `PYTHONPATH=src;api` from the repo root.
-5. Run the standard Python suite and release build checks before merging.
+1. Review the uncommitted React pipeline-page diff on
+   `agent/pipeline-web-audit-bundle` and commit it intentionally.
+2. Push the branch and update draft PR #30 with the 2026-07-16 verification results.
+3. Review and merge PR #30 when CI is green.
+4. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
+5. Only then begin the sparse NCA API/page slice.
 
 Do not extend frozen `pop/estimation/`. Keep formal RSABE in BioEqPy. Validation
 work outranks new modules.
 
 ## Future plan, in priority order
 
-1. Finish and merge the pipeline web page plus audit-bundle flow.
+1. Review and merge the completed pipeline web page plus audit-bundle flow.
 2. Update conda-forge staged-recipes PR #33461 from 2.3.0 to 2.6.0 and refresh
    hashes; no feedstock/package exists yet.
 3. Add sparse NCA API/page, with explicit AUC and BLQ methods.

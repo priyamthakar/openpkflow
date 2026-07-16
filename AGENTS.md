@@ -253,7 +253,7 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Finish the pipeline API/audit-bundle branch and React pipeline page.
+1. Review and merge the completed pipeline API/audit-bundle and React page branch.
 2. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
 3. Then add sparse NCA / MAP adapters, SUPAC UI, and deployment in that order.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.

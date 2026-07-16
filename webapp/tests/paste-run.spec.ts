@@ -224,3 +224,73 @@ test('IVIVC load example restores paste grids', async ({ page }) => {
   await page.getByRole('button', { name: 'Load example' }).click()
   await expect(page.locator('input[value="Example IR tablet"]')).toBeVisible()
 })
+
+test('Study pipeline runs uploaded stages and downloads report and audit bundle', async ({ page }) => {
+  await page.route('**/api/pipeline/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        metadata: {
+          title: 'Pipeline browser test',
+          openpkflow_version: '2.6.0',
+          generated_at_utc: '2026-07-16T08:00:00Z',
+          stages_requested: ['dissolution'],
+          stages_completed: ['dissolution'],
+          stage_status: { dissolution: 'completed' },
+          warnings: [],
+          config: { dissolution_csv: 'dissolution.csv' },
+        },
+        dissolution: {
+          reference_label: 'reference',
+          test_label: 'test',
+          f1_value: 1.8,
+          f2_value: 82.4,
+          n_timepoints: 6,
+          time_points: [5, 10, 15, 20, 30, 45],
+          reference_mean: [15, 32, 50, 68, 85, 95],
+          test_mean: [14, 31, 49, 66, 83, 94],
+          f2_method: 'regulatory',
+          warnings: [],
+        },
+        nca: null,
+        be: null,
+        disclaimer,
+      },
+    })
+  })
+  await page.route('**/api/pipeline/report', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      headers: { 'content-disposition': 'attachment; filename="study_pipeline_report.html"' },
+      body: '<!doctype html><html><head></head><body><h1>Pipeline browser test</h1></body></html>',
+    })
+  })
+  await page.route('**/api/pipeline/audit-bundle', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/zip',
+      headers: { 'content-disposition': 'attachment; filename="openpkflow_audit_bundle.zip"' },
+      body: 'mock zip content',
+    })
+  })
+
+  await page.goto('/pipeline')
+  await page.locator('input[type="file"]').first().setInputFiles({
+    name: 'dissolution.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('formulation,batch,time,percent_released\nreference,R1,5,15\ntest,T1,5,14'),
+  })
+  await page.getByLabel('Report title').fill('Pipeline browser test')
+  await page.getByRole('button', { name: 'Run Study Pipeline' }).click()
+
+  await expect(page.getByText('Pipeline complete')).toBeVisible()
+  await expect(page.getByText('82.400')).toBeVisible()
+
+  const reportDownload = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Report' }).click()
+  await expect((await reportDownload).suggestedFilename()).toBe('study_pipeline_report.html')
+
+  const auditDownload = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Audit ZIP' }).click()
+  await expect((await auditDownload).suggestedFilename()).toBe('openpkflow_audit_bundle.zip')
+})

@@ -60,13 +60,14 @@ targeted mypy: passed (7 source files)
 strict MkDocs build: passed
 ```
 
-Not implemented yet:
+Completed on 2026-07-16:
 
-- React pipeline page.
-- Frontend types and API wrappers for pipeline endpoints.
-- Sidebar/route registration.
-- Pipeline Playwright tests.
-- Full-suite rerun after the post-release feature is complete.
+- React pipeline page with optional dissolution, NCA, and paired-BE uploads.
+- Frontend types and API wrappers for analyze/report/audit-bundle endpoints.
+- Sidebar/route registration and unified stage result summaries.
+- Pipeline Playwright coverage, including report and audit ZIP downloads.
+- Frontend lint/build, 9 Playwright tests, 30 API tests, 12 pipeline tests,
+  targeted Ruff/mypy, 1276-test standard suite, build, and Twine checks.
 
 ## Important implementation note
 
@@ -84,7 +85,6 @@ feature branch is settled. There is no OpenPKFlow conda-forge feedstock/package 
 
 ## Recommended next session
 
-Finish the pipeline React page only. Keep the slice small: upload up to three stage
-files, explicit method options, unified results, report download, and audit ZIP
-download. Do not start sparse NCA, MAP PK, or SUPAC UI until the pipeline page and
-its browser tests are merged.
+Review and commit the 2026-07-16 pipeline React changes, push the branch, update
+draft PR #30, and merge after CI. Do not start sparse NCA, MAP PK, or SUPAC UI until
+the pipeline page and its browser tests are merged.

@@ -170,3 +170,77 @@ export interface MultiMediaResponse {
   per_media: MediumCompareResult[]
   disclaimer: string
 }
+
+export interface PipelineOptions {
+  title: string
+  dissolution_reference: string | null
+  dissolution_test: string | null
+  nca_auc_method: 'linear' | 'log' | 'linear_up_log_down' | null
+  nca_blq_method: 'none' | 'drop' | 'zero' | 'half_lloq' | 'lloq' | 'm1' | 'm2' | null
+  be_parameter: string
+  be_reference_col: string
+  be_test_col: string
+  be_subject_col: string
+  be_sequence_col: string | null
+  be_lower: number
+  be_upper: number
+}
+
+export interface PipelineFiles {
+  dissolution?: File | null
+  nca?: File | null
+  be?: File | null
+}
+
+export interface PipelineMetadata {
+  title: string
+  openpkflow_version: string
+  generated_at_utc: string
+  stages_requested: string[]
+  stages_completed: string[]
+  stage_status: Record<string, string>
+  warnings: string[]
+  config: Record<string, unknown>
+  methods?: Record<string, unknown>
+}
+
+export interface PipelineDissolutionResult {
+  reference_label: string
+  test_label: string
+  f1_value: number
+  f2_value: number
+  n_timepoints: number
+  time_points: number[]
+  reference_mean: number[]
+  test_mean: number[]
+  f2_method: string
+  warnings: string[]
+}
+
+export interface PipelineNcaResult {
+  study_label: string
+  auc_method: string
+  blq_method: string
+  n_subjects: number
+  subjects: Record<string, number | string | null>[]
+}
+
+export interface PipelineBeResult {
+  parameter: string
+  n: number
+  gmr: number
+  gmr_lower_90ci: number
+  gmr_upper_90ci: number
+  be_lower: number
+  be_upper: number
+  bioequivalent: boolean
+  cv_intra_pct: number
+}
+
+export interface PipelineResponse {
+  metadata: PipelineMetadata
+  dissolution: PipelineDissolutionResult | null
+  nca: PipelineNcaResult | null
+  be: PipelineBeResult | null
+  disclaimer: string
+}

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail } from 'lucide-react'
+import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail, Workflow } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -9,6 +9,7 @@ const NAV = [
   { to: '/sim', label: 'Simulation', icon: FlaskConical },
   { to: '/ivivc', label: 'IVIVC', icon: Activity },
   { to: '/be', label: 'Bioequivalence', icon: Scale },
+  { to: '/pipeline', label: 'Study Pipeline', icon: Workflow },
 ]
 
 export function Sidebar({
