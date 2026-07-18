@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 from scipy.optimize import curve_fit
@@ -52,10 +53,22 @@ def fit_sparse_1cmt_oral(
     t = np.asarray(times, dtype=float)
     c = np.asarray(concentrations, dtype=float)
 
+    if t.ndim != 1 or c.ndim != 1:
+        raise ValueError("times and concentrations must be one-dimensional.")
     if len(t) < 3:
         raise ValueError("Sparse NCA requires at least 3 time-concentration pairs.")
     if len(t) != len(c):
         raise ValueError("times and concentrations must have the same length.")
+    if not np.all(np.isfinite(t)) or not np.all(np.isfinite(c)):
+        raise ValueError("times and concentrations must contain only finite values.")
+    if np.any(t < 0):
+        raise ValueError("times must be >= 0.")
+    if np.any(np.diff(t) <= 0):
+        raise ValueError("times must be strictly increasing.")
+    if np.any(c < 0):
+        raise ValueError("concentrations must be >= 0.")
+    if not np.any(c > 0):
+        raise ValueError("at least one concentration must be > 0.")
     if dose <= 0:
         raise ValueError("dose must be > 0.")
 
@@ -84,7 +97,7 @@ def fit_sparse_1cmt_oral(
     # Derived parameters
     if converged and pcov is not None:
         perr = np.sqrt(np.diag(pcov))
-        cl_se, vz_se, ka_se = perr[0], perr[1], perr[2]
+        cl_se, vz_se, ka_se = ((float(value) if np.isfinite(value) else None) for value in perr)
     else:
         cl_se = vz_se = ka_se = None
 
@@ -117,9 +130,9 @@ def fit_sparse_1cmt_oral(
         ka=float(ka),
         k=float(k),
         half_life=float(half_life),
-        CL_F_se=float(cl_se) if cl_se is not None else None,
-        Vz_F_se=float(vz_se) if vz_se is not None else None,
-        ka_se=float(ka_se) if ka_se is not None else None,
+        CL_F_se=cl_se,
+        Vz_F_se=vz_se,
+        ka_se=ka_se,
         AUClast=AUClast,
         AUCinf=AUCinf,
         Cmax=Cmax,
@@ -201,7 +214,7 @@ class SparseNCAResult:
 
     def summary(self) -> str:
         lines = [
-            f"Sparse NCA Results{f' — Subject {self.subject}' if self.subject else ''}",
+            f"Sparse NCA Results{f' - Subject {self.subject}' if self.subject else ''}",
             f"{'=' * 50}",
             f"Route: {self.route} | Dose: {self.dose:.4g} mg | Samples: {self.n_samples}",
             f"Converged: {'Yes' if self.converged else 'No'}",
@@ -283,7 +296,7 @@ class SparseNCAResult:
             )
         ax.set_xlabel("Time (h)")
         ax.set_ylabel("Concentration (ng/mL)")
-        title = f"Sparse NCA — {self.subject}" if self.subject else "Sparse NCA Fit"
+        title = f"Sparse NCA - {self.subject}" if self.subject else "Sparse NCA Fit"
         ax.set_title(title)
         ax.legend()
         ax.grid(True, alpha=0.3)
@@ -295,6 +308,30 @@ class SparseNCAResult:
             plt.show()
         if not output_path and not show:
             plt.close(fig)
+
+    def report(
+        self,
+        output_path: str | Path | None = None,
+        *,
+        format: str = "html",
+    ) -> str:
+        """Generate an HTML or Markdown sparse-NCA report.
+
+        Parameters
+        ----------
+        output_path : str | Path or None
+            Optional destination path.
+        format : str
+            Output format: ``"html"`` or ``"markdown"``.
+
+        Returns
+        -------
+        str
+            Rendered report content.
+        """
+        from openpkflow.nca.reporting import report_sparse_nca
+
+        return report_sparse_nca(self, output_path=output_path, format=format)
 
 
 def sparse_nca_bias_analysis(

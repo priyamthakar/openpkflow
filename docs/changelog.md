@@ -15,11 +15,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   configuration, serialized results, HTML report, and SHA-256 manifest.
 - **Pipeline API**: analyze, report, and audit-bundle FastAPI endpoints with
   schemas, adapter service, registration, and regression tests.
-
-### In progress
-
-- React pipeline page and Playwright coverage. The backend slice is on
-  `agent/pipeline-web-audit-bundle` and is not part of v2.6.0.
+- **Pipeline web workflow**: React page for optional dissolution, NCA, and paired-BE
+  stages with unified results, report downloads, and reproducibility audit ZIP export.
+- **Sparse NCA validation and reports**: fail-closed one-compartment oral fitting,
+  independent R `stats::nls` cross-validation on published `nlme::Theoph` data, and
+  HTML/Markdown screening reports.
+- **Sparse NCA web workflow**: analyze and report API endpoints plus a React page with
+  a published example, fit diagnostics, observed/fitted visualization, and explicit
+  model-informed screening scope.
 
 ---
 
@@ -166,8 +169,10 @@ validation, Trusted Publishing, and a fresh-install CLI smoke check.
 ## [1.5.0] -- 2026-05-22
 
 ### Added
-- `nca/sparse.py` -- `fit_sparse_1cmt_oral()`: model-informed NCA from 3-5 samples
-- `nca/sparse.py` -- `SparseNCAResult`: dataclass with MAP PK estimates
+- `nca/sparse.py` -- `fit_sparse_1cmt_oral()`: model-informed oral PK from 3+ samples,
+  fitted in concentration space with explicit convergence status
+- `nca/sparse.py` -- `SparseNCAResult`: model-informed estimates, diagnostics,
+  derived parameters, plots, and HTML/Markdown reports
 - `nca/sparse.py` -- `sparse_nca_bias_analysis()`: percent bias vs rich-sampling reference
 - 16 new tests in `tests/nca/test_sparse_nca.py`
 

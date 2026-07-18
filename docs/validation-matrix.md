@@ -4,7 +4,7 @@ OpenPKFlow uses executable reference tests to keep scientific claims tied to
 checked outputs. This page summarizes the external comparators and the local
 test files that support the current validation surface.
 
-Last updated: 2026-07-09
+Last updated: 2026-07-16
 
 See also [Positioning](positioning.md) and the full test-to-reference map in
 [`VALIDATION.md`](https://github.com/priyamthakar/openpkflow/blob/main/VALIDATION.md)
@@ -19,6 +19,7 @@ at the repository root.
 | NCA, oral theophylline | PKNCA 0.12.1 | Standard NCA parameter agreement on the bundled theophylline dataset | `tests/validation/test_nca_theoph_reference.py` |
 | Steady-state NCA | PKNCA 0.12.1 | Ctau, Cav, Cmax, Cmin, fluctuation, swing, and accumulation-style steady-state parameters | `tests/validation/test_nca_ss_reference.py` |
 | NCA | NonCompart 0.8.0 | Cross-checks against an independent R NCA implementation | `tests/validation/test_nca_noncompart_reference.py` |
+| Sparse oral model fit | R 4.6.0 `stats::nls` bounded-port fit on `nlme::Theoph` | CL_F, Vz_F, ka, and fitted concentrations for five samples from subject 1 | `tests/validation/test_sparse_nca_theoph_reference.py` |
 | Bioequivalence power | PowerTOST 1.5-7 | 2x2 crossover power and sample size; edge cases (GMR at 0.80/1.25 ~ alpha; monotone power in n) | `tests/validation/test_be_power_reference.py` |
 | Replicate BE screening | R/SAS-compatible scalar fixtures | GMR, CVwR, EMA-style scaled limits, and RSABE point-criterion screening; not full RSABE upper-bound parity | `tests/validation/test_be_replicate_reference.py` |
 | Dissolution bootstrap f2 | bootf2 0.4.1 | Bootstrap f2 behavior and confidence interval agreement | `tests/validation/test_dissolution_bootf2_reference.py` |

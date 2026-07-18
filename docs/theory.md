@@ -82,6 +82,22 @@ A_e(t) &= \sum_{i} V_{\text{urine},i} \cdot C_{\text{urine},i} \\
 \end{aligned}
 $$
 
+### Sparse oral model-informed fitting
+
+For sparse oral profiles, `fit_sparse_1cmt_oral()` fits the one-compartment model
+
+$$
+C(t) = \frac{D k_a}{V_z/F\,(k_a-k_e)}
+       \left(e^{-k_e t} - e^{-k_a t}\right),
+\qquad k_e = \frac{CL/F}{V_z/F}.
+$$
+
+The fitted parameters are $CL/F$, $V_z/F$, and $k_a$. AUCinf is then derived as
+$D/(CL/F)$; Cmax and Tmax are obtained from the fitted curve. These are
+structural-model estimates, not direct noncompartmental summaries. Sparse designs
+can be weakly identified, so convergence, standard errors, residuals, bounds, and
+study-specific sampling adequacy must be reviewed.
+
 ---
 
 ## PK Simulation: Analytical Solutions

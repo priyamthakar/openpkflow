@@ -1,7 +1,7 @@
 # Validation Cross-Reference
 
 OpenPKFlow validation cross-reference: maps every test to its regulatory guidance
-section or published reference. Last updated: 2026-07-11 (correction sprint).
+section or published reference. Last updated: 2026-07-16.
 
 > This document is for transparency purposes only. OpenPKFlow is open-source
 > research software. It does not constitute a validated system under 21 CFR Part 11
@@ -129,8 +129,9 @@ section or published reference. Last updated: 2026-07-11 (correction sprint).
 | `tests/nca/test_steady_state_urine.py` | `TestNCAStudyCdiscPP::test_to_cdisc_pp_still_works` | CDISC PP domain output includes USUBJID and PPTESTCD columns | CDISC SDTM Implementation Guide v3.4: Pharmacokinetic Parameters (PP) domain |
 | `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_recovers_known_parameters_from_dense` | Sparse 1-cmt oral model fitting recovers CL_F, Vz_F, ka within 15-30% from dense data | Internal consistency check; model-informed PK approach |
 | `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_auclast_close_to_dose_div_clf` | AUCinf = Dose/CL_F (exact relationship for a fully absorbed drug in a linear 1-cmt system) | Degenerate sanity check (by definition for linear 1-cmt system) |
-| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_with_only_three_points` | Sparse NCA converges with only 3 data points: AUCinf, Cmax, half_life all valid | Internal consistency check |
+| `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_with_only_three_points` | The bounded one-compartment oral fit can converge with 3 data points and return finite derived values | Internal consistency check; minimal designs have little diagnostic redundancy |
 | `tests/nca/test_sparse_nca.py` | `TestFitSparse1cmtOral::test_standard_errors_computed` | Standard errors of CL_F, Vz_F, ka are positive and finite from dense data | Internal consistency check (Fisher information matrix) |
+| `tests/validation/test_sparse_nca_theoph_reference.py` | `test_sparse_theoph_matches_r_nls_port_reference` | CL_F, Vz_F, ka, and fitted concentrations for subject 1 using five sparse samples | Independent R 4.6.0 `stats::nls` bounded-port fit on published `nlme::Theoph`; reproducible script in `scripts/sparse_nca_theoph_crossval.R` |
 | `tests/nca/test_nca_results.py` | `TestNCAResultToDict::test_clf_vzf_present_when_oral`, `test_cl_vz_present_when_iv` | Oral route serializes CL_F/Vz_F only; IV route serializes CL/Vz only; opposing fields are null | Pharmacometric correctness rule 3 (apparent vs absolute clearance labeling) |
 | `tests/nca/test_nca_results.py` | `TestNCASummaryResultsToCdiscPP::test_expected_columns`, `test_pptestcd_values_are_cdisc_codes`, `test_ppspec_is_plasma` | CDISC PP domain: correct column set, test codes (AUCLST, AUCIFO, CMAX, TMAX, LAMZ, LAMZHL, AUCPEP), PPSPEC = PLASMA | CDISC SDTM Implementation Guide v3.4: Pharmacokinetic Parameters (PP) domain |
 | `tests/nca/test_nca_results.py` | `TestNCASummaryResultsToCdiscPP::test_multiple_subjects_merge` | Two subjects produce 14 PP rows (7 parameters x 2 subjects) | CDISC SDTM Implementation Guide v3.4: PP domain, one row per subject per parameter |

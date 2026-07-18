@@ -17,10 +17,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
-  Current routers: nca, dissolution (incl. multi-media), sim, ivivc, be (incl. power/n).
+  Current routers: nca (including sparse), dissolution (including multi-media), sim,
+  ivivc, be (including power/sample size), and pipeline.
 - `webapp/` — React + Vite + Tailwind frontend.
-  Current pages: Home, NCA, Dissolution (single + multi-media tab), Simulation, IVIVC,
-  Bioequivalence (analysis + power tab).
+  Current pages: Home, NCA, Sparse NCA, Dissolution (single + multi-media tab),
+  Simulation, IVIVC, Bioequivalence (analysis + power tab), and Study Pipeline.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
@@ -254,9 +255,11 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge the completed pipeline API/audit-bundle and React page branch.
-2. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
-3. Then add sparse NCA / MAP adapters, SUPAC UI, and deployment in that order.
+1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
+   all CI and the Cloudflare preview are green at `bb5170c`.
+2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
+   recipe and all platform builds are green.
+3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.

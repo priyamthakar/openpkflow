@@ -16,12 +16,14 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `validation/` — cross-checks against published references
 
 **Web app layer (same as CLAUDE.md):**
-- `api/` — FastAPI REST adapter. Current routers: nca, dissolution (incl. multi-media),
-  sim, ivivc, be (incl. power / sample-size). Adding a new endpoint requires a schema
+- `api/` — FastAPI REST adapter. Current routers: nca (including sparse), dissolution
+  (including multi-media), sim, ivivc, be (including power / sample-size), and pipeline.
+  Adding a new endpoint requires a schema
   (schemas/), service (services/), router (routers/), and registration in main.py.
   Follow the existing nca router pattern exactly.
-- `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Dissolution
-  (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab).
+- `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
+  Dissolution (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab), and
+  Study Pipeline.
   See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 
@@ -253,9 +255,11 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge the completed pipeline API/audit-bundle and React page branch.
-2. Update conda-forge staged-recipes PR #33461 to the published v2.6.0 artifacts.
-3. Then add sparse NCA / MAP adapters, SUPAC UI, and deployment in that order.
+1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
+   all CI and the Cloudflare preview are green at `bb5170c`.
+2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
+   recipe and all platform builds are green.
+3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.

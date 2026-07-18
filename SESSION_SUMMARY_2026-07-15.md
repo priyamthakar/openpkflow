@@ -77,14 +77,21 @@ bundle writer to look for a non-existent friendly filename after upload handling
 the deep copy is required to preserve the actual temporary input path until the
 bundle is written.
 
-## External follow-up
+## Post-session status (updated 2026-07-16)
 
-`conda-forge/staged-recipes` PR #33461 is open with green checks but still targets
-OpenPKFlow 2.3.0. Update the version, source hash, and recipe metadata after this
-feature branch is settled. There is no OpenPKFlow conda-forge feedstock/package yet.
+- Pipeline PR #30 was completed and merged to `main` at `6087cd9`.
+- `conda-forge/staged-recipes` PR #33461 now targets OpenPKFlow 2.6.0 and passes
+  linter plus Linux, Windows, and macOS builds. It awaits maintainer review; no
+  OpenPKFlow feedstock/package exists yet.
+- Sparse NCA input hardening, independent R `stats::nls` validation, reports, API
+  endpoints, and React page are implemented in draft PR #31 on
+  `agent/sparse-nca-web`.
+- The full documentation/takeover sync is committed at `bb5170c`; all PR #31 CI and
+  Cloudflare preview checks are green, with no reviews or actionable comments.
 
 ## Recommended next session
 
-Review and commit the 2026-07-16 pipeline React changes, push the branch, update
-draft PR #30, and merge after CI. Do not start sparse NCA, MAP PK, or SUPAC UI until
-the pipeline page and its browser tests are merged.
+Review draft PR #31 and merge it after human/scientific review. Automated checks
+are already green. Then begin the
+MAP individual-PK API/page slice. Do not recreate the conda-forge recipe, and keep
+SUPAC UI work behind the MAP slice.

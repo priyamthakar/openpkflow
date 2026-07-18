@@ -20,6 +20,9 @@ Non-Compartmental Analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F.
 | `clearance_volume_parameters(dose, AUCinf, lambda_z, route)` | function | CL/F, Vz/F (oral) or CL, Vz (IV) |
 | `AUCResult` | dataclass | AUC result with method tag |
 | `LambdaZResult` | dataclass | lambda\_z with adj-R2, selected time points |
+| `fit_sparse_1cmt_oral(times, concentrations, dose, ...)` | function | Fit a bounded one-compartment oral model to three or more samples |
+| `SparseNCAResult` | dataclass | Fitted CL_F, Vz_F, ka, diagnostics, derived parameters, plot, and report methods |
+| `sparse_nca_bias_analysis(sparse_result, rich_result)` | function | Percent-bias comparison against a rich-profile NCA result |
 
 ## Parameter naming conventions
 
@@ -56,9 +59,26 @@ CSV string-BLQ notation (`"<0.5"`) is parsed automatically.
 > intervals that do affect the trapezoidal sum. For NCA, `"drop"` is the safer choice
 > unless FDA guidance for the specific analysis permits zero substitution.
 
+## Sparse oral fitting
+
+`fit_sparse_1cmt_oral()` estimates `CL_F`, `Vz_F`, and `ka` with SciPy bounded
+nonlinear least squares. It rejects non-finite values, negative values,
+non-increasing times, all-zero profiles, mismatched arrays, fewer than three samples,
+and non-positive doses before fitting.
+
+`SparseNCAResult.report()` supports HTML and Markdown. The reports identify the
+workflow as model-informed screening and include the mandatory regulatory disclaimer.
+The fit is oral-only and is not a replacement for rich-sampling NCA or a primary
+regulatory analysis. See the [sparse oral PK tutorial](../tutorials/sparse-nca.md).
+
 ## Validation
 
 The NCA module is cross-validated against PKNCA 0.12.1 (Denney et al., 2015) on the
 12-subject R nlme::Theoph theophylline dataset. AUClast matches within 2% relative
 tolerance for every subject. Cmax matches exactly. See `tests/validation/` and
 `scripts/pknca_theoph_crossval.R`.
+
+The sparse oral fit is independently cross-checked against R 4.6.0 `stats::nls`
+using five observations from published `nlme::Theoph` subject 1. See
+`tests/validation/test_sparse_nca_theoph_reference.py` and
+`scripts/sparse_nca_theoph_crossval.R`.

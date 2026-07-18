@@ -49,6 +49,9 @@ class TestFitSparse1cmtOral:
         assert result.AUCinf > 0
         assert result.Cmax > 0
         assert result.half_life > 0
+        assert result.CL_F_se is None
+        assert result.Vz_F_se is None
+        assert result.ka_se is None
 
     def test_with_five_points(self):
         dose = 150.0
@@ -80,6 +83,21 @@ class TestFitSparse1cmtOral:
 
         with pytest.raises(ValueError, match="dose must be > 0"):
             fit_sparse_1cmt_oral(times, conc, 0.0)
+
+    @pytest.mark.parametrize(
+        ("times", "conc", "message"),
+        [
+            ([1.0, 2.0, np.nan], [5.0, 3.0, 1.0], "finite"),
+            ([1.0, 2.0, 4.0], [5.0, np.inf, 1.0], "finite"),
+            ([-1.0, 2.0, 4.0], [5.0, 3.0, 1.0], ">= 0"),
+            ([1.0, 1.0, 4.0], [5.0, 3.0, 1.0], "strictly increasing"),
+            ([1.0, 2.0, 4.0], [5.0, -1.0, 1.0], ">= 0"),
+            ([1.0, 2.0, 4.0], [0.0, 0.0, 0.0], "at least one"),
+        ],
+    )
+    def test_rejects_invalid_profile_values(self, times, conc, message):
+        with pytest.raises(ValueError, match=message):
+            fit_sparse_1cmt_oral(times, conc, 100.0)
 
     def test_cmax_greater_than_max_observed(self):
         dose = 100.0
@@ -144,6 +162,20 @@ class TestFitSparse1cmtOral:
         result.plot(str(out))
         assert out.exists()
         assert out.stat().st_size > 1000
+
+    @pytest.mark.parametrize(("format", "suffix"), [("html", ".html"), ("markdown", ".md")])
+    def test_report_contains_scope_disclaimer(self, tmp_path, format, suffix):
+        """Sparse reports must retain model scope and the regulatory-review disclaimer."""
+        times = np.array([1.0, 3.0, 8.0, 12.0])
+        conc = c_1cmt_oral(times, 100.0, 5.0, 50.0, 0.5)
+        result = fit_sparse_1cmt_oral(times, conc, 100.0)
+        out = tmp_path / f"sparse{suffix}"
+
+        rendered = result.report(out, format=format)
+
+        assert out.read_text(encoding="utf-8") == rendered
+        assert "model-informed screening" in rendered
+        assert "Final regulatory interpretation" in rendered
 
     def test_converged_false_on_bad_data(self):
         # Impossibly high values with random noise that can't fit a 1-cmt model

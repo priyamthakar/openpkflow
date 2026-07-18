@@ -24,8 +24,12 @@ print(within_pct(recovered_cl, true_cl, pct=5.0))  # True
 
 ## Validation strategy
 
-OpenPKFlow validation tests simulate synthetic PK profiles from exact analytical
-equations (where truth is known), run NCA on the simulated data, and verify that
-recovered parameters match the true inputs within a specified tolerance.
+OpenPKFlow combines independent external comparators with analytical and internal
+checks. Examples include PKNCA, NonCompart, Phoenix public outputs, PowerTOST,
+`bootf2`, and R `stats::nls`, alongside exact closed-form PK profiles and
+hand-checkable degenerate cases.
 
-See `tests/validation/` for the full test suite.
+See the [validation matrix](../validation-matrix.md) for comparator scope and test
+locations, and `VALIDATION.md` at the repository root for the detailed
+test-to-reference map. Comparator agreement guards against calculation drift; it
+does not by itself make OpenPKFlow a validated regulated system.

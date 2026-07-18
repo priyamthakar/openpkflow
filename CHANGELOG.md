@@ -15,11 +15,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   configuration, serialized results, HTML report, and SHA-256 manifest.
 - **Pipeline API**: analyze, report, and audit-bundle FastAPI endpoints with
   schemas, adapter service, registration, and regression tests.
-
-### In progress
-
-- React pipeline page and Playwright coverage. The backend slice is on
-  `agent/pipeline-web-audit-bundle` and is not part of v2.6.0.
+- **Pipeline web workflow**: React page for optional dissolution, NCA, and paired-BE
+  stages with unified results, report downloads, and reproducibility audit ZIP export.
+- **Sparse NCA validation and reports**: fail-closed one-compartment oral fitting,
+  independent R `stats::nls` cross-validation on published `nlme::Theoph` data, and
+  HTML/Markdown screening reports.
+- **Sparse NCA web workflow**: analyze and report API endpoints plus a React page with
+  a published example, fit diagnostics, observed/fitted visualization, and explicit
+  model-informed screening scope.
 
 ---
 
@@ -261,12 +264,13 @@ validation, Trusted Publishing, and a fresh-install CLI smoke check.
 ## [1.5.0] — 2026-05-22
 
 ### Added
-- `nca/sparse.py` — `fit_sparse_1cmt_oral()`: model-informed NCA from 3-5 samples; fits a
-  1-compartment oral model via scipy `curve_fit` in log-space; recovers CL_F, Vz_F, ka with
-  standard errors from the covariance matrix; handles non-convergence gracefully
-- `nca/sparse.py` — `SparseNCAResult`: dataclass with MAP PK estimates, derived parameters
-  (AUCinf, AUClast, Cmax, Tmax, half-life, accumulation ratio), standard errors, convergence flag,
-  `summary()`, `to_dict()`, `plot()` methods
+- `nca/sparse.py` — `fit_sparse_1cmt_oral()`: model-informed oral PK from 3+ samples;
+  fits a 1-compartment oral model via scipy `curve_fit` in concentration space;
+  estimates CL_F, Vz_F, and ka with covariance-based standard errors and explicit
+  convergence status
+- `nca/sparse.py` — `SparseNCAResult`: dataclass with model-informed PK estimates,
+  derived parameters (AUCinf, AUClast, Cmax, Tmax, half-life), standard errors,
+  convergence flag, `summary()`, `to_dict()`, `plot()`, and `report()` methods
 - `nca/sparse.py` — `sparse_nca_bias_analysis()`: computes percent bias and percent error of
   sparse vs. rich-sampling reference for AUCinf, Cmax, CL_F
 - `nca/__init__.py` — exports `fit_sparse_1cmt_oral`, `SparseNCAResult`, `sparse_nca_bias_analysis`
