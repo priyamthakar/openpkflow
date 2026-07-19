@@ -18,8 +18,9 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 **Web app layer (same as CLAUDE.md):**
 - `api/` — FastAPI REST adapter. Current routers: nca (including sparse), dissolution
-  (including multi-media), sim, ivivc, be (including power / sample-size), and pipeline.
-  Adding a new endpoint requires a schema
+  (including multi-media), sim, ivivc, be (including power / sample-size and formal
+  `be/anova`), bayes (`bayes/map`), supac (classify + alcohol), and pipeline —
+  27 endpoints. Adding a new endpoint requires a schema
   (schemas/), service (services/), router (routers/), and registration in main.py.
   Follow the existing nca router pattern exactly.
 - `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
@@ -27,6 +28,8 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Formal BE ANOVA, MAP Individual PK, SUPAC & Alcohol Screening, and Study Pipeline.
   See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
+- Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
+  on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and CORS/build wiring.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
 
@@ -257,18 +260,20 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
+PRs #31 (`74c070b`), #32 (`486788c`), and #33 (`bb0d16a`) are all merged to `main` and
+unreleased. The API and webapp are deployed and live.
+
 **Immediate next work (in order):**
-1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
-2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
-   open as PR #32 against `main`, CI running.
+1. **RSABE validation.** Confirm the `replicateBE::rds07` / Pumas `SLTGSF2020_DS07`
+   lead in `docs/decisions/rsabe-validation-search.md`, reproduce FDA RSABE model
+   fitting, sWR, upper confidence bound, point-estimate constraint, fallback
+   behavior, and final decision, then pin as a fixture. Only then promote RSABE from
+   NOT_EVALUABLE. Validation outranks new features.
+2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
+   layout — currently manual-verified only.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
-4. Find public partial-replicate datasets to validate FDA RSABE model fitting,
-   sWR, upper confidence bound, point-estimate constraint, fallback behavior,
-   and final decision; then promote RSABE from NOT_EVALUABLE to PASS/FAIL.
-5. Deploy the API/static webapp and document VITE_API_URL, health checks,
-   file-size limits, and rollback steps, once the above PR is merged.
-6. Keep validation discipline; do not extend frozen `pop/estimation/`.
+4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 

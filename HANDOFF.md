@@ -4,29 +4,45 @@
 
 ## Current state
 
-- Latest release: **v2.6.0**, published on 2026-07-15.
-- PR #31 (sparse NCA) **merged** to `main` as squash commit `74c070b` on 2026-07-16.
-  It is no longer pending review; the local `agent/sparse-nca-web` commits it was
-  opened from are now superseded.
-- Working branch: **`agent/map-supac-web`**, rebased onto `origin/main` (`74c070b`).
-  The pre-session tip of this branch (`adcf052`) had a tree byte-identical to
-  `74c070b` (verified via `git diff --quiet`), so the rebase (`git rebase --onto
-  origin/main adcf052 agent/map-supac-web`) dropped the four now-redundant
-  sparse-NCA-era commits with zero conflicts, keeping only this session's new work.
-- All session changes (formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol
-  hardening) merged to `main` as squash commit `486788c` via
-  [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) on 2026-07-19.
-- Frontend design polish lives on `agent/web-design-polish`, a single commit rebased
-  directly onto `main` (`git rebase --onto origin/main e1260c5` — PR #32 was squash
-  merged, so replaying the whole branch would have re-applied its already-merged
-  commits). Contents: theme-wired PKChart toolbar, sidebar groups + collapse,
-  Ctrl+Enter run shortcut across all 9 analysis pages, persisted split-pane width,
-  EmptyResults component, offline health badge, CSS cleanup (chart tokens, accent-fg
-  token, deduplicated overrides), plus a mobile/Android pass and three PKChart defect
-  fixes found by live verification (one-way legend hiding, colorless PNG export, PNG
-  export capturing a legend swatch). tsc clean, 14/14 Playwright pass post-rebase.
-  Note: no automated coverage guards the new chart/sidebar/mobile behaviour.
+- Latest release: **v2.6.0**, published on 2026-07-15. Everything below is merged to
+  `main` but **unreleased** — no version bump yet; see `CHANGELOG.md` `[Unreleased]`.
+- `main` is at `bb0d16a`. No open PRs. Working tree clean; no active feature branch.
+- Merged this cycle, all squash commits:
+  - [PR #31](https://github.com/priyamthakar/openpkflow/pull/31) sparse NCA -> `74c070b` (2026-07-16)
+  - [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol -> `486788c` (2026-07-19)
+  - [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) frontend design polish + mobile pass -> `bb0d16a` (2026-07-19)
+- **Squash-merge caveat for stacked branches.** Because every PR lands squashed, a
+  branch built on a merged branch cannot be rebased with a plain `git rebase main` —
+  git replays the already-merged commits and conflicts. Use
+  `git rebase --onto origin/main <last-merged-commit>` to replay only the new work.
+  This is how `agent/web-design-polish` was landed.
+- The three merged agent branches (`agent/sparse-nca-web`, `agent/map-supac-web`,
+  `agent/web-design-polish`) are superseded. Their content is in `main` via squash,
+  so `git merge-base --is-ancestor` reports them as *not* merged — compare trees with
+  `git diff origin/main origin/<branch>` instead. Safe to delete.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
+  (Unrelated to this repo's PR #33 despite the similar number.)
+- **Known gap:** no automated coverage guards the new chart, sidebar, or mobile
+  behaviour. The 14 Playwright tests cover the older paste-run flows only.
+
+## Deployment (live)
+
+| Piece | URL | Host | Trigger |
+| --- | --- | --- | --- |
+| Frontend (`webapp/`) | https://openpkflow.priyamthakar1.workers.dev | Cloudflare Workers | Workers Builds, auto on push to `main` |
+| Backend (`api/`) | https://openpkflow.onrender.com | Render | `render.yaml`, auto on push to `main` |
+| Docs | GitHub Pages (`gh-pages` branch) | GitHub | `.github/workflows/docs.yml` |
+
+- Both app deploys are automatic on merge to `main`; there is no manual deploy step.
+- `webapp/.env.production` bakes `VITE_API_URL=https://openpkflow.onrender.com` into the
+  bundle at build time. Changing the Render service name means updating that file.
+- CORS lives in `render.yaml` as `OPENPKFLOW_ALLOWED_ORIGINS` (read by `api/app/config.py`).
+  It must list the Workers origin, or the deployed frontend gets blocked.
+- `wrangler.toml` serves `webapp/dist` as SPA assets. `dist/` is gitignored, so the
+  build command is configured in the Cloudflare Workers Builds dashboard, not the repo.
+- Verifying a deploy: the frontend is code-split, so grepping only `assets/index-*.js`
+  will miss page-level changes. Check the relevant chunk (`PKChart-*.js`, `TopBar-*.js`,
+  etc.). Confirm the backend with `curl https://openpkflow.onrender.com/openapi.json`.
 - Full non-MCMC suite run this session: 1302 passed, 1 pre-existing unrelated failure
   (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
   a Hypothesis-found float-underflow edge case at a subnormal double; `nca/` was not
@@ -242,16 +258,22 @@ docs/decisions/
 
 1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. See `docs/decisions/rsabe-validation-search.md` for the current dataset search: the leading candidate is `replicateBE::rds07` (public-domain, Schutz et al. 2020 AAPS J 22:44) cross-checked against a Pumas.ai FDA-style worked example on what appears to be the same dataset (`SLTGSF2020_DS07`) — not yet confirmed or wired into a test.
 
-2. **PR #32** (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening) is open against `main` and awaits review/CI/merge.
+2. **Conda-forge PR #33461** still awaits maintainer review.
 
-3. **Conda-forge PR #33461** still awaits maintainer review.
+3. **No UI regression coverage** for the PKChart toolbar, sidebar collapse, or mobile
+   layout shipped in PR #33. All three were verified manually in a live browser only.
 
 ## Resume here
 
-1. PR #32 is open against `main`. Once merged, update this section and delete the resolved item above.
-2. Await conda-forge maintainer action on PR #33461.
-3. RSABE: pursue the `replicateBE::rds07` / Pumas `SLTGSF2020_DS07` lead in `docs/decisions/rsabe-validation-search.md` — confirm the dataset identity, reproduce CVwR and Howe's approximate statistic, and pin as a fixture if they match.
-4. Deploy the API/static webapp once the PR above merges and conda-forge clears.
+1. **RSABE validation — the priority.** Pursue the `replicateBE::rds07` / Pumas
+   `SLTGSF2020_DS07` lead in `docs/decisions/rsabe-validation-search.md`: confirm the
+   dataset identity, reproduce CVwR and Howe's approximate statistic, and pin as a
+   fixture if they match. This is the only thing keeping `be/rsabe.py` at
+   `NOT_EVALUABLE`. Per CLAUDE.md, validation outranks new features.
+2. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
+   (legend hide-and-restore is the highest value — it regressed once already).
+3. Await conda-forge maintainer action on PR #33461.
+4. Delete the three superseded merged agent branches (see Current state).
 5. Do not extend frozen `pop/estimation/`.
 
 ## Commands

@@ -27,7 +27,8 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Bioequivalence:** paired 2x2 TOST plus formal complete balanced TR/RT 2x2 crossover ANOVA with ANOVA table, GMR, confidence interval, and residual CV; research-grade replicate screening remains separate
 - **Report generation:** Markdown, HTML, PDF, Word
 - **Study pipeline and web app:** optional dissolution, NCA, and paired-BE orchestration;
-  unified reports; reproducibility audit ZIP; React pages backed by a thin FastAPI adapter
+  unified reports; reproducibility audit ZIP; React pages backed by a thin FastAPI adapter.
+  **Try it: [openpkflow.priyamthakar1.workers.dev](https://openpkflow.priyamthakar1.workers.dev)**
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
 - **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
@@ -388,7 +389,7 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Validation-gated; `NOT_EVALUABLE` until external fixtures exist |
-| Web app (`api/` + `webapp/`) | Stable core pages; pipeline (PR #30) and sparse NCA (PR #31) merged; formal BE ANOVA, MAP PK, and SUPAC/alcohol pages in PR #32 |
+| Web app (`api/` + `webapp/`) | Stable; 11 pages / 27 endpoints. Pipeline (#30), sparse NCA (#31), formal BE ANOVA + MAP PK + SUPAC/alcohol (#32), and design polish (#33) all merged. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

@@ -37,6 +37,35 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reports, CLI command, API endpoints, React page, and independent R cross-check fixture.
 - **FDA partial-replicate RSABE validation gate**: explicit `NOT_EVALUABLE` result until
   external model and upper-confidence-bound reference validation is completed.
+- **Webapp design system**: chart series colors wired to `--chart-1` through `--chart-5`
+  theme tokens with per-theme light/dark values, plus an `--accent-fg` token.
+- **PKChart toolbar**: point-marker toggle, small-multiples "Panels" view, and PNG export
+  alongside the existing semi-log toggle.
+- **Webapp navigation**: sidebar grouped into Overview / PK Analysis / Formulation & BE /
+  Workflow, with a desktop collapse to a 60 px icon rail persisted to localStorage.
+- **Webapp usability**: shared `EmptyResults` placeholder, Ctrl/Cmd+Enter run shortcut
+  across the analysis pages, split-pane width persisted across navigation, and an
+  "engine offline" health badge when the API is unreachable.
+- **Production deployment**: frontend on Cloudflare Workers and backend on Render, both
+  auto-deploying on merge to `main`. URLs and wiring documented in `HANDOFF.md`.
+
+### Fixed
+
+- **Chart legend toggling was one-way**: hidden series were filtered out before render,
+  so Recharts dropped the legend entry with the line and left no way to restore it.
+  Series now render with the `hide` prop; the axis domain uses visible series only.
+- **PNG export produced colorless charts**: a serialized SVG has no `:root`, so
+  `var(--chart-N)` strokes resolved to nothing. Tokens are resolved to literal colors
+  on the clone before serialization.
+- **PNG export captured a legend swatch**: legend icons are also `.recharts-surface` and
+  precede the plot in DOM order, so exports with 2+ series produced a 14x14 image.
+  The selector is now scoped to `.recharts-wrapper > svg`.
+- **Mobile drawer lost its labels**: the persisted desktop sidebar-collapse flag removed
+  nav labels from the DOM at all widths. Collapse is now gated with `lg:` utilities.
+- **Dark-mode form controls**: removed a global rule that forced `color-scheme: light`
+  on inputs regardless of theme, plus a duplicated override block.
+- **Light-theme primary buttons**: used near-invisible dark text on the blue accent;
+  now use the `--accent-fg` token.
 
 ---
 
