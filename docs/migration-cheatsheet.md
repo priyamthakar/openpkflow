@@ -54,7 +54,7 @@ results.report("nca_report.html")
 | Sample size (power 80%) | `be_sample_size(gmr=0.95, cv=0.20)` | Sequential search |
 | Power for given N | `be_tost_power(gmr=0.95, cv=0.20, n=24)` | Non-central t exact method |
 | BE report | `result.report("be_report.html")` | HTML with CI bar chart |
-| Export to BioEqPy | `study.to_bioeqpy_csv()` | For RSABE/replicate designs |
+| Formal complete balanced 2x2 ANOVA | `formal_be_anova(long_data, parameter="AUCinf")` | Requires complete balanced TR/RT long-format data |
 
 ---
 
@@ -179,7 +179,9 @@ result.report("dissolution_report.html")
 
 **Reports are static HTML/PDF/DOCX/MD:** No interactive dashboards. All report templates are Jinja2 and can be customized.
 
-**RSABE / replicate BE:** Not in OpenPKFlow. Use the companion BioEqPy package with `to_bioeqpy_csv()` export.
+**RSABE / replicate BE:** OpenPKFlow retains research-grade replicate screening. FDA
+partial-replicate RSABE is currently a fail-closed `NOT_EVALUABLE` validation gate;
+EMA ABEL and full-replicate RSABE are not supported.
 
 ---
 

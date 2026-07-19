@@ -1,15 +1,18 @@
 import { NavLink } from 'react-router-dom'
-import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail, Workflow, ScatterChart } from 'lucide-react'
+import { FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail, Workflow, ScatterChart, Brain, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { to: '/', label: 'Home', icon: Home, exact: true },
   { to: '/nca', label: 'NCA', icon: LineChart, exact: true },
   { to: '/nca/sparse', label: 'Sparse NCA', icon: ScatterChart },
+  { to: '/bayes/map', label: 'MAP Individual PK', icon: Brain },
   { to: '/dissolution', label: 'Dissolution', icon: Waves },
   { to: '/sim', label: 'Simulation', icon: FlaskConical },
   { to: '/ivivc', label: 'IVIVC', icon: Activity },
   { to: '/be', label: 'Bioequivalence', icon: Scale },
+  { to: '/be/anova', label: 'Formal BE ANOVA', icon: Scale },
+  { to: '/supac', label: 'SUPAC & Alcohol', icon: ShieldCheck },
   { to: '/pipeline', label: 'Study Pipeline', icon: Workflow },
 ]
 

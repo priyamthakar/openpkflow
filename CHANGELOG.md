@@ -23,6 +23,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Sparse NCA web workflow**: analyze and report API endpoints plus a React page with
   a published example, fit diagnostics, observed/fitted visualization, and explicit
   model-informed screening scope.
+- **MAP individual PK API**: analyze and report FastAPI endpoints over the scipy
+  L-BFGS-B MAP engine, with schemas, adapter service, registration, and regression tests.
+- **MAP individual PK web workflow**: React page supporting oral and IV-bolus routes,
+  MAP parameter/SE diagnostics, observed/predicted visualization, downloadable reports,
+  and fail-closed screening scope.
+- **SUPAC-IR screening API**: classify endpoint for SUPAC-IR composition-change level
+  screening by excipient function, plus an alcohol dose-dumping f2 endpoint.
+- **SUPAC & alcohol web workflow**: React page with SUPAC-IR level classification and
+  alcohol dose-dumping f2 screening, both with prominent scope caveats.
+- **Formal complete balanced 2x2 BE ANOVA**: clean-room long-format TR/RT core with
+  fail-closed design validation, ANOVA table, treatment contrast, residual CV, HTML/Markdown
+  reports, CLI command, API endpoints, React page, and independent R cross-check fixture.
+- **FDA partial-replicate RSABE validation gate**: explicit `NOT_EVALUABLE` result until
+  external model and upper-confidence-bound reference validation is completed.
 
 ---
 

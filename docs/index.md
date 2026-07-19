@@ -19,7 +19,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 |--------|---------------|
 | `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, multi-media, SUPAC screening, alcohol dose-dumping f2, model fitting |
 | `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, plus model-informed sparse oral screening |
-| `be` | 2x2 crossover TOST, power / sample size, GMR + 90% CI, research-grade replicate screening, BioEqPy export |
+| `be` | Paired 2x2 TOST, formal complete balanced TR/RT 2x2 ANOVA, power / sample size, research-grade replicate screening |
 | `bayes` | MAP individual PK (scipy), full Bayesian posterior (PyMC), Bayesian 2x2 crossover BE |
 | `pop` | FOCE-I and SAEM estimation (1/2-cmt; frozen for extension), GOF plots, VPC, NONMEM-style dataset helpers |
 | `sim` | 1- and 2-compartment IV bolus/infusion/oral, transit absorption, steady-state metrics, repeated dosing, superposition |
@@ -41,11 +41,12 @@ generation.
 
 OpenPKFlow is not a substitute for qualified regulatory judgement, validated
 commercial platforms, or jurisdiction-specific submission workflows. Research
-features, including replicate bioequivalence screening, should be treated as
+features, including replicate bioequivalence screening and validation-gated FDA RSABE,
+should be treated as
 decision-support until independently validated against the required SAS/R or
 agency-specific reference process.
 
-Full scope language, pipeline focus, PopPK / RSABE boundaries, and validation
+Full scope language, pipeline focus, PopPK / RSABE validation boundaries, and validation
 links: [Positioning](positioning.md).
 
 ---

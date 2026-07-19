@@ -7,8 +7,9 @@ dissolution -> IVIVC -> NCA -> BE -> reports. Not another NLME engine — those 
 The gap we fill is the CRO/CDMO bench scientist who needs clean, auditable, shareable outputs
 without WinNonlin or a SAS programmer.
 
-Formal bioequivalence statistics live in the companion BioEqPy package. OpenPKFlow
-keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
+OpenPKFlow owns paired TOST convenience analysis and formal complete balanced TR/RT
+2x2 crossover ANOVA. FDA partial-replicate RSABE is conditional on independent external
+validation; EMA ABEL, full-replicate RSABE, and unvalidated formal designs remain out of scope.
 
 ---
 
@@ -20,7 +21,8 @@ keeps only a convenience paired-TOST layer plus BioEqPy-ready exports.
 | Mahalanobis Statistical Distance (MSD) / f2 alternatives | OpenPKFlow ✅ |
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | OpenPKFlow ✅ |
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
-| Formal RSABE / replicate-design BE | Planned in BioEqPy (companion package) |
+| Formal complete balanced 2x2 ANOVA | OpenPKFlow: implemented with independent R cross-check ✅ |
+| FDA partial-replicate RSABE | Validation-gated in OpenPKFlow; NOT_EVALUABLE until parity fixtures exist 🔒 |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse oral PK (model-informed fit from 3+ samples) | OpenPKFlow ✅ screening |
 

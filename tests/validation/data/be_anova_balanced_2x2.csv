@@ -1,0 +1,9 @@
+subject,sequence,period,treatment,AUCinf
+S1,TR,1,T,110
+S1,TR,2,R,100
+S2,TR,1,T,120
+S2,TR,2,R,109
+S3,RT,1,R,100
+S3,RT,2,T,108
+S4,RT,1,R,90
+S4,RT,2,T,101

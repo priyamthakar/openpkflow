@@ -1,150 +1,209 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-16
+**Last updated:** 2026-07-19
 
 ## Current state
 
 - Latest release: **v2.6.0**, published on 2026-07-15.
 - Main post-release commit: `6087cd9` (`feat(pipeline): add web workflow and reproducibility audit bundle (#30)`).
-- GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
-- PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
-- Working branch: `agent/sparse-nca-web`.
-- Draft PR: <https://github.com/priyamthakar/openpkflow/pull/31>
-- Verified baseline: `bb5170c` (`docs(project): synchronize sparse and pipeline documentation`).
-- At that baseline, PR #31 is mergeable. Python 3.10/3.11/3.12, API, frontend, Python 3.13
-  Linux/Windows smoke, type check, pre-commit, and Cloudflare Workers preview checks
-  are green. There are no reviews or actionable comments as of this update.
-- Pipeline API/page/audit bundle: merged in PR #30.
-- Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes the linter plus
-  Linux, Windows, and macOS builds; it awaits maintainer review.
-- Active post-release work: sparse NCA external validation, reports, API endpoints,
-  React page, and synchronized user/developer documentation are complete on the
-  working branch and awaiting review/merge.
-- Detailed session record: `SESSION_SUMMARY_2026-07-15.md`.
+- Working branch: **`agent/map-supac-web`** (current, all changes uncommitted).
+- The sparse NCA branch `agent/sparse-nca-web` (PR #31) was rebased/merged locally but its commits are already ancestors of `agent/map-supac-web`. PR #31 may need re-targeting.
+- Verified baseline: `bb5170c` is an ancestor but not the HEAD of this branch.
+- Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
 
-## v2.6.0 release verification
+## What was done this session (agent/map-supac-web)
 
-- Standard suite: 1275 passed, 22 deselected.
-- Targeted affected suite: 291 passed.
-- API suite: 27 passed before the post-release pipeline endpoints were added.
-- Browser suite: 8 Playwright tests passed.
-- Strict mypy: 80 non-frozen source files passed. Frozen `pop/estimation/` has an
-  explicit configuration override and remains bug-fix only.
-- Ruff, pre-commit, strict MkDocs, package build, and Twine checks passed.
-- GitHub Actions main CI and tag publish workflows succeeded.
-- Fresh install of `openpkflow==2.6.0` verified `openpkflow version` and
-  `openpkflow similarity`.
+### New features
 
-## Pipeline slice: merged and verified
+**Formal complete balanced TR/RT 2x2 crossover ANOVA** (`src/openpkflow/be/formal.py`)
+- Full ANOVA source table with correct sequence denominator (subject-within-sequence)
+- GMR, 90% CI, residual MSE, intra-subject CV, PASS/FAIL decision
+- Fail-closed for: missing columns, NaN/Inf, non-positive values, missing sequences, duplicate periods, incomplete subjects, unbalanced allocation, misaligned treatment/period/sequence, fewer than 4 subjects
+- Pinned independent R cross-check: `treatment_difference=0.095931482001`, `residual_mse=0.000183925324`, `sequence_f_subject_within_sequence=2.447340272021`
 
-The branch adds an additive core/API slice without adding pharmacometric math to
-the adapter layer.
+**FDA partial-replicate RSABE gate** (`src/openpkflow/be/rsabe.py`)
+- Always returns `NOT_EVALUABLE` with `EXTERNAL_REFERENCE_REQUIRED`
+- Validates TRR/RTR/RRT sequence presence only
+- Must not be promoted to PASS/FAIL without a pinned external observed-data comparator
 
-- Core `StudyPipelineResult.audit_bundle()` writes a ZIP containing normalized
-  inputs, `config.json`, `results.json`, `report.html`, and a SHA-256 manifest.
-- FastAPI endpoints:
-  - `POST /api/pipeline/analyze`
-  - `POST /api/pipeline/report`
-  - `POST /api/pipeline/audit-bundle`
-- Pipeline schema, service, router registration, and API tests follow the existing
-  adapter pattern.
-- React `/pipeline` page supports one to three stage uploads, explicit dissolution,
-  NCA/BLQ, and paired-BE options, unified stage results, report download, and audit
-  ZIP download.
-- Typed frontend contracts/API wrappers, route/sidebar registration, and mocked
-  Playwright coverage are included.
-- Verification on 2026-07-15:
-  - `python -m pytest tests/pipeline -q` -> 12 passed
-  - pipeline API tests -> 3 passed
-  - full API suite -> 30 passed
-  - targeted Ruff -> passed
-  - targeted mypy -> passed (7 source files)
-  - strict MkDocs build -> passed
-- Verification on 2026-07-16 after the React page was added:
-  - frontend ESLint -> passed
-  - frontend production build -> passed
-  - Playwright -> 9 passed
-  - full API suite -> 30 passed
-  - pipeline core suite -> 12 passed
-  - targeted Ruff and strict mypy -> passed
-  - standard Python suite -> 1276 passed, 22 deselected
-  - package build and Twine checks -> passed
+**Formal ANOVA reporting** (`src/openpkflow/be/formal_reporting.py`)
+- HTML + Markdown reports with ANOVA table, treatment contrast, required disclaimer
 
-## Sparse NCA branch: implemented and verified
+**CLI: `openpkflow be anova`** — runs formal ANOVA from CSV with configurable column names
 
-- Core input validation rejects non-finite values, negative values, non-increasing
-  times, all-zero profiles, and non-positive doses before nonlinear fitting.
-- Independent cross-validation matches R 4.6.0 `stats::nls` on five samples from
-  published `nlme::Theoph` subject 1 for CL_F, Vz_F, ka, and fitted concentrations.
-- Reproducible reference script: `scripts/sparse_nca_theoph_crossval.R`.
-- Core HTML/Markdown screening reports include the required disclaimer and explicit
-  model-informed/non-primary scope caveat.
-- API endpoints: `POST /api/nca/sparse/analyze` and `/api/nca/sparse/report`.
-- React `/nca/sparse` page provides a published Theoph example, paste grid, fit
-  diagnostics, observed/fitted chart and table, and report downloads.
-- Verification on 2026-07-16:
-  - frontend ESLint and production build -> passed
-  - Playwright -> 10 passed
-  - full API suite -> 34 passed
-  - NCA plus validation suites -> 517 passed, 22 deselected
-  - targeted Ruff and strict mypy -> passed
-  - standard Python suite -> 1285 passed, 22 deselected
-  - package build and Twine checks -> passed
-  - strict MkDocs build and repository-wide pre-commit -> passed
-  - GitHub CI and Cloudflare Workers branch preview -> passed at `bb5170c`
+**API endpoints** (all registered in `api/app/main.py`):
+- `POST /api/be/anova/analyze` returns `FormalBeResponse` (parameter, design, GMR, CI, ANOVA table, decision)
+- `POST /api/be/anova/report` streams HTML/Markdown report download
+- `POST /api/bayes/map/analyze` returns `MapPkResponse` (CL_F/Vz_F/ka, CL/Vz, diagnostics, fail-closed fit_usable flag)
+- `POST /api/bayes/map/report` streams MAP screening report
+- `POST /api/supac/classify` returns SUPAC-IR level with rationale and recommended tests
+- `POST /api/supac/alcohol` returns f2 per ethanol concentration, overall pass/fail
 
-## Sparse NCA change map
+**Frontend pages** (React + Vite + Tailwind, all lazy-loaded):
+- `/be/anova` — Formal BE ANOVA page: file upload, metric cards (GMR, CI, CV, MSE), ANOVA table, report download
+- `/bayes/map` — MAP Individual PK: Theoph example, paste grid, study details (route, dose, subject), fit diagnostics, observed/predicted chart + table, fail-closed suppression of unusable estimates
+- `/supac` — SUPAC & Alcohol Screening: tabbed UI (SUPAC-IR level classifier + Alcohol dose-dumping), paste grids for control/ethanol profiles, f2 results by ethanol percentage
 
-- Core fit and reports: `src/openpkflow/nca/sparse.py`,
-  `src/openpkflow/nca/reporting.py`.
-- Independent reference: `scripts/sparse_nca_theoph_crossval.R`,
-  `tests/validation/test_sparse_nca_theoph_reference.py`.
-- Core regression tests: `tests/nca/test_sparse_nca.py`.
-- API adapter: `api/app/schemas/nca.py`, `api/app/services/nca_service.py`,
-  `api/app/routers/nca.py`, `api/tests/test_nca.py`.
-- React workflow: `webapp/src/pages/SparseNcaPage.tsx`, route/sidebar registration,
-  typed API contracts, and `webapp/tests/paste-run.spec.ts`.
-- User docs: `docs/tutorials/sparse-nca.md`, NCA reference/theory/validation pages,
-  API/web READMEs, changelogs, positioning, roadmap, and migration guide.
+### Fixes and hardening
+
+**MAP individual PK** (`src/openpkflow/bayes/map_pk.py`):
+- Added fail-closed input validation: non-finite values, negative times/concentrations, non-increasing times, all-zero profiles, 1D array requirement, dose finite check
+- Oral Cmax/Tmax changed from numerical grid search to analytical formula: Tmax = ln(ka/k) / (ka - k), with degenerate case when ka==k
+- Ill-conditioned Hessian now returns `uncertainty_reliable=False` with no Hessian inverse instead of returning unreliable SEs
+
+**MAP PK reports** (`src/openpkflow/bayes/reporting.py`):
+- Jinja2 `autoescape` enabled for XSS prevention
+- Test verifying `<script>` is escaped in subject name output
+
+**SUPAC alcohol screening** (`src/openpkflow/dissolution/supac.py`):
+- Added strict validation: finite time points, non-negative, strictly increasing, finite ethanol percentages in (0, 100]
+- Changed from default f2 method to explicit `method="regulatory"` (trims extra plateau points per FDA guidance)
+- f2 threshold must be finite and within (0, 100]
+
+### Tests
+
+**Core BE formal ANOVA** (`tests/be/test_formal.py`): 9 tests
+- Identical profiles -> GMR=1, PASS, CV=0
+- Treatment contrast matches expected
+- Sequence uses subject-within-sequence F denominator
+- 4 fail-closed parameterized cases (missing row, single sequence, duplicate, negative value)
+- Unbalanced sequence allocation fails closed
+- Report includes ANOVA Table
+
+**RSABE gate** (`tests/be/test_rsabe_gate.py`): 1 test
+
+**External reference** (`tests/validation/test_be_anova_reference.py`): 1 test
+- Pinned against `scripts/be_anova_crossval.R` output
+
+**MAP PK core** (`tests/bayes/test_map_pk.py`): 4 parameterized validation tests + report escaping test
+
+**SUPAC core** (`tests/dissolution/test_supac.py`): 2 new validation tests + regulatory f2 trimming test
+
+**API tests**:
+- `api/tests/test_bayes.py`: 6 tests (oral MAP, IV MAP, too-few-samples, invalid profile, HTML report, HTML escaping)
+- `api/tests/test_supac.py`: 6 tests (filler L1/L3, negative reject, alcohol divergence/pass, mismatched lengths, duplicate ethanol%)
+- `api/tests/test_be.py`: 2 new formal BE tests (anova/analyze + anova/report), 113 total
+
+**Playwright** (`webapp/tests/paste-run.spec.ts`):
+- MAP happy path: submits oral profile, renders CL/F, renders metrics
+- MAP unusable: fit_usable=false suppresses estimates and download button
+- Alcohol screening: tab switch, sends control grid, renders fail verdict
+- Formal BE ANOVA: file upload, renders ANOVA result table and GMR
+
+## Change map (new files)
+
+```
+src/openpkflow/be/
+  formal.py              -> FormalBEResult, formal_be_anova, AnovaRow
+  formal_reporting.py    -> report_formal_be (HTML/Markdown)
+  rsabe.py               -> FdaRsabeResult, fda_partial_replicate_rsabe
+  __init__.py            -> exports new public symbols
+
+scripts/
+  be_anova_crossval.R    -> independent R ANOVA reference script
+
+tests/be/
+  test_formal.py         -> 9 formal ANOVA tests
+  test_rsabe_gate.py     -> RSABE gate test
+
+tests/validation/
+  test_be_anova_reference.py   -> pinned regression vs R
+  data/be_anova_balanced_2x2.csv -> R cross-check fixture (4 subjects)
+
+api/app/routers/
+  bayes.py               -> /api/bayes/map/analyze, /api/bayes/map/report
+  supac.py               -> /api/supac/classify, /api/supac/alcohol
+
+api/app/schemas/
+  bayes.py               -> MapPkRequest, MapPkResponse
+  supac.py               -> SupacClassifyRequest/Response, AlcoholDosingRequest/Response
+
+api/app/services/
+  bayes_service.py       -> run_map_pk, write_map_pk_report
+  supac_service.py       -> run_supac_classify, run_alcohol_dosing
+
+api/tests/
+  test_bayes.py          -> 6 MAP PK endpoint tests
+  test_supac.py          -> 6 SUPAC endpoint tests
+
+webapp/src/pages/
+  FormalBePage.tsx       -> /be/anova
+  MapPkPage.tsx          -> /bayes/map
+  SupacPage.tsx          -> /supac
+
+docs/decisions/
+  formal-be.md           -> architecture decision record
+```
+
+### Change map (modified files)
+
+- `src/openpkflow/cli.py` — added `openpkflow be anova` command
+- `src/openpkflow/bayes/map_pk.py` — enhanced validation, analytical Cmax/Tmax, ill-conditioned Hessian handling
+- `src/openpkflow/bayes/reporting.py` — Jinja2 autoescape
+- `src/openpkflow/dissolution/supac.py` — strict input validation, regulatory f2 method
+- `src/openpkflow/be/__init__.py` — new public exports
+- `api/app/main.py` — registered bayes and supac routers
+- `api/app/routers/be.py` — added /anova/analyze and /anova/report endpoints
+- `api/app/schemas/be.py` — FormalBeOptions, FormalBeResponse, FormalAnovaRow
+- `api/app/services/be_service.py` — run_formal_be, write_formal_be_report
+- `api/tests/test_be.py` — 2 new formal BE test cases
+- `webapp/src/App.tsx` — lazy-loaded routes for /be/anova, /bayes/map, /supac
+- `webapp/src/components/layout/Sidebar.tsx` — nav entries for all 3 new pages
+- `webapp/src/lib/api.ts` — analyzeFormalBe, downloadFormalBeReport, analyzeMapPk, downloadMapPkReport, classifySupac, assessAlcoholDosing
+- `webapp/src/lib/types.ts` — FormalBeResponse, FormalBeAnovaRow, MapPkRequest/Response, SupacClassify, AlcoholDosing types
+- `webapp/tests/paste-run.spec.ts` — 4 new Playwright tests
+- `tests/bayes/test_map_pk.py` — 4 validation tests + escaping test
+- `tests/dissolution/test_supac.py` — 2 validation tests + regulatory f2 test
+- `CHANGELOG.md`, `README.md`, `RELEASE.md`, `ROADMAP.md`, `CLAUDE.md`, `AGENTS.md` — synced
+- Various docs: `docs/index.md`, `docs/positioning.md`, `docs/migration-cheatsheet.md`, `docs/reference/be.md`, `docs/tutorials/be.md`, `docs/validation-matrix.md`, `mkdocs.yml`, `api/README.md`, `webapp/README.md`
+
+## Known issues / blocked items
+
+1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. FDA 2012 RSABE implementation paper (PMC3475857) provides SAS algorithm and worked outputs but is not Open Access. CRAN PowerTOST validates design constants but does not fit observed datasets. CRAN ReplicateBE is EMA ABEL-oriented.
+
+2. **PR #31 status**: The sparse NCA validation/API/page slice may need re-targeting. The `agent/sparse-nca-web` branch commits (bb5170c, b50805c, c89b932) are in the ancestry of `agent/map-supac-web` but the PR was opened from the original branch. Verify and re-target if needed.
+
+3. **Conda-forge PR #33461** still awaits maintainer review.
 
 ## Resume here
 
-1. Confirm the checkout is `agent/sparse-nca-web`, contains verified baseline
-   `bb5170c`, and has a clean tree.
-2. Review PR #31. CI is already green and there is currently no review feedback.
-3. Mark ready and merge only after the required human/scientific review.
-4. Await conda-forge maintainer action on PR #33461; do not recreate the recipe.
-5. After merge, update local `main` and only then begin the MAP individual-PK
-   API/page slice.
-
-Do not extend frozen `pop/estimation/`. Keep formal RSABE in BioEqPy. Validation
-work outranks new modules.
-
-## Future plan, in priority order
-
-1. Review and merge the completed sparse NCA validation/API/page slice.
-2. Await conda-forge maintainer review of the green v2.6.0 recipe in PR #33461.
-3. Add MAP individual PK API/page, preserving screening-only positioning and
-   fail-closed diagnostics.
-4. Add SUPAC/alcohol screening UI with prominent scope caveats.
-5. Deploy the API/static webapp and document `VITE_API_URL`, health checks,
-   file-size limits, and rollback steps.
+1. The current working tree has all changes UNCOMMITTED. Stage and commit before any rebase or branch switch.
+2. Review and merge the sparse NCA PR #31 (may need re-targeting to the latest state).
+3. Await conda-forge maintainer action on PR #33461.
+4. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
+5. Deploy the API/static webapp once all pending items clear.
+6. Do not extend frozen `pop/estimation/`.
 
 ## Commands
 
 ```powershell
+# Current branch
 git status -sb
+
+# Verify baseline
 git log -1 --oneline
-gh pr view 31
-gh pr checks 31
-python -m pytest tests/nca/test_sparse_nca.py tests/validation/test_sparse_nca_theoph_reference.py -q
+
+# Core be tests
+python -m pytest tests/be/ tests/validation/test_be_anova_reference.py -q
+
+# MAP PK + SUPAC tests
+python -m pytest tests/bayes/test_map_pk.py tests/dissolution/test_supac.py -q
+
+# API tests
 $env:PYTHONPATH='src;api'; python -m pytest api/tests -q --basetemp D:\openpkflow\.test-tmp
-python -m mkdocs build --strict --site-dir D:\openpkflow\.mkdocs-tmp
-python -m pre_commit run --all-files
-cd webapp
-npm run lint
-npm run build
-npm run test:e2e
+
+# Playwright tests
+cd webapp && npm run test:e2e
+
+# Full suite (exclude slow MCMC)
+pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"
+
+# Lint and type-check
+ruff check src/ tests/ api/ && ruff format --check src/ tests/ api/
+mypy src/openpkflow
+
+# Build
+python -m build && python -m twine check dist/*
 ```
 
 Full release checks remain documented in `RELEASE.md`.
@@ -152,10 +211,6 @@ Full release checks remain documented in `RELEASE.md`.
 ## Identity
 
 **Package:** openpkflow
-
 **Author:** Priyam Thakar <priyamthakar1@gmail.com>
-
-**GitHub:** <https://github.com/priyamthakar/openpkflow>
-**Positioning:** A transparent, reproducible, open-source Python workflow for
-dissolution, NCA, PK/PD simulation, and pharmacometric reporting. It does not
-replace expert regulatory judgement or validated commercial platforms.
+**GitHub:** https://github.com/priyamthakar/openpkflow
+**Positioning:** A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. It does not replace expert regulatory judgement or validated commercial platforms.

@@ -40,6 +40,8 @@ Open `http://localhost:8000/docs` for the interactive Swagger UI.
 | POST | `/api/ivivc/report` | Download IVIVC report |
 | POST | `/api/be/analyze` | Run paired 2x2 TOST screening |
 | POST | `/api/be/report` | Download BE report |
+| POST | `/api/be/anova/analyze` | Run formal complete balanced TR/RT 2x2 ANOVA |
+| POST | `/api/be/anova/report` | Download formal ANOVA report |
 | POST | `/api/be/power` | Calculate exact TOST power |
 | POST | `/api/be/sample-size` | Calculate exact TOST sample size |
 | POST | `/api/pipeline/analyze` | Run optional dissolution, NCA, and BE stages |
@@ -49,6 +51,11 @@ Open `http://localhost:8000/docs` for the interactive Swagger UI.
 Sparse NCA is a model-informed screening fit, not a replacement for standard NCA or
 a primary regulatory analysis. Endpoint responses and generated reports preserve that
 scope caveat.
+
+Formal ANOVA accepts long-format complete balanced 2x2 data with `subject`, `sequence`,
+`period`, `treatment`, and the endpoint column. It fails closed for incomplete or
+unbalanced designs. FDA partial-replicate RSABE remains `NOT_EVALUABLE` until its
+external-reference validation gate is complete.
 
 ## Tests
 

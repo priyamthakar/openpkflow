@@ -7,7 +7,8 @@ from typing import Any
 
 import pandas as pd
 
-from app.schemas.be import BeOptions, PowerRequest, SampleSizeRequest, SubjectRow
+from app.schemas.be import BeOptions, FormalBeOptions, PowerRequest, SampleSizeRequest, SubjectRow
+from openpkflow.be.formal import formal_be_anova
 from openpkflow.be.methods import be_sample_size, be_tost_power
 from openpkflow.be.study import BEStudy
 
@@ -77,6 +78,65 @@ def write_be_report(path: Path, opts: BeOptions, out_path: Path, fmt: str) -> No
         sequence_col=opts.sequence_col,
     )
     result = study.analyze(be_lower=opts.be_lower, be_upper=opts.be_upper, alpha=opts.alpha)
+    result.report(out_path, format=fmt)
+
+
+def run_formal_be(path: Path, opts: FormalBeOptions) -> dict[str, Any]:
+    df = pd.read_csv(path)
+    if opts.columns:
+        df = df.rename(columns=opts.columns)
+    result = formal_be_anova(
+        df,
+        parameter=opts.parameter,
+        subject_col=opts.subject_col,
+        sequence_col=opts.sequence_col,
+        period_col=opts.period_col,
+        treatment_col=opts.treatment_col,
+        value_col=opts.value_col,
+        be_lower=opts.be_lower,
+        be_upper=opts.be_upper,
+        alpha=opts.alpha,
+    )
+    return {
+        "parameter": result.parameter,
+        "design": "complete_balanced_2x2",
+        "n_subjects": result.n_subjects,
+        "alpha": result.alpha,
+        "confidence_level_pct": result.confidence_level_pct,
+        "be_lower": result.be_lower,
+        "be_upper": result.be_upper,
+        "treatment_log_lsmean": result.treatment_log_lsmean,
+        "reference_log_lsmean": result.reference_log_lsmean,
+        "treatment_difference": result.treatment_difference,
+        "treatment_se": result.treatment_se,
+        "residual_mse": result.residual_mse,
+        "residual_df": result.residual_df,
+        "cv_intra_pct": result.cv_intra_pct,
+        "gmr": result.gmr,
+        "gmr_lower_ci": result.gmr_lower_ci,
+        "gmr_upper_ci": result.gmr_upper_ci,
+        "decision": result.decision,
+        "anova": [row.__dict__ for row in result.anova],
+        "disclaimer": _DISCLAIMER,
+    }
+
+
+def write_formal_be_report(path: Path, opts: FormalBeOptions, out_path: Path, fmt: str) -> None:
+    df = pd.read_csv(path)
+    if opts.columns:
+        df = df.rename(columns=opts.columns)
+    result = formal_be_anova(
+        df,
+        parameter=opts.parameter,
+        subject_col=opts.subject_col,
+        sequence_col=opts.sequence_col,
+        period_col=opts.period_col,
+        treatment_col=opts.treatment_col,
+        value_col=opts.value_col,
+        be_lower=opts.be_lower,
+        be_upper=opts.be_upper,
+        alpha=opts.alpha,
+    )
     result.report(out_path, format=fmt)
 
 

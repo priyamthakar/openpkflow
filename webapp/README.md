@@ -22,6 +22,7 @@ All calculations run in the FastAPI backend — the frontend only renders result
 | Simulation | `/sim` | Interactive parameter sliders, live PK curve (debounced), multi-dose, report download |
 | IVIVC | `/ivivc` | Wagner-Nelson/Loo-Riegelman inputs, example data, predictability results, reports |
 | Bioequivalence | `/be` | Paired TOST analysis plus exact power and sample-size calculator |
+| Formal BE ANOVA | `/be/anova` | Complete balanced TR/RT long-format formal 2x2 ANOVA with ANOVA table and reports |
 | Study Pipeline | `/pipeline` | Optional dissolution/NCA/BE stages, unified results, report and audit ZIP downloads |
 
 ## Setup

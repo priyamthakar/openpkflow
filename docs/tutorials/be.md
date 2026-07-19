@@ -5,10 +5,11 @@
     non-central t power formula, and sample size derivation.
 
 
-This tutorial demonstrates OpenPKFlow's paired TOST convenience layer and the
-research-grade replicate-design screening helper. For formal regulator-facing BE
-analysis with ANOVA tables, validated NTI, ABEL/RSABE, and submission fixtures,
-cross-check against BioEqPy, PowerTOST, or validated SAS/R workflows.
+This tutorial demonstrates OpenPKFlow's paired TOST convenience layer, formal complete
+balanced 2x2 ANOVA workflow, and research-grade replicate screening helper. FDA
+partial-replicate RSABE remains non-decisional until its external-reference validation
+gate is complete. EMA ABEL, full-replicate RSABE, NTI decisions, and incomplete or
+unbalanced formal datasets are out of scope.
 
 ---
 
@@ -95,7 +96,36 @@ Subjects are matched by ID. Only subjects present in both result sets are used.
 
 ---
 
-## 6. Export to BioEqPy for formal BE
+## 6. Formal complete balanced 2x2 ANOVA
+
+The formal ANOVA workflow requires long-format complete balanced data. It does not
+silently drop subjects or accept unequal TR/RT allocation.
+
+```python
+from openpkflow.be import formal_be_anova
+
+formal_data = pd.DataFrame({
+    "subject": ["S1", "S1", "S2", "S2", "S3", "S3", "S4", "S4"],
+    "sequence": ["TR", "TR", "TR", "TR", "RT", "RT", "RT", "RT"],
+    "period": [1, 2, 1, 2, 1, 2, 1, 2],
+    "treatment": ["T", "R", "T", "R", "R", "T", "R", "T"],
+    "AUCinf": [110, 100, 120, 109, 100, 108, 90, 101],
+})
+
+formal = formal_be_anova(formal_data, parameter="AUCinf")
+print(formal.summary())
+formal.report("formal_be.html")
+```
+
+Use the `Formal BE ANOVA` web page or:
+
+```bash
+openpkflow be anova formal_be.csv --parameter AUCinf --report formal_be.html
+```
+
+---
+
+## 7. Export to BioEqPy
 
 ```python
 from bioeqpy import analyze
@@ -114,7 +144,7 @@ The export requires `TR`/`RT` sequence labels.
 
 ---
 
-## 7. Replicate-design screening
+## 8. Replicate-design screening
 
 Use `replicate_be()` for long-format partial or full replicate datasets. The
 minimum columns are `subject`, `sequence`, `period`, `treatment`, and the PK
@@ -142,11 +172,12 @@ research-grade and must be cross-checked before regulatory use.
 
 ---
 
-## 8. CLI
+## 9. CLI
 
 ```bash
 openpkflow be compare be_data.csv --parameter AUCinf
 openpkflow be compare be_data.csv --parameter AUCinf --report be_report.html
+openpkflow be anova formal_be.csv --parameter AUCinf --report formal_be.html
 openpkflow be replicate replicate_be_partial.csv --parameter Cmax --report replicate.html --json replicate.json
 ```
 

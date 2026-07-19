@@ -11,7 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `sim/` — analytical compartment models, transit oral, SS metrics
 - `pipeline/` — multi-stage study orchestration + unified reports (v2.6.0)
 - `bayes/` — MAP individual PK (scipy, screening tool, not regulatory primary)
-- `be/` — paired TOST convenience layer + power/n + BioEqPy export
+- `be/` — paired TOST convenience layer, formal complete balanced 2x2 crossover
+  ANOVA, power/n, and FDA partial-replicate RSABE only after external validation
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
@@ -32,7 +33,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
-- RSABE / replicate-design BE — belongs in companion BioEqPy package, not here.
+- EMA ABEL, full-replicate RSABE, and formal BE without independent validation fixtures
+  are out of scope. FDA partial-replicate RSABE must fail closed as NOT_EVALUABLE until
+  its external validation gate is satisfied.
 - WeasyPrint, Streamlit/Gradio GUI (as embedded GUI in the library), CDISC Define.xml, eCTD table formatting.
   Note: The `api/` + `webapp/` web application is a separate layer, not a Streamlit/Gradio embed.
 

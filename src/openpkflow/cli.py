@@ -339,6 +339,59 @@ def be_replicate(
             typer.echo(f"Warning: could not write JSON: {exc}", err=True)
 
 
+@be_app.command("anova")
+def be_anova(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Long-format complete balanced 2x2 CSV: subject, sequence, period, treatment, "
+        "endpoint.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    parameter: str = typer.Option("AUCinf", "--parameter", help="Endpoint value column."),
+    subject_col: str = typer.Option("subject", help="Column name for subject IDs."),
+    sequence_col: str = typer.Option("sequence", help="Column name for TR/RT sequence."),
+    period_col: str = typer.Option("period", help="Column name for period 1/2."),
+    treatment_col: str = typer.Option("treatment", help="Column name for T/R treatment."),
+    be_lower: float = typer.Option(0.80, help="Lower acceptance limit."),
+    be_upper: float = typer.Option(1.25, help="Upper acceptance limit."),
+    alpha: float = typer.Option(0.05, help="One-sided significance level."),
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write an HTML or Markdown formal ANOVA report.",
+    ),
+) -> None:
+    """Run formal complete balanced TR/RT 2x2 crossover ANOVA."""
+    import pandas as pd
+
+    from openpkflow.be import formal_be_anova
+
+    try:
+        result = formal_be_anova(
+            pd.read_csv(csv_path),
+            parameter=parameter,
+            subject_col=subject_col,
+            sequence_col=sequence_col,
+            period_col=period_col,
+            treatment_col=treatment_col,
+            be_lower=be_lower,
+            be_upper=be_upper,
+            alpha=alpha,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(result.summary())
+    if report is not None:
+        fmt = "markdown" if str(report).endswith((".md", ".markdown")) else "html"
+        result.report(report, format=fmt)
+        typer.echo(f"Report written to: {report}")
+
+
 @ivivc_app.command("run")
 def ivivc_run(
     report: Path | None = typer.Option(

@@ -24,7 +24,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; model-informed one-compartment oral screening from 3+ samples
 - **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) plus full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
-- **Bioequivalence:** paired 2x2 TOST (80-125% FDA/EMA limits), GMR + 90% CI, intra-subject CV; research-grade replicate-design screening with CVwR and scaled-limit summaries
+- **Bioequivalence:** paired 2x2 TOST plus formal complete balanced TR/RT 2x2 crossover ANOVA with ANOVA table, GMR, confidence interval, and residual CV; research-grade replicate screening remains separate
 - **Report generation:** Markdown, HTML, PDF, Word
 - **Study pipeline and web app:** optional dissolution, NCA, and paired-BE orchestration;
   unified reports; reproducibility audit ZIP; React pages backed by a thin FastAPI adapter
@@ -255,25 +255,29 @@ study = BEStudy.from_nca_results(
 result = study.analyze()
 ```
 
-### Formal BE with BioEqPy
+### Formal complete balanced 2x2 BE ANOVA
 
-OpenPKFlow deliberately keeps `openpkflow.be` as a lightweight convenience layer.
-For regulator-facing BE analysis with long-format crossover data, ANOVA source
-tables, NTI, ABEL/RSABE, and validation fixtures, export a BioEqPy-ready table:
+OpenPKFlow supports formal complete balanced `TR`/`RT` 2x2 crossover ANOVA with
+long-format data, ANOVA source tables, a treatment contrast, GMR, confidence interval,
+and residual CV. It rejects incomplete or unbalanced designs rather than changing the
+estimand silently.
 
 ```python
-from openpkflow.be import BEStudy
-from bioeqpy import analyze
+from openpkflow.be import formal_be_anova
 
-study = BEStudy(be_df, parameter="AUCinf")
-bioeqpy_input = study.to_bioeqpy_dataframe()
-formal_results = analyze(bioeqpy_input, parameters=["AUCinf"])
+formal_result = formal_be_anova(long_be_df, parameter="AUCinf")
+formal_result.report("formal_be_report.html")
 ```
+
+FDA partial-replicate `TRR`/`RTR`/`RRT` RSABE remains `NOT_EVALUABLE` until its
+observed-data mixed-model and upper-confidence-bound results have independent external
+reference fixtures. EMA ABEL, full-replicate RSABE, and NTI decisions are not supported.
 
 ### CLI
 
 ```bash
 openpkflow be compare be_data.csv --parameter AUCinf --report be_report.html
+openpkflow be anova formal_be_data.csv --parameter AUCinf --report formal_be_report.html
 ```
 
 CSV format: `subject, sequence, reference, test`
@@ -339,11 +343,12 @@ vpc.report("vpc_report.html")
 | Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
 | Population PK estimation: FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
 | Replicate BE screening (CVwR/scaled-limit summaries) | :white_check_mark: (v2.4.0)\*\* | :x: | :white_check_mark: | :x: |
+| Formal complete balanced 2x2 BE ANOVA | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | Study pipeline (dissolution + NCA + BE orchestration) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | SUPAC-IR screening + alcohol dose-dumping f2 | :white_check_mark: (v2.6.0)\*\*\* | :x: | :x: | :x: |
 | IVIVC Level B/C helpers (MDT/MRT) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
-| Formal BE ANOVA / validated RSABE decision | :x: | :x: | :white_check_mark: | :x: |
+| FDA partial-replicate RSABE decision | :warning: validation gate (`NOT_EVALUABLE`) | :x: | :white_check_mark: | :x: |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.

@@ -37,8 +37,9 @@ OpenPKFlow is **not**:
 - A replacement for expert regulatory judgement
 - A full substitute for commercial platforms used under controlled, locked,
   regulated environments (e.g. Phoenix WinNonlin, NONMEM production pipelines)
-- A complete regulator-grade RSABE / replicate-design BE engine
-  (formal RSABE belongs in companion BioEqPy, not here)
+- EMA ABEL, full-replicate RSABE, or any formal replicate-design BE method without
+  independent validation fixtures. FDA partial-replicate RSABE remains NOT_EVALUABLE
+  until its external validation gate is complete.
 - A drop-in Part 11 validated quality system without site SOPs and controls
 - Full SUPAC automation (v2.6 helpers are screening only)
 - A primary regulatory sparse-PK method; the one-compartment oral sparse fit is a

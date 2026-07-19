@@ -15,6 +15,7 @@ Oral Dosage Forms (1997). CDER.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -272,24 +273,36 @@ def alcohol_dose_dumping_assessment(
     if not eth_means_by_pct:
         raise ValueError("eth_means_by_pct must contain at least one ethanol medium.")
     thr = float(f2_threshold)
-    if thr <= 0.0:
-        raise ValueError(f"f2_threshold must be > 0 (got {thr}).")
+    if not math.isfinite(thr) or not 0.0 < thr <= 100.0:
+        raise ValueError(f"f2_threshold must be finite and in (0, 100] (got {thr}).")
 
     n = len(control_means)
     if time_points is not None and len(time_points) != n:
         raise ValueError(
             f"time_points length ({len(time_points)}) must match control_means length ({n})."
         )
+    if time_points is not None:
+        time = [float(value) for value in time_points]
+        if not all(math.isfinite(value) for value in time):
+            raise ValueError("time_points must contain only finite values.")
+        if any(value < 0.0 for value in time):
+            raise ValueError("time_points must be >= 0.")
+        if any(right <= left for left, right in zip(time, time[1:], strict=False)):
+            raise ValueError("time_points must be strictly increasing.")
 
     f2_by: dict[float, float] = {}
     for eth_pct, means in eth_means_by_pct.items():
         key = float(eth_pct)
+        if not math.isfinite(key):
+            raise ValueError(f"ethanol percentage must be finite (got {eth_pct!r}).")
         if len(means) != n:
             raise ValueError(
                 f"Ethanol {key:g}% profile length ({len(means)}) must match "
                 f"control_means length ({n})."
             )
-        f2_by[key] = f2(control_means, means)
+        if not 0.0 < key <= 100.0:
+            raise ValueError(f"ethanol percentage must be > 0 and <= 100 (got {key:g}).")
+        f2_by[key] = f2(control_means, means, method="regulatory")
 
     overall = all(v >= thr for v in f2_by.values())
     return AlcoholDoseDumpingResult(

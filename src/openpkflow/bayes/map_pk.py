@@ -84,14 +84,28 @@ def map_individual_pk(
 
     if route not in _MIN_OBS:
         raise ValueError(f"Unsupported route '{route}'. Choose 'oral' or 'iv_bolus'.")
-    if dose <= 0:
-        raise ValueError("dose must be > 0.")
+    if not math.isfinite(dose) or dose <= 0:
+        raise ValueError("dose must be finite and > 0.")
     if len(t) < _MIN_OBS[route]:
         raise ValueError(
             f"Route '{route}' requires >= {_MIN_OBS[route]} observations; got {len(t)}."
         )
     if len(t) != len(c):
         raise ValueError("times and concentrations must have the same length.")
+    if t.ndim != 1 or c.ndim != 1:
+        raise ValueError("times and concentrations must be one-dimensional.")
+    if not np.all(np.isfinite(t)):
+        raise ValueError("times must contain only finite values.")
+    if not np.all(np.isfinite(c)):
+        raise ValueError("concentrations must contain only finite values.")
+    if np.any(t < 0):
+        raise ValueError("times must be >= 0.")
+    if np.any(np.diff(t) <= 0):
+        raise ValueError("times must be strictly increasing.")
+    if np.any(c < 0):
+        raise ValueError("concentrations must be >= 0.")
+    if not np.any(c > 0):
+        raise ValueError("concentrations must contain at least one value > 0.")
 
     prior = prior or PKPrior()
     warn_list: list[str] = []
@@ -199,10 +213,11 @@ def map_individual_pk(
         k = CL / V
         half_life = math.log(2.0) / k if k > 0 else float("nan")
         AUCinf = dose / CL if CL > 0 else float("nan")
-        t_dense = np.linspace(0, t[-1] * 1.5, 500)
-        c_dense = c_1cmt_oral(t_dense, dose, CL, V, ka)
-        Cmax = float(np.max(c_dense))
-        Tmax = float(t_dense[int(np.argmax(c_dense))])
+        if math.isclose(ka, k, rel_tol=1e-8, abs_tol=1e-12):
+            Tmax = 1.0 / k
+        else:
+            Tmax = math.log(ka / k) / (ka - k)
+        Cmax = float(c_1cmt_oral(np.array([Tmax]), dose, CL, V, ka)[0])
         predicted = c_1cmt_oral(t, dose, CL, V, ka).tolist()
         return MapPKResult(
             subject=subject,
@@ -377,8 +392,9 @@ def _check_hessian(
         if cond_num > _COND_WARN_THRESH:
             warn_list.append(
                 f"Near-singular Hessian: condition number = {cond_num:.2e}. "
-                "Standard errors may be unreliable. Common with correlated CL/V."
+                "Standard errors are unavailable. Common with correlated CL/V."
             )
+            return False, cond_num, None
         H_inv = np.linalg.inv(H)
         return True, cond_num, H_inv
     except np.linalg.LinAlgError:
