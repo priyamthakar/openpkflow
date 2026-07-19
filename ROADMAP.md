@@ -210,7 +210,8 @@ published to PyPI on 2026-07-15.
 
 - Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check
 - FDA partial-replicate RSABE ✅ implemented, validated against Patterson & Jones
-  (2012) Table II (DOI 10.1002/pst.498); not yet wired into `api/`/`webapp/`
+  (2012) Table II (DOI 10.1002/pst.498), and wired into `api/`/`webapp/`
+  (`/api/be/rsabe/*`, `/be/rsabe` page)
 - Pipeline page in React webapp ✅ merged in PR #30
 - Sparse NCA API/page ✅ merged in PR #31 (`74c070b`)
 - MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
@@ -231,7 +232,9 @@ published to PyPI on 2026-07-15.
 - All of the above are merged to `main` but **unreleased**; v2.6.0 remains the latest
   published release. Next release should cut from the `[Unreleased]` changelog block.
 - FDA partial-replicate RSABE implemented and validated in `be/rsabe.py` against
-  Patterson & Jones (2012) Table II; open for review on `agent/rsabe-validation`.
+  Patterson & Jones (2012) Table II, and wired into `api/` (`/api/be/rsabe/analyze`,
+  `/api/be/rsabe/report`) and `webapp/` (`/be/rsabe` page); open for review on
+  `agent/rsabe-validation`.
 - Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
   awaits maintainer review. (Unrelated to this repo's PR #33.)
 - See `HANDOFF.md` for exact branch state and resume commands.

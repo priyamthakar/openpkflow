@@ -80,3 +80,13 @@ def test_partial_replicate_rsabe_not_evaluable_when_not_highly_variable() -> Non
     assert result.decision == "NOT_EVALUABLE"
     assert result.validation_status == "VALIDATED"
     assert not result.highly_variable
+
+
+def test_partial_replicate_rsabe_report_includes_decision(tmp_path) -> None:
+    data = _complete_design(n_per_sequence=6, seed=2)
+    result = fda_partial_replicate_rsabe(data, parameter="Cmax", value_col="value")
+    output = tmp_path / "rsabe.html"
+    result.report(output)
+    text = output.read_text(encoding="utf-8")
+    assert result.decision in text
+    assert "Aggregate criterion" in text

@@ -79,6 +79,64 @@ def test_formal_be_anova_analyze_and_report(client: TestClient, tmp_path: Path) 
     assert b"ANOVA Table" in response.content
 
 
+def test_rsabe_analyze_and_report_auc_passes(
+    client: TestClient, rsabe_patterson2012_csv: Path
+) -> None:
+    with rsabe_patterson2012_csv.open("rb") as f:
+        response = client.post(
+            "/api/be/rsabe/analyze",
+            data={"options": '{"parameter": "AUC", "value_col": "AUC"}'},
+            files={"file": ("rsabe.csv", f, "text/csv")},
+        )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["n_subjects"] == 51
+    assert body["decision"] == "PASS"
+    assert body["highly_variable"] is True
+    assert body["point_estimate_constraint_met"] is True
+    assert body["aggregate_criterion_upper"] < 0.0
+
+    with rsabe_patterson2012_csv.open("rb") as f:
+        response = client.post(
+            "/api/be/rsabe/report",
+            data={"options": '{"parameter": "AUC", "value_col": "AUC"}', "format": "html"},
+            files={"file": ("rsabe.csv", f, "text/csv")},
+        )
+    assert response.status_code == 200, response.text
+    assert b"Aggregate criterion" in response.content
+
+
+def test_rsabe_analyze_cmax_fails_point_estimate_constraint(
+    client: TestClient, rsabe_patterson2012_csv: Path
+) -> None:
+    with rsabe_patterson2012_csv.open("rb") as f:
+        response = client.post(
+            "/api/be/rsabe/analyze",
+            data={"options": '{"parameter": "Cmax", "value_col": "Cmax"}'},
+            files={"file": ("rsabe.csv", f, "text/csv")},
+        )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["decision"] == "FAIL"
+    assert body["point_estimate_constraint_met"] is False
+
+
+def test_rsabe_analyze_rejects_invalid_sequences(client: TestClient, tmp_path: Path) -> None:
+    rows = [
+        {"subject": "S1", "sequence": "TR", "period": 1, "treatment": "T", "AUC": 110},
+        {"subject": "S1", "sequence": "TR", "period": 2, "treatment": "R", "AUC": 100},
+    ]
+    path = tmp_path / "invalid_rsabe.csv"
+    pd.DataFrame(rows).to_csv(path, index=False)
+    with path.open("rb") as f:
+        response = client.post(
+            "/api/be/rsabe/analyze",
+            data={"options": '{"parameter": "AUC", "value_col": "AUC"}'},
+            files={"file": ("invalid_rsabe.csv", f, "text/csv")},
+        )
+    assert response.status_code == 422
+
+
 def test_be_power_matches_library(client: TestClient) -> None:
     payload = {"gmr": 0.95, "cv": 0.20, "n": 24}
     expected = be_tost_power(0.95, 0.20, 24)

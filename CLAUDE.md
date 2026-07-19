@@ -20,12 +20,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
   Current routers: nca (including sparse), dissolution (including multi-media), sim,
-  ivivc, be (including power/sample size and formal `be/anova`), bayes (`bayes/map`),
-  supac (classify + alcohol), and pipeline. 27 endpoints total.
+  ivivc, be (including power/sample size, formal `be/anova`, and `be/rsabe`),
+  bayes (`bayes/map`), supac (classify + alcohol), and pipeline. 29 endpoints total.
 - `webapp/` — React + Vite + Tailwind frontend.
   Current pages: Home, NCA, Sparse NCA, MAP Individual PK, Dissolution (single +
   multi-media tab), Simulation, IVIVC, Bioequivalence (analysis + power tab),
-  Formal BE ANOVA, SUPAC & Alcohol, and Study Pipeline.
+  Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
 - Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
   on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and the CORS/build wiring.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
@@ -269,10 +269,12 @@ SUPAC/alcohol, `486788c`), and #33 (frontend design polish + mobile pass, `bb0d1
 are all merged to `main` and unreleased. The API and webapp are deployed and live.
 
 **Immediate next work (in order):**
-1. **RSABE validation is done.** `be/rsabe.py` is implemented and validated against
-   Patterson SD, Jones B (2012) *Pharmaceutical Statistics* 11(1):1-7, Table II
-   (DOI 10.1002/pst.498) — see `tests/validation/test_be_rsabe_reference.py`. Open a
-   PR for review; not yet wired into `api/`/`webapp/` (add that only after review).
+1. **RSABE validation is done and wired end-to-end.** `be/rsabe.py` is implemented
+   and validated against Patterson SD, Jones B (2012) *Pharmaceutical Statistics*
+   11(1):1-7, Table II (DOI 10.1002/pst.498) — see
+   `tests/validation/test_be_rsabe_reference.py`. `POST /api/be/rsabe/analyze` and
+   `/api/be/rsabe/report`, and the `/be/rsabe` webapp page, are implemented. Open a
+   PR for review.
 2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
    layout — currently manual-verified only.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0

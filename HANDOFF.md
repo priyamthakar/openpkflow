@@ -256,7 +256,23 @@ docs/decisions/
 
 ## Known issues / blocked items
 
-1. **FDA partial-replicate RSABE** is now implemented and validated in `src/openpkflow/be/rsabe.py` on branch `agent/rsabe-validation` (based on `origin/main` at `bb0d16a`). The earlier `replicateBE::rds07`/Pumas cross-check lead in `docs/decisions/rsabe-validation-search.md` turned out to be unnecessary: the user provided direct access to Patterson SD, Jones B (2012) "Viewpoint: observations on scaled average bioequivalence," *Pharmaceutical Statistics* 11(1):1-7 (DOI 10.1002/pst.498), which contains a complete worked FDA-method example (Section 1.3, Table II: 51 real subjects, 17/sequence, TRR/RTR/RRT). The method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar aggregate linearized criterion, and the Hyslop-Hsuan-Holder (2000) confidence-bound combination were implemented and reproduce the paper's own numbers almost exactly, including both regulatory decisions (AUC PASS, Cmax FAIL on two independent grounds). Pinned in `tests/validation/test_be_rsabe_reference.py` against `tests/validation/data/be_rsabe_partial_replicate_patterson2012.csv`. Not yet wired into `api/`/`webapp/` — that is a separate follow-up requiring review first.
+1. **FDA partial-replicate RSABE** is now implemented, validated, and wired end-to-end
+   on branch `agent/rsabe-validation` (based on `origin/main` at `bb0d16a`). The earlier
+   `replicateBE::rds07`/Pumas cross-check lead in `docs/decisions/rsabe-validation-search.md`
+   turned out to be unnecessary: the user provided direct access to Patterson SD, Jones B
+   (2012) "Viewpoint: observations on scaled average bioequivalence," *Pharmaceutical
+   Statistics* 11(1):1-7 (DOI 10.1002/pst.498), which contains a complete worked
+   FDA-method example (Section 1.3, Table II: 51 real subjects, 17/sequence, TRR/RTR/RRT).
+   The method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar aggregate
+   linearized criterion, and the Hyslop-Hsuan-Holder (2000) confidence-bound combination
+   were implemented in `src/openpkflow/be/rsabe.py` and reproduce the paper's own numbers
+   almost exactly, including both regulatory decisions (AUC PASS, Cmax FAIL on two
+   independent grounds). Pinned in `tests/validation/test_be_rsabe_reference.py` against
+   `tests/validation/data/be_rsabe_partial_replicate_patterson2012.csv`. Also wired into
+   `api/` (`POST /api/be/rsabe/analyze`, `/api/be/rsabe/report`) and `webapp/`
+   (`/be/rsabe` page, Sidebar "FDA RSABE" entry), following the existing `be/anova`
+   pattern exactly, with API tests (`api/tests/test_be.py`) and a Playwright test
+   (`webapp/tests/paste-run.spec.ts`).
 
 2. **Conda-forge PR #33461** still awaits maintainer review.
 
@@ -265,16 +281,13 @@ docs/decisions/
 
 ## Resume here
 
-1. Review `src/openpkflow/be/rsabe.py` on `agent/rsabe-validation`; open a PR against
-   `main` once satisfied.
-2. If RSABE is to be exposed via the API/webapp, add a router/schema/service in `api/`
-   following the existing `be/anova` pattern, then a webapp page — only after the core
-   module is reviewed.
-3. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
+1. Review `src/openpkflow/be/rsabe.py` and its API/webapp wiring on
+   `agent/rsabe-validation`; open a PR against `main` once satisfied.
+2. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
    (legend hide-and-restore is the highest value — it regressed once already).
-4. Await conda-forge maintainer action on PR #33461.
-5. Delete the three superseded merged agent branches (see Current state).
-6. Do not extend frozen `pop/estimation/`.
+3. Await conda-forge maintainer action on PR #33461.
+4. Delete the three superseded merged agent branches (see Current state).
+5. Do not extend frozen `pop/estimation/`.
 
 ## Commands
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 import numpy as np
@@ -73,6 +74,12 @@ class FdaRsabeResult:
                 f"Decision         : {self.decision}",
             ]
         )
+
+    def report(self, path: str | Path, format: str | None = None) -> None:
+        """Write an RSABE report as HTML or Markdown."""
+        from openpkflow.be.rsabe_reporting import report_rsabe
+
+        report_rsabe(self, path, format=format)
 
 
 def fda_partial_replicate_rsabe(

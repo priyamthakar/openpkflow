@@ -35,8 +35,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Formal complete balanced 2x2 BE ANOVA**: clean-room long-format TR/RT core with
   fail-closed design validation, ANOVA table, treatment contrast, residual CV, HTML/Markdown
   reports, CLI command, API endpoints, React page, and independent R cross-check fixture.
-- **FDA partial-replicate RSABE validation gate**: explicit `NOT_EVALUABLE` result until
-  external model and upper-confidence-bound reference validation is completed.
+- **FDA partial-replicate RSABE**: method-of-moments delta-hat/sigma-wR estimators, the
+  FDA/Haidar linearized aggregate criterion, and the Hyslop-Hsuan-Holder (2000)
+  confidence-bound combination, validated against Patterson & Jones (2012)
+  *Pharmaceutical Statistics* 11(1):1-7, Table II (DOI 10.1002/pst.498). Returns
+  `NOT_EVALUABLE` only when the reference is not highly variable (CVwR < 30%). API
+  endpoints (`/api/be/rsabe/analyze`, `/api/be/rsabe/report`) and a React page.
 - **Webapp design system**: chart series colors wired to `--chart-1` through `--chart-5`
   theme tokens with per-theme light/dark values, plus an `--accent-fg` token.
 - **PKChart toolbar**: point-marker toggle, small-multiples "Panels" view, and PNG export
