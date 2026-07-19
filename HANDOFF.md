@@ -14,7 +14,8 @@
   origin/main adcf052 agent/map-supac-web`) dropped the four now-redundant
   sparse-NCA-era commits with zero conflicts, keeping only this session's new work.
 - All session changes (formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol
-  hardening) are committed, re-verified post-rebase, and opened as a PR against `main`.
+  hardening) are committed, re-verified post-rebase, and open as
+  [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) against `main` (CI running).
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
 - Full non-MCMC suite run this session: 1302 passed, 1 pre-existing unrelated failure
   (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
@@ -171,13 +172,13 @@ docs/decisions/
 
 1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. FDA 2012 RSABE implementation paper (PMC3475857) provides SAS algorithm and worked outputs but is not Open Access. CRAN PowerTOST validates design constants but does not fit observed datasets. CRAN ReplicateBE is EMA ABEL-oriented. See the dataset-search findings note (if produced) for current candidates.
 
-2. **This session's PR** (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening) is open against `main` and awaits review/CI/merge.
+2. **PR #32** (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening) is open against `main` and awaits review/CI/merge.
 
 3. **Conda-forge PR #33461** still awaits maintainer review.
 
 ## Resume here
 
-1. This session's PR is open against `main`. Once merged, update this section and delete the resolved item above.
+1. PR #32 is open against `main`. Once merged, update this section and delete the resolved item above.
 2. Await conda-forge maintainer action on PR #33461.
 3. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
 4. Deploy the API/static webapp once the PR above merges and conda-forge clears.

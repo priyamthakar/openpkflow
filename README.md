@@ -388,7 +388,7 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Validation-gated; `NOT_EVALUABLE` until external fixtures exist |
-| Web app (`api/` + `webapp/`) | Stable core pages; pipeline (PR #30) and sparse NCA (PR #31) merged; formal BE ANOVA, MAP PK, and SUPAC/alcohol pages pending review |
+| Web app (`api/` + `webapp/`) | Stable core pages; pipeline (PR #30) and sparse NCA (PR #31) merged; formal BE ANOVA, MAP PK, and SUPAC/alcohol pages in PR #32 |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

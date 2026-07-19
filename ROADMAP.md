@@ -219,8 +219,8 @@ published to PyPI on 2026-07-15.
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
 - Sparse NCA validation/API/page: merged in PR #31.
-- Formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol hardening: committed
-  on `agent/map-supac-web`, opened as a PR against `main` for review.
+- Formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol hardening: open as
+  PR #32 against `main`, CI running.
 - Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
   awaits maintainer review.
 - See `HANDOFF.md` for exact branch state and resume commands.

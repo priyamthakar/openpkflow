@@ -260,7 +260,7 @@ convolution validation.
 **Immediate next work (in order):**
 1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
 2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
-   committed on `agent/map-supac-web` and opened as a PR against `main` for review.
+   open as PR #32 against `main`, CI running.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
 4. Find public partial-replicate BE datasets with subject-level data and a
