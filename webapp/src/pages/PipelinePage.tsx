@@ -18,6 +18,7 @@ import {
   downloadPipelineAuditBundle,
   downloadPipelineReport,
 } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { PipelineFiles, PipelineOptions, PipelineResponse } from '@/lib/types'
 
 const DEFAULT_OPTIONS: PipelineOptions = {
@@ -70,6 +71,8 @@ export default function PipelinePage() {
   )
   const canRun = selectedStages.length > 0 && !mutation.isPending
   const result = mutation.data
+
+  useRunShortcut(mutation.mutate, canRun)
 
   async function downloadAuditBundle() {
     setAuditPending(true)

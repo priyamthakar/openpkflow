@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { analyzeMapPk, downloadMapPkReport } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { MapPkRequest, MapPkResponse } from '@/lib/types'
 
 const COLUMNS: PasteDataColumn[] = [
@@ -80,6 +81,8 @@ export default function MapPkPage() {
     Number.isFinite(dose) &&
     dose > 0 &&
     !mutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   function resetExample() {
     setSubject('Theoph subject 1')

@@ -23,6 +23,7 @@ import {
   analyzeMultiMedia,
   downloadMultiMediaReport,
 } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import { rowsToCsvFile } from '@/lib/gridCsv'
 import type { CompareResponse, DissolutionRowPayload, MultiMediaResponse } from '@/lib/types'
 
@@ -213,6 +214,15 @@ export default function DissolutionPage() {
     })
   }
 
+  const canRunSingle =
+    Boolean(activeFile) &&
+    (inputMode !== 'upload' || headers.length > 0) &&
+    Boolean(selectedReference) &&
+    Boolean(selectedTest) &&
+    !compareMutation.isPending
+
+  useRunShortcut(runCompare, pageTab === 'single' && canRunSingle)
+
   const multiMediaMutation = useMutation<MultiMediaResponse, Error>({
     mutationFn: () =>
       analyzeMultiMedia({
@@ -225,6 +235,9 @@ export default function DissolutionPage() {
       }),
   })
   const mmResult = multiMediaMutation.data
+
+  const canRunMulti = mediaSlots.length >= 2 && !multiMediaMutation.isPending
+  useRunShortcut(multiMediaMutation.mutate, pageTab === 'multi' && canRunMulti)
 
   const mmReq = useMemo(
     () => ({

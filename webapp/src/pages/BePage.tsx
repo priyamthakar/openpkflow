@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Select as UiSelect } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { analyzeBe, computeBePower, computeBeSampleSize, downloadBeReport } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import { rowsToCsvFile } from '@/lib/gridCsv'
 import type { BePowerResponse, BeResponse, BeSampleSizeResponse } from '@/lib/types'
 
@@ -169,6 +170,8 @@ export default function BePage() {
 
   const canRun = Boolean(activeFile && !mutation.isPending)
   const powerPending = powerMutation.isPending || sampleSizeMutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   return (
     <div className="flex flex-col h-full">

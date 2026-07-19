@@ -10,8 +10,18 @@ interface Props {
   resultKey?: string | number | boolean | null
 }
 
+const WIDTH_STORAGE_KEY = 'openpkflow.analysisShell.leftWidth'
+
 export function AnalysisShell({ children, left, right, leftWide, resultKey }: Props) {
-  const [leftWidth, setLeftWidth] = useState<number | null>(null)
+  const [leftWidth, setLeftWidth] = useState<number | null>(() => {
+    try {
+      const stored = window.localStorage.getItem(WIDTH_STORAGE_KEY)
+      const parsed = stored ? Number(stored) : null
+      return parsed != null && Number.isFinite(parsed) ? parsed : null
+    } catch {
+      return null
+    }
+  })
   const [dragging, setDragging] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const resultRef = useRef<HTMLDivElement>(null)
@@ -32,6 +42,16 @@ export function AnalysisShell({ children, left, right, leftWide, resultKey }: Pr
     }
     function onUp() {
       setDragging(false)
+      setLeftWidth((w) => {
+        if (w != null) {
+          try {
+            window.localStorage.setItem(WIDTH_STORAGE_KEY, String(Math.round(w)))
+          } catch {
+            /* storage unavailable */
+          }
+        }
+        return w
+      })
     }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)

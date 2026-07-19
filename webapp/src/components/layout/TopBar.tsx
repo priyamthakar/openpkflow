@@ -11,10 +11,11 @@ interface Props {
 }
 
 export function TopBar({ title, subtitle, onMenuClick }: Props) {
-  const { data } = useQuery({
+  const { data, isError, isLoading } = useQuery({
     queryKey: ['health'],
     queryFn: fetchHealth,
     staleTime: 60_000,
+    retry: 1,
   })
 
   return (
@@ -42,12 +43,31 @@ export function TopBar({ title, subtitle, onMenuClick }: Props) {
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-3">
         <ThemeToggle />
-        {data?.engine_version && (
+        {isError && (
+          <Badge variant="danger">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-danger" />
+              <span className="sm:hidden">offline</span>
+              <span className="hidden sm:inline">engine offline</span>
+            </span>
+          </Badge>
+        )}
+        {!isError && (isLoading || data?.engine_version) && (
           <Badge variant="accent">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              <span className="sm:hidden">v{data.engine_version}</span>
-              <span className="hidden sm:inline">engine v{data.engine_version}</span>
+              <span
+                className={
+                  isLoading
+                    ? 'w-1.5 h-1.5 rounded-full bg-text-dim'
+                    : 'w-1.5 h-1.5 rounded-full bg-success animate-pulse'
+                }
+              />
+              <span className="sm:hidden">
+                {isLoading ? '...' : `v${data?.engine_version ?? ''}`}
+              </span>
+              <span className="hidden sm:inline">
+                {isLoading ? 'connecting...' : `engine v${data?.engine_version ?? ''}`}
+              </span>
             </span>
           </Badge>
         )}
