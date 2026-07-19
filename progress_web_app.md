@@ -8,7 +8,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-16 (sparse NCA page implemented)
+**Last updated:** 2026-07-19 (design system polish: PKChart toolbar + chart theme tokens, persisted split-pane, empty states, Ctrl+Enter shortcut, sidebar groups + collapse, offline health badge, CSS cleanup)
 
 ---
 
@@ -65,6 +65,68 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
   diagnostics, observed/fitted visualization, and HTML/Markdown report downloads.
 - Prominent model-informed screening scope; no pharmacometric math in the frontend.
 - Independent R `stats::nls` cross-validation added before exposing the core fit.
+
+### 2026-07-19 design system polish
+
+All done in `webapp/` — no API changes.
+
+**PKChart** (`components/shared/PKChart.tsx`):
+- Series colors wired to CSS theme tokens (`--chart-1` through `--chart-5`, defined for
+  both light/dark) instead of hardcoded hex, so charts match the active theme.
+- Toolbar: *Points* toggle (dot markers — useful for sparse data), *Panels* toggle
+  (small-multiples grid, one mini-chart per series), *Semi-log* toggle, *PNG export*
+  (2x-scale download via SVG→canvas).
+- Legend toggling renders every series and relies on Recharts' `hide` prop, so a hidden
+  series keeps its legend entry and can be restored; the axis domain is computed from
+  the visible series only.
+- PNG export resolves `var(--token)` colors to literals on the SVG clone (a serialized
+  SVG has no `:root`, so unresolved vars render colorless) and scopes its selector to
+  `.recharts-wrapper > svg` so it exports the plot rather than a legend swatch.
+
+**AnalysisShell** (`components/shared/AnalysisShell.tsx`):
+- Split-pane width persisted to localStorage (`openpkflow.analysisShell.leftWidth`)
+  so the user's resize survives page navigation.
+
+**Empty states** (`components/shared/EmptyResults.tsx`):
+- Shared `EmptyResults` component: dashed border panel with Lucide icon, title, description,
+  "Ctrl+Enter to run" hint, and a faded skeleton preview (metrics + chart shape).
+- Wired into NcaPage as reference; ready for the other 7 analysis pages.
+
+**Ctrl+Enter run shortcut** (`lib/useRunShortcut.ts`):
+- New hook fires the primary run callback on Ctrl/Cmd+Enter outside text-editable fields.
+- Wired into all 9 analysis pages: NCA, Sparse NCA, BE, Dissolution (tab-aware:
+  single-tab run vs multi-tab run), IVIVC, MAP PK, Formal BE ANOVA, SUPAC
+  (classify + alcohol tabs), Pipeline.
+
+**Sidebar** (`components/layout/Sidebar.tsx`):
+- Nav links grouped under labelled sections: *Overview*, *PK Analysis*, *Formulation & BE*,
+  *Workflow*.
+- Desktop collapse to 60 px icon-only rail with tooltips and active accent tint,
+  persisted to localStorage (`openpkflow.sidebar.collapsed`).
+- Collapse is gated with `lg:` utility classes rather than conditional rendering, so the
+  persisted collapsed flag cannot strip labels out of the 220 px mobile drawer.
+
+**Mobile / Android pass:**
+- Verified at a 408 px viewport: no horizontal overflow on any page, viewport meta
+  correct, paste grids reflow to labelled stacked cards, chart toolbar fits one row.
+- Chart toolbar buttons get a 36 px tap target below `sm` (were 25 px), original
+  desktop density retained from `sm` up. Mobile drawer close button padding bumped.
+
+**TopBar** (`components/layout/TopBar.tsx`):
+- Red "engine offline" badge when the health endpoint is unreachable (previously the
+  badge just vanished). Neutral "connecting..." state while loading.
+
+**CSS cleanup** (`index.css`):
+- Removed the duplicated light/dark input override blocks (declared twice, once outside
+  the `@layer base`).
+- Removed the redundant generic `input/select/textarea` rule that `!important`-ed
+  `color-scheme: light` for all themes.
+- Added `--accent-fg` token (white on light, dark-on-bright on dark).
+
+**Button** (`components/ui/Button.tsx`):
+- Primary variant now uses `text-accent-fg` instead of hardcoded `#04122b`.
+- Light theme primary buttons changed from dark-text-on-blue to white-text-on-blue
+  (correct contrast fix).
 
 ---
 

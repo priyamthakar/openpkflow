@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Select as UiSelect } from '@/components/ui/Select'
 import { analyzeIvIvc, downloadIvIvcReport } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { IvIvcResponse } from '@/lib/types'
 
 const IVIVC_METHODS = ['wagner_nelson', 'loo_riegelman'] as const
@@ -152,6 +153,8 @@ export default function IvIvcPage() {
     ivUirRows.some((r) => String(r.time ?? '').trim() !== '') &&
     kel.trim() !== '' &&
     !mutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   return (
     <div className="flex flex-col h-full">

@@ -12,6 +12,7 @@ import { MetricCard } from '@/components/shared/MetricCard'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { analyzeFormalBe, downloadFormalBeReport } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { FormalBeResponse } from '@/lib/types'
 
 const OPTIONS = {
@@ -29,6 +30,8 @@ export default function FormalBePage() {
     mutationFn: () => analyzeFormalBe(file as File, OPTIONS),
   })
   const result = mutation.data
+
+  useRunShortcut(mutation.mutate, Boolean(file) && !mutation.isPending)
 
   return (
     <div className="flex h-full flex-col">

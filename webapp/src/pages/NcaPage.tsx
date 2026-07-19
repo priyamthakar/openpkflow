@@ -3,11 +3,13 @@ import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
 import Papa from 'papaparse'
 import { TopBar } from '@/components/layout/TopBar'
+import { LineChart } from 'lucide-react'
 import { FileDropzone } from '@/components/shared/FileDropzone'
 import { ColumnMapper } from '@/components/shared/ColumnMapper'
 import { PKChart } from '@/components/shared/PKChart'
 import { MetricCard } from '@/components/shared/MetricCard'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
@@ -18,6 +20,7 @@ import { Select as UiSelect } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { analyzeNca, downloadNcaReport } from '@/lib/api'
 import { rowsToCsvFile } from '@/lib/gridCsv'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { NcaResponse } from '@/lib/types'
 
 const AUC_METHODS = ['linear', 'log', 'linear_up_log_down'] as const
@@ -154,6 +157,8 @@ export default function NcaPage() {
 
   const canRun =
     Boolean(activeFile && (inputMode === 'paste' || headers.length > 0) && !mutation.isPending)
+
+  useRunShortcut(mutation.mutate, canRun)
 
   return (
     <div className="flex flex-col h-full">
@@ -307,6 +312,14 @@ export default function NcaPage() {
               <Skeleton className="h-80 w-full rounded-sm" />
               <Skeleton className="h-48 w-full rounded-sm" />
             </div>
+          )}
+
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={LineChart}
+              title="No results yet"
+              description="Upload a CSV or paste your data, choose the AUC and BLQ methods, then run the analysis. Metrics, profiles, and the summary table will appear here."
+            />
           )}
 
           {result && !mutation.isPending && (

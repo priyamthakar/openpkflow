@@ -23,7 +23,7 @@ export function Button({
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-1',
         'disabled:cursor-not-allowed active:scale-[0.98]',
         variant === 'primary' &&
-          'bg-accent text-[#04122b] font-semibold hover:bg-accent-hover disabled:bg-surface-2 disabled:text-text-muted disabled:border disabled:border-border',
+          'bg-accent text-accent-fg font-semibold hover:bg-accent-hover disabled:bg-surface-2 disabled:text-text-muted disabled:border disabled:border-border',
         variant === 'secondary' && 'bg-surface border border-border text-text hover:border-border-2 hover:bg-surface-2',
         variant === 'ghost' && 'text-text-muted hover:text-text hover:bg-surface-2',
         variant === 'danger' && 'bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20',

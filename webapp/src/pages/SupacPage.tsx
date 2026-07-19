@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { assessAlcoholDosing, classifySupac } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type {
   AlcoholDosingRequest,
   AlcoholDosingResponse,
@@ -135,6 +136,8 @@ function SupacClassify() {
   })
   const result = mutation.data
   const canRun = changePct >= 0 && !mutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   return (
     <AnalysisShell resultKey={Boolean(result)}>
@@ -309,6 +312,8 @@ function AlcoholScreening() {
     new Set(ethanolProfiles.map((profile) => profile.ethanol_pct)).size === ethanolProfiles.length &&
     ethanolProfiles.every((profile) => Number.isFinite(profile.ethanol_pct) && profile.ethanol_pct > 0 && profile.ethanol_pct <= 100)
   const canRun = validProfiles && threshold > 0 && !mutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   return (
     <AnalysisShell leftWide resultKey={Boolean(result)}>

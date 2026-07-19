@@ -14,8 +14,18 @@
   origin/main adcf052 agent/map-supac-web`) dropped the four now-redundant
   sparse-NCA-era commits with zero conflicts, keeping only this session's new work.
 - All session changes (formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol
-  hardening) are committed, re-verified post-rebase, and open as
-  [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) against `main` (CI running).
+  hardening) merged to `main` as squash commit `486788c` via
+  [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) on 2026-07-19.
+- Frontend design polish lives on `agent/web-design-polish`, a single commit rebased
+  directly onto `main` (`git rebase --onto origin/main e1260c5` — PR #32 was squash
+  merged, so replaying the whole branch would have re-applied its already-merged
+  commits). Contents: theme-wired PKChart toolbar, sidebar groups + collapse,
+  Ctrl+Enter run shortcut across all 9 analysis pages, persisted split-pane width,
+  EmptyResults component, offline health badge, CSS cleanup (chart tokens, accent-fg
+  token, deduplicated overrides), plus a mobile/Android pass and three PKChart defect
+  fixes found by live verification (one-way legend hiding, colorless PNG export, PNG
+  export capturing a legend swatch). tsc clean, 14/14 Playwright pass post-rebase.
+  Note: no automated coverage guards the new chart/sidebar/mobile behaviour.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
 - Full non-MCMC suite run this session: 1302 passed, 1 pre-existing unrelated failure
   (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
@@ -101,6 +111,44 @@
 - Alcohol screening: tab switch, sends control grid, renders fail verdict
 - Formal BE ANOVA: file upload, renders ANOVA result table and GMR
 
+### 2026-07-19 design system polish
+
+All done in `webapp/` — no API, Python core, or test changes.
+
+**PKChart** (`components/shared/PKChart.tsx`):
+- Series colors wired to CSS theme tokens (`--chart-1` through `--chart-5` in both
+  light/dark) instead of hardcoded hex, so charts match the active theme.
+- Toolbar: *Points* toggle, *Panels* toggle (small-multiples grid), *Semi-log* toggle,
+  *PNG export* (2x-scale SVG→canvas download).
+
+**AnalysisShell** (`components/shared/AnalysisShell.tsx`):
+- Split-pane width persisted to localStorage across page navigations.
+
+**Empty states** (`components/shared/EmptyResults.tsx`):
+- Shared `EmptyResults` component: dashed border panel with icon, description,
+  "Ctrl+Enter to run" hint, and faded skeleton preview.
+- Wired into NcaPage as reference implementation.
+
+**Ctrl+Enter run shortcut** (`lib/useRunShortcut.ts`):
+- New hook fires the primary run callback on Ctrl/Cmd+Enter outside text inputs.
+- Wired into all 9 analysis pages: NCA, Sparse NCA, BE, Dissolution (tab-aware),
+  IVIVC, MAP PK, Formal BE ANOVA, SUPAC (both tabs), Pipeline.
+
+**Sidebar** (`components/layout/Sidebar.tsx`):
+- Nav links grouped: *Overview*, *PK Analysis*, *Formulation & BE*, *Workflow*.
+- Desktop collapse to 60 px icon-only rail with tooltips, persisted to localStorage.
+
+**TopBar** (`components/layout/TopBar.tsx`):
+- Red "engine offline" badge when API is unreachable (was previously invisible).
+- Neutral "connecting..." state while loading.
+
+**CSS cleanup** (`index.css`, `components/ui/Button.tsx`):
+- Removed duplicated light/dark input overrides and generic `!important` rule.
+- Added `--accent-fg` theme token; Button primary uses it instead of hardcoded hex.
+
+**Verification**: `tsc -b` clean, `npm run lint` clean, `vite build` passes,
+all 14 Playwright tests pass (no regressions).
+
 ## Change map (new files)
 
 ```
@@ -142,6 +190,12 @@ webapp/src/pages/
   MapPkPage.tsx          -> /bayes/map
   SupacPage.tsx          -> /supac
 
+webapp/src/components/shared/
+  EmptyResults.tsx       -> shared empty-state placeholder component
+
+webapp/src/lib/
+  useRunShortcut.ts      -> Ctrl+Enter run shortcut hook
+
 docs/decisions/
   formal-be.md           -> architecture decision record
 ```
@@ -167,6 +221,22 @@ docs/decisions/
 - `tests/dissolution/test_supac.py` — 2 validation tests + regulatory f2 test
 - `CHANGELOG.md`, `README.md`, `RELEASE.md`, `ROADMAP.md`, `CLAUDE.md`, `AGENTS.md` — synced
 - Various docs: `docs/index.md`, `docs/positioning.md`, `docs/migration-cheatsheet.md`, `docs/reference/be.md`, `docs/tutorials/be.md`, `docs/validation-matrix.md`, `mkdocs.yml`, `api/README.md`, `webapp/README.md`
+- `webapp/src/index.css` — added chart theme tokens (--chart-1..5 for light/dark), --accent-fg token; deduplicated input overrides, removed generic !important rule
+- `webapp/src/components/ui/Button.tsx` — primary variant uses `text-accent-fg` instead of hardcoded `#04122b`
+- `webapp/src/components/shared/PKChart.tsx` — theme-wired series colors, Points toggle, Panels/small-multiples toggle, PNG export toolbar
+- `webapp/src/components/shared/AnalysisShell.tsx` — split-pane width persisted to localStorage
+- `webapp/src/components/layout/Sidebar.tsx` — grouped nav sections (Overview, PK Analysis, Formulation & BE, Workflow), desktop icon-only collapse mode
+- `webapp/src/components/layout/TopBar.tsx` — red "engine offline" badge when API unreachable, "connecting..." loading state
+- `webapp/src/pages/NcaPage.tsx` — wired EmptyResults, integrated useRunShortcut
+- `webapp/src/pages/BePage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/DissolutionPage.tsx` — integrated useRunShortcut (tab-aware)
+- `webapp/src/pages/IvIvcPage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/MapPkPage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/FormalBePage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/PipelinePage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/SparseNcaPage.tsx` — integrated useRunShortcut
+- `webapp/src/pages/SupacPage.tsx` — integrated useRunShortcut (both classify + alcohol tabs)
+- `progress_web_app.md` — documented design system polish section
 
 ## Known issues / blocked items
 

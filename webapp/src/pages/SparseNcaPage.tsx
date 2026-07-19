@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { analyzeSparseNca, downloadSparseNcaReport } from '@/lib/api'
+import { useRunShortcut } from '@/lib/useRunShortcut'
 import type { SparseNcaRequest, SparseNcaResponse } from '@/lib/types'
 
 const COLUMNS: PasteDataColumn[] = [
@@ -65,6 +66,8 @@ export default function SparseNcaPage() {
     (sample) => Number.isFinite(sample.time) && Number.isFinite(sample.concentration),
   )
   const canRun = samples.length >= 3 && finiteSamples && dose > 0 && !mutation.isPending
+
+  useRunShortcut(mutation.mutate, canRun)
 
   function resetExample() {
     setSubject('Theoph subject 1')
