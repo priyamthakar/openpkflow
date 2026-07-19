@@ -6,10 +6,14 @@
 
 - Latest release: **v2.6.0**, published on 2026-07-15.
 - Main post-release commit: `6087cd9` (`feat(pipeline): add web workflow and reproducibility audit bundle (#30)`).
-- Working branch: **`agent/map-supac-web`** (current, all changes uncommitted).
+- Working branch: **`agent/map-supac-web`**, HEAD `fc025c1` (`feat(be,bayes,dissolution,web): add formal BE ANOVA, RSABE gate, MAP/SUPAC hardening`) — all session changes committed, working tree clean.
 - The sparse NCA branch `agent/sparse-nca-web` (PR #31) was rebased/merged locally but its commits are already ancestors of `agent/map-supac-web`. PR #31 may need re-targeting.
 - Verified baseline: `bb5170c` is an ancestor but not the HEAD of this branch.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
+- Full non-MCMC suite run post-commit: 1302 passed, 1 pre-existing unrelated failure
+  (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
+  a Hypothesis-found float-underflow edge case at a subnormal double; `nca/` was not
+  touched this session).
 
 ## What was done this session (agent/map-supac-web)
 
@@ -167,7 +171,7 @@ docs/decisions/
 
 ## Resume here
 
-1. The current working tree has all changes UNCOMMITTED. Stage and commit before any rebase or branch switch.
+1. All session changes are committed at `fc025c1`. Working tree is clean.
 2. Review and merge the sparse NCA PR #31 (may need re-targeting to the latest state).
 3. Await conda-forge maintainer action on PR #33461.
 4. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
