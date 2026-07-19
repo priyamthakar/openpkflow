@@ -5,12 +5,18 @@
 ## Current state
 
 - Latest release: **v2.6.0**, published on 2026-07-15.
-- Main post-release commit: `6087cd9` (`feat(pipeline): add web workflow and reproducibility audit bundle (#30)`).
-- Working branch: **`agent/map-supac-web`**, HEAD `fc025c1` (`feat(be,bayes,dissolution,web): add formal BE ANOVA, RSABE gate, MAP/SUPAC hardening`) — all session changes committed, working tree clean.
-- The sparse NCA branch `agent/sparse-nca-web` (PR #31) was rebased/merged locally but its commits are already ancestors of `agent/map-supac-web`. PR #31 may need re-targeting.
-- Verified baseline: `bb5170c` is an ancestor but not the HEAD of this branch.
+- PR #31 (sparse NCA) **merged** to `main` as squash commit `74c070b` on 2026-07-16.
+  It is no longer pending review; the local `agent/sparse-nca-web` commits it was
+  opened from are now superseded.
+- Working branch: **`agent/map-supac-web`**, rebased onto `origin/main` (`74c070b`).
+  The pre-session tip of this branch (`adcf052`) had a tree byte-identical to
+  `74c070b` (verified via `git diff --quiet`), so the rebase (`git rebase --onto
+  origin/main adcf052 agent/map-supac-web`) dropped the four now-redundant
+  sparse-NCA-era commits with zero conflicts, keeping only this session's new work.
+- All session changes (formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol
+  hardening) are committed, re-verified post-rebase, and opened as a PR against `main`.
 - Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
-- Full non-MCMC suite run post-commit: 1302 passed, 1 pre-existing unrelated failure
+- Full non-MCMC suite run this session: 1302 passed, 1 pre-existing unrelated failure
   (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
   a Hypothesis-found float-underflow edge case at a subnormal double; `nca/` was not
   touched this session).
@@ -163,20 +169,19 @@ docs/decisions/
 
 ## Known issues / blocked items
 
-1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. FDA 2012 RSABE implementation paper (PMC3475857) provides SAS algorithm and worked outputs but is not Open Access. CRAN PowerTOST validates design constants but does not fit observed datasets. CRAN ReplicateBE is EMA ABEL-oriented.
+1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. FDA 2012 RSABE implementation paper (PMC3475857) provides SAS algorithm and worked outputs but is not Open Access. CRAN PowerTOST validates design constants but does not fit observed datasets. CRAN ReplicateBE is EMA ABEL-oriented. See the dataset-search findings note (if produced) for current candidates.
 
-2. **PR #31 status**: The sparse NCA validation/API/page slice may need re-targeting. The `agent/sparse-nca-web` branch commits (bb5170c, b50805c, c89b932) are in the ancestry of `agent/map-supac-web` but the PR was opened from the original branch. Verify and re-target if needed.
+2. **This session's PR** (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening) is open against `main` and awaits review/CI/merge.
 
 3. **Conda-forge PR #33461** still awaits maintainer review.
 
 ## Resume here
 
-1. All session changes are committed at `fc025c1`. Working tree is clean.
-2. Review and merge the sparse NCA PR #31 (may need re-targeting to the latest state).
-3. Await conda-forge maintainer action on PR #33461.
-4. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
-5. Deploy the API/static webapp once all pending items clear.
-6. Do not extend frozen `pop/estimation/`.
+1. This session's PR is open against `main`. Once merged, update this section and delete the resolved item above.
+2. Await conda-forge maintainer action on PR #33461.
+3. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
+4. Deploy the API/static webapp once the PR above merges and conda-forge clears.
+5. Do not extend frozen `pop/estimation/`.
 
 ## Commands
 

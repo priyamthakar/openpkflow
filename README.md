@@ -386,7 +386,9 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | Covariate modeling | Removed (v2.3.0) |
 | MAP / Bayesian PK + Bayesian BE | Stable (v2.0.0) |
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
-| Web app (`api/` + `webapp/`) | Stable core pages; pipeline page merged in PR #30; sparse page awaiting review in PR #31 |
+| Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
+| FDA partial-replicate RSABE | Validation-gated; `NOT_EVALUABLE` until external fixtures exist |
+| Web app (`api/` + `webapp/`) | Stable core pages; pipeline (PR #30) and sparse NCA (PR #31) merged; formal BE ANOVA, MAP PK, and SUPAC/alcohol pages pending review |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

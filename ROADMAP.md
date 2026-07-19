@@ -207,20 +207,23 @@ published to PyPI on 2026-07-15.
 
 ### Post-v2.6.0 follow-ups
 
-- Formal RSABE (BioEqPy)
+- Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check; FDA
+  partial-replicate RSABE gated `NOT_EVALUABLE` pending external validation fixtures
 - Pipeline page in React webapp ✅ merged in PR #30
-- Sparse NCA API/page ✅ implemented with R `stats::nls` cross-validation
-- MAP PK API/page
+- Sparse NCA API/page ✅ merged in PR #31 (`74c070b`)
+- MAP PK API/page ✅ implemented with SUPAC/alcohol screening UI
 - Hosted production deploy of api + webapp
-- Extending frozen `pop/estimation/`
+- Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
-### Post-v2.6.0 active work (2026-07-16)
+### Post-v2.6.0 active work (2026-07-19)
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
-- Sparse NCA validation/API/page: implemented on `agent/sparse-nca-web`.
-- Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds.
-- See `HANDOFF.md` and `SESSION_SUMMARY_2026-07-15.md` for exact branch state and
-  resume commands.
+- Sparse NCA validation/API/page: merged in PR #31.
+- Formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol hardening: committed
+  on `agent/map-supac-web`, opened as a PR against `main` for review.
+- Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
+  awaits maintainer review.
+- See `HANDOFF.md` for exact branch state and resume commands.
 
 ---
 

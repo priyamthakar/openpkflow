@@ -258,15 +258,16 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Commit the current working tree (agent/map-supac-web branch).
-2. Review and merge sparse NCA PR #31 (may need re-targeting to latest branch).
+1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
+2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
+   committed on `agent/map-supac-web` and opened as a PR against `main` for review.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
 4. Find public partial-replicate datasets to validate FDA RSABE model fitting,
    sWR, upper confidence bound, point-estimate constraint, fallback behavior,
    and final decision; then promote RSABE from NOT_EVALUABLE to PASS/FAIL.
 5. Deploy the API/static webapp and document VITE_API_URL, health checks,
-   file-size limits, and rollback steps.
+   file-size limits, and rollback steps, once the above PR is merged.
 6. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.

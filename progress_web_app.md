@@ -114,12 +114,14 @@ webapp/src/
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
-1. **Merge the sparse NCA slice** after review; PR #31 CI and preview checks are green.
-2. **MAP individual PK page** -- preserve screening scope and fail-closed diagnostics.
-3. **SUPAC / alcohol UI** -- library helpers in `openpkflow.dissolution.supac`.
-4. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
-   `VITE_API_URL` for production builds.
-5. Richer grid controls only if users request them (row delete, resize, drag fill).
+1. ~~Merge the sparse NCA slice~~ -- done: PR #31 merged to `main` as `74c070b`.
+2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
+3. ~~SUPAC / alcohol UI~~ -- done: library helpers in `openpkflow.dissolution.supac` exposed.
+4. Review and merge the PR open against `main` for the above (formal BE ANOVA, RSABE
+   gate, MAP PK, SUPAC/alcohol hardening).
+5. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
+   `VITE_API_URL` for production builds. Blocked on item 4 merging.
+6. Richer grid controls only if users request them (row delete, resize, drag fill).
 
 ---
 

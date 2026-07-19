@@ -258,12 +258,16 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
-   all CI and the Cloudflare preview are green at `bb5170c`.
-2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
+1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
+2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
+   committed on `agent/map-supac-web` and opened as a PR against `main` for review.
+3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
-3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.
-4. Keep validation discipline; do not extend frozen `pop/estimation/`.
+4. Find public partial-replicate BE datasets with subject-level data and a
+   published FDA RSABE decision to validate `be/rsabe.py`; only then promote it
+   from `NOT_EVALUABLE`.
+5. Deploy the API/static webapp once the above PR is merged.
+6. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
