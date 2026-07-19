@@ -7,9 +7,10 @@ dissolution -> IVIVC -> NCA -> BE -> reports. Not another NLME engine — those 
 The gap we fill is the CRO/CDMO bench scientist who needs clean, auditable, shareable outputs
 without WinNonlin or a SAS programmer.
 
-OpenPKFlow owns paired TOST convenience analysis and formal complete balanced TR/RT
-2x2 crossover ANOVA. FDA partial-replicate RSABE is conditional on independent external
-validation; EMA ABEL, full-replicate RSABE, and unvalidated formal designs remain out of scope.
+OpenPKFlow owns paired TOST convenience analysis, formal complete balanced TR/RT
+2x2 crossover ANOVA, and FDA partial-replicate RSABE (validated against Patterson &
+Jones 2012). EMA ABEL, full-replicate RSABE, and unvalidated formal designs remain
+out of scope.
 
 ---
 
@@ -22,7 +23,7 @@ validation; EMA ABEL, full-replicate RSABE, and unvalidated formal designs remai
 | Multi-media dissolution (ICH M13A/B, alcohol dose-dumping) | OpenPKFlow ✅ |
 | Steady-state NCA + urinary excretion | OpenPKFlow ✅ |
 | Formal complete balanced 2x2 ANOVA | OpenPKFlow: implemented with independent R cross-check ✅ |
-| FDA partial-replicate RSABE | Validation-gated in OpenPKFlow; NOT_EVALUABLE until parity fixtures exist 🔒 |
+| FDA partial-replicate RSABE | OpenPKFlow: implemented, validated against Patterson & Jones (2012) Table II ✅ |
 | CDISC PP / ADPPK-compliant PK parameter output | OpenPKFlow ✅ |
 | Sparse oral PK (model-informed fit from 3+ samples) | OpenPKFlow ✅ screening |
 
@@ -207,8 +208,9 @@ published to PyPI on 2026-07-15.
 
 ### Post-v2.6.0 follow-ups
 
-- Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check; FDA
-  partial-replicate RSABE gated `NOT_EVALUABLE` pending external validation fixtures
+- Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check
+- FDA partial-replicate RSABE ✅ implemented, validated against Patterson & Jones
+  (2012) Table II (DOI 10.1002/pst.498); not yet wired into `api/`/`webapp/`
 - Pipeline page in React webapp ✅ merged in PR #30
 - Sparse NCA API/page ✅ merged in PR #31 (`74c070b`)
 - MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
@@ -228,8 +230,8 @@ published to PyPI on 2026-07-15.
   merged in PR #33 (`bb0d16a`).
 - All of the above are merged to `main` but **unreleased**; v2.6.0 remains the latest
   published release. Next release should cut from the `[Unreleased]` changelog block.
-- Next: RSABE external validation (`replicateBE::rds07` lead) — the only gate on
-  promoting `be/rsabe.py` out of `NOT_EVALUABLE`.
+- FDA partial-replicate RSABE implemented and validated in `be/rsabe.py` against
+  Patterson & Jones (2012) Table II; open for review on `agent/rsabe-validation`.
 - Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
   awaits maintainer review. (Unrelated to this repo's PR #33.)
 - See `HANDOFF.md` for exact branch state and resume commands.

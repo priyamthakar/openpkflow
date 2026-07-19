@@ -256,7 +256,7 @@ docs/decisions/
 
 ## Known issues / blocked items
 
-1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. See `docs/decisions/rsabe-validation-search.md` for the current dataset search: the leading candidate is `replicateBE::rds07` (public-domain, Schutz et al. 2020 AAPS J 22:44) cross-checked against a Pumas.ai FDA-style worked example on what appears to be the same dataset (`SLTGSF2020_DS07`) — not yet confirmed or wired into a test.
+1. **FDA partial-replicate RSABE** is now implemented and validated in `src/openpkflow/be/rsabe.py` on branch `agent/rsabe-validation` (based on `origin/main` at `bb0d16a`). The earlier `replicateBE::rds07`/Pumas cross-check lead in `docs/decisions/rsabe-validation-search.md` turned out to be unnecessary: the user provided direct access to Patterson SD, Jones B (2012) "Viewpoint: observations on scaled average bioequivalence," *Pharmaceutical Statistics* 11(1):1-7 (DOI 10.1002/pst.498), which contains a complete worked FDA-method example (Section 1.3, Table II: 51 real subjects, 17/sequence, TRR/RTR/RRT). The method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar aggregate linearized criterion, and the Hyslop-Hsuan-Holder (2000) confidence-bound combination were implemented and reproduce the paper's own numbers almost exactly, including both regulatory decisions (AUC PASS, Cmax FAIL on two independent grounds). Pinned in `tests/validation/test_be_rsabe_reference.py` against `tests/validation/data/be_rsabe_partial_replicate_patterson2012.csv`. Not yet wired into `api/`/`webapp/` — that is a separate follow-up requiring review first.
 
 2. **Conda-forge PR #33461** still awaits maintainer review.
 
@@ -265,16 +265,16 @@ docs/decisions/
 
 ## Resume here
 
-1. **RSABE validation — the priority.** Pursue the `replicateBE::rds07` / Pumas
-   `SLTGSF2020_DS07` lead in `docs/decisions/rsabe-validation-search.md`: confirm the
-   dataset identity, reproduce CVwR and Howe's approximate statistic, and pin as a
-   fixture if they match. This is the only thing keeping `be/rsabe.py` at
-   `NOT_EVALUABLE`. Per CLAUDE.md, validation outranks new features.
-2. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
+1. Review `src/openpkflow/be/rsabe.py` on `agent/rsabe-validation`; open a PR against
+   `main` once satisfied.
+2. If RSABE is to be exposed via the API/webapp, add a router/schema/service in `api/`
+   following the existing `be/anova` pattern, then a webapp page — only after the core
+   module is reviewed.
+3. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
    (legend hide-and-restore is the highest value — it regressed once already).
-3. Await conda-forge maintainer action on PR #33461.
-4. Delete the three superseded merged agent branches (see Current state).
-5. Do not extend frozen `pop/estimation/`.
+4. Await conda-forge maintainer action on PR #33461.
+5. Delete the three superseded merged agent branches (see Current state).
+6. Do not extend frozen `pop/estimation/`.
 
 ## Commands
 

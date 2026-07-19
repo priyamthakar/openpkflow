@@ -21,10 +21,14 @@ replicate screening helper remain separate, backwards-compatible workflows.
 
 ## FDA RSABE gate
 
-FDA partial-replicate 2x2x3 RSABE supports only TRR/RTR/RRT after a pinned external
-reference fixture validates model fitting, sWR, upper confidence bound, point-estimate
-constraint, fallback behavior, and final decision. Until then, the public formal RSABE
-surface must return NOT_EVALUABLE rather than a PASS or FAIL decision.
+FDA partial-replicate 2x2x3 RSABE supports only TRR/RTR/RRT and is validated against
+Patterson SD, Jones B (2012) *Pharmaceutical Statistics* 11(1):1-7, Table II
+(DOI 10.1002/pst.498) — a real 51-subject worked FDA-method example. The implementation
+(method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar linearized aggregate
+criterion, and the Hyslop-Hsuan-Holder 2000 confidence-bound combination) reproduces
+both of the paper's regulatory decisions. `NOT_EVALUABLE` is returned only when the
+reference intra-subject CV is below the 30% RSABE threshold (standard ABE applies
+instead), not as a blanket validation gate.
 
 ## Provenance
 
