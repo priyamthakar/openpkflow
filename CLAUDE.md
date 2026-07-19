@@ -19,10 +19,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Web app layer (ratified 2026-05-31 — see PIVOT_PLAN.md Option A):**
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
   Current routers: nca (including sparse), dissolution (including multi-media), sim,
-  ivivc, be (including power/sample size), and pipeline.
+  ivivc, be (including power/sample size and formal `be/anova`), bayes (`bayes/map`),
+  supac (classify + alcohol), and pipeline. 27 endpoints total.
 - `webapp/` — React + Vite + Tailwind frontend.
-  Current pages: Home, NCA, Sparse NCA, Dissolution (single + multi-media tab),
-  Simulation, IVIVC, Bioequivalence (analysis + power tab), and Study Pipeline.
+  Current pages: Home, NCA, Sparse NCA, MAP Individual PK, Dissolution (single +
+  multi-media tab), Simulation, IVIVC, Bioequivalence (analysis + power tab),
+  Formal BE ANOVA, SUPAC & Alcohol, and Study Pipeline.
+- Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
+  on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and the CORS/build wiring.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
@@ -257,17 +261,20 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
+PRs #31 (sparse NCA, `74c070b`), #32 (formal BE ANOVA, RSABE gate, MAP PK,
+SUPAC/alcohol, `486788c`), and #33 (frontend design polish + mobile pass, `bb0d16a`)
+are all merged to `main` and unreleased. The API and webapp are deployed and live.
+
 **Immediate next work (in order):**
-1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
-2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
-   open as PR #32 against `main`, CI running.
+1. **RSABE validation.** Confirm the `replicateBE::rds07` / Pumas `SLTGSF2020_DS07`
+   lead in `docs/decisions/rsabe-validation-search.md`, reproduce the published FDA
+   decision, and pin it as a fixture. Only then promote `be/rsabe.py` out of
+   `NOT_EVALUABLE`. Validation outranks new features.
+2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
+   layout — currently manual-verified only.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
-4. Find public partial-replicate BE datasets with subject-level data and a
-   published FDA RSABE decision to validate `be/rsabe.py`; only then promote it
-   from `NOT_EVALUABLE`.
-5. Deploy the API/static webapp once the above PR is merged.
-6. Keep validation discipline; do not extend frozen `pop/estimation/`.
+4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 

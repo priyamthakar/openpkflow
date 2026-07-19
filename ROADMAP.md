@@ -211,18 +211,27 @@ published to PyPI on 2026-07-15.
   partial-replicate RSABE gated `NOT_EVALUABLE` pending external validation fixtures
 - Pipeline page in React webapp ✅ merged in PR #30
 - Sparse NCA API/page ✅ merged in PR #31 (`74c070b`)
-- MAP PK API/page ✅ implemented with SUPAC/alcohol screening UI
-- Hosted production deploy of api + webapp
+- MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
+- Formal BE ANOVA API/page ✅ merged in PR #32 (`486788c`)
+- Frontend design system polish + mobile pass ✅ merged in PR #33 (`bb0d16a`)
+- Hosted production deploy of api + webapp ✅ Cloudflare Workers (frontend) + Render
+  (backend), both auto-deploying on merge to `main`; URLs in `HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### Post-v2.6.0 active work (2026-07-19)
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
 - Sparse NCA validation/API/page: merged in PR #31.
-- Formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol hardening: open as
-  PR #32 against `main`, CI running.
+- Formal BE ANOVA, RSABE gate, MAP PK hardening, SUPAC/alcohol hardening: merged in
+  PR #32 (`486788c`).
+- Frontend design system polish, three PKChart defect fixes, and mobile/Android pass:
+  merged in PR #33 (`bb0d16a`).
+- All of the above are merged to `main` but **unreleased**; v2.6.0 remains the latest
+  published release. Next release should cut from the `[Unreleased]` changelog block.
+- Next: RSABE external validation (`replicateBE::rds07` lead) — the only gate on
+  promoting `be/rsabe.py` out of `NOT_EVALUABLE`.
 - Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
-  awaits maintainer review.
+  awaits maintainer review. (Unrelated to this repo's PR #33.)
 - See `HANDOFF.md` for exact branch state and resume commands.
 
 ---

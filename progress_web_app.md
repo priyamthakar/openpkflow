@@ -8,7 +8,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-19 (design system polish: PKChart toolbar + chart theme tokens, persisted split-pane, empty states, Ctrl+Enter shortcut, sidebar groups + collapse, offline health badge, CSS cleanup)
+**Last updated:** 2026-07-19 (PRs #32 and #33 merged; design system polish and mobile
+pass shipped; API + webapp deployed live — see `HANDOFF.md` "Deployment")
 
 ---
 
@@ -179,11 +180,16 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 1. ~~Merge the sparse NCA slice~~ -- done: PR #31 merged to `main` as `74c070b`.
 2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
 3. ~~SUPAC / alcohol UI~~ -- done: library helpers in `openpkflow.dissolution.supac` exposed.
-4. Review and merge [PR #32](https://github.com/priyamthakar/openpkflow/pull/32)
-   for the above (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening).
-5. **Deploy** FastAPI + static webapp (Railway/Render/Cloudflare); document
-   `VITE_API_URL` for production builds. Blocked on item 4 merging.
-6. Richer grid controls only if users request them (row delete, resize, drag fill).
+4. ~~Merge PR #32~~ -- done: merged to `main` as `486788c`.
+5. ~~**Deploy** FastAPI + static webapp~~ -- done: frontend on Cloudflare Workers,
+   backend on Render, both auto-deploying on merge to `main`. URLs and the
+   `VITE_API_URL` / CORS wiring are documented in `HANDOFF.md` "Deployment".
+6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
+7. **Playwright coverage for the new UI** — the 14 existing tests cover paste-run flows
+   only. Nothing guards legend toggling, PNG export, sidebar collapse, or mobile layout.
+   Legend hide-and-restore is the highest value; it regressed once already.
+8. Wire `EmptyResults` into the remaining analysis pages (only NCA uses it today).
+9. Richer grid controls only if users request them (row delete, resize, drag fill).
 
 ---
 
