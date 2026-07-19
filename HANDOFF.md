@@ -170,7 +170,7 @@ docs/decisions/
 
 ## Known issues / blocked items
 
-1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. FDA 2012 RSABE implementation paper (PMC3475857) provides SAS algorithm and worked outputs but is not Open Access. CRAN PowerTOST validates design constants but does not fit observed datasets. CRAN ReplicateBE is EMA ABEL-oriented. See the dataset-search findings note (if produced) for current candidates.
+1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. See `docs/decisions/rsabe-validation-search.md` for the current dataset search: the leading candidate is `replicateBE::rds07` (public-domain, Schutz et al. 2020 AAPS J 22:44) cross-checked against a Pumas.ai FDA-style worked example on what appears to be the same dataset (`SLTGSF2020_DS07`) — not yet confirmed or wired into a test.
 
 2. **PR #32** (formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol hardening) is open against `main` and awaits review/CI/merge.
 
@@ -180,7 +180,7 @@ docs/decisions/
 
 1. PR #32 is open against `main`. Once merged, update this section and delete the resolved item above.
 2. Await conda-forge maintainer action on PR #33461.
-3. RSABE: search for public partial-replicate datasets with FDA RSABE decision outputs for validation. Candidates: FDA product-specific BE guidances, Drupal/OpenFDA datasets, published FDA RSABE reference implementation with subject-level data.
+3. RSABE: pursue the `replicateBE::rds07` / Pumas `SLTGSF2020_DS07` lead in `docs/decisions/rsabe-validation-search.md` — confirm the dataset identity, reproduce CVwR and Howe's approximate statistic, and pin as a fixture if they match.
 4. Deploy the API/static webapp once the PR above merges and conda-forge clears.
 5. Do not extend frozen `pop/estimation/`.
 
