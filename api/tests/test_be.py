@@ -24,6 +24,22 @@ def _be_csv(tmp_path: Path) -> Path:
     return path
 
 
+def _formal_be_csv(tmp_path: Path) -> Path:
+    rows = [
+        {"subject": "S1", "sequence": "TR", "period": 1, "treatment": "T", "AUCinf": 110},
+        {"subject": "S1", "sequence": "TR", "period": 2, "treatment": "R", "AUCinf": 100},
+        {"subject": "S2", "sequence": "TR", "period": 1, "treatment": "T", "AUCinf": 120},
+        {"subject": "S2", "sequence": "TR", "period": 2, "treatment": "R", "AUCinf": 109},
+        {"subject": "S3", "sequence": "RT", "period": 1, "treatment": "R", "AUCinf": 100},
+        {"subject": "S3", "sequence": "RT", "period": 2, "treatment": "T", "AUCinf": 108},
+        {"subject": "S4", "sequence": "RT", "period": 1, "treatment": "R", "AUCinf": 90},
+        {"subject": "S4", "sequence": "RT", "period": 2, "treatment": "T", "AUCinf": 101},
+    ]
+    path = tmp_path / "formal_be.csv"
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
 def test_be_analyze(client: TestClient, tmp_path: Path) -> None:
     csv_path = _be_csv(tmp_path)
     with csv_path.open("rb") as f:
@@ -37,6 +53,30 @@ def test_be_analyze(client: TestClient, tmp_path: Path) -> None:
     assert body["n"] == 6
     assert "gmr" in body
     assert "disclaimer" in body
+
+
+def test_formal_be_anova_analyze_and_report(client: TestClient, tmp_path: Path) -> None:
+    csv_path = _formal_be_csv(tmp_path)
+    with csv_path.open("rb") as f:
+        response = client.post(
+            "/api/be/anova/analyze",
+            data={"options": "{}"},
+            files={"file": ("formal_be.csv", f, "text/csv")},
+        )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["design"] == "complete_balanced_2x2"
+    assert body["decision"] == "PASS"
+    assert len(body["anova"]) == 5
+
+    with csv_path.open("rb") as f:
+        response = client.post(
+            "/api/be/anova/report",
+            data={"options": "{}", "format": "html"},
+            files={"file": ("formal_be.csv", f, "text/csv")},
+        )
+    assert response.status_code == 200, response.text
+    assert b"ANOVA Table" in response.content
 
 
 def test_be_power_matches_library(client: TestClient) -> None:

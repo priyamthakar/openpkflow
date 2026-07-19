@@ -262,6 +262,19 @@ class TestValidation:
         with pytest.raises(ValueError, match="same length"):
             map_individual_pk([1.0, 2.0, 3.0], [5.0, 3.0], _DOSE, "oral")
 
+    @pytest.mark.parametrize(
+        ("times", "concentrations", "message"),
+        [
+            (_TIMES_ORAL, [0.0] * len(_TIMES_ORAL), "at least one"),
+            (_TIMES_ORAL, [-1.0, *_TRUE_ORAL[1:]], ">= 0"),
+            ([0.5, 1.0, 1.0, 4.0, 8.0, 12.0], _TRUE_ORAL, "strictly increasing"),
+            ([-0.5, 1.0, 2.0, 4.0, 8.0, 12.0], _TRUE_ORAL, ">= 0"),
+        ],
+    )
+    def test_invalid_profile_raises(self, times, concentrations, message):
+        with pytest.raises(ValueError, match=message):
+            map_individual_pk(times, concentrations, _DOSE, "oral")
+
 
 class TestNumericalHessian:
     def test_hessian_is_symmetric(self):
@@ -314,6 +327,18 @@ class TestReport:
         result = map_individual_pk(_TIMES_ORAL, _TRUE_ORAL, _DOSE, "oral")
         content = result.report(tmp_path / "r.html", format="html")
         assert "Converged" in content
+
+    def test_html_report_escapes_subject(self, tmp_path):
+        result = map_individual_pk(
+            _TIMES_ORAL,
+            _TRUE_ORAL,
+            _DOSE,
+            "oral",
+            subject="<script>alert(1)</script>",
+        )
+        content = result.report(tmp_path / "escaped.html", format="html")
+        assert "&lt;script&gt;" in content
+        assert "<script>" not in content
 
     def test_iv_html_report(self, tmp_path):
         result = map_individual_pk(_TIMES_IV, _TRUE_IV, _DOSE, "iv_bolus")

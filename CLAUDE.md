@@ -11,7 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `sim/` — analytical compartment models, transit oral, SS metrics
 - `pipeline/` — multi-stage study orchestration + unified reports (v2.6.0)
 - `bayes/` — MAP individual PK (scipy, screening tool, not regulatory primary)
-- `be/` — paired TOST convenience layer + power/n + BioEqPy export
+- `be/` — paired TOST convenience layer, formal complete balanced 2x2 crossover
+  ANOVA, power/n, and FDA partial-replicate RSABE only after external validation
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
@@ -32,7 +33,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
-- RSABE / replicate-design BE — belongs in companion BioEqPy package, not here.
+- EMA ABEL, full-replicate RSABE, and formal BE without independent validation fixtures
+  are out of scope. FDA partial-replicate RSABE must fail closed as NOT_EVALUABLE until
+  its external validation gate is satisfied.
 - WeasyPrint, Streamlit/Gradio GUI (as embedded GUI in the library), CDISC Define.xml, eCTD table formatting.
   Note: The `api/` + `webapp/` web application is a separate layer, not a Streamlit/Gradio embed.
 
@@ -255,12 +258,16 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
-   all CI and the Cloudflare preview are green at `bb5170c`.
-2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
+1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
+2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
+   open as PR #32 against `main`, CI running.
+3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
-3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.
-4. Keep validation discipline; do not extend frozen `pop/estimation/`.
+4. Find public partial-replicate BE datasets with subject-level data and a
+   published FDA RSABE decision to validate `be/rsabe.py`; only then promote it
+   from `NOT_EVALUABLE`.
+5. Deploy the API/static webapp once the above PR is merged.
+6. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 

@@ -95,6 +95,38 @@ export interface BeResponse {
   disclaimer: string
 }
 
+export interface FormalBeAnovaRow {
+  source: string
+  df: number
+  sum_squares: number
+  mean_square: number | null
+  f_value: number | null
+  p_value: number | null
+}
+
+export interface FormalBeResponse {
+  parameter: string
+  design: string
+  n_subjects: number
+  alpha: number
+  confidence_level_pct: number
+  be_lower: number
+  be_upper: number
+  treatment_log_lsmean: number
+  reference_log_lsmean: number
+  treatment_difference: number
+  treatment_se: number
+  residual_mse: number
+  residual_df: number
+  cv_intra_pct: number
+  gmr: number
+  gmr_lower_ci: number
+  gmr_upper_ci: number
+  decision: 'PASS' | 'FAIL' | 'NOT_EVALUABLE'
+  anova: FormalBeAnovaRow[]
+  disclaimer: string
+}
+
 export interface BePowerRequest {
   gmr: number
   cv: number
@@ -274,6 +306,98 @@ export interface SparseNcaResponse {
   observed_conc: number[]
   fitted_conc: number[]
   warnings: string[]
+  scope_note: string
+  disclaimer: string
+}
+
+export interface MapPkRequest {
+  subject: string
+  times: number[]
+  concentrations: number[]
+  dose: number
+  route: 'oral' | 'iv_bolus'
+}
+
+export interface MapPkResponse {
+  subject: string
+  route: 'oral' | 'iv_bolus'
+  dose: number
+  n_observations: number
+  converged: boolean
+  uncertainty_reliable: boolean
+  fit_usable: boolean
+  CL_F: number | null
+  Vz_F: number | null
+  ka: number | null
+  CL: number | null
+  Vz: number | null
+  CL_F_se: number | null
+  Vz_F_se: number | null
+  ka_se: number | null
+  CL_se: number | null
+  Vz_se: number | null
+  k: number
+  half_life: number
+  AUCinf: number
+  Cmax: number
+  Tmax: number
+  gradient_norm: number | null
+  condition_number: number | null
+  objective_value: number | null
+  time_points: number[]
+  observed_conc: number[]
+  predicted_conc: number[]
+  warnings: string[]
+  scope_note: string
+  disclaimer: string
+}
+
+export type SupacComponentCategory =
+  | 'filler'
+  | 'binder'
+  | 'disintegrant_starch'
+  | 'disintegrant_other'
+  | 'lubricant_stearate'
+  | 'lubricant_other'
+  | 'glidant'
+  | 'film_coat'
+  | 'non_critical'
+  | 'critical'
+
+export interface SupacClassifyRequest {
+  component_category: SupacComponentCategory
+  change_pct: number
+}
+
+export interface SupacClassifyResponse {
+  level: 1 | 2 | 3
+  change_pct: number
+  component_category: string
+  rationale: string
+  recommended_tests: string[]
+  scope_note: string
+  disclaimer: string
+}
+
+export interface EthanolProfile {
+  ethanol_pct: number
+  means: number[]
+}
+
+export interface AlcoholDosingRequest {
+  time_points: number[]
+  control_means: number[]
+  ethanol_profiles: EthanolProfile[]
+  f2_threshold: number
+  control_label: string
+}
+
+export interface AlcoholDosingResponse {
+  control_label: string
+  f2_by_ethanol_pct: Record<string, number>
+  f2_threshold: number
+  f2_method: 'regulatory'
+  overall_pass: boolean
   scope_note: string
   disclaimer: string
 }

@@ -24,6 +24,8 @@ htmlcov/
 .tox/
 .hypothesis/
 .ruff_cache/
+.test-tmp/
+.mkdocs-tmp/
 
 # Type checking
 .mypy_cache/

@@ -40,6 +40,51 @@ class BeResponse(BaseModel):
     disclaimer: str
 
 
+class FormalBeOptions(BaseModel):
+    parameter: str = "AUCinf"
+    value_col: str | None = None
+    subject_col: str = "subject"
+    sequence_col: str = "sequence"
+    period_col: str = "period"
+    treatment_col: str = "treatment"
+    be_lower: float = Field(default=0.80, gt=0)
+    be_upper: float = Field(default=1.25, gt=0)
+    alpha: float = Field(default=0.05, gt=0, lt=0.5)
+    columns: dict[str, str] = Field(default_factory=dict)
+
+
+class FormalAnovaRow(BaseModel):
+    source: str
+    df: int
+    sum_squares: float
+    mean_square: float | None
+    f_value: float | None
+    p_value: float | None
+
+
+class FormalBeResponse(BaseModel):
+    parameter: str
+    design: str
+    n_subjects: int
+    alpha: float
+    confidence_level_pct: float
+    be_lower: float
+    be_upper: float
+    treatment_log_lsmean: float
+    reference_log_lsmean: float
+    treatment_difference: float
+    treatment_se: float
+    residual_mse: float
+    residual_df: int
+    cv_intra_pct: float
+    gmr: float
+    gmr_lower_ci: float
+    gmr_upper_ci: float
+    decision: str
+    anova: list[FormalAnovaRow]
+    disclaimer: str
+
+
 class PowerRequest(BaseModel):
     gmr: float = Field(..., gt=0, description="True geometric mean ratio (test/reference).")
     cv: float = Field(..., gt=0, description="Intra-subject CV as fraction (e.g. 0.20 for 20%).")

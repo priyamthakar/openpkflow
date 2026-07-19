@@ -62,6 +62,78 @@ test('Dissolution paste-run flow renders f2 result', async ({ page }) => {
   await expect(page.getByText('86.400')).toBeVisible()
 })
 
+test('MAP flow submits a chronological oral profile and renders usable metrics', async ({ page }) => {
+  await page.route('**/api/bayes/map/analyze', async (route) => {
+    const payload = route.request().postDataJSON()
+    expect(payload.route).toBe('oral')
+    expect(payload.times).toEqual([0.25, 1.12, 3.82, 9.05, 24.37])
+    await route.fulfill({
+      json: {
+        subject: 'Theoph subject 1', route: 'oral', dose: 320, n_observations: 5,
+        converged: true, uncertainty_reliable: true, fit_usable: true,
+        CL_F: 3.5, Vz_F: 40, ka: 1.1, CL: null, Vz: null,
+        CL_F_se: 0.2, Vz_F_se: 2, ka_se: 0.1, CL_se: null, Vz_se: null,
+        k: 0.0875, half_life: 7.9, AUCinf: 91.4, Cmax: 6.8, Tmax: 1.9,
+        gradient_norm: 0.0001, condition_number: 100, objective_value: 4,
+        time_points: [0.25, 1.12, 3.82, 9.05, 24.37],
+        observed_conc: [2.84, 10.5, 8.58, 6.89, 3.28],
+        predicted_conc: [2.8, 10.4, 8.6, 6.8, 3.3], warnings: [],
+        scope_note: 'screening only', disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/bayes/map')
+  await page.getByRole('button', { name: 'Run MAP Individual PK' }).click()
+  await expect(page.getByText('CL/F').first()).toBeVisible()
+  await expect(page.getByText('3.500').first()).toBeVisible()
+})
+
+test('MAP unusable fit suppresses estimates and report download', async ({ page }) => {
+  await page.route('**/api/bayes/map/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        subject: 'S01', route: 'oral', dose: 320, n_observations: 5,
+        converged: false, uncertainty_reliable: false, fit_usable: false,
+        CL_F: 3.5, Vz_F: 40, ka: 1.1, CL: null, Vz: null,
+        CL_F_se: null, Vz_F_se: null, ka_se: null, CL_se: null, Vz_se: null,
+        k: 0.0875, half_life: 7.9, AUCinf: 91.4, Cmax: 6.8, Tmax: 1.9,
+        gradient_norm: null, condition_number: null, objective_value: null,
+        time_points: [0.25, 1.12, 3.82, 9.05, 24.37],
+        observed_conc: [2.84, 10.5, 8.58, 6.89, 3.28],
+        predicted_conc: [2.8, 10.4, 8.6, 6.8, 3.3], warnings: ['fit failed'],
+        scope_note: 'screening only', disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/bayes/map')
+  await page.getByRole('button', { name: 'Run MAP Individual PK' }).click()
+  await expect(page.getByText('Fit unusable')).toBeVisible()
+  await expect(page.getByText('CL/F')).not.toBeVisible()
+  await expect(page.getByRole('button', { name: /Download/i })).not.toBeVisible()
+})
+
+test('alcohol screening sends the edited control time grid', async ({ page }) => {
+  await page.route('**/api/supac/alcohol', async (route) => {
+    const payload = route.request().postDataJSON()
+    expect(payload.time_points).toEqual([5, 10, 15, 20, 30])
+    expect(payload.ethanol_profiles[0].means).toHaveLength(5)
+    await route.fulfill({
+      json: {
+        control_label: 'aqueous', f2_by_ethanol_pct: { '5': 95, '20': 40 },
+        f2_threshold: 50, f2_method: 'regulatory', overall_pass: false,
+        scope_note: 'screening only', disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/supac')
+  await page.getByRole('tab', { name: 'Alcohol dose dumping' }).click()
+  await page.getByRole('button', { name: 'Assess alcohol dose dumping' }).click()
+  await expect(page.getByText('Fail (regulatory f2)')).toBeVisible()
+})
+
 test('Simulation paste-style parameter flow renders live curve metrics', async ({ page }) => {
   await page.route('**/api/sim/simulate', async (route) => {
     await route.fulfill({
@@ -141,6 +213,38 @@ test('BE paste-run flow renders bioequivalence verdict', async ({ page }) => {
   await page.getByRole('button', { name: 'Run BE Analysis' }).click()
   await expect(page.getByText('BIOEQUIVALENT')).toBeVisible()
   await expect(page.getByText('0.960')).toBeVisible()
+})
+
+test('formal BE ANOVA flow renders ANOVA result', async ({ page }) => {
+  await page.route('**/api/be/anova/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        parameter: 'AUCinf', design: 'complete_balanced_2x2', n_subjects: 4,
+        alpha: 0.05, confidence_level_pct: 90, be_lower: 0.8, be_upper: 1.25,
+        treatment_log_lsmean: 4.7, reference_log_lsmean: 4.6,
+        treatment_difference: 0.0959, treatment_se: 0.0096,
+        residual_mse: 0.00018, residual_df: 2, cv_intra_pct: 1.4,
+        gmr: 1.1007, gmr_lower_ci: 1.0703, gmr_upper_ci: 1.1319,
+        decision: 'PASS',
+        anova: [
+          { source: 'Sequence', df: 1, sum_squares: 0.018, mean_square: 0.018, f_value: 2.4, p_value: 0.25 },
+          { source: 'Residual', df: 2, sum_squares: 0.00036, mean_square: 0.00018, f_value: null, p_value: null },
+        ],
+        disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/be/anova')
+  await page.setInputFiles('input[type="file"]', {
+    name: 'formal_be.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('subject,sequence,period,treatment,AUCinf\nS1,TR,1,T,110'),
+  })
+  await page.getByRole('button', { name: 'Run Formal ANOVA' }).click()
+  await expect(page.getByText('Formal ANOVA result')).toBeVisible()
+  await expect(page.getByText('Sequence').last()).toBeVisible()
+  await expect(page.getByText('1.101').first()).toBeVisible()
 })
 
 test('BE power calculator happy path', async ({ page }) => {

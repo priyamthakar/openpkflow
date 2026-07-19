@@ -1,9 +1,10 @@
 # openpkflow.be
 
-Bioequivalence analysis: paired 2x2 TOST, GMR + 90% CI, intra-subject CV,
-and research-grade replicate-design screening. For formal ANOVA-based BE,
-jurisdiction-specific NTI decisions, validated ABEL/RSABE, and submission
-fixtures, cross-check against BioEqPy, PowerTOST, or validated SAS/R workflows.
+Bioequivalence analysis: paired 2x2 TOST, formal complete balanced TR/RT 2x2
+crossover ANOVA, and research-grade replicate-design screening. FDA partial-replicate
+RSABE is deliberately `NOT_EVALUABLE` until its external-reference validation gate is
+complete. EMA ABEL, full-replicate RSABE, NTI decisions, and unbalanced/incomplete
+formal designs are not supported in the formal workflow.
 
 ## Public API
 
@@ -12,12 +13,65 @@ fixtures, cross-check against BioEqPy, PowerTOST, or validated SAS/R workflows.
 | `BEStudy` | class | Entry point: `__init__(df, parameter, ...)`, `.analyze() -> BEResult`, `.from_nca_results()` |
 | `BEResult` | dataclass | Analysis result: `gmr`, `gmr_lower_90ci`, `gmr_upper_90ci`, `bioequivalent`, `cv_intra_pct`, `subjects_df`, `.summary()`, `.report()` |
 | `BETOSTResult` | dataclass | Low-level TOST output from `be_tost()` |
+| `formal_be_anova(data, parameter, ...)` | function | Formal complete balanced TR/RT 2x2 crossover ANOVA |
+| `FormalBEResult` | dataclass | Formal ANOVA table, LSMeans, treatment contrast, residual CV, CI, and decision |
 | `be_tost(reference, test, ...)` | function | Core TOST computation |
 | `replicate_be(data, value_col, ...)` | function | Long-format replicate-design BE screening |
 | `ReplicateBEResult` | dataclass | Replicate BE output with GMR, 90% CI, CVwR, scaled limits, and caveat |
 | `ema_scaled_limits(swr, ...)` | function | EMA-style scaled limits from reference within-subject SD |
 | `BEStudy.to_bioeqpy_dataframe()` | method | Export BioEqPy-ready long-format BE input |
 | `BEStudy.to_bioeqpy_csv(path)` | method | Write BioEqPy-ready CSV input |
+
+## formal_be_anova()
+
+```python
+from openpkflow.be import formal_be_anova
+
+result = formal_be_anova(
+    data,
+    parameter="AUCinf",
+    subject_col="subject",
+    sequence_col="sequence",
+    period_col="period",
+    treatment_col="treatment",
+)
+```
+
+The formal initial release supports only complete balanced 2x2 studies:
+
+| Column | Required values |
+|---|---|
+| `subject` | One identifier with exactly two observations |
+| `sequence` | Both `TR` and `RT`, equal subject allocation |
+| `period` | `1`, `2` |
+| `treatment` | Must agree with sequence/period (`T` or `R`) |
+| endpoint | Finite, positive values for log analysis |
+
+The result provides sequence, subject-within-sequence, period, treatment, and residual
+ANOVA rows. Sequence uses subject-within-sequence as its denominator; period and
+treatment use residual MSE. The workflow rejects unbalanced, incomplete, duplicated,
+or rank-deficient input rather than silently changing the estimand.
+
+```bash
+openpkflow be anova formal_be.csv --parameter AUCinf --report formal_be.html
+```
+
+The independently executable R cross-check is `scripts/be_anova_crossval.R`; its
+fixture is `tests/validation/data/be_anova_balanced_2x2.csv`.
+
+## FDA partial-replicate RSABE gate
+
+```python
+from openpkflow.be import fda_partial_replicate_rsabe
+
+gate = fda_partial_replicate_rsabe(data, value_col="Cmax")
+assert gate.decision == "NOT_EVALUABLE"
+```
+
+The initial planned design is FDA partial replicate 2x2x3 (`TRR`, `RTR`, `RRT`). It
+will remain non-decisional until pinned external fixtures validate the replicate model,
+reference within-subject variability, upper confidence bound, point-estimate constraint,
+fallback behavior, and final decision.
 
 ## BEStudy
 

@@ -117,9 +117,12 @@ def _plot_b64(result: MapPKResult) -> str:
 
 def _map_pk_html(result: MapPKResult) -> str:
     """Render MAP PK result as an HTML report."""
-    from jinja2 import Environment, FileSystemLoader
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+    env = Environment(
+        loader=FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=select_autoescape(("html", "xml")),
+    )
     env.globals["zip"] = zip
     tmpl = env.get_template("map_pk_report.html")
 

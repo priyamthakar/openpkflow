@@ -11,7 +11,8 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `sim/` — analytical compartment models, transit oral, SS metrics
 - `pipeline/` — multi-stage study orchestration + unified reports (v2.6.0)
 - `bayes/` — MAP individual PK (scipy, screening tool, not regulatory primary)
-- `be/` — paired TOST convenience layer + power/n + BioEqPy export
+- `be/` — paired TOST convenience layer, formal complete balanced 2x2 crossover
+  ANOVA, power/n, and FDA partial-replicate RSABE only after external validation
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
@@ -22,8 +23,8 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   (schemas/), service (services/), router (routers/), and registration in main.py.
   Follow the existing nca router pattern exactly.
 - `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
-  Dissolution (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab), and
-  Study Pipeline.
+  Dissolution (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab),
+  Formal BE ANOVA, MAP Individual PK, SUPAC & Alcohol Screening, and Study Pipeline.
   See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 
@@ -33,7 +34,9 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
-- RSABE / replicate-design BE — belongs in companion BioEqPy package, not here.
+- EMA ABEL, full-replicate RSABE, and any formal BE design without independent
+  validation fixtures are out of scope. FDA partial-replicate RSABE must fail closed
+  as NOT_EVALUABLE until its external validation gate is satisfied.
 - WeasyPrint, Streamlit/Gradio GUI, CDISC Define.xml, eCTD table formatting.
 
 **Rules for AI agents:**
@@ -122,7 +125,7 @@ report/        -- Markdown, HTML, PDF (ReportLab), Word (python-docx)      DONE
 datasets/      -- example CSVs (dissolution + theoph NCA reference)
 validation/    -- reference comparison utilities
 student/       -- simplified teaching APIs                                 DONE v2.5
-cli.py         -- Typer: dissolution, be, ivivc, pop, study run
+cli.py         -- Typer: dissolution, be (tost + replicate + anova), ivivc, pop, study run
 ```
 
 ### NCA module layout
@@ -255,12 +258,17 @@ pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
 convolution validation.
 
 **Immediate next work (in order):**
-1. Review and merge draft PR #31 for the sparse NCA validation/API/page slice;
-   all CI and the Cloudflare preview are green at `bb5170c`.
-2. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
+1. PR #31 (sparse NCA) merged to `main` as squash commit `74c070b` on 2026-07-16.
+2. Formal BE ANOVA, RSABE gate, MAP PK hardening, and SUPAC/alcohol hardening are
+   open as PR #32 against `main`, CI running.
+3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
    recipe and all platform builds are green.
-3. Then add the MAP adapter/page, SUPAC UI, and deployment in that order.
-4. Keep validation discipline; do not extend frozen `pop/estimation/`.
+4. Find public partial-replicate datasets to validate FDA RSABE model fitting,
+   sWR, upper confidence bound, point-estimate constraint, fallback behavior,
+   and final decision; then promote RSABE from NOT_EVALUABLE to PASS/FAIL.
+5. Deploy the API/static webapp and document VITE_API_URL, health checks,
+   file-size limits, and rollback steps, once the above PR is merged.
+6. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 

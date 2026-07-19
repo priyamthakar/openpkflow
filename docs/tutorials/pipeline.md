@@ -5,7 +5,7 @@ dissolution similarity, NCA on a PK dataset, then optional BE screening and
 reports.
 
 See also [Positioning](../positioning.md) for scope limits (not Part 11,
-research-grade PopPK, RSABE in BioEqPy).
+research-grade PopPK, and validation-gated FDA partial-replicate RSABE).
 
 ---
 
@@ -135,8 +135,9 @@ Wide CSV: one row per subject with `subject`, `reference`, `test`
 openpkflow be compare be_params.csv --parameter AUCinf --report out/be.html
 ```
 
-This is a **2x2 TOST convenience layer** for screening and teaching. Formal
-replicate / RSABE work belongs in the companion BioEqPy package, not here.
+This is a **2x2 TOST convenience layer** for screening and teaching. Formal complete
+balanced 2x2 ANOVA is available separately through `openpkflow be anova`; FDA
+partial-replicate RSABE remains `NOT_EVALUABLE` until external parity validation is complete.
 
 ### From NCA results (Python)
 

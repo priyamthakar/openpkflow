@@ -9,6 +9,7 @@ import type {
   BePowerRequest,
   BePowerResponse,
   BeResponse,
+  FormalBeResponse,
   BeSampleSizeRequest,
   BeSampleSizeResponse,
   CompareResponse,
@@ -24,6 +25,12 @@ import type {
   SimResponse,
   SparseNcaRequest,
   SparseNcaResponse,
+  MapPkRequest,
+  MapPkResponse,
+  SupacClassifyRequest,
+  SupacClassifyResponse,
+  AlcoholDosingRequest,
+  AlcoholDosingResponse,
 } from './types'
 
 async function _json<T>(res: Response): Promise<T> {
@@ -285,6 +292,29 @@ export async function downloadBeReport(file: File, options: object, format: stri
   _triggerDownload(blob, `be_report.${ext}`)
 }
 
+export async function analyzeFormalBe(file: File, options: object): Promise<FormalBeResponse> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('options', JSON.stringify(options))
+  return _json(await fetch(`${BASE}/api/be/anova/analyze`, { method: 'POST', body: fd }))
+}
+
+export async function downloadFormalBeReport(
+  file: File,
+  options: object,
+  format: string,
+): Promise<void> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('options', JSON.stringify(options))
+  fd.append('format', format)
+  const res = await fetch(`${BASE}/api/be/anova/report`, { method: 'POST', body: fd })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  const ext = format === 'markdown' ? 'md' : format
+  _triggerDownload(blob, `formal_be_anova_report.${ext}`)
+}
+
 export async function computeBePower(req: BePowerRequest): Promise<BePowerResponse> {
   return _json(
     await fetch(`${BASE}/api/be/power`, {
@@ -401,6 +431,58 @@ export async function downloadSparseNcaReport(
   const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `sparse_nca_report.${ext}`)
+}
+
+// ---------- MAP individual PK ----------
+export async function analyzeMapPk(req: MapPkRequest): Promise<MapPkResponse> {
+  return _json(
+    await fetch(`${BASE}/api/bayes/map/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function downloadMapPkReport(
+  req: MapPkRequest,
+  format: string,
+): Promise<void> {
+  const params = new URLSearchParams({ format })
+  const res = await fetch(`${BASE}/api/bayes/map/report?${params}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  const ext = format === 'markdown' ? 'md' : format
+  _triggerDownload(blob, `map_pk_report.${ext}`)
+}
+
+// ---------- SUPAC-IR screening ----------
+export async function classifySupac(
+  req: SupacClassifyRequest,
+): Promise<SupacClassifyResponse> {
+  return _json(
+    await fetch(`${BASE}/api/supac/classify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function assessAlcoholDosing(
+  req: AlcoholDosingRequest,
+): Promise<AlcoholDosingResponse> {
+  return _json(
+    await fetch(`${BASE}/api/supac/alcohol`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
 }
 
 function _triggerDownload(blob: Blob, filename: string) {

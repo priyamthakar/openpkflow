@@ -68,7 +68,9 @@ Use the matching section from `docs/changelog.md`. Include:
 
 - SUPAC classification and alcohol dose-dumping helpers are **screening** tools,
   not full guidance automation.
-- Replicate BE remains **research-grade** screening; formal RSABE is BioEqPy.
+- Replicate BE remains **research-grade** screening. Formal complete balanced 2x2 ANOVA
+  is supported; FDA partial-replicate RSABE remains `NOT_EVALUABLE` until external
+  observed-data parity validation is complete.
 - Pop PK FOCE-I/SAEM is research-grade and frozen for extension.
 - Study pipeline composes existing modules; stages without inputs are skipped.
 

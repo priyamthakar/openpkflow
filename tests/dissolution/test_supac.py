@@ -122,7 +122,7 @@ class TestAlcoholDoseDumping:
         assert result.f2_by_ethanol_pct[40.0] < 50.0
         assert math.isclose(
             result.f2_by_ethanol_pct[40.0],
-            f2(control, eth_fast),
+            f2(control, eth_fast, method="regulatory"),
             rel_tol=1e-12,
         )
 
@@ -149,3 +149,23 @@ class TestAlcoholDoseDumping:
                 [10, 20, 30, 40, 50],
                 {5.0: [10, 20, 30]},
             )
+
+    def test_time_points_must_be_strictly_increasing(self) -> None:
+        with pytest.raises(ValueError, match="strictly increasing"):
+            alcohol_dose_dumping_assessment(
+                [10, 20, 30],
+                {5.0: [10, 20, 30]},
+                time_points=[5, 5, 15],
+            )
+
+    def test_regulatory_f2_trims_extra_plateau_points(self) -> None:
+        control = [20, 60, 86, 90, 95]
+        ethanol = [20, 60, 86, 100, 100]
+        result = alcohol_dose_dumping_assessment(
+            control,
+            {20.0: ethanol},
+            time_points=[5, 10, 15, 20, 30],
+        )
+        assert result.f2_by_ethanol_pct[20.0] == pytest.approx(
+            f2(control, ethanol, method="regulatory")
+        )
