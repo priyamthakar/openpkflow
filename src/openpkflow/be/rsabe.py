@@ -129,7 +129,10 @@ def fda_partial_replicate_rsabe(
     Raises
     ------
     ValueError
-        If the data are not a complete TRR/RTR/RRT partial-replicate design.
+        If the data are not a complete, balanced TRR/RTR/RRT partial-replicate
+        design (equal subjects per sequence). The method-of-moments delta
+        estimator only cancels period effects under balanced allocation; see
+        Patterson & Jones (2012) Section 1.1.
 
     References
     ----------
@@ -275,6 +278,13 @@ def _validate_partial_replicate(
     for row in frame.itertuples(index=False):
         if _EXPECTED_TREATMENT[row.sequence].get(int(row.period)) != row.treatment:
             raise ValueError("Treatment assignments must agree with sequence and period.")
+    sequence_subject_counts = frame.groupby("sequence", sort=False)["subject"].nunique()
+    if sequence_subject_counts.nunique() != 1:
+        raise ValueError(
+            "FDA partial-replicate RSABE requires balanced TRR/RTR/RRT sequence "
+            "allocation (equal subjects per sequence); the method-of-moments delta "
+            "estimator is biased by period effects otherwise."
+        )
     if frame["subject"].nunique() - 3 < 1:
         raise ValueError("FDA partial-replicate RSABE requires at least four subjects.")
     frame["log_value"] = np.log(frame["value"])

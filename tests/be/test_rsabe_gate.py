@@ -51,6 +51,15 @@ def test_partial_replicate_rsabe_requires_at_least_four_subjects() -> None:
         fda_partial_replicate_rsabe(data, parameter="Cmax", value_col="value")
 
 
+def test_partial_replicate_rsabe_requires_balanced_sequence_allocation() -> None:
+    data = _complete_design(n_per_sequence=2)
+    # Drop one whole subject (all 3 rows) from the RRT sequence: 2/2/1 allocation.
+    dropped_subject = data.loc[data["sequence"] == "RRT", "subject"].iloc[0]
+    unbalanced = data.loc[data["subject"] != dropped_subject].reset_index(drop=True)
+    with pytest.raises(ValueError, match="balanced TRR/RTR/RRT"):
+        fda_partial_replicate_rsabe(unbalanced, parameter="Cmax", value_col="value")
+
+
 def test_partial_replicate_rsabe_requires_complete_three_period_subjects() -> None:
     data = _complete_design(n_per_sequence=2)
     incomplete = data.drop(index=0).reset_index(drop=True)

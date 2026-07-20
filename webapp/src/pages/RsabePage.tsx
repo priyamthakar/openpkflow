@@ -46,7 +46,7 @@ export default function RsabePage() {
         <div className="flex flex-col gap-5">
           <section className="rounded-sm border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
             <p className="font-semibold">Validated scope</p>
-            <p className="mt-1">Requires long-format TRR/RTR/RRT partial-replicate data with subject, sequence, period, treatment, and endpoint columns. Applies only when the reference is highly variable (CVwR &gt;= 30%); otherwise the result is NOT_EVALUABLE and standard average BE should be used.</p>
+            <p className="mt-1">Requires long-format TRR/RTR/RRT partial-replicate data with subject, sequence, period, treatment, and endpoint columns, with equal subjects per sequence (unbalanced allocation, e.g. from unequal dropout, is rejected rather than silently biased). Applies only when the reference is highly variable (CVwR &gt;= 30%); otherwise the result is NOT_EVALUABLE and standard average BE should be used.</p>
           </section>
           <FileDropzone onFile={(next) => { setFile(next); mutation.reset() }} onClear={() => { setFile(null); mutation.reset() }} label="Upload partial-replicate CSV" />
           <Button size="lg" className="w-full" disabled={!file || mutation.isPending} loading={mutation.isPending} onClick={() => mutation.mutate()}>

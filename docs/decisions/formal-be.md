@@ -30,6 +30,16 @@ both of the paper's regulatory decisions. `NOT_EVALUABLE` is returned only when 
 reference intra-subject CV is below the 30% RSABE threshold (standard ABE applies
 instead), not as a blanket validation gate.
 
+**Requires balanced sequence allocation** (equal subjects per TRR/RTR/RRT sequence).
+The delta-hat method-of-moments estimator only cancels period effects under balance;
+an unbalanced design (e.g. from unequal dropout) fails closed with `ValueError` rather
+than silently returning a biased decision. Confirmed by code review: an unbalanced
+30/10/5 allocation with a realistic period effect and a true GMR of 1.0 produced a
+spurious delta-hat large enough to flip PASS/FAIL, undetected by the balanced Table II
+fixture. Supporting genuinely unbalanced/dropout data would require implementing
+Patterson & Jones's group-weighted method-of-moments formula (Section 1.1) instead of
+the current per-subject mean, which is future work, not done here.
+
 ## Provenance
 
 Implementation is clean-room: regulatory guidance, published formulas, and independently

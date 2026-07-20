@@ -272,7 +272,15 @@ docs/decisions/
    `api/` (`POST /api/be/rsabe/analyze`, `/api/be/rsabe/report`) and `webapp/`
    (`/be/rsabe` page, Sidebar "FDA RSABE" entry), following the existing `be/anova`
    pattern exactly, with API tests (`api/tests/test_be.py`) and a Playwright test
-   (`webapp/tests/paste-run.spec.ts`).
+   (`webapp/tests/paste-run.spec.ts`). A `/code-review high` pass caught a real bug
+   before merge: `delta_hat` was computed as an unweighted per-subject mean, which
+   only matches Patterson & Jones's actual method-of-moments formula (and only
+   cancels period effects) under balanced TRR/RTR/RRT allocation; unbalanced data
+   (e.g. from unequal dropout) silently biased the decision. Fixed by requiring
+   balanced allocation and failing closed otherwise (`ValueError`), matching the
+   pattern `formal.py` already used for its own 2-sequence case. Supporting
+   genuinely unbalanced data would require implementing the paper's group-weighted
+   MoM formula instead — not done, tracked in `docs/decisions/formal-be.md`.
 
 2. **Conda-forge PR #33461** still awaits maintainer review.
 
