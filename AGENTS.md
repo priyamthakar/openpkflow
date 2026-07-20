@@ -42,7 +42,9 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   validation fixtures remain out of scope. FDA partial-replicate (TRR/RTR/RRT) RSABE
   is implemented and validated (`be/rsabe.py`, pinned against Patterson & Jones 2012
   Table II); it returns NOT_EVALUABLE only when the reference CV is below the 30%
-  RSABE threshold, not as a blanket gate.
+  RSABE threshold, not as a blanket gate. Requires balanced sequence allocation
+  (equal subjects per sequence) — unbalanced/dropout data fails closed; see
+  `docs/decisions/formal-be.md`.
 - WeasyPrint, Streamlit/Gradio GUI, CDISC Define.xml, eCTD table formatting.
 
 **Rules for AI agents:**
@@ -271,8 +273,10 @@ unreleased. The API and webapp are deployed and live.
    and validated against Patterson SD, Jones B (2012) *Pharmaceutical Statistics*
    11(1):1-7, Table II (DOI 10.1002/pst.498) — see
    `tests/validation/test_be_rsabe_reference.py`. `POST /api/be/rsabe/analyze` and
-   `/api/be/rsabe/report`, and the `/be/rsabe` webapp page, are implemented. Open a
-   PR for review.
+   `/api/be/rsabe/report`, and the `/be/rsabe` webapp page, are implemented. A
+   `/code-review high` pass caught and fixed a bias in `delta_hat` for unbalanced
+   sequence allocation (now fails closed instead); see `docs/decisions/formal-be.md`.
+   Open a PR for review.
 2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
    layout — currently manual-verified only.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0

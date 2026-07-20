@@ -274,6 +274,8 @@ FDA partial-replicate `TRR`/`RTR`/`RRT` RSABE is implemented and validated again
 Patterson & Jones (2012) *Pharmaceutical Statistics* 11(1):1-7, Table II
 (DOI 10.1002/pst.498); `NOT_EVALUABLE` is returned only when the reference is not
 highly variable (CVwR < 30%), in which case standard average BE applies instead.
+Requires balanced sequence allocation (equal subjects per sequence) — unbalanced
+data (e.g. from unequal dropout) fails closed rather than being silently biased.
 EMA ABEL, full-replicate RSABE, and NTI decisions remain out of scope.
 
 ```python

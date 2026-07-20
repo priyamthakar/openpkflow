@@ -39,8 +39,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   FDA/Haidar linearized aggregate criterion, and the Hyslop-Hsuan-Holder (2000)
   confidence-bound combination, validated against Patterson & Jones (2012)
   *Pharmaceutical Statistics* 11(1):1-7, Table II (DOI 10.1002/pst.498). Returns
-  `NOT_EVALUABLE` only when the reference is not highly variable (CVwR < 30%). API
-  endpoints (`/api/be/rsabe/analyze`, `/api/be/rsabe/report`) and a React page.
+  `NOT_EVALUABLE` only when the reference is not highly variable (CVwR < 30%), and
+  fails closed on unbalanced TRR/RTR/RRT sequence allocation (the delta-hat
+  estimator is biased by period effects otherwise). API endpoints
+  (`/api/be/rsabe/analyze`, `/api/be/rsabe/report`) and a React page.
 - **Webapp design system**: chart series colors wired to `--chart-1` through `--chart-5`
   theme tokens with per-theme light/dark values, plus an `--accent-fg` token.
 - **PKChart toolbar**: point-marker toggle, small-multiples "Panels" view, and PNG export
