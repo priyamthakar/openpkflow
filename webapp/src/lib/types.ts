@@ -127,6 +127,34 @@ export interface FormalBeResponse {
   disclaimer: string
 }
 
+export interface RsabeResponse {
+  parameter: string
+  decision: 'PASS' | 'FAIL' | 'NOT_EVALUABLE'
+  design: string
+  jurisdiction: string
+  validation_status: string
+  message: string
+  n_subjects: number
+  alpha: number
+  confidence_level_pct: number
+  delta_hat: number
+  delta_ci_lower: number
+  delta_ci_upper: number
+  gmr: number
+  gmr_ci_lower: number
+  gmr_ci_upper: number
+  sigma_wr: number
+  sigma_wr_ci_lower: number
+  sigma_wr_ci_upper: number
+  cv_wr_pct: number
+  highly_variable: boolean
+  theta: number
+  aggregate_criterion_point: number
+  aggregate_criterion_upper: number
+  point_estimate_constraint_met: boolean
+  disclaimer: string
+}
+
 export interface BePowerRequest {
   gmr: number
   cv: number

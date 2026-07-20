@@ -9,7 +9,9 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 `src/openpkflow/` only.
 
 **Last updated:** 2026-07-19 (PRs #32 and #33 merged; design system polish and mobile
-pass shipped; API + webapp deployed live — see `HANDOFF.md` "Deployment")
+pass shipped; API + webapp deployed live — see `HANDOFF.md` "Deployment"; FDA
+partial-replicate RSABE implemented, validated, and wired into `api/`/`webapp/` on
+`agent/rsabe-validation`)
 
 ---
 
@@ -139,7 +141,9 @@ All done in `webapp/` — no API changes.
 | `/api/dissolution` | `/formulations`, `/compare`, `/report`, `/multi-media/analyze`, `/multi-media/report` | `dissolution_service.py` |
 | `/api/sim` | `/simulate`, `/report` | `sim_service.py` |
 | `/api/ivivc` | `/analyze`, `/report` | `ivivc_service.py` |
-| `/api/be` | `/analyze`, `/report`, `/power`, `/sample-size` | `be_service.py` |
+| `/api/be` | `/analyze`, `/report`, `/power`, `/sample-size`, `/anova/analyze`, `/anova/report`, `/rsabe/analyze`, `/rsabe/report` | `be_service.py` |
+| `/api/bayes` | `/map/analyze`, `/map/report` | `bayes_service.py` |
+| `/api/supac` | `/classify`, `/alcohol` | `supac_service.py` |
 | `/api/pipeline` | `/analyze`, `/report`, `/audit-bundle` | `pipeline_service.py` |
 | `/health` | GET | engine version badge |
 
@@ -158,6 +162,10 @@ webapp/src/
     SimPage.tsx
     IvIvcPage.tsx                  load example + dose inputs
     BePage.tsx                     analysis + power calculator tabs
+    FormalBePage.tsx               complete balanced 2x2 crossover ANOVA
+    RsabePage.tsx                  FDA partial-replicate (TRR/RTR/RRT) RSABE
+    MapPkPage.tsx                  MAP individual PK (Theoph example + paste grid)
+    SupacPage.tsx                  SUPAC-IR classifier + alcohol dose-dumping tabs
     PipelinePage.tsx               multi-stage run + report/audit downloads
     NotFound.tsx
   components/

@@ -31,6 +31,7 @@ import type {
   SupacClassifyResponse,
   AlcoholDosingRequest,
   AlcoholDosingResponse,
+  RsabeResponse,
 } from './types'
 
 async function _json<T>(res: Response): Promise<T> {
@@ -313,6 +314,29 @@ export async function downloadFormalBeReport(
   const blob = await reportBlobForDownload(res, format)
   const ext = format === 'markdown' ? 'md' : format
   _triggerDownload(blob, `formal_be_anova_report.${ext}`)
+}
+
+export async function analyzeRsabe(file: File, options: object): Promise<RsabeResponse> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('options', JSON.stringify(options))
+  return _json(await fetch(`${BASE}/api/be/rsabe/analyze`, { method: 'POST', body: fd }))
+}
+
+export async function downloadRsabeReport(
+  file: File,
+  options: object,
+  format: string,
+): Promise<void> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('options', JSON.stringify(options))
+  fd.append('format', format)
+  const res = await fetch(`${BASE}/api/be/rsabe/report`, { method: 'POST', body: fd })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  const ext = format === 'markdown' ? 'md' : format
+  _triggerDownload(blob, `rsabe_report.${ext}`)
 }
 
 export async function computeBePower(req: BePowerRequest): Promise<BePowerResponse> {

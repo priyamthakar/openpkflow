@@ -14,6 +14,7 @@ const SimPage = lazy(() => import('@/pages/SimPage'))
 const IvIvcPage = lazy(() => import('@/pages/IvIvcPage'))
 const BePage = lazy(() => import('@/pages/BePage'))
 const FormalBePage = lazy(() => import('@/pages/FormalBePage'))
+const RsabePage = lazy(() => import('@/pages/RsabePage'))
 const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
 const MapPkPage = lazy(() => import('@/pages/MapPkPage'))
 const SupacPage = lazy(() => import('@/pages/SupacPage'))
@@ -40,6 +41,7 @@ export default function App() {
                   <Route path="ivivc" element={<IvIvcPage />} />
                   <Route path="be" element={<BePage />} />
                   <Route path="be/anova" element={<FormalBePage />} />
+                  <Route path="be/rsabe" element={<RsabePage />} />
                   <Route path="pipeline" element={<PipelinePage />} />
                   <Route path="bayes/map" element={<MapPkPage />} />
                   <Route path="supac" element={<SupacPage />} />

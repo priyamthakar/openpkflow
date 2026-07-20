@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   FlaskConical, LineChart, Waves, Home, X, Activity, Scale, Mail, Workflow,
-  ScatterChart, Brain, ShieldCheck, PanelLeftClose, PanelLeftOpen,
+  ScatterChart, Brain, ShieldCheck, PanelLeftClose, PanelLeftOpen, Sigma,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -39,6 +39,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: '/ivivc', label: 'IVIVC', icon: Activity },
       { to: '/be', label: 'Bioequivalence', icon: Scale },
       { to: '/be/anova', label: 'Formal BE ANOVA', icon: Scale },
+      { to: '/be/rsabe', label: 'FDA RSABE', icon: Sigma },
       { to: '/supac', label: 'SUPAC & Alcohol', icon: ShieldCheck },
     ],
   },

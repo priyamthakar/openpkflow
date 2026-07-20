@@ -256,7 +256,31 @@ docs/decisions/
 
 ## Known issues / blocked items
 
-1. **FDA partial-replicate RSABE** remains `NOT_EVALUABLE`. Cannot promote to PASS/FAIL until a pinned external observed-data comparator validates model fitting, sWR, upper confidence bound, point-estimate constraint, fallback behavior, and final decision for TRR/RTR/RRT data. See `docs/decisions/rsabe-validation-search.md` for the current dataset search: the leading candidate is `replicateBE::rds07` (public-domain, Schutz et al. 2020 AAPS J 22:44) cross-checked against a Pumas.ai FDA-style worked example on what appears to be the same dataset (`SLTGSF2020_DS07`) — not yet confirmed or wired into a test.
+1. **FDA partial-replicate RSABE** is now implemented, validated, and wired end-to-end
+   on branch `agent/rsabe-validation` (based on `origin/main` at `bb0d16a`). The earlier
+   `replicateBE::rds07`/Pumas cross-check lead in `docs/decisions/rsabe-validation-search.md`
+   turned out to be unnecessary: the user provided direct access to Patterson SD, Jones B
+   (2012) "Viewpoint: observations on scaled average bioequivalence," *Pharmaceutical
+   Statistics* 11(1):1-7 (DOI 10.1002/pst.498), which contains a complete worked
+   FDA-method example (Section 1.3, Table II: 51 real subjects, 17/sequence, TRR/RTR/RRT).
+   The method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar aggregate
+   linearized criterion, and the Hyslop-Hsuan-Holder (2000) confidence-bound combination
+   were implemented in `src/openpkflow/be/rsabe.py` and reproduce the paper's own numbers
+   almost exactly, including both regulatory decisions (AUC PASS, Cmax FAIL on two
+   independent grounds). Pinned in `tests/validation/test_be_rsabe_reference.py` against
+   `tests/validation/data/be_rsabe_partial_replicate_patterson2012.csv`. Also wired into
+   `api/` (`POST /api/be/rsabe/analyze`, `/api/be/rsabe/report`) and `webapp/`
+   (`/be/rsabe` page, Sidebar "FDA RSABE" entry), following the existing `be/anova`
+   pattern exactly, with API tests (`api/tests/test_be.py`) and a Playwright test
+   (`webapp/tests/paste-run.spec.ts`). A `/code-review high` pass caught a real bug
+   before merge: `delta_hat` was computed as an unweighted per-subject mean, which
+   only matches Patterson & Jones's actual method-of-moments formula (and only
+   cancels period effects) under balanced TRR/RTR/RRT allocation; unbalanced data
+   (e.g. from unequal dropout) silently biased the decision. Fixed by requiring
+   balanced allocation and failing closed otherwise (`ValueError`), matching the
+   pattern `formal.py` already used for its own 2-sequence case. Supporting
+   genuinely unbalanced data would require implementing the paper's group-weighted
+   MoM formula instead — not done, tracked in `docs/decisions/formal-be.md`.
 
 2. **Conda-forge PR #33461** still awaits maintainer review.
 
@@ -265,11 +289,8 @@ docs/decisions/
 
 ## Resume here
 
-1. **RSABE validation — the priority.** Pursue the `replicateBE::rds07` / Pumas
-   `SLTGSF2020_DS07` lead in `docs/decisions/rsabe-validation-search.md`: confirm the
-   dataset identity, reproduce CVwR and Howe's approximate statistic, and pin as a
-   fixture if they match. This is the only thing keeping `be/rsabe.py` at
-   `NOT_EVALUABLE`. Per CLAUDE.md, validation outranks new features.
+1. Review `src/openpkflow/be/rsabe.py` and its API/webapp wiring on
+   `agent/rsabe-validation`; open a PR against `main` once satisfied.
 2. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
    (legend hide-and-restore is the highest value — it regressed once already).
 3. Await conda-forge maintainer action on PR #33461.

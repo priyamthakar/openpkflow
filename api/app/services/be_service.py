@@ -7,9 +7,17 @@ from typing import Any
 
 import pandas as pd
 
-from app.schemas.be import BeOptions, FormalBeOptions, PowerRequest, SampleSizeRequest, SubjectRow
+from app.schemas.be import (
+    BeOptions,
+    FormalBeOptions,
+    PowerRequest,
+    RsabeOptions,
+    SampleSizeRequest,
+    SubjectRow,
+)
 from openpkflow.be.formal import formal_be_anova
 from openpkflow.be.methods import be_sample_size, be_tost_power
+from openpkflow.be.rsabe import fda_partial_replicate_rsabe
 from openpkflow.be.study import BEStudy
 
 _DISCLAIMER = (
@@ -136,6 +144,70 @@ def write_formal_be_report(path: Path, opts: FormalBeOptions, out_path: Path, fm
         be_lower=opts.be_lower,
         be_upper=opts.be_upper,
         alpha=opts.alpha,
+    )
+    result.report(out_path, format=fmt)
+
+
+def run_rsabe(path: Path, opts: RsabeOptions) -> dict[str, Any]:
+    df = pd.read_csv(path)
+    if opts.columns:
+        df = df.rename(columns=opts.columns)
+    result = fda_partial_replicate_rsabe(
+        df,
+        parameter=opts.parameter,
+        subject_col=opts.subject_col,
+        sequence_col=opts.sequence_col,
+        period_col=opts.period_col,
+        treatment_col=opts.treatment_col,
+        value_col=opts.value_col,
+        alpha=opts.alpha,
+        sigma_wr_floor=opts.sigma_wr_floor,
+        highly_variable_cv_pct=opts.highly_variable_cv_pct,
+    )
+    return {
+        "parameter": result.parameter,
+        "decision": result.decision,
+        "design": result.design,
+        "jurisdiction": result.jurisdiction,
+        "validation_status": result.validation_status,
+        "message": result.message,
+        "n_subjects": result.n_subjects,
+        "alpha": result.alpha,
+        "confidence_level_pct": result.confidence_level_pct,
+        "delta_hat": result.delta_hat,
+        "delta_ci_lower": result.delta_ci_lower,
+        "delta_ci_upper": result.delta_ci_upper,
+        "gmr": result.gmr,
+        "gmr_ci_lower": result.gmr_ci_lower,
+        "gmr_ci_upper": result.gmr_ci_upper,
+        "sigma_wr": result.sigma_wr,
+        "sigma_wr_ci_lower": result.sigma_wr_ci_lower,
+        "sigma_wr_ci_upper": result.sigma_wr_ci_upper,
+        "cv_wr_pct": result.cv_wr_pct,
+        "highly_variable": result.highly_variable,
+        "theta": result.theta,
+        "aggregate_criterion_point": result.aggregate_criterion_point,
+        "aggregate_criterion_upper": result.aggregate_criterion_upper,
+        "point_estimate_constraint_met": result.point_estimate_constraint_met,
+        "disclaimer": _DISCLAIMER,
+    }
+
+
+def write_rsabe_report(path: Path, opts: RsabeOptions, out_path: Path, fmt: str) -> None:
+    df = pd.read_csv(path)
+    if opts.columns:
+        df = df.rename(columns=opts.columns)
+    result = fda_partial_replicate_rsabe(
+        df,
+        parameter=opts.parameter,
+        subject_col=opts.subject_col,
+        sequence_col=opts.sequence_col,
+        period_col=opts.period_col,
+        treatment_col=opts.treatment_col,
+        value_col=opts.value_col,
+        alpha=opts.alpha,
+        sigma_wr_floor=opts.sigma_wr_floor,
+        highly_variable_cv_pct=opts.highly_variable_cv_pct,
     )
     result.report(out_path, format=fmt)
 

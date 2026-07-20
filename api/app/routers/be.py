@@ -18,6 +18,8 @@ from app.schemas.be import (
     FormalBeResponse,
     PowerRequest,
     PowerResponse,
+    RsabeOptions,
+    RsabeResponse,
     SampleSizeRequest,
     SampleSizeResponse,
 )
@@ -26,8 +28,10 @@ from app.services.be_service import (
     run_be_power,
     run_be_sample_size,
     run_formal_be,
+    run_rsabe,
     write_be_report,
     write_formal_be_report,
+    write_rsabe_report,
 )
 
 router = APIRouter(prefix="/api/be", tags=["be"])
@@ -107,6 +111,44 @@ def report_anova(
         path=str(tmp_out),
         media_type=_MIME.get(format, "text/html"),
         filename=f"formal_be_anova_report{ext}",
+        background=BackgroundTask(tmp_out.unlink, missing_ok=True),
+    )
+
+
+@router.post("/rsabe/analyze", response_model=RsabeResponse)
+def analyze_rsabe(
+    file: UploadFile,
+    options: str = Form(default="{}"),
+) -> RsabeResponse:
+    """Run FDA partial-replicate (TRR/RTR/RRT) RSABE on an uploaded CSV."""
+    opts = RsabeOptions.model_validate(json.loads(options))
+    with saved_upload(file) as path:
+        return RsabeResponse(**run_rsabe(path, opts))
+
+
+@router.post("/rsabe/report")
+def report_rsabe(
+    file: UploadFile,
+    options: str = Form(default="{}"),
+    format: Literal["html", "markdown"] = Form(default="html"),
+) -> FileResponse:
+    """Run FDA partial-replicate RSABE and stream the report for download."""
+    from starlette.background import BackgroundTask
+
+    opts = RsabeOptions.model_validate(json.loads(options))
+    ext = _EXT.get(format, ".html")
+    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+        tmp_out = Path(tmp.name)
+    try:
+        with saved_upload(file) as path:
+            write_rsabe_report(path, opts, tmp_out, fmt=format)
+    except Exception:
+        tmp_out.unlink(missing_ok=True)
+        raise
+    return FileResponse(
+        path=str(tmp_out),
+        media_type=_MIME.get(format, "text/html"),
+        filename=f"rsabe_report{ext}",
         background=BackgroundTask(tmp_out.unlink, missing_ok=True),
     )
 

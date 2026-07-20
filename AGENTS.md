@@ -12,21 +12,22 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `pipeline/` — multi-stage study orchestration + unified reports (v2.6.0)
 - `bayes/` — MAP individual PK (scipy, screening tool, not regulatory primary)
 - `be/` — paired TOST convenience layer, formal complete balanced 2x2 crossover
-  ANOVA, power/n, and FDA partial-replicate RSABE only after external validation
+  ANOVA, power/n, and FDA partial-replicate RSABE (validated against Patterson &
+  Jones 2012, Table II)
 - `report/` — HTML, PDF, DOCX, Markdown
 - `validation/` — cross-checks against published references
 
 **Web app layer (same as CLAUDE.md):**
 - `api/` — FastAPI REST adapter. Current routers: nca (including sparse), dissolution
-  (including multi-media), sim, ivivc, be (including power / sample-size and formal
-  `be/anova`), bayes (`bayes/map`), supac (classify + alcohol), and pipeline —
-  27 endpoints. Adding a new endpoint requires a schema
+  (including multi-media), sim, ivivc, be (including power / sample-size, formal
+  `be/anova`, and `be/rsabe`), bayes (`bayes/map`), supac (classify + alcohol), and
+  pipeline — 29 endpoints. Adding a new endpoint requires a schema
   (schemas/), service (services/), router (routers/), and registration in main.py.
   Follow the existing nca router pattern exactly.
 - `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
   Dissolution (single + multi-media tab), Sim, IVIVC, BE (analysis + power tab),
-  Formal BE ANOVA, MAP Individual PK, SUPAC & Alcohol Screening, and Study Pipeline.
-  See `progress_web_app.md` for the full file map and next candidates.
+  Formal BE ANOVA, FDA RSABE, MAP Individual PK, SUPAC & Alcohol Screening, and
+  Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 - Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
   on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and CORS/build wiring.
@@ -38,8 +39,12 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   nlmixr2 are validated NLME engines. Bug fixes only. No IOV, no 3-cmt, no covariate
   selection, no iv_infusion route for estimation.
 - EMA ABEL, full-replicate RSABE, and any formal BE design without independent
-  validation fixtures are out of scope. FDA partial-replicate RSABE must fail closed
-  as NOT_EVALUABLE until its external validation gate is satisfied.
+  validation fixtures remain out of scope. FDA partial-replicate (TRR/RTR/RRT) RSABE
+  is implemented and validated (`be/rsabe.py`, pinned against Patterson & Jones 2012
+  Table II); it returns NOT_EVALUABLE only when the reference CV is below the 30%
+  RSABE threshold, not as a blanket gate. Requires balanced sequence allocation
+  (equal subjects per sequence) — unbalanced/dropout data fails closed; see
+  `docs/decisions/formal-be.md`.
 - WeasyPrint, Streamlit/Gradio GUI, CDISC Define.xml, eCTD table formatting.
 
 **Rules for AI agents:**
@@ -264,11 +269,14 @@ PRs #31 (`74c070b`), #32 (`486788c`), and #33 (`bb0d16a`) are all merged to `mai
 unreleased. The API and webapp are deployed and live.
 
 **Immediate next work (in order):**
-1. **RSABE validation.** Confirm the `replicateBE::rds07` / Pumas `SLTGSF2020_DS07`
-   lead in `docs/decisions/rsabe-validation-search.md`, reproduce FDA RSABE model
-   fitting, sWR, upper confidence bound, point-estimate constraint, fallback
-   behavior, and final decision, then pin as a fixture. Only then promote RSABE from
-   NOT_EVALUABLE. Validation outranks new features.
+1. **RSABE validation is done and wired end-to-end.** `be/rsabe.py` is implemented
+   and validated against Patterson SD, Jones B (2012) *Pharmaceutical Statistics*
+   11(1):1-7, Table II (DOI 10.1002/pst.498) — see
+   `tests/validation/test_be_rsabe_reference.py`. `POST /api/be/rsabe/analyze` and
+   `/api/be/rsabe/report`, and the `/be/rsabe` webapp page, are implemented. A
+   `/code-review high` pass caught and fixed a bias in `delta_hat` for unbalanced
+   sequence allocation (now fails closed instead); see `docs/decisions/formal-be.md`.
+   Open a PR for review.
 2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
    layout — currently manual-verified only.
 3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0

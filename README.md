@@ -270,9 +270,20 @@ formal_result = formal_be_anova(long_be_df, parameter="AUCinf")
 formal_result.report("formal_be_report.html")
 ```
 
-FDA partial-replicate `TRR`/`RTR`/`RRT` RSABE remains `NOT_EVALUABLE` until its
-observed-data mixed-model and upper-confidence-bound results have independent external
-reference fixtures. EMA ABEL, full-replicate RSABE, and NTI decisions are not supported.
+FDA partial-replicate `TRR`/`RTR`/`RRT` RSABE is implemented and validated against
+Patterson & Jones (2012) *Pharmaceutical Statistics* 11(1):1-7, Table II
+(DOI 10.1002/pst.498); `NOT_EVALUABLE` is returned only when the reference is not
+highly variable (CVwR < 30%), in which case standard average BE applies instead.
+Requires balanced sequence allocation (equal subjects per sequence) — unbalanced
+data (e.g. from unequal dropout) fails closed rather than being silently biased.
+EMA ABEL, full-replicate RSABE, and NTI decisions remain out of scope.
+
+```python
+from openpkflow.be import fda_partial_replicate_rsabe
+
+rsabe_result = fda_partial_replicate_rsabe(partial_replicate_df, parameter="AUC")
+rsabe_result.report("rsabe_report.html")
+```
 
 ### CLI
 
@@ -349,7 +360,7 @@ vpc.report("vpc_report.html")
 | SUPAC-IR screening + alcohol dose-dumping f2 | :white_check_mark: (v2.6.0)\*\*\* | :x: | :x: | :x: |
 | IVIVC Level B/C helpers (MDT/MRT) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
-| FDA partial-replicate RSABE decision | :warning: validation gate (`NOT_EVALUABLE`) | :x: | :white_check_mark: | :x: |
+| FDA partial-replicate RSABE decision | :white_check_mark: validated (Patterson & Jones 2012) | :x: | :white_check_mark: | :x: |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
@@ -388,8 +399,8 @@ SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
 | MAP / Bayesian PK + Bayesian BE | Stable (v2.0.0) |
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
-| FDA partial-replicate RSABE | Validation-gated; `NOT_EVALUABLE` until external fixtures exist |
-| Web app (`api/` + `webapp/`) | Stable; 11 pages / 27 endpoints. Pipeline (#30), sparse NCA (#31), formal BE ANOVA + MAP PK + SUPAC/alcohol (#32), and design polish (#33) all merged. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
+| FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
+| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. Pipeline (#30), sparse NCA (#31), formal BE ANOVA + MAP PK + SUPAC/alcohol (#32), design polish (#33), and RSABE all merged/wired. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

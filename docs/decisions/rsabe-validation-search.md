@@ -2,8 +2,16 @@
 
 ## Status
 
-Research note - 2026-07-19. No fixture wired in yet. `be/rsabe.py` remains
-`NOT_EVALUABLE` until a candidate below is actually reproduced and pinned.
+Superseded - 2026-07-19. The `rds07`/Pumas lead below was never pursued to
+completion: the user provided direct access to Patterson SD, Jones B (2012)
+*Pharmaceutical Statistics* 11(1):1-7 (DOI 10.1002/pst.498) instead, which
+contains a complete worked FDA-method example (Table II, 51 real subjects)
+with every intermediate number needed to validate an implementation. That
+fixture is what `src/openpkflow/be/rsabe.py` and
+`tests/validation/test_be_rsabe_reference.py` are pinned against. This note
+is kept for the historical record and in case the `rds07` lead is useful for
+a future, independent second fixture (e.g. to validate the sigma_wR-floor or
+imbalanced-design edge cases that Table II does not exercise).
 
 ## Why this note exists
 

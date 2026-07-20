@@ -247,6 +247,38 @@ test('formal BE ANOVA flow renders ANOVA result', async ({ page }) => {
   await expect(page.getByText('1.101').first()).toBeVisible()
 })
 
+test('RSABE flow renders PASS decision', async ({ page }) => {
+  await page.route('**/api/be/rsabe/analyze', async (route) => {
+    await route.fulfill({
+      json: {
+        parameter: 'AUC', decision: 'PASS', design: 'partial_replicate_2x2x3',
+        jurisdiction: 'FDA', validation_status: 'VALIDATED',
+        message: 'SABE demonstrated: aggregate criterion 95% upper bound < 0.',
+        n_subjects: 51, alpha: 0.05, confidence_level_pct: 90,
+        delta_hat: 0.0557, delta_ci_lower: -0.0393, delta_ci_upper: 0.1508,
+        gmr: 1.0573, gmr_ci_lower: 0.9614, gmr_ci_upper: 1.1628,
+        sigma_wr: 0.3421, sigma_wr_ci_lower: 0.2936, sigma_wr_ci_upper: 0.4119,
+        cv_wr_pct: 35.23, highly_variable: true, theta: 0.7967,
+        aggregate_criterion_point: -0.0901, aggregate_criterion_upper: -0.0438,
+        point_estimate_constraint_met: true,
+        disclaimer,
+      },
+    })
+  })
+
+  await page.goto('/be/rsabe')
+  await page.setInputFiles('input[type="file"]', {
+    name: 'rsabe.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('subject,sequence,period,treatment,AUC\nS1,TRR,1,T,110'),
+  })
+  await page.getByRole('button', { name: 'Run RSABE' }).click()
+  await expect(page.getByText('RSABE result')).toBeVisible()
+  await expect(page.getByText('PASS')).toBeVisible()
+  await expect(page.getByText('Highly variable (CVwR >= 30%)', { exact: true })).toBeVisible()
+  await expect(page.getByText('1.057').first()).toBeVisible()
+})
+
 test('BE power calculator happy path', async ({ page }) => {
   await page.route('**/api/be/power', async (route) => {
     await route.fulfill({
