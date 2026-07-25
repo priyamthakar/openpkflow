@@ -173,15 +173,17 @@ result.report("dissolution_report.html")
 
 **Parameterization:** OpenPKFlow uses CL/V (or CL_F/Vz_F), not rate constants (k10, k12, k21). Clearance and volume are more interpretable and align with NCA output naming.
 
-**No GUI:** OpenPKFlow is a Python library + CLI. All outputs are scriptable, versionable, and CI-compatible.
+**Web application available:** OpenPKFlow provides a Python library, CLI, REST API,
+and hosted web interface. Pharmacometric calculations remain in the Python core.
 
 **No covariates in Pop PK:** Covariate estimation code was removed in v2.3.0. Use Pharmpy or nlmixr2 for covariate selection, then OpenPKFlow for base model estimation.
 
 **Reports are static HTML/PDF/DOCX/MD:** No interactive dashboards. All report templates are Jinja2 and can be customized.
 
-**RSABE / replicate BE:** OpenPKFlow retains research-grade replicate screening. FDA
-partial-replicate RSABE is currently a fail-closed `NOT_EVALUABLE` validation gate;
-EMA ABEL and full-replicate RSABE are not supported.
+**RSABE / replicate BE:** OpenPKFlow retains research-grade replicate screening and
+adds validated FDA partial-replicate RSABE for complete balanced TRR/RTR/RRT studies.
+Low-CV data return `NOT_EVALUABLE` for standard ABE routing; unbalanced data fail
+closed. EMA ABEL and full-replicate RSABE are not supported.
 
 ---
 

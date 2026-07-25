@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.7.0] - 2026-07-25
+
+This additive release publishes the validated post-v2.6.0 work across the Python
+package, REST API, and web application. No existing public API was removed.
+
 ### Added
 
 - **Pipeline audit bundle**: core ZIP export containing normalized inputs,
@@ -57,6 +64,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **NCA property-test stability**: the AUC scale-invariance property now excludes
+  unrepresentable subnormal scaling, with a dedicated IEEE-754 underflow regression
+  test for the smallest positive float.
+- **Frontend dependency hardening**: refreshed compatible lockfile resolutions for
+  React Router, PostCSS, Nano ID, and brace-expansion.
 - **Chart legend toggling was one-way**: hidden series were filtered out before render,
   so Recharts dropped the legend entry with the line and left no way to restore it.
   Series now render with the `hide` prop; the axis domain uses visible series only.

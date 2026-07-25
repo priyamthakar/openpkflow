@@ -222,7 +222,7 @@ published to PyPI on 2026-07-15.
   (backend), both auto-deploying on merge to `main`; URLs in `HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
-### Post-v2.6.0 active work (2026-07-19)
+### v2.7.0 release scope (2026-07-25)
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
 - Sparse NCA validation/API/page: merged in PR #31.
@@ -230,15 +230,16 @@ published to PyPI on 2026-07-15.
   PR #32 (`486788c`).
 - Frontend design system polish, three PKChart defect fixes, and mobile/Android pass:
   merged in PR #33 (`bb0d16a`).
-- All of the above are merged to `main` but **unreleased**; v2.6.0 remains the latest
-  published release. Next release should cut from the `[Unreleased]` changelog block.
 - FDA partial-replicate RSABE implemented and validated in `be/rsabe.py` against
   Patterson & Jones (2012) Table II, and wired into `api/` (`/api/be/rsabe/analyze`,
   `/api/be/rsabe/report`) and `webapp/` (`/be/rsabe` page); a `/code-review high`
   pass caught and fixed a `delta_hat` bias for unbalanced sequence allocation
-  before merge. Open for review on `agent/rsabe-validation`.
+  before merge. Merged in PR #35 (`f041b10`).
+- The additive post-v2.6.0 work is assigned to v2.7.0. Release hardening fixes the
+  subnormal-float property-test boundary, synchronizes validation and takeover docs,
+  and runs the complete package/API/web/docs/build gate before publication.
 - Conda-forge staged-recipes PR #33461 targets 2.6.0 and passes all platform builds;
-  awaits maintainer review. (Unrelated to this repo's PR #33.)
+  after v2.7.0 publication it should be retargeted before maintainer merge.
 - See `HANDOFF.md` for exact branch state and resume commands.
 
 ---

@@ -5,7 +5,7 @@ authors:
     given-names: Priyam
     email: priyamthakar1@gmail.com
 title: "OpenPKFlow: Python-first pharmacometrics and dissolution toolkit"
-version: 2.6.0
-date-released: 2026-07-09
+version: 2.7.0
+date-released: 2026-07-25
 url: "https://github.com/priyamthakar/openpkflow"
 license: MIT

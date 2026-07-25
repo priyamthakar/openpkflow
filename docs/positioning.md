@@ -15,7 +15,8 @@ OpenPKFlow is a transparent, reproducible, open-source Python workflow for:
 - IVIVC Level A (Wagner-Nelson, Loo-Riegelman, convolution, Levy plot, %PE) and
   Level B/C helpers (MDT / MRT correlation)
 - Multi-stage study pipeline orchestration (`openpkflow.pipeline` / `study run`)
-- Bioequivalence screening (2x2 TOST, power / sample size, research-grade replicate)
+- Bioequivalence analysis (paired TOST, formal balanced 2x2 ANOVA, validated FDA
+  balanced partial-replicate RSABE, power / sample size, and replicate screening)
 - Pharmacometric reporting (Markdown, HTML, PDF, DOCX)
 - Research-grade population PK diagnostics and estimation helpers (estimation frozen)
 
@@ -37,9 +38,8 @@ OpenPKFlow is **not**:
 - A replacement for expert regulatory judgement
 - A full substitute for commercial platforms used under controlled, locked,
   regulated environments (e.g. Phoenix WinNonlin, NONMEM production pipelines)
-- EMA ABEL, full-replicate RSABE, or any formal replicate-design BE method without
-  independent validation fixtures. FDA partial-replicate RSABE remains NOT_EVALUABLE
-  until its external validation gate is complete.
+- EMA ABEL, full-replicate RSABE, NTI decisions, or unbalanced FDA
+  partial-replicate RSABE
 - A drop-in Part 11 validated quality system without site SOPs and controls
 - Full SUPAC automation (v2.6 helpers are screening only)
 - A primary regulatory sparse-PK method; the one-compartment oral sparse fit is a
@@ -50,7 +50,7 @@ pharmacokinetic, and regulatory experts.
 
 ## Current release context (for agents)
 
-Version **2.6.0** was published to PyPI and GitHub Releases on 2026-07-15.
+Version **2.7.0** is the current release target dated 2026-07-25.
 Always read **`HANDOFF.md` at the repository root** in the working tree for
 branch name, PR number, verification results, and release status.
 
@@ -60,7 +60,8 @@ branch name, PR number, verification results, and release status.
 |---|---|---|
 | 2x2 crossover TOST | Convenience layer for screening and teaching | Study SOPs + independent statistical review |
 | Power and sample size | Exact TOST power (PowerTOST-aligned) | Confirm with PowerTOST or study statistician |
-| RSABE / replicate designs | Partial screening only | Companion **BioEqPy** package (out of scope here) |
+| FDA partial-replicate RSABE | Validated balanced TRR/RTR/RRT implementation | Independent statistical review and study SOPs |
+| Other scaled replicate methods | Screening only | BioEqPy or another validated jurisdiction-specific workflow |
 | Population PK FOCE-I / SAEM | Research-grade; limited model space | Pharmpy, nlmixr2, NONMEM for primary NLME |
 
 Population PK estimation in OpenPKFlow is frozen for extension beyond bug fixes.

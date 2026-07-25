@@ -136,8 +136,9 @@ openpkflow be compare be_params.csv --parameter AUCinf --report out/be.html
 ```
 
 This is a **2x2 TOST convenience layer** for screening and teaching. Formal complete
-balanced 2x2 ANOVA is available separately through `openpkflow be anova`; FDA
-partial-replicate RSABE remains `NOT_EVALUABLE` until external parity validation is complete.
+balanced 2x2 ANOVA is available separately through `openpkflow be anova`. Validated
+FDA partial-replicate RSABE is available for complete balanced TRR/RTR/RRT studies;
+low-CV data return `NOT_EVALUABLE` for standard ABE routing.
 
 ### From NCA results (Python)
 

@@ -59,7 +59,15 @@ class TestAUCLinearInvariants:
         assert auc_linear(times, conc_zero) == 0.0
 
     @given(
-        st.lists(st.floats(min_value=0.0, max_value=1000.0), min_size=2, max_size=30),
+        st.lists(
+            st.floats(
+                min_value=0.0,
+                max_value=1000.0,
+                allow_subnormal=False,
+            ),
+            min_size=2,
+            max_size=30,
+        ),
         st.floats(min_value=0.1, max_value=10.0),
     )
     def test_scale_invariance(self, conc, factor):
@@ -71,6 +79,18 @@ class TestAUCLinearInvariants:
             assert scaled == 0.0
         else:
             assert np.isclose(scaled / original, factor, rtol=1e-12)
+
+    def test_subnormal_scaling_underflows_at_float_boundary(self):
+        """Smallest subnormal concentrations can underflow when scaled."""
+        smallest_subnormal = np.nextafter(0.0, 1.0)
+        original = auc_linear([0.0, 1.0], [smallest_subnormal, smallest_subnormal])
+        scaled = auc_linear(
+            [0.0, 1.0],
+            [smallest_subnormal * 0.5, smallest_subnormal * 0.5],
+        )
+
+        assert original == smallest_subnormal
+        assert scaled == 0.0
 
 
 class TestAUCAllMethods:

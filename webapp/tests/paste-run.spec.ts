@@ -367,7 +367,7 @@ test('Study pipeline runs uploaded stages and downloads report and audit bundle'
       json: {
         metadata: {
           title: 'Pipeline browser test',
-          openpkflow_version: '2.6.0',
+          openpkflow_version: '2.7.0',
           generated_at_utc: '2026-07-16T08:00:00Z',
           stages_requested: ['dissolution'],
           stages_completed: ['dissolution'],

@@ -4,7 +4,7 @@ OpenPKFlow uses executable reference tests to keep scientific claims tied to
 checked outputs. This page summarizes the external comparators and the local
 test files that support the current validation surface.
 
-Last updated: 2026-07-16
+Last updated: 2026-07-25
 
 See also [Positioning](positioning.md) and the full test-to-reference map in
 [`VALIDATION.md`](https://github.com/priyamthakar/openpkflow/blob/main/VALIDATION.md)
@@ -22,6 +22,7 @@ at the repository root.
 | Sparse oral model fit | R 4.6.0 `stats::nls` bounded-port fit on `nlme::Theoph` | CL_F, Vz_F, ka, and fitted concentrations for five samples from subject 1 | `tests/validation/test_sparse_nca_theoph_reference.py` |
 | Bioequivalence power | PowerTOST 1.5-7 | 2x2 crossover power and sample size; edge cases (GMR at 0.80/1.25 ~ alpha; monotone power in n) | `tests/validation/test_be_power_reference.py` |
 | Formal complete balanced 2x2 BE ANOVA | Independent R `aov` / `lm` script | Treatment contrast, GMR, and residual MSE on a pinned complete balanced TR/RT fixture | `tests/validation/test_be_anova_reference.py` |
+| FDA partial-replicate RSABE | Patterson and Jones (2012), Table II, DOI 10.1002/pst.498 | Delta-hat, sigma-wR, GMR, confidence bounds, aggregate criterion, and AUC/Cmax decisions for 51 subjects | `tests/validation/test_be_rsabe_reference.py` |
 | Replicate BE screening | R/SAS-compatible scalar fixtures | GMR, CVwR, EMA-style scaled limits, and RSABE point-criterion screening; not full RSABE upper-bound parity | `tests/validation/test_be_replicate_reference.py` |
 | Dissolution bootstrap f2 | bootf2 0.4.1 | Bootstrap f2 behavior and confidence interval agreement | `tests/validation/test_dissolution_bootf2_reference.py` |
 | Population PK FOCE-I | `nlme` Theophylline reference values from Pinheiro and Bates | Typical-value sanity check for one-compartment oral pop PK estimation | `tests/validation/test_pop_foce_reference.py` |
@@ -44,8 +45,10 @@ public comparators. They do not make OpenPKFlow a validated regulated system by
 themselves. Regulated use still requires local SOPs, version control, locked
 environments, independent review, and study-specific validation.
 
-FDA partial-replicate RSABE is not a validated decision surface yet. The API gate returns
-`NOT_EVALUABLE` until external fixtures validate the replicate model and full FDA decision.
+FDA partial-replicate RSABE validation covers the balanced TRR/RTR/RRT design in the
+published comparator. Unbalanced sequence allocation and incomplete subjects fail
+closed. `NOT_EVALUABLE` is reserved for CVwR below the 30% highly-variable threshold,
+where standard average BE applies.
 
 ## Running validation
 

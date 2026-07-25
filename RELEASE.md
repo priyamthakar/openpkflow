@@ -4,14 +4,15 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
 ## Current release state
 
-**v2.6.0 was published on 2026-07-15.** The GitHub Release, TestPyPI/PyPI
-Trusted Publishing workflow, and fresh-install CLI smoke checks all succeeded.
+**v2.7.0 is the active release target for 2026-07-25.** It packages the additive
+post-v2.6.0 work already merged to `main`, including sparse NCA, pipeline audit
+bundles, formal BE ANOVA, validated FDA partial-replicate RSABE, MAP/SUPAC web
+workflows, and web design polish.
 
-- Release commit: `8a3298a`
-- GitHub release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
-- PyPI: <https://pypi.org/project/openpkflow/2.6.0/>
-- Next version is not assigned. Keep post-release work under `[Unreleased]` until
-  scope and version are chosen.
+- Previous release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
+- Release branch: `release/v2.7.0`
+- Release PR, commit, GitHub Release, and PyPI links must be recorded in
+  `HANDOFF.md` after publication.
 
 See `HANDOFF.md` for full takeover context.
 
@@ -64,13 +65,14 @@ Use the matching section from `docs/changelog.md`. Include:
 5. Verify the exact PyPI version in a fresh environment, then run CLI smoke checks
 6. Update conda-forge feedstock if automated PR does not appear promptly
 
-## v2.6.0 specific caveats for notes
+## v2.7.0 specific caveats for notes
 
 - SUPAC classification and alcohol dose-dumping helpers are **screening** tools,
   not full guidance automation.
-- Replicate BE remains **research-grade** screening. Formal complete balanced 2x2 ANOVA
-  is supported; FDA partial-replicate RSABE remains `NOT_EVALUABLE` until external
-  observed-data parity validation is complete.
+- Formal complete balanced 2x2 ANOVA is supported. FDA partial-replicate RSABE is
+  validated against Patterson and Jones (2012), Table II for complete balanced
+  TRR/RTR/RRT allocation. Low-CV data return `NOT_EVALUABLE` for standard ABE
+  routing; unbalanced or incomplete data fail closed.
 - Pop PK FOCE-I/SAEM is research-grade and frozen for extension.
 - Study pipeline composes existing modules; stages without inputs are skipped.
 
