@@ -8,10 +8,9 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-19 (PRs #32 and #33 merged; design system polish and mobile
-pass shipped; API + webapp deployed live — see `HANDOFF.md` "Deployment"; FDA
-partial-replicate RSABE implemented, validated, and wired into `api/`/`webapp/` on
-`agent/rsabe-validation`)
+**Last updated:** 2026-07-25 (v2.7.0 published through PR #39; design system and
+mobile polish shipped; FDA partial-replicate RSABE validated and wired into
+`api/`/`webapp/`; deployment state is tracked in `HANDOFF.md`)
 
 ---
 
@@ -181,7 +180,7 @@ webapp/src/
 
 ---
 
-## Next Candidates (v2.7.0 and later)
+## Next Candidates (post-v2.7.0)
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
@@ -195,8 +194,8 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
 7. ~~FDA partial-replicate RSABE page~~ -- done: validated core, API/report endpoints,
    and `/be/rsabe` page merged in PR #35 (`f041b10`).
-8. **Playwright coverage for the new UI** — the 14 existing tests cover paste-run flows
-   only. Nothing guards legend toggling, PNG export, sidebar collapse, or mobile layout.
+8. **Playwright coverage for the new UI** — the 15 existing tests do not guard
+   legend toggling, PNG export, sidebar collapse, or mobile layout.
    Legend hide-and-restore is the highest value; it regressed once already.
 9. Wire `EmptyResults` into the remaining analysis pages (only NCA uses it today).
 10. Richer grid controls only if users request them (row delete, resize, drag fill).
@@ -217,5 +216,5 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 
 - IVIVC Loo-Riegelman requires kel, k12, k21 manually; no auto-estimation yet.
 - BE sequence_col toggle only affects the API call; paste grid always shows sequence.
-- The sparse NCA API/page remains on its feature branch until reviewed and merged.
+- Sparse NCA, formal BE ANOVA, and RSABE are merged and published in v2.7.0.
 - Playwright tests mock the backend for CI; live e2e against a running API is optional.

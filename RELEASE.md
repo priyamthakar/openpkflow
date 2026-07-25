@@ -4,15 +4,18 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
 ## Current release state
 
-**v2.7.0 is the active release target for 2026-07-25.** It packages the additive
-post-v2.6.0 work already merged to `main`, including sparse NCA, pipeline audit
+**v2.7.0 was published on 2026-07-25.** It packages sparse NCA, pipeline audit
 bundles, formal BE ANOVA, validated FDA partial-replicate RSABE, MAP/SUPAC web
 workflows, and web design polish.
 
-- Previous release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.6.0>
-- Release branch: `release/v2.7.0`
-- Release PR, commit, GitHub Release, and PyPI links must be recorded in
-  `HANDOFF.md` after publication.
+- Release PR: <https://github.com/priyamthakar/openpkflow/pull/39>
+- Release commit: `74039b41054f7caee9a4f64d53a6d0cd455c5903`
+- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.7.0>
+- PyPI: <https://pypi.org/project/openpkflow/2.7.0/>
+- Trusted Publishing run:
+  <https://github.com/priyamthakar/openpkflow/actions/runs/30167426746>
+- Conda-forge staged-recipes PR:
+  <https://github.com/conda-forge/staged-recipes/pull/33461>
 
 See `HANDOFF.md` for full takeover context.
 

@@ -32,15 +32,15 @@ Shipped in parallel tracks:
 - IVIVC convolution analytical validation; BE power edge cases
 - Positioning docs, pipeline tutorial, Docker/compose polish
 
-### v2.7.0 release boundary
+### v2.7.0 release (published 2026-07-25)
 
 The post-v2.6.0 sparse NCA, pipeline audit bundle, MAP/SUPAC workflows, formal BE
 ANOVA, validated FDA partial-replicate RSABE, hosted deployment, and web polish are
-complete and assigned to v2.7.0.
+published in v2.7.0 through PR #39.
 
-After publication:
+Post-release:
 
-1. Retarget the open conda-forge staged-recipes PR #33461 to v2.7.0.
+1. Await maintainer review of the v2.7.0 conda-forge staged-recipes PR #33461.
 2. Add focused Playwright regression coverage for chart legend restoration, PNG
    export, sidebar collapse, and mobile navigation.
 3. Wire `EmptyResults` into remaining analysis pages if the shared pattern remains

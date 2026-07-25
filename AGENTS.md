@@ -261,14 +261,14 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.7.0** is the active release target (2026-07-25). It publishes the additive
-post-v2.6.0 work already merged to `main`: pipeline audit bundles, sparse NCA,
-formal BE ANOVA, validated FDA partial-replicate RSABE, MAP/SUPAC web workflows,
-hosted deployment, and web design polish.
+**v2.7.0** is the latest published release (2026-07-25). Release PR #39 was
+squash-merged as `74039b4`; tag `v2.7.0`, the GitHub Release, TestPyPI, and PyPI
+publication are complete. Conda-forge staged-recipes PR #33461 now targets
+v2.7.0.
 
 **Immediate next work (in order):**
-1. Complete the v2.7.0 release gate and Trusted Publishing workflow.
-2. Retarget conda-forge staged-recipes PR #33461 after v2.7.0 is on PyPI.
+1. Await green checks and maintainer review on conda-forge PR #33461.
+2. Confirm the Render backend reports engine version 2.7.0 after deployment.
 3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
    and mobile layout.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.
@@ -289,7 +289,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.4.0          replicate BE screening + release credibility sprint              DONE
 2.5.0          web app (api/ + webapp/) + student helpers                       DONE
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
-2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish         TARGET
+2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 
