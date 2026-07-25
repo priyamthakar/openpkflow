@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.7.0] -- 2026-07-25
+
+This additive release publishes the validated post-v2.6.0 work across the Python
+package, REST API, and web application. No existing public API was removed.
+
 ### Added
 
 - **Pipeline audit bundle**: core ZIP export containing normalized inputs,
@@ -23,6 +30,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Sparse NCA web workflow**: analyze and report API endpoints plus a React page with
   a published example, fit diagnostics, observed/fitted visualization, and explicit
   model-informed screening scope.
+- **MAP individual PK**: FastAPI analyze/report endpoints and a React workflow for
+  oral and IV-bolus MAP screening with fit diagnostics and downloadable reports.
+- **SUPAC and alcohol screening**: API and web workflows for SUPAC-IR classification
+  and alcohol dose-dumping f2 assessment.
+- **Formal complete balanced 2x2 BE ANOVA**: long-format TR/RT analysis with a full
+  ANOVA table, reports, CLI/API/web interfaces, fail-closed design checks, and an
+  independent R cross-check.
+- **FDA partial-replicate RSABE**: balanced TRR/RTR/RRT analysis validated against
+  Patterson and Jones (2012), Table II. The workflow combines the scaled criterion
+  upper bound, point-estimate constraint, and conventional ABE fallback.
+- **Web application polish**: theme-aware chart colors, chart toolbar and PNG export,
+  grouped collapsible navigation, persisted split-pane width, run shortcuts, improved
+  empty states, and visible backend health status.
+- **Production deployment**: Cloudflare Workers frontend and Render backend, both
+  automatically deployed from `main`.
+
+### Fixed
+
+- The AUC scale-invariance property test now excludes unrepresentable subnormal
+  scaling and explicitly covers IEEE-754 underflow at the smallest positive float.
+- Compatible React Router, PostCSS, Nano ID, and brace-expansion lockfile updates
+  address the available dependency advisories.
+- Chart legend restoration, PNG export colors and target selection, mobile drawer
+  labels, dark-mode form controls, and light-theme primary-button contrast.
 
 ---
 

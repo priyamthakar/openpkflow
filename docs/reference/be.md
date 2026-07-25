@@ -1,10 +1,9 @@
 # openpkflow.be
 
 Bioequivalence analysis: paired 2x2 TOST, formal complete balanced TR/RT 2x2
-crossover ANOVA, and research-grade replicate-design screening. FDA partial-replicate
-RSABE is deliberately `NOT_EVALUABLE` until its external-reference validation gate is
-complete. EMA ABEL, full-replicate RSABE, NTI decisions, and unbalanced/incomplete
-formal designs are not supported in the formal workflow.
+crossover ANOVA, validated FDA partial-replicate RSABE, and research-grade
+replicate-design screening. EMA ABEL, full-replicate RSABE, NTI decisions, and
+unbalanced or incomplete formal designs are not supported.
 
 ## Public API
 
@@ -15,6 +14,8 @@ formal designs are not supported in the formal workflow.
 | `BETOSTResult` | dataclass | Low-level TOST output from `be_tost()` |
 | `formal_be_anova(data, parameter, ...)` | function | Formal complete balanced TR/RT 2x2 crossover ANOVA |
 | `FormalBEResult` | dataclass | Formal ANOVA table, LSMeans, treatment contrast, residual CV, CI, and decision |
+| `fda_partial_replicate_rsabe(data, parameter, ...)` | function | Validated FDA balanced TRR/RTR/RRT RSABE |
+| `FdaRsabeResult` | dataclass | RSABE variability, confidence-bound, point-estimate, and decision diagnostics |
 | `be_tost(reference, test, ...)` | function | Core TOST computation |
 | `replicate_be(data, value_col, ...)` | function | Long-format replicate-design BE screening |
 | `ReplicateBEResult` | dataclass | Replicate BE output with GMR, 90% CI, CVwR, scaled limits, and caveat |
@@ -59,19 +60,25 @@ openpkflow be anova formal_be.csv --parameter AUCinf --report formal_be.html
 The independently executable R cross-check is `scripts/be_anova_crossval.R`; its
 fixture is `tests/validation/data/be_anova_balanced_2x2.csv`.
 
-## FDA partial-replicate RSABE gate
+## FDA partial-replicate RSABE
 
 ```python
 from openpkflow.be import fda_partial_replicate_rsabe
 
-gate = fda_partial_replicate_rsabe(data, value_col="Cmax")
-assert gate.decision == "NOT_EVALUABLE"
+result = fda_partial_replicate_rsabe(data, parameter="Cmax")
+print(result.decision)
+result.report("rsabe_report.html")
 ```
 
-The initial planned design is FDA partial replicate 2x2x3 (`TRR`, `RTR`, `RRT`). It
-will remain non-decisional until pinned external fixtures validate the replicate model,
-reference within-subject variability, upper confidence bound, point-estimate constraint,
-fallback behavior, and final decision.
+The FDA partial-replicate implementation supports complete, balanced 2x2x3
+`TRR`/`RTR`/`RRT` studies. It is pinned against the 51-subject worked example in
+Patterson and Jones (2012), Table II (DOI 10.1002/pst.498), including the
+method-of-moments estimators, aggregate criterion upper bound, point-estimate
+constraint, and both published decisions.
+
+`NOT_EVALUABLE` means CVwR is below the 30% highly-variable threshold and standard
+average BE should be used. Unbalanced sequence allocation, incomplete subjects, and
+malformed treatment schedules raise `ValueError` rather than changing the estimand.
 
 ## BEStudy
 

@@ -261,26 +261,16 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.6.0** is the latest published release (2026-07-15). It includes the study
-pipeline, SUPAC/alcohol helpers, IVIVC B/C, transit simulation, web polish, and
-convolution validation.
-
-PRs #31 (`74c070b`), #32 (`486788c`), and #33 (`bb0d16a`) are all merged to `main` and
-unreleased. The API and webapp are deployed and live.
+**v2.7.0** is the active release target (2026-07-25). It publishes the additive
+post-v2.6.0 work already merged to `main`: pipeline audit bundles, sparse NCA,
+formal BE ANOVA, validated FDA partial-replicate RSABE, MAP/SUPAC web workflows,
+hosted deployment, and web design polish.
 
 **Immediate next work (in order):**
-1. **RSABE validation is done and wired end-to-end.** `be/rsabe.py` is implemented
-   and validated against Patterson SD, Jones B (2012) *Pharmaceutical Statistics*
-   11(1):1-7, Table II (DOI 10.1002/pst.498) — see
-   `tests/validation/test_be_rsabe_reference.py`. `POST /api/be/rsabe/analyze` and
-   `/api/be/rsabe/report`, and the `/be/rsabe` webapp page, are implemented. A
-   `/code-review high` pass caught and fixed a bias in `delta_hat` for unbalanced
-   sequence allocation (now fails closed instead); see `docs/decisions/formal-be.md`.
-   Open a PR for review.
-2. Optional: Playwright coverage for the PKChart toolbar, sidebar collapse, and mobile
-   layout — currently manual-verified only.
-3. Await conda-forge maintainer review of staged-recipes PR #33461; the v2.6.0
-   recipe and all platform builds are green.
+1. Complete the v2.7.0 release gate and Trusted Publishing workflow.
+2. Retarget conda-forge staged-recipes PR #33461 after v2.7.0 is on PyPI.
+3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
+   and mobile layout.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
@@ -299,6 +289,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.4.0          replicate BE screening + release credibility sprint              DONE
 2.5.0          web app (api/ + webapp/) + student helpers                       DONE
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
+2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish         TARGET
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 

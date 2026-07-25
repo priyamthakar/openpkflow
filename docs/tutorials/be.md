@@ -6,10 +6,9 @@
 
 
 This tutorial demonstrates OpenPKFlow's paired TOST convenience layer, formal complete
-balanced 2x2 ANOVA workflow, and research-grade replicate screening helper. FDA
-partial-replicate RSABE remains non-decisional until its external-reference validation
-gate is complete. EMA ABEL, full-replicate RSABE, NTI decisions, and incomplete or
-unbalanced formal datasets are out of scope.
+balanced 2x2 ANOVA workflow, validated FDA partial-replicate RSABE, and research-grade
+replicate screening helper. EMA ABEL, full-replicate RSABE, NTI decisions, and
+incomplete or unbalanced formal datasets are out of scope.
 
 ---
 

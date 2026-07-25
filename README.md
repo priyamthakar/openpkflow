@@ -24,7 +24,9 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; model-informed one-compartment oral screening from 3+ samples
 - **Bayesian PK (v2.0.0):** MAP individual PK estimation (scipy, no extra deps) plus full posterior via PyMC (`[bayes]` extra); Bayesian 2x2 crossover BE with P(GMR in 80-125) decision quantity alongside frequentist 90% CI
-- **Bioequivalence:** paired 2x2 TOST plus formal complete balanced TR/RT 2x2 crossover ANOVA with ANOVA table, GMR, confidence interval, and residual CV; research-grade replicate screening remains separate
+- **Bioequivalence:** paired 2x2 TOST, formal complete balanced TR/RT 2x2 crossover
+  ANOVA, and validated FDA balanced partial-replicate RSABE; research-grade replicate
+  screening remains separate
 - **Report generation:** Markdown, HTML, PDF, Word
 - **Study pipeline and web app:** optional dissolution, NCA, and paired-BE orchestration;
   unified reports; reproducibility audit ZIP; React pages backed by a thin FastAPI adapter.
@@ -370,8 +372,10 @@ vpc.report("vpc_report.html")
 
 Post-1.0.0: IVIVC Level A, multi-media, SS/urine NCA, sparse NCA, Bayesian PK/BE,
 FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipeline +
-SUPAC/alcohol + IVIVC B/C + transit (v2.6). See [ROADMAP.md](ROADMAP.md) and
-[HANDOFF.md](HANDOFF.md) for current PR/release state.
+SUPAC/alcohol + IVIVC B/C + transit (v2.6), and sparse NCA + formal BE/RSABE +
+pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
+[HANDOFF.md](HANDOFF.md), and
+[SESSION_SUMMARY_2026-07-25.md](SESSION_SUMMARY_2026-07-25.md) for current state.
 
 ---
 

@@ -181,7 +181,7 @@ webapp/src/
 
 ---
 
-## Next Candidates (post-v2.6.0)
+## Next Candidates (v2.7.0 and later)
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
@@ -193,11 +193,13 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
    backend on Render, both auto-deploying on merge to `main`. URLs and the
    `VITE_API_URL` / CORS wiring are documented in `HANDOFF.md` "Deployment".
 6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
-7. **Playwright coverage for the new UI** — the 14 existing tests cover paste-run flows
+7. ~~FDA partial-replicate RSABE page~~ -- done: validated core, API/report endpoints,
+   and `/be/rsabe` page merged in PR #35 (`f041b10`).
+8. **Playwright coverage for the new UI** — the 14 existing tests cover paste-run flows
    only. Nothing guards legend toggling, PNG export, sidebar collapse, or mobile layout.
    Legend hide-and-restore is the highest value; it regressed once already.
-8. Wire `EmptyResults` into the remaining analysis pages (only NCA uses it today).
-9. Richer grid controls only if users request them (row delete, resize, drag fill).
+9. Wire `EmptyResults` into the remaining analysis pages (only NCA uses it today).
+10. Richer grid controls only if users request them (row delete, resize, drag fill).
 
 ---
 

@@ -1,339 +1,85 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-25
 
 ## Current state
 
-- Latest release: **v2.6.0**, published on 2026-07-15. Everything below is merged to
-  `main` but **unreleased** — no version bump yet; see `CHANGELOG.md` `[Unreleased]`.
-- `main` is at `bb0d16a`. No open PRs. Working tree clean; no active feature branch.
-- Merged this cycle, all squash commits:
-  - [PR #31](https://github.com/priyamthakar/openpkflow/pull/31) sparse NCA -> `74c070b` (2026-07-16)
-  - [PR #32](https://github.com/priyamthakar/openpkflow/pull/32) formal BE ANOVA, RSABE gate, MAP PK, SUPAC/alcohol -> `486788c` (2026-07-19)
-  - [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) frontend design polish + mobile pass -> `bb0d16a` (2026-07-19)
-- **Squash-merge caveat for stacked branches.** Because every PR lands squashed, a
-  branch built on a merged branch cannot be rebased with a plain `git rebase main` —
-  git replays the already-merged commits and conflicts. Use
-  `git rebase --onto origin/main <last-merged-commit>` to replay only the new work.
-  This is how `agent/web-design-polish` was landed.
-- The three merged agent branches (`agent/sparse-nca-web`, `agent/map-supac-web`,
-  `agent/web-design-polish`) are superseded. Their content is in `main` via squash,
-  so `git merge-base --is-ancestor` reports them as *not* merged — compare trees with
-  `git diff origin/main origin/<branch>` instead. Safe to delete.
-- Conda-forge staged-recipes PR #33461 targets v2.6.0 and passes all platform builds; awaits maintainer review.
-  (Unrelated to this repo's PR #33 despite the similar number.)
-- **Known gap:** no automated coverage guards the new chart, sidebar, or mobile
-  behaviour. The 14 Playwright tests cover the older paste-run flows only.
+- Active milestone: **v2.7.0 release**.
+- Release branch: `release/v2.7.0`, based on `origin/main` at `273e619`.
+- v2.6.0 remains the latest published version until the v2.7.0 tag workflow
+  completes.
+- All feature work in this release is already merged:
+  - PR #30: pipeline API, web workflow, and audit bundle
+  - PR #31: sparse NCA validation, API, reports, and web workflow
+  - PR #32: formal BE ANOVA, MAP PK, and SUPAC/alcohol workflows
+  - PR #33: web design system and mobile polish
+  - PR #35: validated FDA partial-replicate RSABE
+- No new science module is part of the release PR.
 
-## Deployment (live)
+## v2.7.0 release changes
 
-| Piece | URL | Host | Trigger |
-| --- | --- | --- | --- |
-| Frontend (`webapp/`) | https://openpkflow.priyamthakar1.workers.dev | Cloudflare Workers | Workers Builds, auto on push to `main` |
-| Backend (`api/`) | https://openpkflow.onrender.com | Render | `render.yaml`, auto on push to `main` |
-| Docs | GitHub Pages (`gh-pages` branch) | GitHub | `.github/workflows/docs.yml` |
+- Version metadata and both changelogs are assigned to 2.7.0.
+- The NCA AUC scale-invariance property excludes unrepresentable subnormal
+  scaling and has an explicit IEEE-754 underflow regression.
+- RSABE documentation now matches the validated implementation:
+  - complete balanced TRR/RTR/RRT only
+  - pinned to Patterson and Jones (2012), Table II
+  - low CVwR returns `NOT_EVALUABLE` for standard ABE routing
+  - unbalanced or incomplete studies fail closed
+- Compatible frontend lockfile updates refresh React Router, PostCSS, Nano ID,
+  and brace-expansion.
 
-- Both app deploys are automatic on merge to `main`; there is no manual deploy step.
-- `webapp/.env.production` bakes `VITE_API_URL=https://openpkflow.onrender.com` into the
-  bundle at build time. Changing the Render service name means updating that file.
-- CORS lives in `render.yaml` as `OPENPKFLOW_ALLOWED_ORIGINS` (read by `api/app/config.py`).
-  It must list the Workers origin, or the deployed frontend gets blocked.
-- `wrangler.toml` serves `webapp/dist` as SPA assets. `dist/` is gitignored, so the
-  build command is configured in the Cloudflare Workers Builds dashboard, not the repo.
-- Verifying a deploy: the frontend is code-split, so grepping only `assets/index-*.js`
-  will miss page-level changes. Check the relevant chunk (`PKChart-*.js`, `TopBar-*.js`,
-  etc.). Confirm the backend with `curl https://openpkflow.onrender.com/openapi.json`.
-- Full non-MCMC suite run this session: 1302 passed, 1 pre-existing unrelated failure
-  (`tests/nca/test_methods_hypothesis.py::TestAUCLinearInvariants::test_scale_invariance`,
-  a Hypothesis-found float-underflow edge case at a subnormal double; `nca/` was not
-  touched this session).
+## Verification snapshot
 
-## What was done this session (agent/map-supac-web)
+Completed in the clean linked worktree `D:\openpkflow-v2.7.0-release`:
 
-### New features
+- Targeted NCA/BE/RSABE tests: **130 passed**
+- API tests: **50 passed**, one expected sparse-fit covariance warning
+- Full non-MCMC suite: **1304 passed, 9 skipped, 22 deselected**
+- Frontend: ESLint clean, TypeScript/Vite build clean, **15 Playwright tests passed**
+- Ruff lint and format check: clean
+- mypy: **84 source files**, clean
+- pre-commit: all hooks passed
+- MkDocs strict build: passed
+- Wheel/sdist: built and passed Twine checks
+- Fresh wheel install:
+  - `openpkflow version` -> `openpkflow 2.7.0`
+  - `openpkflow similarity` -> f1 `2.000`, f2 `92.47`
 
-**Formal complete balanced TR/RT 2x2 crossover ANOVA** (`src/openpkflow/be/formal.py`)
-- Full ANOVA source table with correct sequence denominator (subject-within-sequence)
-- GMR, 90% CI, residual MSE, intra-subject CV, PASS/FAIL decision
-- Fail-closed for: missing columns, NaN/Inf, non-positive values, missing sequences, duplicate periods, incomplete subjects, unbalanced allocation, misaligned treatment/period/sequence, fewer than 4 subjects
-- Pinned independent R cross-check: `treatment_difference=0.095931482001`, `residual_mse=0.000183925324`, `sequence_f_subject_within_sequence=2.447340272021`
+The frontend production audit has one residual advisory family in React Router's
+React Server Components action mode. OpenPKFlow is a client-only SPA and does not
+use RSC or server actions. React Router 7.18.1 is the newest published
+`react-router-dom` release; no patched `react-router-dom` version is currently
+available. All other compatible audit fixes were applied.
 
-**FDA partial-replicate RSABE gate** (`src/openpkflow/be/rsabe.py`)
-- Always returns `NOT_EVALUABLE` with `EXTERNAL_REFERENCE_REQUIRED`
-- Validates TRR/RTR/RRT sequence presence only
-- Must not be promoted to PASS/FAIL without a pinned external observed-data comparator
+## Deployment
 
-**Formal ANOVA reporting** (`src/openpkflow/be/formal_reporting.py`)
-- HTML + Markdown reports with ANOVA table, treatment contrast, required disclaimer
+| Piece | URL | Trigger |
+| --- | --- | --- |
+| Frontend | https://openpkflow.priyamthakar1.workers.dev | merge to `main` |
+| Backend | https://openpkflow.onrender.com | merge to `main` |
+| Docs | https://priyamthakar.github.io/openpkflow/ | docs workflow |
+| PyPI | https://pypi.org/project/openpkflow/ | version tag workflow |
 
-**CLI: `openpkflow be anova`** — runs formal ANOVA from CSV with configurable column names
-
-**API endpoints** (all registered in `api/app/main.py`):
-- `POST /api/be/anova/analyze` returns `FormalBeResponse` (parameter, design, GMR, CI, ANOVA table, decision)
-- `POST /api/be/anova/report` streams HTML/Markdown report download
-- `POST /api/bayes/map/analyze` returns `MapPkResponse` (CL_F/Vz_F/ka, CL/Vz, diagnostics, fail-closed fit_usable flag)
-- `POST /api/bayes/map/report` streams MAP screening report
-- `POST /api/supac/classify` returns SUPAC-IR level with rationale and recommended tests
-- `POST /api/supac/alcohol` returns f2 per ethanol concentration, overall pass/fail
-
-**Frontend pages** (React + Vite + Tailwind, all lazy-loaded):
-- `/be/anova` — Formal BE ANOVA page: file upload, metric cards (GMR, CI, CV, MSE), ANOVA table, report download
-- `/bayes/map` — MAP Individual PK: Theoph example, paste grid, study details (route, dose, subject), fit diagnostics, observed/predicted chart + table, fail-closed suppression of unusable estimates
-- `/supac` — SUPAC & Alcohol Screening: tabbed UI (SUPAC-IR level classifier + Alcohol dose-dumping), paste grids for control/ethanol profiles, f2 results by ethanol percentage
-
-### Fixes and hardening
-
-**MAP individual PK** (`src/openpkflow/bayes/map_pk.py`):
-- Added fail-closed input validation: non-finite values, negative times/concentrations, non-increasing times, all-zero profiles, 1D array requirement, dose finite check
-- Oral Cmax/Tmax changed from numerical grid search to analytical formula: Tmax = ln(ka/k) / (ka - k), with degenerate case when ka==k
-- Ill-conditioned Hessian now returns `uncertainty_reliable=False` with no Hessian inverse instead of returning unreliable SEs
-
-**MAP PK reports** (`src/openpkflow/bayes/reporting.py`):
-- Jinja2 `autoescape` enabled for XSS prevention
-- Test verifying `<script>` is escaped in subject name output
-
-**SUPAC alcohol screening** (`src/openpkflow/dissolution/supac.py`):
-- Added strict validation: finite time points, non-negative, strictly increasing, finite ethanol percentages in (0, 100]
-- Changed from default f2 method to explicit `method="regulatory"` (trims extra plateau points per FDA guidance)
-- f2 threshold must be finite and within (0, 100]
-
-### Tests
-
-**Core BE formal ANOVA** (`tests/be/test_formal.py`): 9 tests
-- Identical profiles -> GMR=1, PASS, CV=0
-- Treatment contrast matches expected
-- Sequence uses subject-within-sequence F denominator
-- 4 fail-closed parameterized cases (missing row, single sequence, duplicate, negative value)
-- Unbalanced sequence allocation fails closed
-- Report includes ANOVA Table
-
-**RSABE gate** (`tests/be/test_rsabe_gate.py`): 1 test
-
-**External reference** (`tests/validation/test_be_anova_reference.py`): 1 test
-- Pinned against `scripts/be_anova_crossval.R` output
-
-**MAP PK core** (`tests/bayes/test_map_pk.py`): 4 parameterized validation tests + report escaping test
-
-**SUPAC core** (`tests/dissolution/test_supac.py`): 2 new validation tests + regulatory f2 trimming test
-
-**API tests**:
-- `api/tests/test_bayes.py`: 6 tests (oral MAP, IV MAP, too-few-samples, invalid profile, HTML report, HTML escaping)
-- `api/tests/test_supac.py`: 6 tests (filler L1/L3, negative reject, alcohol divergence/pass, mismatched lengths, duplicate ethanol%)
-- `api/tests/test_be.py`: 2 new formal BE tests (anova/analyze + anova/report), 113 total
-
-**Playwright** (`webapp/tests/paste-run.spec.ts`):
-- MAP happy path: submits oral profile, renders CL/F, renders metrics
-- MAP unusable: fit_usable=false suppresses estimates and download button
-- Alcohol screening: tab switch, sends control grid, renders fail verdict
-- Formal BE ANOVA: file upload, renders ANOVA result table and GMR
-
-### 2026-07-19 design system polish
-
-All done in `webapp/` — no API, Python core, or test changes.
-
-**PKChart** (`components/shared/PKChart.tsx`):
-- Series colors wired to CSS theme tokens (`--chart-1` through `--chart-5` in both
-  light/dark) instead of hardcoded hex, so charts match the active theme.
-- Toolbar: *Points* toggle, *Panels* toggle (small-multiples grid), *Semi-log* toggle,
-  *PNG export* (2x-scale SVG→canvas download).
-
-**AnalysisShell** (`components/shared/AnalysisShell.tsx`):
-- Split-pane width persisted to localStorage across page navigations.
-
-**Empty states** (`components/shared/EmptyResults.tsx`):
-- Shared `EmptyResults` component: dashed border panel with icon, description,
-  "Ctrl+Enter to run" hint, and faded skeleton preview.
-- Wired into NcaPage as reference implementation.
-
-**Ctrl+Enter run shortcut** (`lib/useRunShortcut.ts`):
-- New hook fires the primary run callback on Ctrl/Cmd+Enter outside text inputs.
-- Wired into all 9 analysis pages: NCA, Sparse NCA, BE, Dissolution (tab-aware),
-  IVIVC, MAP PK, Formal BE ANOVA, SUPAC (both tabs), Pipeline.
-
-**Sidebar** (`components/layout/Sidebar.tsx`):
-- Nav links grouped: *Overview*, *PK Analysis*, *Formulation & BE*, *Workflow*.
-- Desktop collapse to 60 px icon-only rail with tooltips, persisted to localStorage.
-
-**TopBar** (`components/layout/TopBar.tsx`):
-- Red "engine offline" badge when API is unreachable (was previously invisible).
-- Neutral "connecting..." state while loading.
-
-**CSS cleanup** (`index.css`, `components/ui/Button.tsx`):
-- Removed duplicated light/dark input overrides and generic `!important` rule.
-- Added `--accent-fg` theme token; Button primary uses it instead of hardcoded hex.
-
-**Verification**: `tsc -b` clean, `npm run lint` clean, `vite build` passes,
-all 14 Playwright tests pass (no regressions).
-
-## Change map (new files)
-
-```
-src/openpkflow/be/
-  formal.py              -> FormalBEResult, formal_be_anova, AnovaRow
-  formal_reporting.py    -> report_formal_be (HTML/Markdown)
-  rsabe.py               -> FdaRsabeResult, fda_partial_replicate_rsabe
-  __init__.py            -> exports new public symbols
-
-scripts/
-  be_anova_crossval.R    -> independent R ANOVA reference script
-
-tests/be/
-  test_formal.py         -> 9 formal ANOVA tests
-  test_rsabe_gate.py     -> RSABE gate test
-
-tests/validation/
-  test_be_anova_reference.py   -> pinned regression vs R
-  data/be_anova_balanced_2x2.csv -> R cross-check fixture (4 subjects)
-
-api/app/routers/
-  bayes.py               -> /api/bayes/map/analyze, /api/bayes/map/report
-  supac.py               -> /api/supac/classify, /api/supac/alcohol
-
-api/app/schemas/
-  bayes.py               -> MapPkRequest, MapPkResponse
-  supac.py               -> SupacClassifyRequest/Response, AlcoholDosingRequest/Response
-
-api/app/services/
-  bayes_service.py       -> run_map_pk, write_map_pk_report
-  supac_service.py       -> run_supac_classify, run_alcohol_dosing
-
-api/tests/
-  test_bayes.py          -> 6 MAP PK endpoint tests
-  test_supac.py          -> 6 SUPAC endpoint tests
-
-webapp/src/pages/
-  FormalBePage.tsx       -> /be/anova
-  MapPkPage.tsx          -> /bayes/map
-  SupacPage.tsx          -> /supac
-
-webapp/src/components/shared/
-  EmptyResults.tsx       -> shared empty-state placeholder component
-
-webapp/src/lib/
-  useRunShortcut.ts      -> Ctrl+Enter run shortcut hook
-
-docs/decisions/
-  formal-be.md           -> architecture decision record
-```
-
-### Change map (modified files)
-
-- `src/openpkflow/cli.py` — added `openpkflow be anova` command
-- `src/openpkflow/bayes/map_pk.py` — enhanced validation, analytical Cmax/Tmax, ill-conditioned Hessian handling
-- `src/openpkflow/bayes/reporting.py` — Jinja2 autoescape
-- `src/openpkflow/dissolution/supac.py` — strict input validation, regulatory f2 method
-- `src/openpkflow/be/__init__.py` — new public exports
-- `api/app/main.py` — registered bayes and supac routers
-- `api/app/routers/be.py` — added /anova/analyze and /anova/report endpoints
-- `api/app/schemas/be.py` — FormalBeOptions, FormalBeResponse, FormalAnovaRow
-- `api/app/services/be_service.py` — run_formal_be, write_formal_be_report
-- `api/tests/test_be.py` — 2 new formal BE test cases
-- `webapp/src/App.tsx` — lazy-loaded routes for /be/anova, /bayes/map, /supac
-- `webapp/src/components/layout/Sidebar.tsx` — nav entries for all 3 new pages
-- `webapp/src/lib/api.ts` — analyzeFormalBe, downloadFormalBeReport, analyzeMapPk, downloadMapPkReport, classifySupac, assessAlcoholDosing
-- `webapp/src/lib/types.ts` — FormalBeResponse, FormalBeAnovaRow, MapPkRequest/Response, SupacClassify, AlcoholDosing types
-- `webapp/tests/paste-run.spec.ts` — 4 new Playwright tests
-- `tests/bayes/test_map_pk.py` — 4 validation tests + escaping test
-- `tests/dissolution/test_supac.py` — 2 validation tests + regulatory f2 test
-- `CHANGELOG.md`, `README.md`, `RELEASE.md`, `ROADMAP.md`, `CLAUDE.md`, `AGENTS.md` — synced
-- Various docs: `docs/index.md`, `docs/positioning.md`, `docs/migration-cheatsheet.md`, `docs/reference/be.md`, `docs/tutorials/be.md`, `docs/validation-matrix.md`, `mkdocs.yml`, `api/README.md`, `webapp/README.md`
-- `webapp/src/index.css` — added chart theme tokens (--chart-1..5 for light/dark), --accent-fg token; deduplicated input overrides, removed generic !important rule
-- `webapp/src/components/ui/Button.tsx` — primary variant uses `text-accent-fg` instead of hardcoded `#04122b`
-- `webapp/src/components/shared/PKChart.tsx` — theme-wired series colors, Points toggle, Panels/small-multiples toggle, PNG export toolbar
-- `webapp/src/components/shared/AnalysisShell.tsx` — split-pane width persisted to localStorage
-- `webapp/src/components/layout/Sidebar.tsx` — grouped nav sections (Overview, PK Analysis, Formulation & BE, Workflow), desktop icon-only collapse mode
-- `webapp/src/components/layout/TopBar.tsx` — red "engine offline" badge when API unreachable, "connecting..." loading state
-- `webapp/src/pages/NcaPage.tsx` — wired EmptyResults, integrated useRunShortcut
-- `webapp/src/pages/BePage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/DissolutionPage.tsx` — integrated useRunShortcut (tab-aware)
-- `webapp/src/pages/IvIvcPage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/MapPkPage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/FormalBePage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/PipelinePage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/SparseNcaPage.tsx` — integrated useRunShortcut
-- `webapp/src/pages/SupacPage.tsx` — integrated useRunShortcut (both classify + alcohol tabs)
-- `progress_web_app.md` — documented design system polish section
-
-## Known issues / blocked items
-
-1. **FDA partial-replicate RSABE** is now implemented, validated, and wired end-to-end
-   on branch `agent/rsabe-validation` (based on `origin/main` at `bb0d16a`). The earlier
-   `replicateBE::rds07`/Pumas cross-check lead in `docs/decisions/rsabe-validation-search.md`
-   turned out to be unnecessary: the user provided direct access to Patterson SD, Jones B
-   (2012) "Viewpoint: observations on scaled average bioequivalence," *Pharmaceutical
-   Statistics* 11(1):1-7 (DOI 10.1002/pst.498), which contains a complete worked
-   FDA-method example (Section 1.3, Table II: 51 real subjects, 17/sequence, TRR/RTR/RRT).
-   The method-of-moments delta-hat/sigma-wR estimators, the FDA/Haidar aggregate
-   linearized criterion, and the Hyslop-Hsuan-Holder (2000) confidence-bound combination
-   were implemented in `src/openpkflow/be/rsabe.py` and reproduce the paper's own numbers
-   almost exactly, including both regulatory decisions (AUC PASS, Cmax FAIL on two
-   independent grounds). Pinned in `tests/validation/test_be_rsabe_reference.py` against
-   `tests/validation/data/be_rsabe_partial_replicate_patterson2012.csv`. Also wired into
-   `api/` (`POST /api/be/rsabe/analyze`, `/api/be/rsabe/report`) and `webapp/`
-   (`/be/rsabe` page, Sidebar "FDA RSABE" entry), following the existing `be/anova`
-   pattern exactly, with API tests (`api/tests/test_be.py`) and a Playwright test
-   (`webapp/tests/paste-run.spec.ts`). A `/code-review high` pass caught a real bug
-   before merge: `delta_hat` was computed as an unweighted per-subject mean, which
-   only matches Patterson & Jones's actual method-of-moments formula (and only
-   cancels period effects) under balanced TRR/RTR/RRT allocation; unbalanced data
-   (e.g. from unequal dropout) silently biased the decision. Fixed by requiring
-   balanced allocation and failing closed otherwise (`ValueError`), matching the
-   pattern `formal.py` already used for its own 2-sequence case. Supporting
-   genuinely unbalanced data would require implementing the paper's group-weighted
-   MoM formula instead — not done, tracked in `docs/decisions/formal-be.md`.
-
-2. **Conda-forge PR #33461** still awaits maintainer review.
-
-3. **No UI regression coverage** for the PKChart toolbar, sidebar collapse, or mobile
-   layout shipped in PR #33. All three were verified manually in a live browser only.
+`webapp/.env.production` supplies the Render API URL. CORS is configured in
+`render.yaml`. The frontend and backend deploy automatically after merge.
 
 ## Resume here
 
-1. Review `src/openpkflow/be/rsabe.py` and its API/webapp wiring on
-   `agent/rsabe-validation`; open a PR against `main` once satisfied.
-2. Optional: add Playwright coverage for the new chart/sidebar/mobile behaviour
-   (legend hide-and-restore is the highest value — it regressed once already).
-3. Await conda-forge maintainer action on PR #33461.
-4. Delete the three superseded merged agent branches (see Current state).
-5. Do not extend frozen `pop/estimation/`.
+1. Commit and push `release/v2.7.0`.
+2. Open the release PR and require green CI.
+3. Merge the PR, tag the resulting `main` commit as `v2.7.0`, and push the tag.
+4. Verify the GitHub Release, Trusted Publishing, PyPI, and fresh-install CLI.
+5. Retarget conda-forge staged-recipes PR #33461 to v2.7.0 and wait for its
+   platform builds.
+6. Update this handoff with the final release commit, URLs, and post-release
+   maintenance boundary.
 
-## Commands
+## Constraints
 
-```powershell
-# Current branch
-git status -sb
-
-# Verify baseline
-git log -1 --oneline
-
-# Core be tests
-python -m pytest tests/be/ tests/validation/test_be_anova_reference.py -q
-
-# MAP PK + SUPAC tests
-python -m pytest tests/bayes/test_map_pk.py tests/dissolution/test_supac.py -q
-
-# API tests
-$env:PYTHONPATH='src;api'; python -m pytest api/tests -q --basetemp D:\openpkflow\.test-tmp
-
-# Playwright tests
-cd webapp && npm run test:e2e
-
-# Full suite (exclude slow MCMC)
-pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"
-
-# Lint and type-check
-ruff check src/ tests/ api/ && ruff format --check src/ tests/ api/
-mypy src/openpkflow
-
-# Build
-python -m build && python -m twine check dist/*
-```
-
-Full release checks remain documented in `RELEASE.md`.
-
-## Identity
-
-**Package:** openpkflow
-**Author:** Priyam Thakar <priyamthakar1@gmail.com>
-**GitHub:** https://github.com/priyamthakar/openpkflow
-**Positioning:** A transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting. It does not replace expert regulatory judgement or validated commercial platforms.
+- Do not extend `pop/estimation/`; bug fixes only.
+- Do not add EMA ABEL, full-replicate RSABE, NTI decisions, or unvalidated formal
+  BE designs.
+- Preserve explicit AUC method and BLQ handling.
+- Keep pharmacometric logic in `src/openpkflow/`, never in `api/` or `webapp/`.
+- Do not use `--no-verify`, force-push, or amend published commits.

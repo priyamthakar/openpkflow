@@ -32,15 +32,20 @@ Shipped in parallel tracks:
 - IVIVC convolution analytical validation; BE power edge cases
 - Positioning docs, pipeline tutorial, Docker/compose polish
 
-### Next work (ordered)
+### v2.7.0 release boundary
 
-1. Review and merge the sparse NCA validation/API/page slice.
-2. Await conda-forge maintainer review of the green v2.6.0 staged-recipes PR #33461.
-3. Add the MAP individual-PK API/page with fail-closed screening diagnostics.
-4. Add SUPAC / alcohol UI on the Dissolution page.
-5. Hosted API + webapp deploy (`VITE_API_URL`).
-6. Formal RSABE in BioEqPy, not OpenPKFlow core.
-7. Optional: wire the IVIVC stage into StudyPipeline after validation planning.
+The post-v2.6.0 sparse NCA, pipeline audit bundle, MAP/SUPAC workflows, formal BE
+ANOVA, validated FDA partial-replicate RSABE, hosted deployment, and web polish are
+complete and assigned to v2.7.0.
+
+After publication:
+
+1. Retarget the open conda-forge staged-recipes PR #33461 to v2.7.0.
+2. Add focused Playwright regression coverage for chart legend restoration, PNG
+   export, sidebar collapse, and mobile navigation.
+3. Wire `EmptyResults` into remaining analysis pages if the shared pattern remains
+   appropriate.
+4. Keep `pop/estimation/` frozen and prioritize validation over new science modules.
 
 ## v2.4.0 Credibility Sprint
 
