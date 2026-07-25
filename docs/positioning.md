@@ -50,7 +50,7 @@ pharmacokinetic, and regulatory experts.
 
 ## Current release context (for agents)
 
-Version **2.7.0** is the current release target dated 2026-07-25.
+Version **2.7.0** is the current published release, dated 2026-07-25.
 Always read **`HANDOFF.md` at the repository root** in the working tree for
 branch name, PR number, verification results, and release status.
 

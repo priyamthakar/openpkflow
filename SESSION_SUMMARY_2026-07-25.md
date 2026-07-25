@@ -24,7 +24,20 @@ scientific feature.
 - Ruff, formatting, mypy, pre-commit, strict MkDocs, build, and Twine checks passed.
 - A clean wheel installed as openpkflow 2.7.0 and passed CLI smoke checks.
 
-## Remaining release operations
+## Publication
 
-See `HANDOFF.md` for the exact branch, release sequence, deployment URLs, residual
-React Router RSC advisory context, and post-release conda-forge step.
+- Release PR #39 was squash-merged as `74039b4`.
+- Tag `v2.7.0` and the GitHub Release were created.
+- Trusted Publishing run 30167426746 published successfully to TestPyPI and PyPI.
+- A clean public-PyPI environment installed `openpkflow==2.7.0` and passed the
+  version and similarity CLI smoke checks.
+- Conda-forge staged-recipes PR #33461 was retargeted to the verified v2.7.0
+  sdist and SHA-256; its refreshed checks are pending.
+
+## Remaining operations
+
+- Wait for conda-forge PR #33461 checks and maintainer review.
+- Verify the Render backend converges from 2.6.0 to 2.7.0 after its post-merge
+  deployment. The frontend and docs already return HTTP 200.
+- See `HANDOFF.md` for deployment URLs, residual React Router RSC advisory
+  context, and the bounded next work.

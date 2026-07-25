@@ -4,10 +4,18 @@
 
 ## Current state
 
-- Active milestone: **v2.7.0 release**.
-- Release branch: `release/v2.7.0`, based on `origin/main` at `273e619`.
-- v2.6.0 remains the latest published version until the v2.7.0 tag workflow
-  completes.
+- Latest published release: **v2.7.0** (2026-07-25).
+- Release PR: [#39](https://github.com/priyamthakar/openpkflow/pull/39), squash
+  merged to `main` as `74039b4`.
+- Tag: [`v2.7.0`](https://github.com/priyamthakar/openpkflow/releases/tag/v2.7.0),
+  pointing to `74039b4`.
+- PyPI: <https://pypi.org/project/openpkflow/2.7.0/>.
+- Trusted Publishing:
+  [run 30167426746](https://github.com/priyamthakar/openpkflow/actions/runs/30167426746)
+  completed successfully for TestPyPI and PyPI.
+- Conda-forge staged-recipes PR
+  [#33461](https://github.com/conda-forge/staged-recipes/pull/33461) now targets
+  v2.7.0; platform and linter checks are running.
 - All feature work in this release is already merged:
   - PR #30: pipeline API, web workflow, and audit bundle
   - PR #31: sparse NCA validation, API, reports, and web workflow
@@ -45,6 +53,9 @@ Completed in the clean linked worktree `D:\openpkflow-v2.7.0-release`:
 - Fresh wheel install:
   - `openpkflow version` -> `openpkflow 2.7.0`
   - `openpkflow similarity` -> f1 `2.000`, f2 `92.47`
+- Fresh public-PyPI install:
+  - installed `openpkflow==2.7.0` from `https://pypi.org/simple`
+  - repeated the same version and similarity CLI smoke checks successfully
 
 The frontend production audit has one residual advisory family in React Router's
 React Server Components action mode. OpenPKFlow is a client-only SPA and does not
@@ -63,17 +74,19 @@ available. All other compatible audit fixes were applied.
 
 `webapp/.env.production` supplies the Render API URL. CORS is configured in
 `render.yaml`. The frontend and backend deploy automatically after merge.
+The frontend and docs returned HTTP 200 after the v2.7.0 merge. The Render
+backend was reachable but still reported engine version 2.6.0 while its
+post-merge deployment was pending; verify `/openapi.json` reports 2.7.0 before
+considering that deployment converged.
 
 ## Resume here
 
-1. Commit and push `release/v2.7.0`.
-2. Open the release PR and require green CI.
-3. Merge the PR, tag the resulting `main` commit as `v2.7.0`, and push the tag.
-4. Verify the GitHub Release, Trusted Publishing, PyPI, and fresh-install CLI.
-5. Retarget conda-forge staged-recipes PR #33461 to v2.7.0 and wait for its
-   platform builds.
-6. Update this handoff with the final release commit, URLs, and post-release
-   maintenance boundary.
+1. Confirm conda-forge staged-recipes PR #33461 returns to green, then await
+   maintainer review.
+2. Confirm the Render backend `/openapi.json` reports version 2.7.0.
+3. Optionally add Playwright coverage for PKChart legend restoration and PNG
+   export, sidebar collapse, and mobile navigation.
+4. Keep `pop/estimation/` frozen and prioritize validation over new modules.
 
 ## Constraints
 
