@@ -268,7 +268,7 @@ publication are complete. Conda-forge staged-recipes PR #33461 now targets
 v2.7.0.
 
 **Immediate next work (in order):**
-1. Await green checks and maintainer review on conda-forge PR #33461.
+1. Await maintainer review on the fully green conda-forge PR #33461.
 2. Confirm the Render backend reports engine version 2.7.0 after deployment.
 3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
    and mobile layout.

@@ -32,11 +32,11 @@ scientific feature.
 - A clean public-PyPI environment installed `openpkflow==2.7.0` and passed the
   version and similarity CLI smoke checks.
 - Conda-forge staged-recipes PR #33461 was retargeted to the verified v2.7.0
-  sdist and SHA-256; its refreshed checks are pending.
+  sdist and SHA-256; its linter, Linux, Windows, and macOS checks pass.
 
 ## Remaining operations
 
-- Wait for conda-forge PR #33461 checks and maintainer review.
+- Await conda-forge PR #33461 maintainer review.
 - Verify the Render backend converges from 2.6.0 to 2.7.0 after its post-merge
   deployment. The frontend and docs already return HTTP 200.
 - See `HANDOFF.md` for deployment URLs, residual React Router RSC advisory

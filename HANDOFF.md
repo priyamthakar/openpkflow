@@ -15,7 +15,8 @@
   completed successfully for TestPyPI and PyPI.
 - Conda-forge staged-recipes PR
   [#33461](https://github.com/conda-forge/staged-recipes/pull/33461) now targets
-  v2.7.0; platform and linter checks are running.
+  v2.7.0; linter, Linux, Windows, and macOS checks all pass. It is awaiting
+  maintainer review.
 - All feature work in this release is already merged:
   - PR #30: pipeline API, web workflow, and audit bundle
   - PR #31: sparse NCA validation, API, reports, and web workflow
@@ -81,8 +82,7 @@ considering that deployment converged.
 
 ## Resume here
 
-1. Confirm conda-forge staged-recipes PR #33461 returns to green, then await
-   maintainer review.
+1. Await maintainer review of conda-forge staged-recipes PR #33461.
 2. Confirm the Render backend `/openapi.json` reports version 2.7.0.
 3. Optionally add Playwright coverage for PKChart legend restoration and PNG
    export, sidebar collapse, and mobile navigation.
