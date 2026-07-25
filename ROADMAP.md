@@ -241,7 +241,7 @@ published to PyPI on 2026-07-15.
 - Tag `v2.7.0`, GitHub Release, TestPyPI, PyPI, and a clean public-PyPI install
   smoke are complete.
 - Conda-forge staged-recipes PR #33461 now targets the verified v2.7.0 sdist;
-  await refreshed platform checks and maintainer review.
+  refreshed linter, Linux, Windows, and macOS checks pass. Await maintainer review.
 - See `HANDOFF.md` for exact published state and bounded next work.
 
 ---
@@ -302,7 +302,7 @@ published to PyPI on 2026-07-15.
 | High | `DissolutionStudy.from_excel()` via openpyxl | 2 h | ✅ Done |
 | High | Codecov integration (badge + coverage gating) | 1 h | ✅ Done |
 | Medium | `pytest-benchmark` + perf regression CI job | 2 h | ✅ Done |
-| Medium | conda-forge recipe | 3 h | [staged-recipes PR #33461](https://github.com/conda-forge/staged-recipes/pull/33461) targets 2.7.0; refreshed linter and platform builds are pending before maintainer review, with no feedstock/package yet |
+| Medium | conda-forge recipe | 3 h | [staged-recipes PR #33461](https://github.com/conda-forge/staged-recipes/pull/33461) targets 2.7.0 and passes linter plus Linux, Windows, and macOS builds; awaiting maintainer review, with no feedstock/package yet |
 | Medium | README feature-comparison table (vs. PKNCA, WinNonlin) | 2 h | ✅ Done (v2.2.0 — CDISC PP row split, PKNCA claims corrected, caveat added) |
 | Low | pre-commit hooks: ruff + mypy (complements existing CI) | 1 h | ✅ Done |
 
