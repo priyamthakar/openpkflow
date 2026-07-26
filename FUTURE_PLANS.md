@@ -40,12 +40,14 @@ published in v2.7.0 through PR #39.
 
 Post-release:
 
-1. Await maintainer review of the v2.7.0 conda-forge staged-recipes PR #33461.
-2. Add focused Playwright regression coverage for chart legend restoration, PNG
+1. Inspect or manually redeploy Render from `main`; require `/health` and
+   `/openapi.json` to report engine version 2.7.0.
+2. Await maintainer review of the v2.7.0 conda-forge staged-recipes PR #33461.
+3. Add focused Playwright regression coverage for chart legend restoration, PNG
    export, sidebar collapse, and mobile navigation.
-3. Wire `EmptyResults` into remaining analysis pages if the shared pattern remains
+4. Wire `EmptyResults` into remaining analysis pages if the shared pattern remains
    appropriate.
-4. Keep `pop/estimation/` frozen and prioritize validation over new science modules.
+5. Keep `pop/estimation/` frozen and prioritize validation over new science modules.
 
 ## v2.4.0 Credibility Sprint
 
@@ -131,8 +133,10 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ### Bioequivalence
 
-- v2.4.0 hardens research-grade replicate BE screening; validated regulator-grade
-  RSABE parity remains future BioEqPy/SAS/R work
+- v2.7.0 adds FDA partial-replicate RSABE validated for complete balanced
+  TRR/RTR/RRT allocation against Patterson and Jones (2012), Table II.
+  Jurisdiction-specific mixed-model parity and unsupported replicate designs
+  remain future BioEqPy/SAS/R work.
 - Adaptive BE designs: two-stage Potvin/Maurer methods
 - Group-sequential BE with futility stopping
 - Multiple-endpoint BE: simultaneous Cmax + AUCinf with multiplicity adjustment
@@ -190,7 +194,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ## Developer experience & project health
 
-- **Documentation site**: fix GitHub Pages 404 — ship full MkDocs site with `mkdocstrings` API reference
+- **Documentation site**: MkDocs site is live and returned HTTP 200 on 2026-07-26
 - **Tutorial gallery**: Jupyter notebooks for each module
 - **Theory guide**: math derivations for each formula module (regulatory review support)
 - **Migration guide**: "Coming from WinNonlin / NONMEM / R" cheat sheets
@@ -238,7 +242,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 | Sparse oral PK screening | ✅ | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
-| RSABE / replicate BE | research-grade screening; validated RSABE future | — | — | — | ✅ |
+| RSABE / replicate BE | balanced FDA partial-replicate validated; general screening remains research-grade | — | — | — | ✅ |
 | PopPK estimation | ✅ research-grade FOCE-I/SAEM | ✅ | ✅ | ✅ | — |
 | PK simulation (1-2 cmt) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MAP individual PK | ✅ (v2.0.0) | — | — | — | ✅ |

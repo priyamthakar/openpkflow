@@ -218,8 +218,10 @@ published to PyPI on 2026-07-15.
 - MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
 - Formal BE ANOVA API/page ✅ merged in PR #32 (`486788c`)
 - Frontend design system polish + mobile pass ✅ merged in PR #33 (`bb0d16a`)
-- Hosted production deploy of api + webapp ✅ Cloudflare Workers (frontend) + Render
-  (backend), both auto-deploying on merge to `main`; URLs in `HANDOFF.md`
+- Hosted production services: Cloudflare Workers frontend is current; the Render
+  backend is reachable but still reports engine version 2.6.0 and requires a
+  manual deployment/configuration check before v2.7.0 convergence; URLs and gate
+  are in `HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### v2.7.0 release (published 2026-07-25)
@@ -242,6 +244,8 @@ published to PyPI on 2026-07-15.
   smoke are complete.
 - Conda-forge staged-recipes PR #33461 now targets the verified v2.7.0 sdist;
   refreshed linter, Linux, Windows, and macOS checks pass. Await maintainer review.
+- Production frontend and docs are healthy. Render `/health` still reports 2.6.0;
+  manually redeploy from `main` and verify 2.7.0 before closing the deployment gate.
 - See `HANDOFF.md` for exact published state and bounded next work.
 
 ---
@@ -249,14 +253,15 @@ published to PyPI on 2026-07-15.
 ## Cross-cutting workstreams (parallel to milestones)
 
 ### Documentation
-- Fix dead GitHub Pages link (priyamthakar.github.io/openpkflow -- currently 404)
-  **This is the single highest-priority quick-win.**
+- GitHub Pages MkDocs site at <https://priyamthakar.github.io/openpkflow/> ✅
+  Verified HTTP 200 on 2026-07-26.
 - MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship ✅ Done (2026-05-30)
 - Theory guide: derivations for each formula module (regulatory review support) ✅ Done (2026-05-30)
 - "Coming from WinNonlin/NONMEM" migration cheatsheet ✅ Done (2026-05-29)
 
 ### Packaging and distribution
-- `conda-forge` recipe PR (reaches biostat/bioinformatics community)
+- `conda-forge` staged-recipes PR #33461 is fully green and awaiting maintainer
+  review.
 - Docker image: Jupyter + openpkflow + all extras for demos
 - Consider Pyodide/WebAssembly for in-browser dissolution demo (low priority)
 

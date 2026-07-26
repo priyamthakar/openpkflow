@@ -26,8 +26,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   Current pages: Home, NCA, Sparse NCA, MAP Individual PK, Dissolution (single +
   multi-media tab), Simulation, IVIVC, Bioequivalence (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
-- Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
-  on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and the CORS/build wiring.
+- Deployed live: frontend on Cloudflare Workers and backend on Render. The
+  frontend auto-deploys from `main`; the live Render service still reports
+  engine version 2.6.0 and needs a manual deployment/configuration check. See
+  `HANDOFF.md` "Deployment" for the verified state and URLs.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
@@ -268,8 +270,9 @@ publication are complete. Conda-forge staged-recipes PR #33461 now targets
 v2.7.0.
 
 **Immediate next work (in order):**
-1. Await maintainer review on the fully green conda-forge PR #33461.
-2. Confirm the Render backend reports engine version 2.7.0 after deployment.
+1. Inspect or manually redeploy Render from `main`, then require `/health` and
+   `/openapi.json` to report engine version 2.7.0.
+2. Await maintainer review on the fully green conda-forge PR #33461.
 3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
    and mobile layout.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.

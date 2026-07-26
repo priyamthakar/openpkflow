@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Documentation
+
+- Corrected the live deployment handoff: the Cloudflare frontend and documentation
+  are current, while Render remains reachable on engine version 2.6.0 and requires
+  a manual deployment/configuration check.
+- Synchronized the API endpoint and web-page inventories and corrected the
+  validated FDA partial-replicate RSABE scope.
+
 ---
 
 ## [2.7.0] -- 2026-07-25
@@ -43,8 +51,10 @@ package, REST API, and web application. No existing public API was removed.
 - **Web application polish**: theme-aware chart colors, chart toolbar and PNG export,
   grouped collapsible navigation, persisted split-pane width, run shortcuts, improved
   empty states, and visible backend health status.
-- **Production deployment**: Cloudflare Workers frontend and Render backend, both
-  automatically deployed from `main`.
+- **Production deployment wiring**: Cloudflare Workers frontend and Render
+  backend configuration. The frontend deploys automatically from `main`; as of
+  2026-07-26, the reachable Render service still reports engine version 2.6.0
+  and requires a manual deployment/configuration check for v2.7.0.
 
 ### Fixed
 

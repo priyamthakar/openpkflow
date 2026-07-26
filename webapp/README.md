@@ -23,7 +23,10 @@ All calculations run in the FastAPI backend — the frontend only renders result
 | IVIVC | `/ivivc` | Wagner-Nelson/Loo-Riegelman inputs, example data, predictability results, reports |
 | Bioequivalence | `/be` | Paired TOST analysis plus exact power and sample-size calculator |
 | Formal BE ANOVA | `/be/anova` | Complete balanced TR/RT long-format formal 2x2 ANOVA with ANOVA table and reports |
+| FDA RSABE | `/be/rsabe` | Validated balanced TRR/RTR/RRT partial-replicate analysis and reports |
 | Study Pipeline | `/pipeline` | Optional dissolution/NCA/BE stages, unified results, report and audit ZIP downloads |
+| MAP Individual PK | `/bayes/map` | Oral and IV-bolus MAP screening with diagnostics and reports |
+| SUPAC & Alcohol | `/supac` | SUPAC-IR change classification and alcohol dose-dumping f2 screening |
 
 ## Setup
 
@@ -40,3 +43,7 @@ Vite proxies `/api` and `/health` to `http://localhost:8000` automatically.
 For a deployed backend, set `VITE_API_URL` before the production build. The frontend
 contains no pharmacometric formulas; all calculations and report generation are delegated
 to the FastAPI adapter and `src/openpkflow/`.
+
+Production uses `VITE_API_URL=https://openpkflow.onrender.com`. The Cloudflare
+frontend is current, but as of 2026-07-26 the Render `/health` response still
+reports engine version 2.6.0. See the deployment gate in the root `HANDOFF.md`.

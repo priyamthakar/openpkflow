@@ -29,8 +29,10 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Formal BE ANOVA, FDA RSABE, MAP Individual PK, SUPAC & Alcohol Screening, and
   Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
-- Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
-  on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and CORS/build wiring.
+- Deployed live: frontend on Cloudflare Workers and backend on Render. The
+  frontend auto-deploys from `main`; the live Render service still reports
+  engine version 2.6.0 and needs a manual deployment/configuration check. See
+  `HANDOFF.md` "Deployment" for the verified state and URLs.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
 
@@ -267,8 +269,9 @@ publication are complete. Conda-forge staged-recipes PR #33461 now targets
 v2.7.0.
 
 **Immediate next work (in order):**
-1. Await maintainer review on the fully green conda-forge PR #33461.
-2. Confirm the Render backend reports engine version 2.7.0 after deployment.
+1. Inspect or manually redeploy Render from `main`, then require `/health` and
+   `/openapi.json` to report engine version 2.7.0.
+2. Await maintainer review on the fully green conda-forge PR #33461.
 3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
    and mobile layout.
 4. Keep validation discipline; do not extend frozen `pop/estimation/`.

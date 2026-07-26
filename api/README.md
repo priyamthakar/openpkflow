@@ -42,8 +42,14 @@ Open `http://localhost:8000/docs` for the interactive Swagger UI.
 | POST | `/api/be/report` | Download BE report |
 | POST | `/api/be/anova/analyze` | Run formal complete balanced TR/RT 2x2 ANOVA |
 | POST | `/api/be/anova/report` | Download formal ANOVA report |
+| POST | `/api/be/rsabe/analyze` | Run validated balanced FDA partial-replicate RSABE |
+| POST | `/api/be/rsabe/report` | Download FDA RSABE report |
 | POST | `/api/be/power` | Calculate exact TOST power |
 | POST | `/api/be/sample-size` | Calculate exact TOST sample size |
+| POST | `/api/bayes/map/analyze` | Run MAP individual PK screening |
+| POST | `/api/bayes/map/report` | Download MAP PK screening report |
+| POST | `/api/supac/classify` | Screen a SUPAC-IR composition change level |
+| POST | `/api/supac/alcohol` | Screen alcohol dose-dumping risk by f2 |
 | POST | `/api/pipeline/analyze` | Run optional dissolution, NCA, and BE stages |
 | POST | `/api/pipeline/report` | Download unified pipeline report |
 | POST | `/api/pipeline/audit-bundle` | Download inputs, config, results, report, and manifest ZIP |
@@ -54,8 +60,17 @@ scope caveat.
 
 Formal ANOVA accepts long-format complete balanced 2x2 data with `subject`, `sequence`,
 `period`, `treatment`, and the endpoint column. It fails closed for incomplete or
-unbalanced designs. FDA partial-replicate RSABE remains `NOT_EVALUABLE` until its
-external-reference validation gate is complete.
+unbalanced designs. FDA partial-replicate RSABE supports complete balanced
+TRR/RTR/RRT allocation and is validated against Patterson and Jones (2012),
+Table II. Low-CV data return `NOT_EVALUABLE` for standard ABE routing; incomplete
+or unbalanced data fail closed.
+
+## Deployment status
+
+The production service is <https://openpkflow.onrender.com>. As of 2026-07-26,
+`/health` is reachable but reports engine version 2.6.0. Inspect the Render
+service connection/build history and manually deploy current `main`; the release
+gate is `/health` and `/openapi.json` both reporting 2.7.0.
 
 ## Tests
 

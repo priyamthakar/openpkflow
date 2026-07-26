@@ -19,7 +19,7 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 |--------|---------------|
 | `dissolution` | f1, f2, bootstrap f2, MSD, max deviation, model-dependent comparison, multi-media, SUPAC screening, alcohol dose-dumping f2, model fitting |
 | `nca` | AUClast, AUCinf, Cmax, Tmax, lambda\_z, t1/2, CL/F, Vz/F — three AUC methods, explicit BLQ, %AUCextrap flag, C0 back-extrapolation, DN params, CDISC PP, plus model-informed sparse oral screening |
-| `be` | Paired 2x2 TOST, formal complete balanced TR/RT 2x2 ANOVA, power / sample size, research-grade replicate screening |
+| `be` | Paired 2x2 TOST, formal complete balanced TR/RT 2x2 ANOVA, validated balanced FDA partial-replicate RSABE, power / sample size, and separate research-grade replicate screening |
 | `bayes` | MAP individual PK (scipy), full Bayesian posterior (PyMC), Bayesian 2x2 crossover BE |
 | `pop` | FOCE-I and SAEM estimation (1/2-cmt; frozen for extension), GOF plots, VPC, NONMEM-style dataset helpers |
 | `sim` | 1- and 2-compartment IV bolus/infusion/oral, transit absorption, steady-state metrics, repeated dosing, superposition |
@@ -40,11 +40,11 @@ bioequivalence screening, IVIVC, population PK diagnostics, and report
 generation.
 
 OpenPKFlow is not a substitute for qualified regulatory judgement, validated
-commercial platforms, or jurisdiction-specific submission workflows. Research
-features, including replicate bioequivalence screening and validation-gated FDA RSABE,
-should be treated as
-decision-support until independently validated against the required SAS/R or
-agency-specific reference process.
+commercial platforms, or jurisdiction-specific submission workflows. The FDA
+partial-replicate implementation is validated only for complete balanced
+TRR/RTR/RRT allocation against Patterson and Jones (2012), Table II. General
+replicate bioequivalence screening and research-grade PopPK remain
+decision-support and require independent jurisdiction-specific review.
 
 Full scope language, pipeline focus, PopPK / RSABE validation boundaries, and validation
 links: [Positioning](positioning.md).

@@ -8,9 +8,9 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-25 (v2.7.0 published through PR #39; design system and
+**Last updated:** 2026-07-26 (v2.7.0 published through PR #39; design system and
 mobile polish shipped; FDA partial-replicate RSABE validated and wired into
-`api/`/`webapp/`; deployment state is tracked in `HANDOFF.md`)
+`api/`/`webapp/`; Render is reachable but remains on engine 2.6.0)
 
 ---
 
@@ -18,8 +18,9 @@ mobile polish shipped; FDA partial-replicate RSABE validated and wired into
 
 - React + Vite frontend in `webapp/`.
 - FastAPI adapter in `api/`.
-- Pages: Home, NCA, Sparse NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence,
-  Study Pipeline.
+- Pages: Home, NCA, Sparse NCA, Dissolution, PK Simulation, IVIVC,
+  Bioequivalence, Formal BE ANOVA, FDA RSABE, Study Pipeline, MAP Individual PK,
+  and SUPAC & Alcohol Screening.
 - NCA / Dissolution / BE: multipart upload + paste grid.
 - PK Simulation: parameter sliders + pasteable parameter grid.
 - IVIVC: three paste grids (in vivo PK, dissolution, IV UIR) + load example.
@@ -188,8 +189,10 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
 3. ~~SUPAC / alcohol UI~~ -- done: library helpers in `openpkflow.dissolution.supac` exposed.
 4. ~~Merge PR #32~~ -- done: merged to `main` as `486788c`.
-5. ~~**Deploy** FastAPI + static webapp~~ -- done: frontend on Cloudflare Workers,
-   backend on Render, both auto-deploying on merge to `main`. URLs and the
+5. **Production deployment** -- frontend is live on Cloudflare Workers. The
+   Render backend is reachable but still reports engine version 2.6.0 after
+   multiple `main` merges; inspect its connection/build history and manually
+   redeploy before marking v2.7.0 backend deployment complete. URLs and the
    `VITE_API_URL` / CORS wiring are documented in `HANDOFF.md` "Deployment".
 6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
 7. ~~FDA partial-replicate RSABE page~~ -- done: validated core, API/report endpoints,

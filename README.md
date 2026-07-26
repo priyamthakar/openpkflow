@@ -375,7 +375,7 @@ FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipel
 SUPAC/alcohol + IVIVC B/C + transit (v2.6), and sparse NCA + formal BE/RSABE +
 pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
 [HANDOFF.md](HANDOFF.md), and
-[SESSION_SUMMARY_2026-07-25.md](SESSION_SUMMARY_2026-07-25.md) for current state.
+[SESSION_SUMMARY_2026-07-26.md](SESSION_SUMMARY_2026-07-26.md) for current state.
 
 ---
 
@@ -404,7 +404,7 @@ pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. Pipeline (#30), sparse NCA (#31), formal BE ANOVA + MAP PK + SUPAC/alcohol (#32), design polish (#33), and RSABE all merged/wired. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
+| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. Frontend is current; the reachable Render backend still reports engine 2.6.0 and needs a manual v2.7.0 redeploy. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

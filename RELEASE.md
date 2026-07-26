@@ -16,6 +16,9 @@ workflows, and web design polish.
   <https://github.com/priyamthakar/openpkflow/actions/runs/30167426746>
 - Conda-forge staged-recipes PR:
   <https://github.com/conda-forge/staged-recipes/pull/33461>
+- Deployment check (2026-07-26): frontend and docs return HTTP 200; Render is
+  reachable but `/health` still reports engine version 2.6.0. Manually redeploy
+  from `main` and verify 2.7.0 before claiming backend release convergence.
 
 See `HANDOFF.md` for full takeover context.
 

@@ -1,6 +1,6 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-25
+**Last updated:** 2026-07-26
 
 ## Current state
 
@@ -17,6 +17,11 @@
   [#33461](https://github.com/conda-forge/staged-recipes/pull/33461) now targets
   v2.7.0; linter, Linux, Windows, and macOS checks all pass. It is awaiting
   maintainer review.
+- Production verification on 2026-07-26:
+  - frontend and documentation return HTTP 200
+  - Render `/health` returns `status: ok` but `engine_version: 2.6.0`
+  - the backend therefore needs a manual Render deployment/configuration check
+    before v2.7.0 deployment can be claimed
 - All feature work in this release is already merged:
   - PR #30: pipeline API, web workflow, and audit bundle
   - PR #31: sparse NCA validation, API, reports, and web workflow
@@ -69,21 +74,22 @@ available. All other compatible audit fixes were applied.
 | Piece | URL | Trigger |
 | --- | --- | --- |
 | Frontend | https://openpkflow.priyamthakar1.workers.dev | merge to `main` |
-| Backend | https://openpkflow.onrender.com | merge to `main` |
+| Backend | https://openpkflow.onrender.com | manual Render redeploy/configuration check required |
 | Docs | https://priyamthakar.github.io/openpkflow/ | docs workflow |
 | PyPI | https://pypi.org/project/openpkflow/ | version tag workflow |
 
 `webapp/.env.production` supplies the Render API URL. CORS is configured in
-`render.yaml`. The frontend and backend deploy automatically after merge.
-The frontend and docs returned HTTP 200 after the v2.7.0 merge. The Render
-backend was reachable but still reported engine version 2.6.0 while its
-post-merge deployment was pending; verify `/openapi.json` reports 2.7.0 before
-considering that deployment converged.
+`render.yaml`. The Cloudflare frontend and GitHub Pages documentation deploy
+automatically. Render is reachable, but repeated checks after multiple `main`
+merges still report engine version 2.6.0. Treat automatic Render deployment as
+unverified: inspect the Render service connection/build history, trigger a manual
+deploy from `main`, and require `/health` and `/openapi.json` to report 2.7.0.
 
 ## Resume here
 
-1. Await maintainer review of conda-forge staged-recipes PR #33461.
-2. Confirm the Render backend `/openapi.json` reports version 2.7.0.
+1. Inspect or manually redeploy the Render service from `main`, then confirm both
+   `/health` and `/openapi.json` report version 2.7.0.
+2. Await maintainer review of conda-forge staged-recipes PR #33461.
 3. Optionally add Playwright coverage for PKChart legend restoration and PNG
    export, sidebar collapse, and mobile navigation.
 4. Keep `pop/estimation/` frozen and prioritize validation over new modules.
