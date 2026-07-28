@@ -67,10 +67,12 @@ or unbalanced data fail closed.
 
 ## Deployment status
 
-The production service is <https://openpkflow.onrender.com>. As of 2026-07-26,
-`/health` is reachable but reports engine version 2.6.0. Inspect the Render
-service connection/build history and manually deploy current `main`; the release
-gate is `/health` and `/openapi.json` both reporting 2.7.0.
+The production service is <https://openpkflow.onrender.com>. As of 2026-07-28,
+`/openapi.json` still reports engine version 2.6.0. The unreleased v2.7.1
+candidate enriches `/health` with `git_sha`, `git_branch`, and `service_id`, and
+adds a scheduled/manual convergence check. Inspect the Render connection/build
+history and deploy the merged release commit; the gate is matching expected
+versions from `/health` and `/openapi.json` plus the expected health commit.
 
 ## Tests
 

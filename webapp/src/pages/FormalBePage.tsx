@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 import { Scale } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
@@ -49,7 +50,13 @@ export default function FormalBePage() {
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           {mutation.isError && <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />}
-          {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Scale}
+              title="Formal ANOVA results appear here"
+              description="Upload complete balanced long-format TR/RT crossover data to run the formal model."
+            />
+          )}
           {result && <>
             <div className="flex items-center justify-between gap-3"><h2 className="text-lg font-bold text-text">Formal ANOVA result</h2><Badge variant={result.decision === 'PASS' ? 'success' : 'danger'}>{result.decision}</Badge></div>
             <div className="flex flex-wrap gap-3"><MetricCard label="GMR" value={result.gmr} highlight /><MetricCard label={`${result.confidence_level_pct}% CI lower`} value={result.gmr_lower_ci} /><MetricCard label={`${result.confidence_level_pct}% CI upper`} value={result.gmr_upper_ci} /><MetricCard label="Residual CV" value={result.cv_intra_pct} unit="%" /><MetricCard label="Residual MSE" value={result.residual_mse} /></div>
@@ -61,10 +68,6 @@ export default function FormalBePage() {
       </AnalysisShell>
     </div>
   )
-}
-
-function EmptyState() {
-  return <div className="flex min-h-72 flex-col items-center justify-center rounded-sm border border-dashed border-border-2 bg-surface/40 p-8 text-center"><Scale size={32} className="mb-3 text-text-dim" /><h2 className="font-semibold text-text">Formal ANOVA results appear here</h2><p className="mt-1 max-w-md text-sm text-text-muted">Upload complete balanced long-format TR/RT crossover data to run the formal model.</p></div>
 }
 
 function AnovaTable({ result }: { result: FormalBeResponse }) {

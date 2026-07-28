@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
 import Papa from 'papaparse'
+import { Waves } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { FileDropzone } from '@/components/shared/FileDropzone'
 import { ColumnMapper } from '@/components/shared/ColumnMapper'
@@ -11,6 +12,7 @@ import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
@@ -422,6 +424,13 @@ export default function DissolutionPage() {
                 onDismiss={() => multiMediaMutation.reset()}
               />
             )}
+            {!mmResult && !multiMediaMutation.isPending && !multiMediaMutation.isError && (
+              <EmptyResults
+                icon={Waves}
+                title="Multi-media comparison results appear here"
+                description="Add at least two media, align the reference and test formulations, then run the comparison."
+              />
+            )}
 
             {mmResult && !multiMediaMutation.isPending && (
               <>
@@ -647,6 +656,13 @@ export default function DissolutionPage() {
         <div className="flex-1 min-w-0 flex flex-col gap-5">
           {compareMutation.isError && (
             <ErrorBanner message={compareMutation.error.message} onDismiss={() => compareMutation.reset()} />
+          )}
+          {!result && !compareMutation.isPending && !compareMutation.isError && (
+            <EmptyResults
+              icon={Waves}
+              title="Dissolution comparison results appear here"
+              description="Provide matched vessel-level profiles, choose reference and test formulations, then compare."
+            />
           )}
 
           {result && !compareMutation.isPending && (

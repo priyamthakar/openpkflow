@@ -49,6 +49,9 @@ export interface SimResponse {
 export interface HealthResponse {
   status: string
   engine_version: string
+  git_sha: string
+  git_branch: string
+  service_id: string
 }
 
 export interface IvIvcResponse {

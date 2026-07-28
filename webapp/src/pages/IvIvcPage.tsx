@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
+import { Activity } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PKChart } from '@/components/shared/PKChart'
 import { MetricCard } from '@/components/shared/MetricCard'
@@ -8,6 +9,7 @@ import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -344,6 +346,13 @@ export default function IvIvcPage() {
         <div className="flex-1 min-w-0 flex flex-col gap-5">
           {mutation.isError && (
             <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />
+          )}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Activity}
+              title="IVIVC results appear here"
+              description="Enter aligned in vivo and in vitro profiles, choose the deconvolution method, then run IVIVC."
+            />
           )}
 
           {result && !mutation.isPending && (

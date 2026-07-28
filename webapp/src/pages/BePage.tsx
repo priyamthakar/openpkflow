@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
 import Papa from 'papaparse'
+import { Scale } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { FileDropzone } from '@/components/shared/FileDropzone'
 import { ColumnMapper } from '@/components/shared/ColumnMapper'
@@ -10,6 +11,7 @@ import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
@@ -339,6 +341,17 @@ export default function BePage() {
                 }}
               />
             )}
+            {!powerResult &&
+              !sampleSizeResult &&
+              !powerPending &&
+              !powerMutation.isError &&
+              !sampleSizeMutation.isError && (
+                <EmptyResults
+                  icon={Scale}
+                  title="Power and sample-size results appear here"
+                  description="Set the anticipated GMR and within-subject CV, then compute power or the required balanced sample size."
+                />
+              )}
 
             {powerMode === 'power' && powerResult && !powerMutation.isPending && (
               <>
@@ -539,6 +552,13 @@ export default function BePage() {
         <div className="flex-1 min-w-0 flex flex-col gap-5">
           {mutation.isError && (
             <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />
+          )}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Scale}
+              title="Bioequivalence results appear here"
+              description="Provide paired reference and test endpoints, select the parameter, then run the TOST analysis."
+            />
           )}
 
           {mutation.isPending && (

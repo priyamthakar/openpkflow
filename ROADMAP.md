@@ -248,6 +248,61 @@ published to PyPI on 2026-07-15.
   manually redeploy from `main` and verify 2.7.0 before closing the deployment gate.
 - See `HANDOFF.md` for exact published state and bounded next work.
 
+### v2.7.1 reliability release (active candidate, 2026-07-28)
+
+Scope is deliberately non-scientific:
+
+- deployment commit/branch/service provenance in `/health`
+- scheduled/manual production convergence verification against both health and
+  OpenAPI version metadata
+- focused Playwright coverage for chart legend restoration, PNG export,
+  persisted sidebar collapse, and mobile navigation
+- shared `EmptyResults` use across remaining analysis panes
+- FastAPI 0.140 deployment dependency
+
+Completed gates: mandatory baseline build/Twine, Ruff, format, mypy, API
+(55 passed), full standard suite (1,313 passed, 22 deselected), strict docs,
+pre-commit, final v2.7.1 build/Twine, fresh-wheel CLI smoke, frontend
+lint/build, and Playwright (19 passed).
+
+Open gates: clean-tree release readiness, PR/CI/merge, tag and Trusted
+Publishing, fresh public install, and Render convergence. v2.7.0 remains the
+latest published release until all open gates are verified.
+
+### v2.8.0 Advanced Dissolution Workbench (next milestone)
+
+**Goal:** expose the validated dissolution toolkit as one auditable,
+report-first workflow.
+
+**Included:**
+
+- vessel-level input, normalized table, and profile visualization
+- f1/f2 plus bootstrap f2 confidence interval
+- five-model fitting with AICc ranking
+- model-dependent comparison
+- MSD and maximum-deviation alternatives
+- HTML/PDF/DOCX reports and a SHA-256-manifested reproducibility ZIP
+- core orchestration/result API, FastAPI schema/service/router adapter, typed
+  React workflow, API tests, Playwright tests, and documentation
+
+**Definition of done:**
+
+1. Every claim-bearing output maps to an existing independent validation
+   fixture or receives a new published-reference test.
+2. Invalid/non-finite vessel data and unmatched time points fail closed; no
+   silent interpolation or reindexing is introduced.
+3. Pharmacometric calculations remain in `src/openpkflow/dissolution/`.
+4. Reports include the required regulatory-review disclaimer and preserve the
+   exact analysis configuration.
+5. The audit ZIP contains normalized input, configuration, serialized results,
+   report, and a verified SHA-256 manifest.
+6. Complete package/API/web/docs/build validation passes.
+7. PR, CI, tag, Trusted Publishing, fresh-install CLI smoke, and hosted version
+   convergence are verified before release completion is claimed.
+
+**Excluded:** new dissolution mathematics without independent validation,
+changes to frozen `pop/estimation/`, and any claim of regulatory approval.
+
 ---
 
 ## Cross-cutting workstreams (parallel to milestones)

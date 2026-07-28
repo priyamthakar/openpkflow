@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 import { RotateCcw, ShieldCheck } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { MetricCard } from '@/components/shared/MetricCard'
@@ -74,7 +75,6 @@ export default function SupacPage() {
     </div>
   )
 }
-
 function TabButton({
   active,
   onClick,
@@ -200,7 +200,13 @@ function SupacClassify() {
           <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />
         )}
         {mutation.isPending && <LoadingState />}
-        {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+        {!result && !mutation.isPending && !mutation.isError && (
+          <EmptyResults
+            icon={ShieldCheck}
+            title="SUPAC screening results appear here"
+            description="Enter the component category and quantitative change, then run the screening."
+          />
+        )}
 
         {result && !mutation.isPending && (
           <>
@@ -384,7 +390,13 @@ function AlcoholScreening() {
           <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />
         )}
         {mutation.isPending && <LoadingState />}
-        {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+        {!result && !mutation.isPending && !mutation.isError && (
+          <EmptyResults
+            icon={ShieldCheck}
+            title="Alcohol screening results appear here"
+            description="Enter the control and ethanol dissolution profiles, then run the regulatory f2 screen."
+          />
+        )}
 
         {result && !mutation.isPending && (
           <>
@@ -425,18 +437,6 @@ function LoadingState() {
         {[1, 2, 3].map((item) => <Skeleton key={item} className="h-24 w-36 rounded-sm" />)}
       </div>
       <Skeleton className="h-40 w-full rounded-sm" />
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="flex min-h-72 flex-col items-center justify-center rounded-sm border border-dashed border-border-2 bg-surface/40 p-8 text-center">
-      <ShieldCheck size={32} className="mb-3 text-text-dim" />
-      <h2 className="font-semibold text-text">Screening results appear here</h2>
-      <p className="mt-1 max-w-md text-sm text-text-muted">
-        Enter the component change or dissolution profiles, then run the screening.
-      </p>
     </div>
   )
 }
