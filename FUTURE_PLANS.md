@@ -8,7 +8,7 @@ competitive gaps, and longer-term bets that may reshape priorities.
 
 ## Strategic context
 
-OpenPKFlow owns the **formulation-to-regulatory-submission pipeline** in open-source Python.
+OpenPKFlow targets a transparent **formulation-to-report pipeline** in open-source Python.
 The competitive landscape (OpenPKPD, Pharmpy, PKPy, NeoPKPD, OpenDose-PopPK) is converging
 on Python pharmacometrics. Differentiation comes from filling genuine gaps, not reimplementing
 what others already do well.
@@ -32,22 +32,80 @@ Shipped in parallel tracks:
 - IVIVC convolution analytical validation; BE power edge cases
 - Positioning docs, pipeline tutorial, Docker/compose polish
 
-### v2.7.0 release (published 2026-07-25)
+## v2.7.0 release (published 2026-07-25)
 
 The post-v2.6.0 sparse NCA, pipeline audit bundle, MAP/SUPAC workflows, formal BE
 ANOVA, validated FDA partial-replicate RSABE, hosted deployment, and web polish are
 published in v2.7.0 through PR #39.
 
-Post-release:
+## v2.7.1 reliability release (active candidate)
 
-1. Await maintainer review of the v2.7.0 conda-forge staged-recipes PR #33461.
-2. Add focused Playwright regression coverage for chart legend restoration, PNG
-   export, sidebar collapse, and mobile navigation.
-3. Wire `EmptyResults` into remaining analysis pages if the shared pattern remains
-   appropriate.
-4. Keep `pop/estimation/` frozen and prioritize validation over new science modules.
+The candidate is implemented in the isolated `release/v2.7.1` worktree. It adds
+deployment provenance, a fail-closed production convergence check, the four
+missing browser regressions, consistent shared result placeholders, and the
+FastAPI 0.140 dependency update. It changes no pharmacometric calculations.
 
-## v2.4.0 Credibility Sprint
+Remaining gates are the full standard suite, strict docs/build/readiness checks,
+PR/CI/merge, Trusted Publishing, fresh public installation, and Render
+convergence. See [HANDOFF.md](HANDOFF.md) for the exact checkpoint. Until those
+gates pass, v2.7.0 remains the latest published release.
+
+Conda-forge PR #33461 remains a separate external maintainer gate for v2.7.0.
+
+## v2.8.0 Advanced Dissolution Workbench (committed next milestone)
+
+Goal: turn OpenPKFlow's already validated dissolution capabilities into one
+report-first, auditable workflow without inventing new pharmacometric methods.
+
+### Product slice
+
+- vessel-level CSV upload and editable paste input
+- reference/test formulation mapping with matched-time validation
+- standard f1/f2 comparison
+- bootstrap f2 confidence interval and decision summary
+- five-model fitting with AICc ranking and parameter/fit diagnostics
+- model-dependent comparison
+- MSD and maximum-deviation alternatives
+- mean and vessel-level profile plots with table views
+- HTML/PDF/DOCX report downloads
+- reproducibility ZIP containing normalized input, configuration, serialized
+  results, report, and SHA-256 manifest
+
+### Architecture
+
+- Reuse `bootstrap_f2()`, `fit_dissolution_models()`,
+  `model_dependent_comparison()`, MSD, and maximum-deviation implementations in
+  `src/openpkflow/dissolution/`.
+- Add orchestration/result structures in the core package only when needed for
+  a stable public workflow.
+- Follow the established FastAPI schema/service/router/registration pattern.
+- Add a typed React page or clearly separated workbench tab; the frontend
+  performs no pharmacometric math.
+- Reuse pipeline audit-bundle conventions for deterministic manifests and
+  normalized artifacts.
+
+### Evidence and release gates
+
+1. Map every exposed output to its existing validation fixture and reference.
+2. Add degenerate and published-reference tests for any new orchestration
+   formula or decision field.
+3. Fail closed on unmatched time points, invalid vessel data, non-finite values,
+   or unsupported comparison conditions.
+4. Add API contract/report/audit tests and Playwright upload/paste/download
+   flows.
+5. Run the complete package/API/web/docs/build gate before publication.
+6. Publish through a normal PR, tag, Trusted Publishing, fresh install, and
+   hosted convergence check.
+
+### Explicit non-goals for v2.8.0
+
+- no new dissolution algorithm without independent validation
+- no interpolation to repair unmatched time points
+- no pharmacometric calculations in FastAPI or React
+- no extension of frozen `pop/estimation/`
+- no claim of regulatory approval or replacement of expert review
+
+## Historical v2.4.0 Credibility Sprint
 
 Goal: make the next release about trust, usability, and release discipline rather
 than broad new scientific scope. All changes should be additive, with no breaking
@@ -85,21 +143,21 @@ API changes before v3.0.0.
 
 ## Greenfield differentiators — high-impact gaps no one does well
 
-### IVIVC (full toolkit — Level A/B/C)
+### IVIVC
 
-Level A is now implemented (v1.2.0). Level B/C remain open-source gaps:
+Level A and the bounded Level B/C MDT/MRT helpers are implemented:
 
 - Level A: deconvolution (Wagner-Nelson, Loo-Riegelman), convolution prediction, Levy plot, predictability assessment (%PE < 15 % for Cmax/AUC)  **✅ DONE**
-- Level B/C: mean dissolution time vs. mean residence time, disintegration time correlations
+- Level B/C: mean dissolution time vs. mean residence time helpers **✅ DONE (v2.6.0)**
 - FDA guidance compliance: IVIVC summary tables matching the FDA ER guidance format
 
 ### Multimedia dissolution (ICH M13A/B)
 
 FDA and EMA increasingly require dissolution in 3+ media:
 
-- Simultaneous f2 across pH 1.2, 4.5, 6.8 with summary table
-- Alcohol dose-dumping: f2 at 0%, 5%, 20%, 40% ethanol vs. control
-- SUPAC/MR change level auto-classification (Level 1/2/3)
+- Simultaneous f2 across pH 1.2, 4.5, 6.8 with summary table **✅ DONE**
+- Alcohol dose-dumping f2 against control **✅ DONE (screening)**
+- SUPAC-IR change-level classification **✅ DONE (screening)**
 - Dissolution safe-space contour plots (dissolution parameters vs. bioequivalence)
 
 ### Sparse oral PK screening ✅ DONE (v1.5.0)
@@ -131,8 +189,10 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ### Bioequivalence
 
-- v2.4.0 hardens research-grade replicate BE screening; validated regulator-grade
-  RSABE parity remains future BioEqPy/SAS/R work
+- v2.7.0 adds FDA partial-replicate RSABE validated for complete balanced
+  TRR/RTR/RRT allocation against Patterson and Jones (2012), Table II.
+  Jurisdiction-specific mixed-model parity and unsupported replicate designs
+  remain future BioEqPy/SAS/R work.
 - Adaptive BE designs: two-stage Potvin/Maurer methods
 - Group-sequential BE with futility stopping
 - Multiple-endpoint BE: simultaneous Cmax + AUCinf with multiplicity adjustment
@@ -141,11 +201,11 @@ FDA and EMA increasingly require dissolution in 3+ media:
 ### PK simulation
 
 - 3-compartment models
-- Transit-compartment absorption (Erlang distribution)
+- ~~Transit-compartment absorption (Erlang distribution)~~ — **DONE (v2.6.0)**
 - Michaelis-Menten / nonlinear elimination
 - Enterohepatic recirculation
 - Metabolite kinetics (parent + metabolite simultaneous simulation)
-- Analytical steady-state metrics (no simulation to SS required)
+- ~~Analytical steady-state metrics (no simulation to SS required)~~ — **DONE (v2.6.0)**
 
 ### Population PK diagnostics
 
@@ -190,7 +250,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 
 ## Developer experience & project health
 
-- **Documentation site**: fix GitHub Pages 404 — ship full MkDocs site with `mkdocstrings` API reference
+- **Documentation site**: MkDocs site is live and returned HTTP 200 on 2026-07-26
 - **Tutorial gallery**: Jupyter notebooks for each module
 - **Theory guide**: math derivations for each formula module (regulatory review support)
 - **Migration guide**: "Coming from WinNonlin / NONMEM / R" cheat sheets
@@ -238,7 +298,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 | Sparse oral PK screening | ✅ | ✅ | — | — | ✅ |
 | CDISC output | ✅ | partial | — | — | ✅ |
 | BE (2x2 crossover TOST) | ✅ | ✅ | — | — | ✅ |
-| RSABE / replicate BE | research-grade screening; validated RSABE future | — | — | — | ✅ |
+| RSABE / replicate BE | balanced FDA partial-replicate validated; general screening remains research-grade | — | — | — | ✅ |
 | PopPK estimation | ✅ research-grade FOCE-I/SAEM | ✅ | ✅ | ✅ | — |
 | PK simulation (1-2 cmt) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MAP individual PK | ✅ (v2.0.0) | — | — | — | ✅ |
@@ -256,7 +316,7 @@ FDA and EMA increasingly require dissolution in 3+ media:
 ## Explicitly out of scope
 
 - WeasyPrint for PDF — GTK dependency pain on Windows; ReportLab only
-- Full FOCE-I/SAEM from scratch — deferred until feasibility post-v1.5.0
-- GUI (Streamlit/Gradio) — deferred until core science modules stabilize
-- CDISC Define.xml — revisit after CDISC PP output ships
+- FOCE-I/SAEM extension beyond the frozen v2.3.0 implementation
+- Streamlit/Gradio embedding; the supported GUI is the separate React/FastAPI web layer
+- CDISC Define.xml
 - eCTD table formatting — manual formatting required; automation deferred

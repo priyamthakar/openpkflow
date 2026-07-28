@@ -5,7 +5,8 @@ dissolution similarity, NCA on a PK dataset, then optional BE screening and
 reports.
 
 See also [Positioning](../positioning.md) for scope limits (not Part 11,
-research-grade PopPK, and validation-gated FDA partial-replicate RSABE).
+research-grade PopPK, and FDA partial-replicate RSABE validated only for
+complete balanced TRR/RTR/RRT allocation).
 
 ---
 

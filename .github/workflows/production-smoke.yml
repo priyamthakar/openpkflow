@@ -1,0 +1,40 @@
+name: Production convergence
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: Expected deployed OpenPKFlow version
+        required: true
+        type: string
+      expected_git_sha:
+        description: Optional expected deployed commit prefix
+        required: false
+        type: string
+  schedule:
+    - cron: "17 4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install .
+      - name: Verify production version and provenance
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          EXPECTED_GIT_SHA: ${{ inputs.expected_git_sha }}
+        run: |
+          version="${EXPECTED_VERSION:-$(python -c 'import openpkflow; print(openpkflow.__version__)')}"
+          args=(--base-url "https://openpkflow.onrender.com" --expected-version "$version")
+          if [[ -n "$EXPECTED_GIT_SHA" ]]; then
+            args+=(--expected-git-sha "$EXPECTED_GIT_SHA")
+          fi
+          python scripts/production_smoke.py "${args[@]}"

@@ -8,9 +8,10 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-25 (v2.7.0 published through PR #39; design system and
-mobile polish shipped; FDA partial-replicate RSABE validated and wired into
-`api/`/`webapp/`; deployment state is tracked in `HANDOFF.md`)
+**Last updated:** 2026-07-28 (v2.7.0 remains public; the unreleased v2.7.1
+candidate adds deployment provenance, production convergence automation,
+focused browser regressions, and shared result placeholders; Render remains on
+engine 2.6.0)
 
 ---
 
@@ -18,8 +19,9 @@ mobile polish shipped; FDA partial-replicate RSABE validated and wired into
 
 - React + Vite frontend in `webapp/`.
 - FastAPI adapter in `api/`.
-- Pages: Home, NCA, Sparse NCA, Dissolution, PK Simulation, IVIVC, Bioequivalence,
-  Study Pipeline.
+- Pages: Home, NCA, Sparse NCA, Dissolution, PK Simulation, IVIVC,
+  Bioequivalence, Formal BE ANOVA, FDA RSABE, Study Pipeline, MAP Individual PK,
+  and SUPAC & Alcohol Screening.
 - NCA / Dissolution / BE: multipart upload + paste grid.
 - PK Simulation: parameter sliders + pasteable parameter grid.
 - IVIVC: three paste grids (in vivo PK, dissolution, IV UIR) + load example.
@@ -92,7 +94,8 @@ All done in `webapp/` — no API changes.
 **Empty states** (`components/shared/EmptyResults.tsx`):
 - Shared `EmptyResults` component: dashed border panel with Lucide icon, title, description,
   "Ctrl+Enter to run" hint, and a faded skeleton preview (metrics + chart shape).
-- Wired into NcaPage as reference; ready for the other 7 analysis pages.
+- Wired across NCA, dissolution, IVIVC, BE, formal BE, RSABE, sparse NCA,
+  MAP PK, SUPAC/alcohol, and pipeline result panes in the v2.7.1 candidate.
 
 **Ctrl+Enter run shortcut** (`lib/useRunShortcut.ts`):
 - New hook fires the primary run callback on Ctrl/Cmd+Enter outside text-editable fields.
@@ -144,7 +147,7 @@ All done in `webapp/` — no API changes.
 | `/api/bayes` | `/map/analyze`, `/map/report` | `bayes_service.py` |
 | `/api/supac` | `/classify`, `/alcohol` | `supac_service.py` |
 | `/api/pipeline` | `/analyze`, `/report`, `/audit-bundle` | `pipeline_service.py` |
-| `/health` | GET | engine version badge |
+| `/health` | GET | engine version badge plus deployed Git/service provenance |
 
 ---
 
@@ -180,7 +183,20 @@ webapp/src/
 
 ---
 
-## Next Candidates (post-v2.7.0)
+## v2.7.1 reliability candidate
+
+- Health payload includes `git_sha`, `git_branch`, and `service_id`.
+- Production smoke script and scheduled/manual workflow verify health/OpenAPI
+  release convergence.
+- Four focused Playwright regressions cover legend restoration, PNG export,
+  sidebar persistence, and mobile navigation.
+- Full browser selection: **19 passed** at the 2026-07-28 checkpoint.
+- Frontend lint and production build pass.
+- Full standard Python suite (1,313 passed), API, strict docs, pre-commit,
+  final distribution checks, and fresh-wheel CLI smoke pass.
+- Candidate is not yet committed, published, or deployed; see `HANDOFF.md`.
+
+## Next work
 
 Priority order for the next agent (also listed in `HANDOFF.md`):
 
@@ -188,17 +204,24 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
 3. ~~SUPAC / alcohol UI~~ -- done: library helpers in `openpkflow.dissolution.supac` exposed.
 4. ~~Merge PR #32~~ -- done: merged to `main` as `486788c`.
-5. ~~**Deploy** FastAPI + static webapp~~ -- done: frontend on Cloudflare Workers,
-   backend on Render, both auto-deploying on merge to `main`. URLs and the
-   `VITE_API_URL` / CORS wiring are documented in `HANDOFF.md` "Deployment".
+5. **Production deployment** -- frontend is live on Cloudflare Workers. The
+   Render backend is reachable but still reports engine version 2.6.0 after
+   multiple `main` merges. Finish and publish v2.7.1, inspect Render, deploy the
+   merged commit, and require the automated health/OpenAPI convergence check to
+   pass. URLs and the `VITE_API_URL` / CORS wiring are documented in
+   `HANDOFF.md` "Deployment".
 6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
 7. ~~FDA partial-replicate RSABE page~~ -- done: validated core, API/report endpoints,
    and `/be/rsabe` page merged in PR #35 (`f041b10`).
-8. **Playwright coverage for the new UI** — the 15 existing tests do not guard
-   legend toggling, PNG export, sidebar collapse, or mobile layout.
-   Legend hide-and-restore is the highest value; it regressed once already.
-9. Wire `EmptyResults` into the remaining analysis pages (only NCA uses it today).
+8. ~~Playwright coverage for the new UI~~ -- done in the v2.7.1 candidate:
+   legend toggling, PNG export, sidebar collapse, and mobile navigation.
+9. ~~Wire `EmptyResults` into the remaining analysis pages~~ -- done in the
+   v2.7.1 candidate.
 10. Richer grid controls only if users request them (row delete, resize, drag fill).
+11. **v2.8.0 Advanced Dissolution Workbench** -- expose bootstrap f2, model
+    ranking, model-dependent comparison, MSD/max-deviation alternatives,
+    vessel-level visualization, reports, and a reproducibility audit ZIP using
+    validated core methods. See `ROADMAP.md` for the definition of done.
 
 ---
 

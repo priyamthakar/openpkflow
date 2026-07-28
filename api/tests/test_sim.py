@@ -72,8 +72,30 @@ def test_simulate_cmax_consistency(client: TestClient) -> None:
     assert abs(body["Cmax"] - max(body["concs"])) < 1e-9
 
 
-def test_health(client: TestClient) -> None:
+def test_health(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "abc123")
+    monkeypatch.setenv("RENDER_GIT_BRANCH", "main")
+    monkeypatch.setenv("RENDER_SERVICE_ID", "srv-openpkflow")
     resp = client.get("/health")
     assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
-    assert "engine_version" in resp.json()
+    assert resp.json() == {
+        "status": "ok",
+        "engine_version": resp.json()["engine_version"],
+        "git_sha": "abc123",
+        "git_branch": "main",
+        "service_id": "srv-openpkflow",
+    }
+
+
+def test_health_uses_local_provenance_defaults(client: TestClient, monkeypatch) -> None:
+    monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
+    monkeypatch.delenv("RENDER_GIT_BRANCH", raising=False)
+    monkeypatch.delenv("RENDER_SERVICE_ID", raising=False)
+    monkeypatch.delenv("OPENPKFLOW_GIT_SHA", raising=False)
+    monkeypatch.delenv("OPENPKFLOW_GIT_BRANCH", raising=False)
+
+    body = client.get("/health").json()
+
+    assert body["git_sha"] == "unknown"
+    assert body["git_branch"] == "unknown"
+    assert body["service_id"] == "local"

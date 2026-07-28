@@ -218,8 +218,10 @@ published to PyPI on 2026-07-15.
 - MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
 - Formal BE ANOVA API/page ✅ merged in PR #32 (`486788c`)
 - Frontend design system polish + mobile pass ✅ merged in PR #33 (`bb0d16a`)
-- Hosted production deploy of api + webapp ✅ Cloudflare Workers (frontend) + Render
-  (backend), both auto-deploying on merge to `main`; URLs in `HANDOFF.md`
+- Hosted production services: Cloudflare Workers frontend is current; the Render
+  backend is reachable but still reports engine version 2.6.0 and requires a
+  manual deployment/configuration check before v2.7.0 convergence; URLs and gate
+  are in `HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### v2.7.0 release (published 2026-07-25)
@@ -242,21 +244,79 @@ published to PyPI on 2026-07-15.
   smoke are complete.
 - Conda-forge staged-recipes PR #33461 now targets the verified v2.7.0 sdist;
   refreshed linter, Linux, Windows, and macOS checks pass. Await maintainer review.
+- Production frontend and docs are healthy. Render `/health` still reports 2.6.0;
+  manually redeploy from `main` and verify 2.7.0 before closing the deployment gate.
 - See `HANDOFF.md` for exact published state and bounded next work.
+
+### v2.7.1 reliability release (active candidate, 2026-07-28)
+
+Scope is deliberately non-scientific:
+
+- deployment commit/branch/service provenance in `/health`
+- scheduled/manual production convergence verification against both health and
+  OpenAPI version metadata
+- focused Playwright coverage for chart legend restoration, PNG export,
+  persisted sidebar collapse, and mobile navigation
+- shared `EmptyResults` use across remaining analysis panes
+- FastAPI 0.140 deployment dependency
+
+Completed gates: mandatory baseline build/Twine, Ruff, format, mypy, API
+(55 passed), full standard suite (1,313 passed, 22 deselected), strict docs,
+pre-commit, final v2.7.1 build/Twine, fresh-wheel CLI smoke, frontend
+lint/build, and Playwright (19 passed).
+
+Open gates: clean-tree release readiness, PR/CI/merge, tag and Trusted
+Publishing, fresh public install, and Render convergence. v2.7.0 remains the
+latest published release until all open gates are verified.
+
+### v2.8.0 Advanced Dissolution Workbench (next milestone)
+
+**Goal:** expose the validated dissolution toolkit as one auditable,
+report-first workflow.
+
+**Included:**
+
+- vessel-level input, normalized table, and profile visualization
+- f1/f2 plus bootstrap f2 confidence interval
+- five-model fitting with AICc ranking
+- model-dependent comparison
+- MSD and maximum-deviation alternatives
+- HTML/PDF/DOCX reports and a SHA-256-manifested reproducibility ZIP
+- core orchestration/result API, FastAPI schema/service/router adapter, typed
+  React workflow, API tests, Playwright tests, and documentation
+
+**Definition of done:**
+
+1. Every claim-bearing output maps to an existing independent validation
+   fixture or receives a new published-reference test.
+2. Invalid/non-finite vessel data and unmatched time points fail closed; no
+   silent interpolation or reindexing is introduced.
+3. Pharmacometric calculations remain in `src/openpkflow/dissolution/`.
+4. Reports include the required regulatory-review disclaimer and preserve the
+   exact analysis configuration.
+5. The audit ZIP contains normalized input, configuration, serialized results,
+   report, and a verified SHA-256 manifest.
+6. Complete package/API/web/docs/build validation passes.
+7. PR, CI, tag, Trusted Publishing, fresh-install CLI smoke, and hosted version
+   convergence are verified before release completion is claimed.
+
+**Excluded:** new dissolution mathematics without independent validation,
+changes to frozen `pop/estimation/`, and any claim of regulatory approval.
 
 ---
 
 ## Cross-cutting workstreams (parallel to milestones)
 
 ### Documentation
-- Fix dead GitHub Pages link (priyamthakar.github.io/openpkflow -- currently 404)
-  **This is the single highest-priority quick-win.**
+- GitHub Pages MkDocs site at <https://priyamthakar.github.io/openpkflow/> ✅
+  Verified HTTP 200 on 2026-07-26.
 - MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship ✅ Done (2026-05-30)
 - Theory guide: derivations for each formula module (regulatory review support) ✅ Done (2026-05-30)
 - "Coming from WinNonlin/NONMEM" migration cheatsheet ✅ Done (2026-05-29)
 
 ### Packaging and distribution
-- `conda-forge` recipe PR (reaches biostat/bioinformatics community)
+- `conda-forge` staged-recipes PR #33461 is fully green and awaiting maintainer
+  review.
 - Docker image: Jupyter + openpkflow + all extras for demos
 - Consider Pyodide/WebAssembly for in-browser dissolution demo (low priority)
 

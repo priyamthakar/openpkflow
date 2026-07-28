@@ -16,8 +16,19 @@ workflows, and web design polish.
   <https://github.com/priyamthakar/openpkflow/actions/runs/30167426746>
 - Conda-forge staged-recipes PR:
   <https://github.com/conda-forge/staged-recipes/pull/33461>
+- Deployment check (2026-07-26): frontend and docs return HTTP 200; Render is
+  reachable but `/health` still reports engine version 2.6.0. Manually redeploy
+  from `main` and verify 2.7.0 before claiming backend release convergence.
 
 See `HANDOFF.md` for full takeover context.
+
+**v2.7.1 is an unreleased reliability candidate as of 2026-07-28.** Its package
+metadata is assigned, but it has not been committed, pushed, merged, tagged,
+published, or deployed. Completed checks are Ruff, format, mypy, 55 API tests,
+the 1,313-test standard suite, strict docs, pre-commit, final build/Twine,
+fresh-wheel CLI smoke, frontend lint/build, and 19 Playwright tests. Resume with
+the release commit and PR, then follow every step below without skipping the
+hosted convergence check.
 
 ## Release principles
 
@@ -68,7 +79,7 @@ Use the matching section from `docs/changelog.md`. Include:
 5. Verify the exact PyPI version in a fresh environment, then run CLI smoke checks
 6. Update conda-forge feedstock if automated PR does not appear promptly
 
-## v2.7.0 specific caveats for notes
+## v2.7.x specific caveats for notes
 
 - SUPAC classification and alcohol dose-dumping helpers are **screening** tools,
   not full guidance automation.
@@ -78,6 +89,10 @@ Use the matching section from `docs/changelog.md`. Include:
   routing; unbalanced or incomplete data fail closed.
 - Pop PK FOCE-I/SAEM is research-grade and frozen for extension.
 - Study pipeline composes existing modules; stages without inputs are skipped.
+- v2.7.1 changes reliability and deployment observability only; it does not
+  change pharmacometric calculations.
+- Do not describe Render as current until `/health` and `/openapi.json` match the
+  release and the health commit matches the deployed target.
 
 ## Post-release agent handoff
 

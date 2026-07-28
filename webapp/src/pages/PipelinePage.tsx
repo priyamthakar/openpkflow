@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 import { Archive, CheckCircle2, Circle, FileCheck2 } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
@@ -243,7 +244,13 @@ export default function PipelinePage() {
             </div>
           )}
 
-          {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={FileCheck2}
+              title="Unified study results appear here"
+              description="Combine available stages, inspect status, and download a report with its reproducibility bundle."
+            />
+          )}
 
           {result && !mutation.isPending && (
             <>
@@ -393,18 +400,6 @@ function NumberOption({ label, value, onChange }: { label: string; value: number
 
 function SelectOption({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="flex items-center justify-between gap-3 text-sm font-semibold text-text">{label}{children}</label>
-}
-
-function EmptyState() {
-  return (
-    <div className="flex min-h-72 flex-col items-center justify-center rounded-sm border border-dashed border-border-2 bg-surface/40 p-8 text-center">
-      <FileCheck2 size={32} className="mb-3 text-text-dim" />
-      <h2 className="font-semibold text-text">Unified study results appear here</h2>
-      <p className="mt-1 max-w-md text-sm text-text-muted">
-        Combine any available study stages, inspect their status, then download one report and a reproducibility bundle.
-      </p>
-    </div>
-  )
 }
 
 function StageStatus({ metadata }: { metadata: PipelineResponse['metadata'] }) {

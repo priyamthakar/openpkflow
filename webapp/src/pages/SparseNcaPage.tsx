@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 import { FlaskConical, RotateCcw } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
@@ -168,7 +169,13 @@ export default function SparseNcaPage() {
             <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />
           )}
           {mutation.isPending && <LoadingState />}
-          {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={FlaskConical}
+              title="Sparse fit results appear here"
+              description="Review the example or enter chronological oral PK samples, then run the model-informed fit."
+            />
+          )}
 
           {result && !mutation.isPending && (
             <>
@@ -235,18 +242,6 @@ function LoadingState() {
         {[1, 2, 3, 4].map((item) => <Skeleton key={item} className="h-24 w-36 rounded-sm" />)}
       </div>
       <Skeleton className="h-80 w-full rounded-sm" />
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="flex min-h-72 flex-col items-center justify-center rounded-sm border border-dashed border-border-2 bg-surface/40 p-8 text-center">
-      <FlaskConical size={32} className="mb-3 text-text-dim" />
-      <h2 className="font-semibold text-text">Sparse fit results appear here</h2>
-      <p className="mt-1 max-w-md text-sm text-text-muted">
-        Review the example or enter chronological oral PK samples, then run the model-informed fit.
-      </p>
     </div>
   )
 }

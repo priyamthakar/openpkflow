@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 import { Sigma } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
@@ -55,7 +56,13 @@ export default function RsabePage() {
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           {mutation.isError && <ErrorBanner message={mutation.error.message} onDismiss={() => mutation.reset()} />}
-          {!result && !mutation.isPending && !mutation.isError && <EmptyState />}
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Sigma}
+              title="RSABE results appear here"
+              description="Upload long-format TRR/RTR/RRT partial-replicate data to evaluate reference-scaled average bioequivalence."
+            />
+          )}
           {result && <>
             <div className="flex items-center justify-between gap-3"><h2 className="text-lg font-bold text-text">RSABE result</h2><Badge variant={BADGE_VARIANT[result.decision]}>{result.decision}</Badge></div>
             <p className="text-sm text-text-muted">{result.message}</p>
@@ -82,8 +89,4 @@ export default function RsabePage() {
       </AnalysisShell>
     </div>
   )
-}
-
-function EmptyState() {
-  return <div className="flex min-h-72 flex-col items-center justify-center rounded-sm border border-dashed border-border-2 bg-surface/40 p-8 text-center"><Sigma size={32} className="mb-3 text-text-dim" /><h2 className="font-semibold text-text">RSABE results appear here</h2><p className="mt-1 max-w-md text-sm text-text-muted">Upload long-format TRR/RTR/RRT partial-replicate data to evaluate reference-scaled average bioequivalence.</p></div>
 }

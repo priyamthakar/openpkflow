@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request
@@ -51,8 +52,14 @@ async def _file_not_found(_: Request, exc: FileNotFoundError) -> JSONResponse:
 
 @app.get("/health", tags=["meta"])
 def health() -> dict[str, str]:
-    """Liveness probe — also returns the engine version shown in the frontend badge."""
-    return {"status": "ok", "engine_version": engine_version}
+    """Return liveness, engine version, and non-secret deployment provenance."""
+    return {
+        "status": "ok",
+        "engine_version": engine_version,
+        "git_sha": os.getenv("RENDER_GIT_COMMIT", os.getenv("OPENPKFLOW_GIT_SHA", "unknown")),
+        "git_branch": os.getenv("RENDER_GIT_BRANCH", os.getenv("OPENPKFLOW_GIT_BRANCH", "unknown")),
+        "service_id": os.getenv("RENDER_SERVICE_ID", "local"),
+    }
 
 
 app.include_router(nca.router)

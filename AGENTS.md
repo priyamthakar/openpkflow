@@ -29,8 +29,10 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Formal BE ANOVA, FDA RSABE, MAP Individual PK, SUPAC & Alcohol Screening, and
   Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
-- Deployed live: frontend on Cloudflare Workers, backend on Render, both auto-deploying
-  on merge to `main`. See `HANDOFF.md` "Deployment" for URLs and CORS/build wiring.
+- Deployed live: frontend on Cloudflare Workers and backend on Render. The
+  frontend auto-deploys from `main`; the live Render service still reports
+  engine version 2.6.0 and needs a manual deployment/configuration check. See
+  `HANDOFF.md` "Deployment" for the verified state and URLs.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
 
@@ -261,17 +263,25 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.7.0** is the latest published release (2026-07-25). Release PR #39 was
-squash-merged as `74039b4`; tag `v2.7.0`, the GitHub Release, TestPyPI, and PyPI
-publication are complete. Conda-forge staged-recipes PR #33461 now targets
-v2.7.0.
+**v2.7.0** is the latest published release. **v2.7.1 is an unreleased local
+reliability candidate** in `D:\openpkflow-v2.7.1-v2.8.0` on
+`release/v2.7.1`. It adds health provenance, automated production convergence
+checks, focused browser regressions, and consistent empty-result states without
+changing pharmacometric calculations. Read `HANDOFF.md` for the exact completed
+and open gates.
 
 **Immediate next work (in order):**
-1. Await maintainer review on the fully green conda-forge PR #33461.
-2. Confirm the Render backend reports engine version 2.7.0 after deployment.
-3. Optionally add Playwright coverage for the PKChart toolbar, sidebar collapse,
-   and mobile layout.
-4. Keep validation discipline; do not extend frozen `pop/estimation/`.
+1. Create the validated v2.7.1 release commit and publish it through a normal
+   PR; require green CI before merge.
+2. Publish v2.7.1 only after merge, tag, Trusted Publishing, and fresh
+   public-install verification.
+3. Inspect or manually redeploy Render, then require `/health` and
+   `/openapi.json` to match the expected version and deployed commit.
+4. Begin v2.8.0 only after v2.7.1 converges. v2.8.0 is the Advanced Dissolution
+   Workbench described in `ROADMAP.md` and `FUTURE_PLANS.md`; it exposes existing
+   validated dissolution methods rather than adding unvalidated algorithms.
+5. Await maintainer review on conda-forge PR #33461 and keep
+   `pop/estimation/` frozen.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
@@ -290,6 +300,8 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.5.0          web app (api/ + webapp/) + student helpers                       DONE
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
 2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
+2.7.1          deployment provenance, convergence gate, UI regressions         CANDIDATE
+2.8.0          Advanced Dissolution Workbench                                  PLANNED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 

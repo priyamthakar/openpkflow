@@ -11,6 +11,40 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.7.1] -- 2026-07-28
+
+This reliability release adds deployment provenance and closes the remaining
+v2.7.0 web regression gaps. It does not change pharmacometric calculations or
+public Python APIs.
+
+### Added
+
+- `/health` now reports engine version, deployed Git commit and branch, and the
+  Render service identifier.
+- A scheduled/manual production convergence workflow verifies both `/health`
+  and `/openapi.json`, with optional commit-prefix matching.
+- Playwright coverage protects chart legend restoration, PNG export, persisted
+  sidebar collapse, and mobile navigation.
+
+### Changed
+
+- The shared `EmptyResults` state is used consistently across the remaining
+  analysis result panes.
+- The API deployment floor is updated to FastAPI 0.140.
+
+### Documentation
+
+- Synchronized the README, handoff, agent guidance, release workflow, web/API
+  progress, dated session summary, roadmap, and future plans to this candidate
+  checkpoint and the gated v2.8.0 dissolution milestone.
+- Corrected the live deployment handoff: the Cloudflare frontend and documentation
+  are current, while Render remains reachable on engine version 2.6.0 and requires
+  a manual deployment/configuration check.
+- Synchronized the API endpoint and web-page inventories and corrected the
+  validated FDA partial-replicate RSABE scope.
+
+---
+
 ## [2.7.0] -- 2026-07-25
 
 This additive release publishes the validated post-v2.6.0 work across the Python
@@ -43,8 +77,10 @@ package, REST API, and web application. No existing public API was removed.
 - **Web application polish**: theme-aware chart colors, chart toolbar and PNG export,
   grouped collapsible navigation, persisted split-pane width, run shortcuts, improved
   empty states, and visible backend health status.
-- **Production deployment**: Cloudflare Workers frontend and Render backend, both
-  automatically deployed from `main`.
+- **Production deployment wiring**: Cloudflare Workers frontend and Render
+  backend configuration. The frontend deploys automatically from `main`; as of
+  2026-07-26, the reachable Render service still reports engine version 2.6.0
+  and requires a manual deployment/configuration check for v2.7.0.
 
 ### Fixed
 
