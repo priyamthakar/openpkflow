@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from scripts import production_smoke
+
+import openpkflow.validation.deployment as production_smoke
 
 
 def test_verify_deployment_accepts_matching_release(monkeypatch: pytest.MonkeyPatch) -> None:
