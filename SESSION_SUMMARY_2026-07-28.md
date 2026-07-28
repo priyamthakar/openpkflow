@@ -5,7 +5,7 @@
 Begin the user-approved path from v2.7.1 through v2.8.0, stopping at the next
 safe checkpoint and synchronizing the living documentation and future plans.
 
-## Reconciled state
+## Initial reconciled state
 
 - Latest public package and GitHub release: v2.7.0.
 - `origin/main`: `c14ac2e`, including merged FastAPI dependency PR #42.
@@ -26,7 +26,7 @@ safe checkpoint and synchronizing the living documentation and future plans.
 - Assigned package metadata and changelogs to 2.7.1.
 - Synchronized the living documentation spine and bounded the v2.8.0 plan.
 
-## Verification at stop point
+## Verification at the initial checkpoint
 
 - Ruff lint and format: passed.
 - mypy: 84 source files, passed.
@@ -36,16 +36,24 @@ safe checkpoint and synchronizing the living documentation and future plans.
 - Playwright: 19 passed.
 - Strict MkDocs, pre-commit, final build/Twine, and fresh-wheel CLI smoke:
   passed.
-- Commit/PR/CI and the remaining publication/deployment gates have not yet been
-  completed.
+- At that checkpoint, commit/PR/CI and the remaining publication/deployment
+  gates had not yet been completed. They were completed later in the same
+  continuing run, as recorded below.
 
-## Release boundary
+## Release outcome
 
-v2.7.1 is a local release candidate, not a published release. No commit, push,
-PR, tag, GitHub Release, PyPI publication, or deployment action was taken for
-v2.7.1 in this session.
+v2.7.1 was published through PR #43, squash-merged as `d24263d`, tagged, and
+released on GitHub. Trusted Publishing run 30334756702 completed successfully
+for TestPyPI and PyPI. A fresh public-index installation and CLI smoke passed.
+Render, Cloudflare, and documentation convergence were verified; Render reports
+version 2.7.1 and commit `d24263d`.
+
+The initial PR API job caught a Linux import-path defect in the production smoke
+test. Moving the reusable verifier into the installed
+`openpkflow.validation.deployment` module fixed the root cause, and the full CI
+matrix passed.
 
 ## Resume
 
-Read `HANDOFF.md`, then resume with the release commit and PR workflow. Complete
-every v2.7.1 publication and hosted-convergence gate before starting v2.8.0.
+Read `HANDOFF.md`, merge the publication-state documentation sync, fast-forward
+the v2.8.0 worktree, and begin the Advanced Dissolution Workbench.

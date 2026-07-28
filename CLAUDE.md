@@ -27,9 +27,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   multi-media tab), Simulation, IVIVC, Bioequivalence (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service still reports
-  engine version 2.6.0 and needs a manual deployment/configuration check. See
-  `HANDOFF.md` "Deployment" for the verified state and URLs.
+  frontend auto-deploys from `main`; the live Render service reports v2.7.1 at
+  release commit `d24263d`. See `HANDOFF.md` "Deployment" for the verified
+  state, smoke evidence, and URLs.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
@@ -264,24 +264,18 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.7.0** is the latest published release. **v2.7.1 is an unreleased local
-reliability candidate** in `D:\openpkflow-v2.7.1-v2.8.0` on
-`release/v2.7.1`. It adds health provenance, automated production convergence
-checks, focused browser regressions, and consistent empty-result states without
-changing pharmacometric calculations. Read `HANDOFF.md` for the exact completed
-and open gates.
+**v2.7.1** is the latest published release. PR #43 was squash-merged as
+`d24263d`; GitHub Release, TestPyPI, PyPI, fresh public installation, frontend,
+docs, and Render version/commit convergence are verified. Read `HANDOFF.md` for
+the evidence.
 
 **Immediate next work (in order):**
-1. Create the validated v2.7.1 release commit and publish it through a normal
-   PR; require green CI before merge.
-2. Publish v2.7.1 only after merge, tag, Trusted Publishing, and fresh
-   public-install verification.
-3. Inspect or manually redeploy Render, then require `/health` and
-   `/openapi.json` to match the expected version and deployed commit.
-4. Begin v2.8.0 only after v2.7.1 converges. v2.8.0 is the Advanced Dissolution
-   Workbench described in `ROADMAP.md` and `FUTURE_PLANS.md`; it exposes existing
-   validated dissolution methods rather than adding unvalidated algorithms.
-5. Await maintainer review on conda-forge PR #33461 and keep
+1. Merge the v2.7.1 publication-state documentation sync and fast-forward the
+   isolated `release/v2.8.0` worktree.
+2. Implement v2.8.0, the Advanced Dissolution Workbench described in
+   `ROADMAP.md` and `FUTURE_PLANS.md`; expose existing validated dissolution
+   methods rather than adding unvalidated algorithms.
+3. Await maintainer review on conda-forge PR #33461 and keep
    `pop/estimation/` frozen.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
@@ -301,7 +295,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.5.0          web app (api/ + webapp/) + student helpers                       DONE
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
 2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
-2.7.1          deployment provenance, convergence gate, UI regressions         CANDIDATE
+2.7.1          deployment provenance, convergence gate, UI regressions         RELEASED
 2.8.0          Advanced Dissolution Workbench                                  PLANNED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```

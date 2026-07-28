@@ -33,8 +33,8 @@ It does not replace expert regulatory judgement or validated commercial platform
 It makes routine analysis faster, cleaner, and more reproducible.
 
 Current release and takeover status are maintained in the repository-root
-`HANDOFF.md`. The latest public release is v2.7.0; v2.7.1 is an unreleased
-reliability candidate at the 2026-07-28 validation checkpoint.
+`HANDOFF.md`. The latest public release is v2.7.1; public installation and
+hosted version/commit convergence were verified on 2026-07-28.
 
 ## What it is and is not
 

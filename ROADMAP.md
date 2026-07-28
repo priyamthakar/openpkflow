@@ -248,7 +248,7 @@ published to PyPI on 2026-07-15.
   manually redeploy from `main` and verify 2.7.0 before closing the deployment gate.
 - See `HANDOFF.md` for exact published state and bounded next work.
 
-### v2.7.1 reliability release (active candidate, 2026-07-28)
+### v2.7.1 reliability release (published 2026-07-28)
 
 Scope is deliberately non-scientific:
 
@@ -265,9 +265,8 @@ Completed gates: mandatory baseline build/Twine, Ruff, format, mypy, API
 pre-commit, final v2.7.1 build/Twine, fresh-wheel CLI smoke, frontend
 lint/build, and Playwright (19 passed).
 
-Open gates: clean-tree release readiness, PR/CI/merge, tag and Trusted
-Publishing, fresh public install, and Render convergence. v2.7.0 remains the
-latest published release until all open gates are verified.
+PR #43, the complete CI matrix, tag, GitHub Release, Trusted Publishing, fresh
+public installation, and Render version/commit convergence are verified.
 
 ### v2.8.0 Advanced Dissolution Workbench (next milestone)
 

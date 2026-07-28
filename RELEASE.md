@@ -4,31 +4,22 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
 ## Current release state
 
-**v2.7.0 was published on 2026-07-25.** It packages sparse NCA, pipeline audit
-bundles, formal BE ANOVA, validated FDA partial-replicate RSABE, MAP/SUPAC web
-workflows, and web design polish.
+**v2.7.1 was published on 2026-07-28.** It adds deployment provenance,
+production convergence checks, focused browser regressions, and consistent
+analysis placeholders without changing pharmacometric calculations.
 
-- Release PR: <https://github.com/priyamthakar/openpkflow/pull/39>
-- Release commit: `74039b41054f7caee9a4f64d53a6d0cd455c5903`
-- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.7.0>
-- PyPI: <https://pypi.org/project/openpkflow/2.7.0/>
+- Release PR: <https://github.com/priyamthakar/openpkflow/pull/43>
+- Release commit: `d24263dda6f0a094ad54bf1383d273a6623d796c`
+- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.7.1>
+- PyPI: <https://pypi.org/project/openpkflow/2.7.1/>
 - Trusted Publishing run:
-  <https://github.com/priyamthakar/openpkflow/actions/runs/30167426746>
+  <https://github.com/priyamthakar/openpkflow/actions/runs/30334756702>
 - Conda-forge staged-recipes PR:
   <https://github.com/conda-forge/staged-recipes/pull/33461>
-- Deployment check (2026-07-26): frontend and docs return HTTP 200; Render is
-  reachable but `/health` still reports engine version 2.6.0. Manually redeploy
-  from `main` and verify 2.7.0 before claiming backend release convergence.
+- Deployment check (2026-07-28): frontend and docs return HTTP 200; Render
+  `/health` and `/openapi.json` report v2.7.1 at release commit `d24263d`.
 
 See `HANDOFF.md` for full takeover context.
-
-**v2.7.1 is an unreleased reliability candidate as of 2026-07-28.** Its package
-metadata is assigned, but it has not been committed, pushed, merged, tagged,
-published, or deployed. Completed checks are Ruff, format, mypy, 55 API tests,
-the 1,313-test standard suite, strict docs, pre-commit, final build/Twine,
-fresh-wheel CLI smoke, frontend lint/build, and 19 Playwright tests. Resume with
-the release commit and PR, then follow every step below without skipping the
-hosted convergence check.
 
 ## Release principles
 

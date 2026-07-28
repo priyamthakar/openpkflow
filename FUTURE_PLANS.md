@@ -38,17 +38,13 @@ The post-v2.6.0 sparse NCA, pipeline audit bundle, MAP/SUPAC workflows, formal B
 ANOVA, validated FDA partial-replicate RSABE, hosted deployment, and web polish are
 published in v2.7.0 through PR #39.
 
-## v2.7.1 reliability release (active candidate)
+## v2.7.1 reliability release (published 2026-07-28)
 
-The candidate is implemented in the isolated `release/v2.7.1` worktree. It adds
-deployment provenance, a fail-closed production convergence check, the four
-missing browser regressions, consistent shared result placeholders, and the
-FastAPI 0.140 dependency update. It changes no pharmacometric calculations.
-
-Remaining gates are the full standard suite, strict docs/build/readiness checks,
-PR/CI/merge, Trusted Publishing, fresh public installation, and Render
-convergence. See [HANDOFF.md](HANDOFF.md) for the exact checkpoint. Until those
-gates pass, v2.7.0 remains the latest published release.
+v2.7.1 adds deployment provenance, a fail-closed production convergence check,
+the four missing browser regressions, consistent shared result placeholders,
+and the FastAPI 0.140 dependency update. It changes no pharmacometric
+calculations. PR/CI, GitHub Release, Trusted Publishing, fresh public
+installation, and hosted version/commit convergence are verified.
 
 Conda-forge PR #33461 remains a separate external maintainer gate for v2.7.0.
 
