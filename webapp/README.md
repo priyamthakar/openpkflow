@@ -45,7 +45,6 @@ contains no pharmacometric formulas; all calculations and report generation are 
 to the FastAPI adapter and `src/openpkflow/`.
 
 Production uses `VITE_API_URL=https://openpkflow.onrender.com`. The Cloudflare
-frontend is current, but as of 2026-07-28 the Render OpenAPI document still
-reports engine version 2.6.0. The v2.7.1 candidate adds focused browser
-regressions and deployed-version provenance; see the release and convergence
-gates in the root `HANDOFF.md`.
+frontend, documentation, and Render backend were verified after v2.7.1
+publication. Render reports version 2.7.1 and deployed commit `d24263d`; see the
+evidence in the root `HANDOFF.md`.

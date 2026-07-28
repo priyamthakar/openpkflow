@@ -8,10 +8,9 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-28 (v2.7.0 remains public; the unreleased v2.7.1
-candidate adds deployment provenance, production convergence automation,
-focused browser regressions, and shared result placeholders; Render remains on
-engine 2.6.0)
+**Last updated:** 2026-07-28 (v2.7.1 published; deployment provenance,
+production convergence automation, focused browser regressions, and shared
+result placeholders shipped; Render reports v2.7.1 at `d24263d`)
 
 ---
 
@@ -95,7 +94,7 @@ All done in `webapp/` — no API changes.
 - Shared `EmptyResults` component: dashed border panel with Lucide icon, title, description,
   "Ctrl+Enter to run" hint, and a faded skeleton preview (metrics + chart shape).
 - Wired across NCA, dissolution, IVIVC, BE, formal BE, RSABE, sparse NCA,
-  MAP PK, SUPAC/alcohol, and pipeline result panes in the v2.7.1 candidate.
+  MAP PK, SUPAC/alcohol, and pipeline result panes in v2.7.1.
 
 **Ctrl+Enter run shortcut** (`lib/useRunShortcut.ts`):
 - New hook fires the primary run callback on Ctrl/Cmd+Enter outside text-editable fields.
@@ -183,7 +182,7 @@ webapp/src/
 
 ---
 
-## v2.7.1 reliability candidate
+## v2.7.1 reliability release
 
 - Health payload includes `git_sha`, `git_branch`, and `service_id`.
 - Production smoke script and scheduled/manual workflow verify health/OpenAPI
@@ -194,7 +193,8 @@ webapp/src/
 - Frontend lint and production build pass.
 - Full standard Python suite (1,313 passed), API, strict docs, pre-commit,
   final distribution checks, and fresh-wheel CLI smoke pass.
-- Candidate is not yet committed, published, or deployed; see `HANDOFF.md`.
+- PR #43, publication, fresh public install, and hosted convergence are
+  complete; see `HANDOFF.md`.
 
 ## Next work
 
@@ -204,19 +204,17 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
 3. ~~SUPAC / alcohol UI~~ -- done: library helpers in `openpkflow.dissolution.supac` exposed.
 4. ~~Merge PR #32~~ -- done: merged to `main` as `486788c`.
-5. **Production deployment** -- frontend is live on Cloudflare Workers. The
-   Render backend is reachable but still reports engine version 2.6.0 after
-   multiple `main` merges. Finish and publish v2.7.1, inspect Render, deploy the
-   merged commit, and require the automated health/OpenAPI convergence check to
-   pass. URLs and the `VITE_API_URL` / CORS wiring are documented in
-   `HANDOFF.md` "Deployment".
+5. ~~Production deployment convergence~~ -- done: frontend and docs are live;
+   Render `/health` and `/openapi.json` report v2.7.1 at release commit
+   `d24263d`, and the production convergence smoke check passes. URLs and the
+   `VITE_API_URL` / CORS wiring are documented in `HANDOFF.md` "Deployment".
 6. ~~Design system polish~~ -- done: merged as [PR #33](https://github.com/priyamthakar/openpkflow/pull/33) (`bb0d16a`).
 7. ~~FDA partial-replicate RSABE page~~ -- done: validated core, API/report endpoints,
    and `/be/rsabe` page merged in PR #35 (`f041b10`).
-8. ~~Playwright coverage for the new UI~~ -- done in the v2.7.1 candidate:
+8. ~~Playwright coverage for the new UI~~ -- done in v2.7.1:
    legend toggling, PNG export, sidebar collapse, and mobile navigation.
 9. ~~Wire `EmptyResults` into the remaining analysis pages~~ -- done in the
-   v2.7.1 candidate.
+   v2.7.1 release.
 10. Richer grid controls only if users request them (row delete, resize, drag fill).
 11. **v2.8.0 Advanced Dissolution Workbench** -- expose bootstrap f2, model
     ranking, model-dependent comparison, MSD/max-deviation alternatives,

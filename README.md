@@ -377,11 +377,10 @@ pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
 [HANDOFF.md](HANDOFF.md), and
 [SESSION_SUMMARY_2026-07-28.md](SESSION_SUMMARY_2026-07-28.md) for current state.
 
-The active candidate is v2.7.1, a reliability-only release adding deployment
-provenance, production convergence checks, and focused web regressions. The
-next feature milestone is v2.8.0, the Advanced Dissolution Workbench described
-in [FUTURE_PLANS.md](FUTURE_PLANS.md). v2.7.0 remains the latest public release
-until the candidate passes all release and publication gates.
+v2.7.1 is the current published release. It adds deployment provenance,
+production convergence checks, and focused web regressions without changing
+pharmacometric calculations. The next feature milestone is v2.8.0, the Advanced
+Dissolution Workbench described in [FUTURE_PLANS.md](FUTURE_PLANS.md).
 
 ---
 
@@ -410,7 +409,7 @@ until the candidate passes all release and publication gates.
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. A local v2.7.1 candidate adds health provenance and browser regressions; Render still reports engine 2.6.0 and must converge before the backend is called current. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
+| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. Frontend, docs, and Render are verified on v2.7.1; health provenance identifies deployed commit `d24263d`. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

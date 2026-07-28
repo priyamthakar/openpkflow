@@ -38,11 +38,11 @@ public Python APIs.
 ### Documentation
 
 - Synchronized the README, handoff, agent guidance, release workflow, web/API
-  progress, dated session summary, roadmap, and future plans to this candidate
-  checkpoint and the gated v2.8.0 dissolution milestone.
-- Corrected the live deployment handoff: the Cloudflare frontend and documentation
-  are current, while Render remains reachable on engine version 2.6.0 and requires
-  a manual deployment/configuration check.
+  progress, dated session summary, roadmap, and future plans to the verified
+  published state and the gated v2.8.0 dissolution milestone.
+- Recorded production convergence: Cloudflare frontend and documentation are
+  current, while Render reports v2.7.1 at release commit `d24263d`; the automated
+  health/OpenAPI smoke check passes.
 - Synchronized the API endpoint and web-page inventories and corrected the
   validated FDA partial-replicate RSABE scope.
 
