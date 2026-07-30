@@ -27,9 +27,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   multi-media, and Advanced Workbench tabs), Simulation, IVIVC, Bioequivalence (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service reports v2.8.0 at
-  release commit `0633834`. See `HANDOFF.md` "Deployment" for the verified
-  state, smoke evidence, and URLs.
+  frontend auto-deploys from `main`; the live Render service reports v2.8.0
+  from `main`. Its `/health` endpoint is the source of truth for the deployed
+  commit because documentation-only merges also redeploy the service. See
+  `HANDOFF.md` "Deployment" for the verified state, smoke evidence, and URLs.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.

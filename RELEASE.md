@@ -16,8 +16,9 @@ Workbench without new pharmacometric formulas.
 - Conda-forge staged-recipes PR:
   <https://github.com/conda-forge/staged-recipes/pull/33461>
 - Deployment check (2026-07-30): frontend and docs return HTTP 200; Render
-  `/health` and `/openapi.json` report v2.8.0 at release commit `0633834`, with
-  32 OpenAPI paths.
+  `/health` and `/openapi.json` report v2.8.0 from `main`, with 32 OpenAPI
+  paths. Documentation-only merges also redeploy Render; use `/health.git_sha`
+  for the current deployed commit.
 
 See `HANDOFF.md` for full takeover context.
 
