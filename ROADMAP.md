@@ -208,6 +208,9 @@ published to PyPI on 2026-07-15.
 
 ### Post-v2.6.0 follow-ups
 
+The deployment statements in this subsection record the historical
+pre-v2.7.0 checkpoint; current hosted state is in `HANDOFF.md`.
+
 - Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check
 - FDA partial-replicate RSABE ✅ implemented, validated against Patterson & Jones
   (2012) Table II (DOI 10.1002/pst.498), and wired into `api/`/`webapp/`
@@ -225,6 +228,9 @@ published to PyPI on 2026-07-15.
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### v2.7.0 release (published 2026-07-25)
+
+The deployment statement below records the v2.7.0 release-time checkpoint. It
+was resolved in v2.7.1; current hosted state is in `HANDOFF.md`.
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
 - Sparse NCA validation/API/page: merged in PR #31.
@@ -314,7 +320,7 @@ changes to frozen `pop/estimation/`, and any claim of regulatory approval.
 
 ### Documentation
 - GitHub Pages MkDocs site at <https://priyamthakar.github.io/openpkflow/> ✅
-  Verified HTTP 200 on 2026-07-26.
+  Final v2.8.0 Pages build and deployed index verified on 2026-07-30.
 - MkDocs tutorials for BE, IVIVC, Bayesian PK, PopPK modules as they ship ✅ Done (2026-05-30)
 - Theory guide: derivations for each formula module (regulatory review support) ✅ Done (2026-05-30)
 - "Coming from WinNonlin/NONMEM" migration cheatsheet ✅ Done (2026-05-29)

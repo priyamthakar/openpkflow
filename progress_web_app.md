@@ -195,9 +195,10 @@ webapp/src/
 - PR #43, publication, fresh public install, and hosted convergence are
   complete; see `HANDOFF.md`.
 
-## Next work
+## Completed delivery sequence and active next work
 
-Priority order for the next agent (also listed in `HANDOFF.md`):
+Historical delivery order and the current gate (also summarized in
+`HANDOFF.md`):
 
 1. ~~Merge the sparse NCA slice~~ -- done: PR #31 merged to `main` as `74c070b`.
 2. ~~MAP individual PK page~~ -- done: screening scope + fail-closed diagnostics shipped.
@@ -214,15 +215,15 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
    legend toggling, PNG export, sidebar collapse, and mobile navigation.
 9. ~~Wire `EmptyResults` into the remaining analysis pages~~ -- done in the
    v2.7.1 release.
-10. Richer grid controls only if users request them (row delete, resize, drag fill).
-11. **v2.8.0 Advanced Dissolution Workbench** -- implemented as a third
+10. **v2.8.0 Advanced Dissolution Workbench** -- implemented as a third
     Dissolution tab with canonical CSV upload, editable vessel rows, bootstrap
     f2, five-model AICc ranking, model-dependent comparison, MSD/max-deviation,
     vessel/mean visualization, reports, and a reproducibility audit ZIP.
     Full package/API/browser/docs/distribution gates, PR/CI, publication,
     public install, and hosted convergence are verified.
-12. Richer grid controls remain demand-gated; collect real workbench feedback
-    before selecting another web milestone.
+11. **Active gate:** collect real workbench feedback and triage validation gaps
+    before selecting another web milestone. Richer grid controls (row deletion,
+    resize, drag fill) remain demand-gated.
 
 ---
 

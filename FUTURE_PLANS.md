@@ -107,6 +107,18 @@ and hosted version/commit convergence are verified.
 - no extension of frozen `pop/estimation/`
 - no claim of regulatory approval or replacement of expert review
 
+## Active next gate
+
+There is no committed v2.9.0 feature milestone. Keep v2.8.0 stable, collect
+real Advanced Dissolution Workbench feedback, and triage validation gaps before
+promoting another idea from this catalog. Richer grid controls (row deletion,
+resize, and drag fill) remain demand-gated. Any new scientific scope requires
+independent validation evidence first.
+
+Conda-forge staged-recipes PR
+[#33461](https://github.com/conda-forge/staged-recipes/pull/33461) remains an
+external maintainer gate and does not block the published PyPI release.
+
 ## Historical v2.4.0 Credibility Sprint
 
 Goal: make the next release about trust, usability, and release discipline rather
