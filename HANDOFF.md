@@ -13,7 +13,9 @@ OpenPKFlow **v2.8.0 is published and hosted convergence is verified**.
 - Trusted Publishing:
   [run 30509130768](https://github.com/priyamthakar/openpkflow/actions/runs/30509130768)
 - PyPI: <https://pypi.org/project/openpkflow/2.8.0/>
-- Post-release documentation branch: `docs/v2.8.0-release`
+- Post-release documentation PRs:
+  [#46](https://github.com/priyamthakar/openpkflow/pull/46) (`3923aff`) and
+  [#47](https://github.com/priyamthakar/openpkflow/pull/47) (`4039ed8`)
 - Isolated worktree: `D:\openpkflow-v2.8.0`
 
 The original `D:\openpkflow` checkout and its user-owned untracked content
@@ -105,10 +107,11 @@ Dependency re-check on 2026-07-30:
 Keep v2.8.0 stable while collecting real workbench feedback. Before accepting
 another feature milestone:
 
-1. let main-branch CI and this post-release documentation PR settle green;
-2. await maintainer review on conda-forge staged-recipes PR
+1. triage real user feedback and remaining validation gaps;
+2. require evidence of user value and independent validation before selecting
+   new scientific scope;
+3. await maintainer review on conda-forge staged-recipes PR
    [#33461](https://github.com/conda-forge/staged-recipes/pull/33461);
-3. triage user feedback and validation gaps before selecting new scope.
 
 Richer grid controls (row deletion, resize, drag fill) remain demand-gated.
 Do not extend the frozen `pop/estimation/` module.

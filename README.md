@@ -445,16 +445,16 @@ bundle without adding new pharmacometric formulas. See
 
 ## By the numbers
 
-Measured from the `agent/sparse-nca-web` working tree on 2026-07-16:
+Measured from the final v2.8.0 documentation tree on 2026-07-30:
 
 | Stat | Value |
 |---|---|
-| Lines of Python source (`src/`) | 20,658 |
-| Lines of Python tests (`tests/`) | 14,308 |
-| Python files | 164 (80 source + 84 tests) |
-| Standard test selection | 1,285 selected, 22 deselected |
+| Lines of Python source (`src/`) | 22,544 |
+| Lines of Python tests (`tests/`) | 14,747 |
+| Python files | 176 (87 source + 89 tests) |
+| Standard test selection | 1,324 passed, 22 deselected |
 | HTML report templates | 13 |
-| Bundled example datasets | 5 |
+| Bundled example datasets | 6 |
 
 ---
 
