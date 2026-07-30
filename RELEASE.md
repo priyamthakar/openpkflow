@@ -4,27 +4,25 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
 ## Current release state
 
-**v2.7.1 was published on 2026-07-28.** It adds deployment provenance,
-production convergence checks, focused browser regressions, and consistent
-analysis placeholders without changing pharmacometric calculations.
+**v2.8.0 was published on 2026-07-30.** It adds the Advanced Dissolution
+Workbench without new pharmacometric formulas.
 
-- Release PR: <https://github.com/priyamthakar/openpkflow/pull/43>
-- Release commit: `d24263dda6f0a094ad54bf1383d273a6623d796c`
-- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.7.1>
-- PyPI: <https://pypi.org/project/openpkflow/2.7.1/>
+- Release PR: <https://github.com/priyamthakar/openpkflow/pull/45>
+- Release commit: `06338340be90b5a5dec4e70ebe2311f540d3b1b3`
+- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.8.0>
+- PyPI: <https://pypi.org/project/openpkflow/2.8.0/>
 - Trusted Publishing run:
-  <https://github.com/priyamthakar/openpkflow/actions/runs/30334756702>
+  <https://github.com/priyamthakar/openpkflow/actions/runs/30509130768>
 - Conda-forge staged-recipes PR:
   <https://github.com/conda-forge/staged-recipes/pull/33461>
-- Deployment check (2026-07-28): frontend and docs return HTTP 200; Render
-  `/health` and `/openapi.json` report v2.7.1 at release commit `d24263d`.
+- Deployment check (2026-07-30): frontend and docs return HTTP 200; Render
+  `/health` and `/openapi.json` report v2.8.0 at release commit `0633834`, with
+  32 OpenAPI paths.
 
 See `HANDOFF.md` for full takeover context.
 
-**v2.8.0 is an unreleased candidate.** It adds the Advanced Dissolution
-Workbench without new formulas. Do not call it released until the full local
-matrix, PR CI, tag-on-main check, Trusted Publishing, fresh public install, and
-hosted version/commit convergence all pass.
+The full local matrix, PR CI, tag-on-main check, Trusted Publishing, fresh
+public install, and hosted version/commit convergence all passed.
 
 ## Release principles
 

@@ -48,17 +48,16 @@ installation, and hosted version/commit convergence are verified.
 
 Conda-forge PR #33461 remains a separate external maintainer gate for v2.7.0.
 
-## v2.8.0 Advanced Dissolution Workbench (active release candidate)
+## v2.8.0 Advanced Dissolution Workbench (published 2026-07-30)
 
 Goal: turn OpenPKFlow's already validated dissolution capabilities into one
 report-first, auditable workflow without inventing new pharmacometric methods.
 
-Release-ready local checkpoint: the core orchestration/result API, five-model
-validated subset, HTML/PDF/DOCX reports, reproducibility ZIP, three FastAPI
-endpoints, typed React upload/paste workflow, core/API tests, and Playwright
-flows are complete. The full suite, distributions, fresh-wheel smoke, strict
-docs, and pre-commit pass. PR/CI, publication, public-install, and hosted
-convergence gates remain open until verified.
+The core orchestration/result API, five-model validated subset,
+HTML/PDF/DOCX reports, reproducibility ZIP, three FastAPI endpoints, typed React
+upload/paste workflow, core/API tests, and Playwright flows are published.
+PR #45, the complete CI matrix, Trusted Publishing, fresh public installation,
+and hosted version/commit convergence are verified.
 
 ### Product slice
 
