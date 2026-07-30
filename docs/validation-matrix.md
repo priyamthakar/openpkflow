@@ -32,6 +32,7 @@ at the repository root.
 | Area | Validation basis | Test file |
 |---|---|---|
 | Dissolution model fitting | Known model equations and parameter recovery | `tests/validation/test_dissolution_models_reference.py` |
+| Advanced Dissolution Workbench | Delegation to validated FDA/Costa/Shah methods; fixed-seed repeatability, fail-closed vessel/time checks, reports, and SHA-256 artifact verification | `tests/dissolution/test_workbench.py`, `api/tests/test_dissolution.py`, `webapp/tests/paste-run.spec.ts` |
 | IVIVC Level A (WN / LR) | Wagner-Nelson and Loo-Riegelman analytical / R formula references | `tests/validation/test_ivivc_wn_lr_reference.py` |
 | IVIVC convolution + Levy | Closed-form zero-order input x 1-cmt UIR; independent fine-grid Riemann convolution; Levy perfect correlation | `tests/validation/test_ivivc_convolution_reference.py` |
 | NCA urinary excretion | Reference urinary PK calculations | `tests/validation/test_nca_urine_reference.py` |

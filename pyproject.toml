@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openpkflow"
-version = "2.7.1"
+version = "2.8.0"
 description = "Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting."
 readme = "README.md"
 requires-python = ">=3.10"

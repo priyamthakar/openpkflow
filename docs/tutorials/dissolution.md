@@ -67,7 +67,7 @@ Bootstrap f2 gives a confidence interval that accounts for between-batch variabi
 result = study.bootstrap_compare(
     reference="reference",
     test="test",
-    n_bootstrap=1000,
+    n_replicates=1000,
     seed=42,
 )
 
@@ -88,7 +88,7 @@ observed    = [21.5, 43.8, 62.9, 78.1, 91.4]
 
 results = fit_dissolution_models(time_points, observed, "test_formulation")
 
-print(f"Best model: {results.best.name} (AICc={results.best.AICc:.1f})")
+print(f"Best model: {results.best.model_name} (AICc={results.best.aicc:.1f})")
 results.report("model_fit_report.html")
 ```
 

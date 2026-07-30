@@ -11,6 +11,38 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.8.0] - 2026-07-30
+
+This additive release turns the independently validated dissolution methods
+into one report-first, auditable workflow. It does not add new dissolution
+mathematics or change the frozen population-estimation scope.
+
+### Added
+
+- **Advanced Dissolution Workbench**: vessel-level orchestration for regulatory
+  point f1/f2, fixed-seed bootstrap f2 confidence intervals, the five
+  independently cross-validated release models with AICc ranking,
+  model-dependent parameter comparison, MSD, and maximum deviation.
+- **Workbench reports**: complete HTML, PDF, and DOCX outputs with vessel/mean
+  plots, normalized inputs, exact configuration, warnings, and the required
+  expert-review disclaimer.
+- **Reproducibility bundle**: deterministic ZIP layout containing normalized
+  CSV input, configuration, serialized results, HTML report, and a SHA-256
+  manifest.
+- **Workbench API and web workflow**: three typed FastAPI endpoints plus an
+  editable upload/paste React tab with reports and audit downloads.
+- **Validation and browser coverage**: fail-closed vessel/time checks,
+  non-finite and duplicate rejection, report/audit verification, and
+  Playwright coverage for example, upload, report, and audit flows.
+
+### Changed
+
+- In-memory dissolution data now have a public validation entrypoint and reject
+  non-finite time and percent-released values before analysis.
+- The web API inventory increases from 29 to 32 endpoints.
+
+---
+
 ## [2.7.1] - 2026-07-28
 
 This reliability release adds deployment provenance and closes the remaining

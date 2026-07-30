@@ -268,10 +268,16 @@ lint/build, and Playwright (19 passed).
 PR #43, the complete CI matrix, tag, GitHub Release, Trusted Publishing, fresh
 public installation, and Render version/commit convergence are verified.
 
-### v2.8.0 Advanced Dissolution Workbench (next milestone)
+### v2.8.0 Advanced Dissolution Workbench (active release candidate)
 
 **Goal:** expose the validated dissolution toolkit as one auditable,
 report-first workflow.
+
+Implementation and local release validation are complete on `release/v2.8.0`:
+core orchestration, reports, audit bundle, API, React tab, documentation, 1,324
+standard tests, 59 API tests, 21 browser tests, strict docs, final distributions,
+and fresh-wheel smoke pass. PR/CI, publication, public-install, and hosted
+convergence remain release gates.
 
 **Included:**
 

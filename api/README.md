@@ -34,6 +34,9 @@ Open `http://localhost:8000/docs` for the interactive Swagger UI.
 | POST | `/api/dissolution/report` | Download dissolution report |
 | POST | `/api/dissolution/multi-media/analyze` | Compare profiles across media |
 | POST | `/api/dissolution/multi-media/report` | Download multi-media report |
+| POST | `/api/dissolution/workbench/analyze` | Run the Advanced Dissolution Workbench |
+| POST | `/api/dissolution/workbench/report` | Download complete workbench report |
+| POST | `/api/dissolution/workbench/audit-bundle` | Download normalized inputs, results, report, and SHA-256 manifest |
 | POST | `/api/sim/simulate` | Run PK simulation (JSON body) |
 | POST | `/api/sim/report` | Download sim report |
 | POST | `/api/ivivc/analyze` | Run Level A IVIVC analysis |
@@ -64,6 +67,11 @@ unbalanced designs. FDA partial-replicate RSABE supports complete balanced
 TRR/RTR/RRT allocation and is validated against Patterson and Jones (2012),
 Table II. Low-CV data return `NOT_EVALUABLE` for standard ABE routing; incomplete
 or unbalanced data fail closed.
+
+The dissolution workbench accepts typed vessel-level rows and delegates all
+calculations to `openpkflow.dissolution.run_dissolution_workbench()`. It rejects
+duplicates, non-finite values, and unmatched vessel/formulation time points.
+The API adapter does not interpolate, reindex, or implement formulas.
 
 ## Deployment status
 

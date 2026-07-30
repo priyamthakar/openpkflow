@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import io
+import json
+import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -168,3 +172,86 @@ def test_multi_media_requires_two_media(client: TestClient) -> None:
     }
     resp = client.post("/api/dissolution/multi-media/analyze", json=payload)
     assert resp.status_code == 422
+
+
+def _workbench_payload() -> dict[str, object]:
+    times = [5, 10, 15, 20, 30, 45, 60]
+    reference = [8, 19, 34, 50, 70, 88, 96]
+    test = [7, 18, 33, 49, 69, 87, 95]
+    rows: list[dict[str, str | float]] = []
+    for formulation, values, prefix in (
+        ("Reference", reference, "R"),
+        ("Test", test, "T"),
+    ):
+        for vessel_index, offset in enumerate((-1, 0, 1), 1):
+            for time, value in zip(times, values, strict=True):
+                rows.append(
+                    {
+                        "formulation": formulation,
+                        "batch": f"{prefix}{vessel_index}",
+                        "time": time,
+                        "percent_released": value + offset,
+                    }
+                )
+    return {
+        "rows": rows,
+        "config": {
+            "reference_label": "Reference",
+            "test_label": "Test",
+            "bootstrap_replicates": 250,
+            "seed": 42,
+        },
+    }
+
+
+def test_workbench_analyze_contract(client: TestClient) -> None:
+    """FDA/Costa validated core results are exposed without adapter calculations."""
+    response = client.post("/api/dissolution/workbench/analyze", json=_workbench_payload())
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["metadata"]["workflow"] == "advanced_dissolution_workbench"
+    assert body["similarity"]["f2_method"] == "regulatory"
+    assert body["similarity"]["f2_value"] >= 50
+    assert body["bootstrap_f2"]["n_reference_vessels"] == 3
+    assert len(body["model_fits"]["reference"]["fits"]) == 5
+    assert len(body["normalized_rows"]) == 42
+    assert "Final regulatory interpretation" in body["disclaimer"]
+
+
+def test_workbench_report_download(client: TestClient) -> None:
+    response = client.post(
+        "/api/dissolution/workbench/report?format=html",
+        json=_workbench_payload(),
+    )
+    assert response.status_code == 200, response.text
+    assert response.headers["content-type"].startswith("text/html")
+    assert "Advanced Dissolution Workbench" in response.text
+    assert "Exact Configuration" in response.text
+
+
+def test_workbench_audit_bundle_download(client: TestClient) -> None:
+    response = client.post(
+        "/api/dissolution/workbench/audit-bundle",
+        json=_workbench_payload(),
+    )
+    assert response.status_code == 200, response.text
+    assert response.headers["content-type"].startswith("application/zip")
+    with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
+        manifest = json.loads(archive.read("manifest.json"))
+        for name, metadata in manifest["files"].items():
+            content = archive.read(name)
+            assert hashlib.sha256(content).hexdigest() == metadata["sha256"]
+
+
+def test_workbench_unmatched_timepoints_fail_closed(client: TestClient) -> None:
+    payload = _workbench_payload()
+    rows = payload["rows"]
+    assert isinstance(rows, list)
+    payload["rows"] = [
+        row
+        for row in rows
+        if not (isinstance(row, dict) and row["batch"] == "T3" and row["time"] == 60)
+    ]
+    response = client.post("/api/dissolution/workbench/analyze", json=payload)
+    assert response.status_code == 422
+    assert "same time points" in response.json()["detail"]

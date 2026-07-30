@@ -355,6 +355,206 @@ test('Multi-media dissolution tab renders overall pass', async ({ page }) => {
   await expect(page.getByText('72.100')).toBeVisible()
 })
 
+function workbenchResponse(payload: {
+  rows: Record<string, unknown>[]
+  config: Record<string, unknown>
+}) {
+  const times = [5, 10, 15, 20, 30, 45, 60]
+  const reference = [8, 19, 34, 50, 70, 88, 96]
+  const test = [7, 18, 33, 49, 69, 87, 95]
+  const fits = [
+    ['weibull', 0],
+    ['first_order', 1],
+    ['korsmeyer_peppas', 2],
+    ['higuchi', 3],
+    ['zero_order', 4],
+  ].map(([model_name, rank]) => ({
+    model_name,
+    params: { k: 0.05 + Number(rank) * 0.01 },
+    r_squared: 0.99 - Number(rank) * 0.01,
+    aic: 10 + Number(rank),
+    aicc: 12 + Number(rank),
+    bic: 11 + Number(rank),
+    n_points: 7,
+    n_params: 1,
+    converged: true,
+    fitted_values: reference,
+    time_points: times,
+  }))
+  return {
+    metadata: {
+      openpkflow_version: '2.8.0',
+      generated_at_utc: '2026-07-28T09:00:00Z',
+      workflow: 'advanced_dissolution_workbench',
+    },
+    config: payload.config,
+    normalized_rows: payload.rows,
+    vessel_profiles: {
+      reference: [
+        {
+          formulation: 'Reference',
+          vessel_id: 'R1',
+          time_points: times,
+          percent_released: reference,
+        },
+      ],
+      test: [
+        {
+          formulation: 'Test',
+          vessel_id: 'T1',
+          time_points: times,
+          percent_released: test,
+        },
+      ],
+    },
+    similarity: {
+      reference_label: 'Reference',
+      test_label: 'Test',
+      f1_value: 1.8,
+      f2_value: 92.4,
+      n_timepoints: 7,
+      reference_mean: reference,
+      test_mean: test,
+      time_points: times,
+      f2_method: 'regulatory',
+      similar: true,
+      warnings: [],
+    },
+    bootstrap_f2: {
+      f2_observed: 92.4,
+      ci_lower: 88.2,
+      ci_upper: 96.1,
+      confidence_level: 0.9,
+      n_replicates: 1000,
+      n_timepoints: 7,
+      n_reference_vessels: 3,
+      n_test_vessels: 3,
+      is_similar: true,
+      method: 'all_points',
+    },
+    model_fits: {
+      reference: {
+        formulation_label: 'Reference',
+        time_points: times,
+        observed_mean: reference,
+        best_model: 'weibull',
+        fits,
+      },
+      test: {
+        formulation_label: 'Test',
+        time_points: times,
+        observed_mean: test,
+        best_model: 'weibull',
+        fits,
+      },
+    },
+    model_comparison: {
+      model_name: 'weibull',
+      param_name: 'alpha',
+      ref_value: 1.5,
+      test_value: 1.48,
+      se_diff: 0.03,
+      ratio_pct: 98.7,
+      ci_lo: 91.2,
+      ci_hi: 106.3,
+      is_similar: true,
+    },
+    alternatives: {
+      maximum_deviation: 1,
+      msd: 2.4,
+      msd_squared: 5.8,
+      chi2_05_critical: 14.1,
+      n_timepoints: 7,
+      msd_is_similar: true,
+    },
+    warnings: [],
+    disclaimer,
+  }
+}
+
+test('Advanced dissolution workbench runs and downloads report and audit bundle', async ({
+  page,
+}) => {
+  await page.route('**/api/dissolution/workbench/analyze', async (route) => {
+    const payload = route.request().postDataJSON()
+    expect(payload.rows).toHaveLength(42)
+    expect(payload.config.bootstrap_replicates).toBe(1000)
+    expect(payload.config.f2_method).toBe('regulatory')
+    await route.fulfill({ json: workbenchResponse(payload) })
+  })
+  await page.route('**/api/dissolution/workbench/report?format=html', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      headers: {
+        'content-disposition': 'attachment; filename="dissolution_workbench_report.html"',
+      },
+      body: '<!doctype html><html><head></head><body><h1>Advanced Dissolution Workbench</h1></body></html>',
+    })
+  })
+  await page.route('**/api/dissolution/workbench/audit-bundle', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/zip',
+      headers: {
+        'content-disposition': 'attachment; filename="dissolution_workbench_audit.zip"',
+      },
+      body: 'mock audit zip',
+    })
+  })
+
+  await page.goto('/dissolution')
+  await page.getByRole('radio', { name: 'Advanced workbench' }).click()
+  await page.getByRole('button', { name: 'Run Advanced Workbench' }).click()
+
+  await expect(page.getByText('Point f2 supports similarity')).toBeVisible()
+  await expect(page.getByText('Five-Model AICc Ranking')).toBeVisible()
+  await expect(page.getByText('92.400')).toBeVisible()
+
+  const reportDownload = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Report' }).click()
+  await expect((await reportDownload).suggestedFilename()).toBe(
+    'dissolution_workbench_report.html',
+  )
+
+  const auditDownload = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Audit ZIP' }).click()
+  await expect((await auditDownload).suggestedFilename()).toBe(
+    'dissolution_workbench_audit.zip',
+  )
+})
+
+test('Advanced dissolution workbench accepts an uploaded vessel CSV', async ({ page }) => {
+  await page.route('**/api/dissolution/workbench/analyze', async (route) => {
+    const payload = route.request().postDataJSON()
+    expect(payload.rows).toHaveLength(12)
+    expect(payload.rows[0]).toEqual({
+      formulation: 'Reference',
+      batch: 'R1',
+      time: 5,
+      percent_released: 10,
+    })
+    await route.fulfill({ json: workbenchResponse(payload) })
+  })
+  const csv = [
+    'formulation,batch,time,percent_released',
+    'Reference,R1,5,10', 'Reference,R1,10,35', 'Reference,R1,15,70',
+    'Reference,R2,5,11', 'Reference,R2,10,36', 'Reference,R2,15,71',
+    'Test,T1,5,9', 'Test,T1,10,34', 'Test,T1,15,69',
+    'Test,T2,5,10', 'Test,T2,10,35', 'Test,T2,15,70',
+  ].join('\n')
+
+  await page.goto('/dissolution')
+  await page.getByRole('radio', { name: 'Advanced workbench' }).click()
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'workbench.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv),
+  })
+  await page.getByRole('button', { name: 'Run Advanced Workbench' }).click()
+  await expect(page.getByText('Point f2 supports similarity')).toBeVisible()
+})
+
 test('IVIVC load example restores paste grids', async ({ page }) => {
   await page.goto('/ivivc')
   await page.getByRole('button', { name: 'Load example' }).click()

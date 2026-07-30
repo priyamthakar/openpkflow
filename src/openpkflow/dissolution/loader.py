@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
@@ -65,6 +66,8 @@ def _validate_dissolution_df(
     df[time_col] = pd.to_numeric(df[time_col], errors="coerce")
     if df[time_col].isna().any():
         raise ValueError(f"Column '{time_col}' contains non-numeric values. Time must be numeric.")
+    if not np.isfinite(df[time_col].to_numpy(dtype=float)).all():
+        raise ValueError(f"Column '{time_col}' contains non-finite values.")
     if (df[time_col] < 0).any():
         raise ValueError(
             f"Column '{time_col}' contains negative values. Time must be non-negative."
@@ -75,6 +78,8 @@ def _validate_dissolution_df(
         raise ValueError(
             f"Column '{pct_col}' contains non-numeric values. Percent released must be numeric."
         )
+    if not np.isfinite(df[pct_col].to_numpy(dtype=float)).all():
+        raise ValueError(f"Column '{pct_col}' contains non-finite values.")
     out_of_range = df[(df[pct_col] < 0) | (df[pct_col] > 100)]
     if not out_of_range.empty:
         bad_vals = out_of_range[pct_col].tolist()
@@ -93,6 +98,36 @@ def _validate_dissolution_df(
             "percent_released": df[pct_col].astype(float),
         }
     )
+
+
+def validate_dissolution_dataframe(
+    df: pd.DataFrame,
+    config: DissolutionCSVConfig | None = None,
+    *,
+    source_name: str = "dataframe",
+) -> pd.DataFrame:
+    """Validate in-memory dissolution data and return standardized columns.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Raw in-memory dissolution data.
+    config : DissolutionCSVConfig | None, optional
+        Column name configuration. Uses defaults if omitted.
+    source_name : str, optional
+        Source label used in validation errors.
+
+    Returns
+    -------
+    pd.DataFrame
+        Validated copy with canonical dissolution column names.
+
+    Raises
+    ------
+    ValueError
+        If required data are missing, non-finite, or outside supported ranges.
+    """
+    return _validate_dissolution_df(df, config or DissolutionCSVConfig(), source_name)
 
 
 def load_dissolution_csv(

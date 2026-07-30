@@ -11,6 +11,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.8.0] -- 2026-07-30
+
+This additive release turns the independently validated dissolution methods
+into one report-first, auditable workflow. It adds no new dissolution formula.
+
+### Added
+
+- Advanced Dissolution Workbench for vessel-level f1/f2, bootstrap f2,
+  five-model AICc ranking, model-dependent comparison, MSD, and maximum
+  deviation.
+- Complete HTML, PDF, and DOCX reports with plots, normalized inputs, exact
+  configuration, warnings, and the required expert-review disclaimer.
+- Reproducibility ZIP containing normalized CSV input, configuration,
+  serialized results, HTML report, and a SHA-256 manifest.
+- Three typed FastAPI endpoints and an editable upload/paste React workbench
+  with report and audit downloads.
+- Core, API, and Playwright regression coverage for calculations, fail-closed
+  inputs, reports, uploads, and bundle integrity.
+
+### Changed
+
+- In-memory dissolution validation rejects non-finite time and release values.
+- The API inventory increases from 29 to 32 endpoints.
+
+---
+
 ## [2.7.1] -- 2026-07-28
 
 This reliability release adds deployment provenance and closes the remaining

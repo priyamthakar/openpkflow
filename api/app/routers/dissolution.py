@@ -17,13 +17,18 @@ from app.schemas.dissolution import (
     FormulationsResponse,
     MultiMediaRequest,
     MultiMediaResponse,
+    WorkbenchRequest,
+    WorkbenchResponse,
 )
 from app.services.dissolution_service import (
     get_formulations,
     run_compare,
     run_multi_media,
+    run_workbench,
     write_dissolution_report,
     write_multi_media_report,
+    write_workbench_audit_bundle,
+    write_workbench_report,
 )
 
 router = APIRouter(prefix="/api/dissolution", tags=["dissolution"])
@@ -115,5 +120,45 @@ def multi_media_report(
         path=str(tmp_out),
         media_type=_MM_MIME.get(format, "text/html"),
         filename=f"multi_media_report{ext}",
+        background=BackgroundTask(tmp_out.unlink, missing_ok=True),
+    )
+
+
+@router.post("/workbench/analyze", response_model=WorkbenchResponse)
+def workbench_analyze(req: WorkbenchRequest) -> WorkbenchResponse:
+    """Run the auditable Advanced Dissolution Workbench."""
+    return WorkbenchResponse(**run_workbench(req))
+
+
+@router.post("/workbench/report")
+def workbench_report(
+    req: WorkbenchRequest,
+    format: Literal["html", "pdf", "docx"] = Query(default="html"),
+) -> FileResponse:
+    """Stream a complete workbench report."""
+    from starlette.background import BackgroundTask
+
+    ext = f".{format}"
+    tmp_out = Path(tempfile.mktemp(suffix=ext))
+    write_workbench_report(req, tmp_out, fmt=format)
+    return FileResponse(
+        path=str(tmp_out),
+        media_type=_MM_MIME[format],
+        filename=f"dissolution_workbench_report{ext}",
+        background=BackgroundTask(tmp_out.unlink, missing_ok=True),
+    )
+
+
+@router.post("/workbench/audit-bundle")
+def workbench_audit_bundle(req: WorkbenchRequest) -> FileResponse:
+    """Stream the reproducibility ZIP and SHA-256 manifest."""
+    from starlette.background import BackgroundTask
+
+    tmp_out = Path(tempfile.mktemp(suffix=".zip"))
+    write_workbench_audit_bundle(req, tmp_out)
+    return FileResponse(
+        path=str(tmp_out),
+        media_type="application/zip",
+        filename="dissolution_workbench_audit.zip",
         background=BackgroundTask(tmp_out.unlink, missing_ok=True),
     )

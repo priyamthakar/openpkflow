@@ -18,7 +18,7 @@ All calculations run in the FastAPI backend — the frontend only renders result
 | Home | `/` | Module overview cards |
 | NCA | `/nca` | CSV upload, column mapping, AUC/Cmax/Tmax/t½ metrics, per-subject chart, report download |
 | Sparse NCA | `/nca/sparse` | Model-informed oral fit, published example, diagnostics, observed/fitted chart, HTML/Markdown reports |
-| Dissolution | `/dissolution` | Single- and multi-media comparison, profile charts, regulatory warnings, reports |
+| Dissolution | `/dissolution` | Single/multi-media comparison plus Advanced Workbench with vessel plots, bootstrap f2, five-model ranking, reports, and audit ZIP |
 | Simulation | `/sim` | Interactive parameter sliders, live PK curve (debounced), multi-dose, report download |
 | IVIVC | `/ivivc` | Wagner-Nelson/Loo-Riegelman inputs, example data, predictability results, reports |
 | Bioequivalence | `/be` | Paired TOST analysis plus exact power and sample-size calculator |

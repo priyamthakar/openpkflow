@@ -39,6 +39,7 @@ nav:
   - Positioning: positioning.md
   - Tutorials:
     - Dissolution Similarity: tutorials/dissolution.md
+    - Advanced Dissolution Workbench: tutorials/dissolution-workbench.md
     - NCA: tutorials/nca.md
     - Sparse oral PK fitting: tutorials/sparse-nca.md
     - Formulation-to-report pipeline: tutorials/pipeline.md

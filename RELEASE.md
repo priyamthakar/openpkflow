@@ -21,6 +21,11 @@ analysis placeholders without changing pharmacometric calculations.
 
 See `HANDOFF.md` for full takeover context.
 
+**v2.8.0 is an unreleased candidate.** It adds the Advanced Dissolution
+Workbench without new formulas. Do not call it released until the full local
+matrix, PR CI, tag-on-main check, Trusted Publishing, fresh public install, and
+hosted version/commit convergence all pass.
+
 ## Release principles
 
 - Keep v2.x additive; avoid breaking API changes before v3.0.0.

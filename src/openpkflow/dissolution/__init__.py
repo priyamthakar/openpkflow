@@ -6,6 +6,7 @@ from .loader import (
     get_formulation_means,
     load_dissolution_csv,
     load_dissolution_excel,
+    validate_dissolution_dataframe,
 )
 from .models import (
     DissolutionFitResults,
@@ -23,6 +24,14 @@ from .supac import (
     alcohol_dose_dumping_assessment,
     classify_supac_ir_level,
 )
+from .workbench import (
+    VALIDATED_WORKBENCH_MODELS,
+    DissolutionWorkbenchConfig,
+    DissolutionWorkbenchResult,
+    VesselProfile,
+    run_dissolution_workbench,
+    run_dissolution_workbench_csv,
+)
 
 __all__ = [
     "f1",
@@ -36,6 +45,7 @@ __all__ = [
     "load_dissolution_csv",
     "load_dissolution_excel",
     "get_formulation_means",
+    "validate_dissolution_dataframe",
     "DissolutionStudy",
     "ComparisonResult",
     "fit_dissolution_models",
@@ -49,4 +59,10 @@ __all__ = [
     "AlcoholDoseDumpingResult",
     "classify_supac_ir_level",
     "alcohol_dose_dumping_assessment",
+    "VALIDATED_WORKBENCH_MODELS",
+    "DissolutionWorkbenchConfig",
+    "DissolutionWorkbenchResult",
+    "VesselProfile",
+    "run_dissolution_workbench",
+    "run_dissolution_workbench_csv",
 ]

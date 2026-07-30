@@ -21,10 +21,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `api/` — FastAPI REST adapter. Wraps `openpkflow` public APIs. No pharmacometric math.
   Current routers: nca (including sparse), dissolution (including multi-media), sim,
   ivivc, be (including power/sample size, formal `be/anova`, and `be/rsabe`),
-  bayes (`bayes/map`), supac (classify + alcohol), and pipeline. 29 endpoints total.
+  bayes (`bayes/map`), supac (classify + alcohol), and pipeline. 32 endpoints total.
 - `webapp/` — React + Vite + Tailwind frontend.
-  Current pages: Home, NCA, Sparse NCA, MAP Individual PK, Dissolution (single +
-  multi-media tab), Simulation, IVIVC, Bioequivalence (analysis + power tab),
+  Current pages: Home, NCA, Sparse NCA, MAP Individual PK, Dissolution (single,
+  multi-media, and Advanced Workbench tabs), Simulation, IVIVC, Bioequivalence (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
   frontend auto-deploys from `main`; the live Render service reports v2.7.1 at
@@ -264,18 +264,18 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.7.1** is the latest published release. PR #43 was squash-merged as
-`d24263d`; GitHub Release, TestPyPI, PyPI, fresh public installation, frontend,
-docs, and Render version/commit convergence are verified. Read `HANDOFF.md` for
-the evidence.
+**v2.7.1** is the latest published release. **v2.8.0 is the active release
+candidate** on `release/v2.8.0`. The Advanced Dissolution Workbench core,
+reports/audit bundle, three FastAPI endpoints, typed React tab, and focused
+core/API/Playwright tests are implemented. Read `HANDOFF.md` for the exact
+validation and publication gates.
 
 **Immediate next work (in order):**
-1. Merge the v2.7.1 publication-state documentation sync and fast-forward the
-   isolated `release/v2.8.0` worktree.
-2. Implement v2.8.0, the Advanced Dissolution Workbench described in
-   `ROADMAP.md` and `FUTURE_PLANS.md`; expose existing validated dissolution
-   methods rather than adding unvalidated algorithms.
-3. Await maintainer review on conda-forge PR #33461 and keep
+1. Commit the locally validated v2.8.0 candidate and require green PR CI.
+2. Publish v2.8.0 only through tag-on-main, Trusted Publishing,
+   fresh public installation, and hosted version/commit convergence.
+3. Re-check the React Router advisory without a forced downgrade.
+4. Await maintainer review on conda-forge PR #33461 and keep
    `pop/estimation/` frozen.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
@@ -296,7 +296,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
 2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
 2.7.1          deployment provenance, convergence gate, UI regressions         RELEASED
-2.8.0          Advanced Dissolution Workbench                                  PLANNED
+2.8.0          Advanced Dissolution Workbench                                  CANDIDATE
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 

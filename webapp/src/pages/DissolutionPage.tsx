@@ -13,6 +13,7 @@ import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
 import { EmptyResults } from '@/components/shared/EmptyResults'
+import { DissolutionWorkbench } from '@/components/dissolution/DissolutionWorkbench'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
@@ -122,7 +123,7 @@ function downloadDissolutionTemplate() {
 
 export default function DissolutionPage() {
   const { onMenuClick } = useOutletContext<{ onMenuClick: () => void }>()
-  const [pageTab, setPageTab] = useState<'single' | 'multi'>('single')
+  const [pageTab, setPageTab] = useState<'single' | 'multi' | 'workbench'>('single')
   const [file, setFile] = useState<File | null>(null)
   const [inputMode, setInputMode] = useState<'upload' | 'paste'>('upload')
   const [gridRows, setGridRows] = useState<PasteDataRow[]>(EXAMPLE_DISSOLUTION_ROWS)
@@ -256,8 +257,8 @@ export default function DissolutionPage() {
   return (
     <div className="flex flex-col h-full">
       <TopBar
-        title="Dissolution Similarity"
-        subtitle="Upload or paste dissolution data for f1/f2 comparison"
+        title="Dissolution"
+        subtitle="Similarity, multi-media, and auditable advanced analysis"
         onMenuClick={onMenuClick}
       />
 
@@ -268,6 +269,7 @@ export default function DissolutionPage() {
           options={[
             { value: 'single', label: 'Single medium' },
             { value: 'multi', label: 'Multi-media' },
+            { value: 'workbench', label: 'Advanced workbench' },
           ]}
         />
       </div>
@@ -528,6 +530,8 @@ export default function DissolutionPage() {
             )}
           </div>
         </AnalysisShell>
+      ) : pageTab === 'workbench' ? (
+        <DissolutionWorkbench />
       ) : (
       <AnalysisShell leftWide={inputMode === 'paste'} resultKey={Boolean(result)}>
         {/* Left panel */}
