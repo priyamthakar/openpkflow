@@ -23,6 +23,11 @@ Dissolution similarity analysis: f1/f2, bootstrap, model fitting, CSV loading, s
 | `load_dissolution_csv(path, config)` | function | CSV loader with validation |
 | `DissolutionCSVConfig` | dataclass | CSV column config |
 | `get_formulation_means(df, label)` | function | Extract mean profile for a formulation |
+| `validate_dissolution_dataframe(df, config)` | function | Validate and normalize in-memory vessel data |
+| `DissolutionWorkbenchConfig` | dataclass | Exact workbench configuration |
+| `DissolutionWorkbenchResult` | dataclass | Complete result with `.report()` and `.audit_bundle()` |
+| `run_dissolution_workbench(data, config)` | function | Run the complete vessel-level workflow |
+| `run_dissolution_workbench_csv(path, config)` | function | Run the complete workflow from CSV |
 
 ## Models available in `fit_dissolution_models`
 
@@ -36,3 +41,7 @@ Ranked by AICc (small-sample-corrected). Pass `models=["weibull", "first_order"]
 `.report("out.md")` — Markdown
 `.report("out.pdf")` — PDF (requires `openpkflow[reports]`)
 `.report("out.docx")` — Word (requires `openpkflow[reports]`)
+
+Workbench reports support HTML, PDF, and DOCX. The workbench audit ZIP contains
+normalized input, exact configuration, serialized results, HTML report, and a
+SHA-256 manifest.

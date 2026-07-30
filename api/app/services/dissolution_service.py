@@ -9,10 +9,15 @@ from typing import Any
 
 import pandas as pd
 
-from app.schemas.dissolution import DissolutionColumns, MultiMediaRequest
+from app.schemas.dissolution import DissolutionColumns, MultiMediaRequest, WorkbenchRequest
 from openpkflow.dissolution.loader import DissolutionCSVConfig
 from openpkflow.dissolution.multi_media import MultiMediaStudy
 from openpkflow.dissolution.study import DissolutionStudy
+from openpkflow.dissolution.workbench import (
+    DissolutionWorkbenchConfig,
+    DissolutionWorkbenchResult,
+    run_dissolution_workbench,
+)
 
 _DISCLAIMER = (
     "This report was generated using OpenPKFlow (open-source). Final regulatory "
@@ -135,3 +140,32 @@ def write_multi_media_report(req: MultiMediaRequest, out_path: Path, fmt: str) -
             warnings.simplefilter("always")
             result = study.run()
         result.report(out_path, format=fmt)  # type: ignore[arg-type]
+
+
+def _workbench_result(req: WorkbenchRequest) -> DissolutionWorkbenchResult:
+    config = DissolutionWorkbenchConfig(**req.config.model_dump())
+    data = pd.DataFrame([row.model_dump() for row in req.rows])
+    try:
+        return run_dissolution_workbench(data, config)
+    except RuntimeError as exc:
+        raise ValueError(str(exc)) from exc
+
+
+def run_workbench(req: WorkbenchRequest) -> dict[str, Any]:
+    return _workbench_result(req).to_dict()
+
+
+def write_workbench_report(
+    req: WorkbenchRequest,
+    out_path: Path,
+    fmt: str,
+) -> None:
+    result = _workbench_result(req)
+    result.report(out_path, format=fmt)  # type: ignore[arg-type]
+
+
+def write_workbench_audit_bundle(
+    req: WorkbenchRequest,
+    out_path: Path,
+) -> None:
+    _workbench_result(req).audit_bundle(out_path)

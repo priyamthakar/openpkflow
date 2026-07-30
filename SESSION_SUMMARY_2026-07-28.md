@@ -55,5 +55,11 @@ matrix passed.
 
 ## Resume
 
-Read `HANDOFF.md`, merge the publication-state documentation sync, fast-forward
-the v2.8.0 worktree, and begin the Advanced Dissolution Workbench.
+The v2.7.1 publication-state documentation sync was merged as `e49e3f9`.
+The v2.8.0 Advanced Dissolution Workbench candidate is now implemented in the
+isolated `release/v2.8.0` worktree. It includes core orchestration, complete
+reports, audit ZIP, three API endpoints, an editable React workflow, focused
+core/API/browser tests, and synchronized documentation.
+
+Read `HANDOFF.md` and resume with the final settled-tree validation matrix,
+then PR/CI and publication gates.

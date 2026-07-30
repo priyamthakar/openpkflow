@@ -8,9 +8,9 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-28 (v2.7.1 published; deployment provenance,
-production convergence automation, focused browser regressions, and shared
-result placeholders shipped; Render reports v2.7.1 at `d24263d`)
+**Last updated:** 2026-07-30 (v2.7.1 published and hosted at `d24263d`; the
+unreleased v2.8.0 Advanced Dissolution Workbench candidate is implemented and
+locally release-validated)
 
 ---
 
@@ -216,10 +216,12 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
 9. ~~Wire `EmptyResults` into the remaining analysis pages~~ -- done in the
    v2.7.1 release.
 10. Richer grid controls only if users request them (row delete, resize, drag fill).
-11. **v2.8.0 Advanced Dissolution Workbench** -- expose bootstrap f2, model
-    ranking, model-dependent comparison, MSD/max-deviation alternatives,
-    vessel-level visualization, reports, and a reproducibility audit ZIP using
-    validated core methods. See `ROADMAP.md` for the definition of done.
+11. **v2.8.0 Advanced Dissolution Workbench** -- implemented as a third
+    Dissolution tab with canonical CSV upload, editable vessel rows, bootstrap
+    f2, five-model AICc ranking, model-dependent comparison, MSD/max-deviation,
+    vessel/mean visualization, reports, and a reproducibility audit ZIP.
+    Full local package/API/browser/docs/distribution gates pass; PR/CI,
+    publication, public-install, and hosted-convergence gates remain open.
 
 ---
 

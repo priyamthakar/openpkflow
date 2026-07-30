@@ -34,7 +34,9 @@ It makes routine analysis faster, cleaner, and more reproducible.
 
 Current release and takeover status are maintained in the repository-root
 `HANDOFF.md`. The latest public release is v2.7.1; public installation and
-hosted version/commit convergence were verified on 2026-07-28.
+hosted version/commit convergence were verified on 2026-07-28. The v2.8.0
+Advanced Dissolution Workbench is an unreleased candidate under full
+validation.
 
 ## What it is and is not
 

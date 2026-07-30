@@ -91,6 +91,32 @@ result.report("dissolution_report.pdf", format="pdf")   # requires [reports]
 
 CSV format: `formulation,batch,time,percent_released`
 
+### Advanced dissolution workbench
+
+```python
+from openpkflow.dissolution import (
+    DissolutionWorkbenchConfig,
+    run_dissolution_workbench_csv,
+)
+
+config = DissolutionWorkbenchConfig(
+    reference_label="reference",
+    test_label="test",
+    bootstrap_replicates=5000,
+    seed=2026,
+)
+workbench = run_dissolution_workbench_csv("vessel_profiles.csv", config)
+print(workbench.comparison.summary())
+print(workbench.reference_models.summary())
+workbench.report("dissolution_workbench.html")
+workbench.audit_bundle("dissolution_workbench_audit.zip")
+```
+
+The workbench requires at least two vessels per formulation and three identical
+time points in every vessel. It never interpolates or silently reindexes f1/f2
+inputs. See the
+[workbench tutorial](https://priyamthakar.github.io/openpkflow/tutorials/dissolution-workbench/).
+
 ### CLI
 
 ```bash
@@ -409,7 +435,7 @@ Dissolution Workbench described in [FUTURE_PLANS.md](FUTURE_PLANS.md).
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable; 12 pages / 29 endpoints. Frontend, docs, and Render are verified on v2.7.1; health provenance identifies deployed commit `d24263d`. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
+| Web app (`api/` + `webapp/`) | Stable through v2.7.1; the v2.8.0 candidate adds an Advanced Dissolution Workbench tab and raises the API inventory to 32 endpoints. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

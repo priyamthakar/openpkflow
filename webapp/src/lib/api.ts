@@ -18,6 +18,8 @@ import type {
   IvIvcResponse,
   MultiMediaRequest,
   MultiMediaResponse,
+  WorkbenchRequest,
+  WorkbenchResponse,
   NcaResponse,
   PipelineFiles,
   PipelineOptions,
@@ -380,6 +382,45 @@ export async function downloadMultiMediaReport(req: MultiMediaRequest, format: s
   await assertReportOk(res)
   const blob = await reportBlobForDownload(res, format)
   _triggerDownload(blob, `multi_media_report.${format}`)
+}
+
+export async function analyzeDissolutionWorkbench(
+  req: WorkbenchRequest,
+): Promise<WorkbenchResponse> {
+  return _json(
+    await fetch(`${BASE}/api/dissolution/workbench/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }),
+  )
+}
+
+export async function downloadDissolutionWorkbenchReport(
+  req: WorkbenchRequest,
+  format: string,
+): Promise<void> {
+  const params = new URLSearchParams({ format })
+  const res = await fetch(`${BASE}/api/dissolution/workbench/report?${params}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  await assertReportOk(res)
+  const blob = await reportBlobForDownload(res, format)
+  _triggerDownload(blob, `dissolution_workbench_report.${format}`)
+}
+
+export async function downloadDissolutionWorkbenchAudit(
+  req: WorkbenchRequest,
+): Promise<void> {
+  const res = await fetch(`${BASE}/api/dissolution/workbench/audit-bundle`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  await assertReportOk(res)
+  _triggerDownload(await res.blob(), 'dissolution_workbench_audit.zip')
 }
 
 // ---------- Study pipeline ----------

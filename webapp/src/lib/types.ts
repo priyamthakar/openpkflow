@@ -234,6 +234,122 @@ export interface MultiMediaResponse {
   disclaimer: string
 }
 
+export type WorkbenchModel =
+  | 'zero_order'
+  | 'first_order'
+  | 'higuchi'
+  | 'korsmeyer_peppas'
+  | 'weibull'
+
+export interface WorkbenchConfig {
+  reference_label: string
+  test_label: string
+  f2_method: 'regulatory' | 'all_points'
+  bootstrap_replicates: number
+  confidence_level: number
+  seed: number | null
+  model_comparison_model: WorkbenchModel
+  model_comparison_param_index: number
+}
+
+export interface WorkbenchRequest {
+  rows: DissolutionRowPayload[]
+  config: WorkbenchConfig
+}
+
+export interface WorkbenchVesselProfile {
+  formulation: string
+  vessel_id: string
+  time_points: number[]
+  percent_released: number[]
+}
+
+export interface WorkbenchModelFit {
+  model_name: WorkbenchModel
+  params: Record<string, number>
+  r_squared: number | null
+  aic: number | null
+  aicc: number | null
+  bic: number | null
+  n_points: number
+  n_params: number
+  converged: boolean
+  fitted_values: number[]
+  time_points: number[]
+}
+
+export interface WorkbenchFormulationModels {
+  formulation_label: string
+  time_points: number[]
+  observed_mean: number[]
+  best_model: WorkbenchModel
+  fits: WorkbenchModelFit[]
+}
+
+export interface WorkbenchResponse {
+  metadata: {
+    openpkflow_version: string
+    generated_at_utc: string
+    workflow: string
+  }
+  config: WorkbenchConfig
+  normalized_rows: DissolutionRowPayload[]
+  vessel_profiles: {
+    reference: WorkbenchVesselProfile[]
+    test: WorkbenchVesselProfile[]
+  }
+  similarity: {
+    reference_label: string
+    test_label: string
+    f1_value: number
+    f2_value: number
+    n_timepoints: number
+    reference_mean: number[]
+    test_mean: number[]
+    time_points: number[]
+    f2_method: 'regulatory' | 'all_points'
+    similar: boolean
+    warnings: string[]
+  }
+  bootstrap_f2: {
+    f2_observed: number
+    ci_lower: number
+    ci_upper: number
+    confidence_level: number
+    n_replicates: number
+    n_timepoints: number
+    n_reference_vessels: number
+    n_test_vessels: number
+    is_similar: boolean
+    method: 'all_points'
+  }
+  model_fits: {
+    reference: WorkbenchFormulationModels
+    test: WorkbenchFormulationModels
+  }
+  model_comparison: {
+    model_name: WorkbenchModel
+    param_name: string
+    ref_value: number
+    test_value: number
+    se_diff: number
+    ratio_pct: number
+    ci_lo: number
+    ci_hi: number
+    is_similar: boolean
+  }
+  alternatives: {
+    maximum_deviation: number
+    msd: number
+    msd_squared: number
+    chi2_05_critical: number
+    n_timepoints: number
+    msd_is_similar: boolean
+  }
+  warnings: string[]
+  disclaimer: string
+}
+
 export interface PipelineOptions {
   title: string
   dissolution_reference: string | null
