@@ -403,10 +403,10 @@ pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
 [HANDOFF.md](HANDOFF.md), and
 [SESSION_SUMMARY_2026-07-28.md](SESSION_SUMMARY_2026-07-28.md) for current state.
 
-v2.7.1 is the current published release. It adds deployment provenance,
-production convergence checks, and focused web regressions without changing
-pharmacometric calculations. The next feature milestone is v2.8.0, the Advanced
-Dissolution Workbench described in [FUTURE_PLANS.md](FUTURE_PLANS.md).
+v2.8.0 is the current published release. It adds the Advanced Dissolution
+Workbench across the core package, API, web app, reports, and reproducibility
+bundle without adding new pharmacometric formulas. See
+[FUTURE_PLANS.md](FUTURE_PLANS.md) for demand-gated follow-up ideas.
 
 ---
 
@@ -435,7 +435,7 @@ Dissolution Workbench described in [FUTURE_PLANS.md](FUTURE_PLANS.md).
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable through v2.7.1; the v2.8.0 candidate adds an Advanced Dissolution Workbench tab and raises the API inventory to 32 endpoints. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
+| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live demo](https://openpkflow.priyamthakar1.workers.dev) |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

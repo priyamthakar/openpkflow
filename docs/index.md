@@ -33,10 +33,9 @@ It does not replace expert regulatory judgement or validated commercial platform
 It makes routine analysis faster, cleaner, and more reproducible.
 
 Current release and takeover status are maintained in the repository-root
-`HANDOFF.md`. The latest public release is v2.7.1; public installation and
-hosted version/commit convergence were verified on 2026-07-28. The v2.8.0
-Advanced Dissolution Workbench is an unreleased candidate under full
-validation.
+`HANDOFF.md`. The latest public release is v2.8.0, published on 2026-07-30.
+Public installation and hosted version/commit convergence are verified. The
+release includes the Advanced Dissolution Workbench.
 
 ## What it is and is not
 

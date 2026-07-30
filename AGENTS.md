@@ -30,8 +30,8 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service reports v2.7.1 at
-  release commit `d24263d`. See `HANDOFF.md` "Deployment" for the verified
+  frontend auto-deploys from `main`; the live Render service reports v2.8.0 at
+  release commit `0633834`. See `HANDOFF.md` "Deployment" for the verified
   state, smoke evidence, and URLs.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
@@ -263,18 +263,15 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.7.1** is the latest published release. **v2.8.0 is the active release
-candidate** on `release/v2.8.0`. The Advanced Dissolution Workbench core,
-reports/audit bundle, three FastAPI endpoints, typed React tab, and focused
-core/API/Playwright tests are implemented. Read `HANDOFF.md` for the exact
-validation and publication gates.
+**v2.8.0** is the latest published release. The Advanced Dissolution Workbench,
+three FastAPI endpoints, typed React tab, reports, and audit bundle are live.
+PR #45, the full CI matrix, Trusted Publishing, a fresh public install, and
+hosted version/commit convergence are verified.
 
 **Immediate next work (in order):**
-1. Commit the locally validated v2.8.0 candidate and require green PR CI.
-2. Publish v2.8.0 only through tag-on-main, Trusted Publishing,
-   fresh public installation, and hosted version/commit convergence.
-3. Re-check the React Router advisory without a forced downgrade.
-4. Await maintainer review on conda-forge PR #33461 and keep
+1. Keep v2.8.0 stable and collect real Advanced Workbench feedback.
+2. Re-check the React Router advisory when an applicable patched release exists.
+3. Await maintainer review on conda-forge PR #33461 and keep
    `pop/estimation/` frozen.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
@@ -295,7 +292,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.6.0          study pipeline, SUPAC/alcohol, IVIVC B/C, transit, web polish    RELEASED
 2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
 2.7.1          deployment provenance, convergence gate, UI regressions         RELEASED
-2.8.0          Advanced Dissolution Workbench                                  CANDIDATE
+2.8.0          Advanced Dissolution Workbench                                  RELEASED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 

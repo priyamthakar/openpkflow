@@ -61,5 +61,12 @@ isolated `release/v2.8.0` worktree. It includes core orchestration, complete
 reports, audit ZIP, three API endpoints, an editable React workflow, focused
 core/API/browser tests, and synchronized documentation.
 
-Read `HANDOFF.md` and resume with the final settled-tree validation matrix,
-then PR/CI and publication gates.
+The final settled-tree matrix passed. PR #45 was squash-merged as `0633834`,
+tagged `v2.8.0`, and published through Trusted Publishing run 30509130768.
+A fresh no-cache public installation, CLI/workbench smoke, Cloudflare frontend,
+GitHub Pages docs, and Render version/commit convergence all passed. Render
+reports v2.8.0 at `0633834` with 32 OpenAPI paths.
+
+The post-release documentation sync is on `docs/v2.8.0-release`. The next
+objective is stability and real workbench feedback; richer grid controls and
+new feature scope remain demand- and evidence-gated.

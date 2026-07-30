@@ -8,9 +8,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-30 (v2.7.1 published and hosted at `d24263d`; the
-unreleased v2.8.0 Advanced Dissolution Workbench candidate is implemented and
-locally release-validated)
+**Last updated:** 2026-07-30 (v2.8.0 published and hosted at `0633834`; the
+Advanced Dissolution Workbench is live)
 
 ---
 
@@ -220,8 +219,10 @@ Priority order for the next agent (also listed in `HANDOFF.md`):
     Dissolution tab with canonical CSV upload, editable vessel rows, bootstrap
     f2, five-model AICc ranking, model-dependent comparison, MSD/max-deviation,
     vessel/mean visualization, reports, and a reproducibility audit ZIP.
-    Full local package/API/browser/docs/distribution gates pass; PR/CI,
-    publication, public-install, and hosted-convergence gates remain open.
+    Full package/API/browser/docs/distribution gates, PR/CI, publication,
+    public install, and hosted convergence are verified.
+12. Richer grid controls remain demand-gated; collect real workbench feedback
+    before selecting another web milestone.
 
 ---
 
