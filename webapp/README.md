@@ -46,5 +46,6 @@ to the FastAPI adapter and `src/openpkflow/`.
 
 Production uses `VITE_API_URL=https://openpkflow.onrender.com`. The Cloudflare
 frontend, documentation, and Render backend were verified after v2.8.0
-publication. Render reports version 2.8.0 and deployed commit `0633834`; see the
-evidence in the root `HANDOFF.md`.
+publication. Render reports version 2.8.0 from `main`; its `/health` payload is
+the source of truth for the current deployed commit. See the evidence in the
+root `HANDOFF.md`.

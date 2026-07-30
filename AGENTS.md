@@ -30,9 +30,10 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service reports v2.8.0 at
-  release commit `0633834`. See `HANDOFF.md` "Deployment" for the verified
-  state, smoke evidence, and URLs.
+  frontend auto-deploys from `main`; the live Render service reports v2.8.0
+  from `main`. Its `/health` endpoint is the source of truth for the deployed
+  commit because documentation-only merges also redeploy the service. See
+  `HANDOFF.md` "Deployment" for the verified state, smoke evidence, and URLs.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
 

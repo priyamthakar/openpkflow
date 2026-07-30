@@ -76,9 +76,10 @@ The API adapter does not interpolate, reindex, or implement formulas.
 ## Deployment status
 
 The production service is <https://openpkflow.onrender.com>. On 2026-07-30,
-`/health` and `/openapi.json` reported engine version 2.8.0, and health
-provenance identified `main` commit `0633834`. The scheduled/manual convergence
-check requires both versions plus the expected commit.
+`/health` and `/openapi.json` reported engine version 2.8.0 from `main`.
+Documentation-only merges also redeploy Render, so `/health.git_sha` is the
+source of truth for the current deployed commit. The scheduled/manual
+convergence check requires both versions plus the expected commit.
 
 ## Tests
 

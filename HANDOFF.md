@@ -76,9 +76,10 @@ Publication and hosted validation:
 - fresh no-cache public PyPI install reports `openpkflow 2.8.0`
 - public CLI smoke: f1 `2.000`, f2 `92.47`; workbench import passed
 - Cloudflare frontend and GitHub Pages docs: HTTP 200
-- Render `/health` and `/openapi.json`: v2.8.0, branch `main`, commit
-  `06338340be90b5a5dec4e70ebe2311f540d3b1b3`, service
-  `srv-d8fb63navr4c73a3gclg`
+- Render `/health` and `/openapi.json`: v2.8.0, branch `main`, service
+  `srv-d8fb63navr4c73a3gclg`. The release first converged at `0633834`;
+  documentation-only merges also redeploy Render, so `/health.git_sha` is the
+  source of truth for the current deployed `main` commit.
 - production OpenAPI inventory: **32 paths**
 
 Dependency re-check on 2026-07-30:
@@ -95,7 +96,7 @@ Dependency re-check on 2026-07-30:
 | Piece | URL | Verified public state |
 | --- | --- | --- |
 | Frontend | https://openpkflow.priyamthakar1.workers.dev | v2.8.0 surface, HTTP 200 |
-| Backend | https://openpkflow.onrender.com | v2.8.0 at `0633834`, 32 paths |
+| Backend | https://openpkflow.onrender.com | v2.8.0 from `main`, 32 paths |
 | Docs | https://priyamthakar.github.io/openpkflow/ | v2.8.0 docs, HTTP 200 |
 | PyPI | https://pypi.org/project/openpkflow/2.8.0/ | public install verified |
 

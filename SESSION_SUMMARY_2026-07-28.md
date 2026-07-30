@@ -70,3 +70,8 @@ reports v2.8.0 at `0633834` with 32 OpenAPI paths.
 The post-release documentation sync is on `docs/v2.8.0-release`. The next
 objective is stability and real workbench feedback; richer grid controls and
 new feature scope remain demand- and evidence-gated.
+
+After that documentation sync merged as `3923aff`, Render automatically
+redeployed the docs-only commit while retaining engine version 2.8.0 and all 32
+OpenAPI paths. Living docs therefore treat `/health.git_sha`, rather than a
+hardcoded deployment SHA, as the source of truth for current hosted provenance.

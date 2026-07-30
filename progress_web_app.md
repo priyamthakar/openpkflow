@@ -8,7 +8,7 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-30 (v2.8.0 published and hosted at `0633834`; the
+**Last updated:** 2026-07-30 (v2.8.0 is published and hosted from `main`; the
 Advanced Dissolution Workbench is live)
 
 ---
