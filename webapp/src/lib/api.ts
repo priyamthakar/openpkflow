@@ -157,8 +157,28 @@ function makeHtmlReportMobileFriendly(html: string): string {
 }
 
 // ---------- Health ----------
+/**
+ * Liveness probe used by the TopBar badge.
+ *
+ * Render free-tier cold starts often take 30-60s and may return transient 502/503
+ * or drop the TCP connection. Callers should retry with backoff; this function
+ * surfaces a clear error message for offline UI.
+ */
 export async function fetchHealth(): Promise<HealthResponse> {
-  return _json(await fetch(`${BASE}/health`))
+  let res: Response
+  try {
+    res = await fetch(`${BASE}/health`, {
+      // Avoid stale CDN/proxy caches of a previous offline response.
+      cache: 'no-store',
+    })
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : 'network error'
+    throw new Error(
+      `Engine unreachable (${reason}). The API may be cold-starting; retry in a few seconds.`,
+      { cause: err },
+    )
+  }
+  return _json(res)
 }
 
 // ---------- NCA ----------

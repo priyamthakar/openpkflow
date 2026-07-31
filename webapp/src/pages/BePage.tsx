@@ -7,11 +7,11 @@ import { TopBar } from '@/components/layout/TopBar'
 import { FileDropzone } from '@/components/shared/FileDropzone'
 import { ColumnMapper } from '@/components/shared/ColumnMapper'
 import { MetricCard } from '@/components/shared/MetricCard'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
-import { EmptyResults } from '@/components/shared/EmptyResults'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
@@ -353,6 +353,28 @@ export default function BePage() {
                 />
               )}
 
+            {powerMode === 'power' &&
+              !powerResult &&
+              !powerMutation.isPending &&
+              !powerMutation.isError && (
+                <EmptyResults
+                  icon={Scale}
+                  title="No power result yet"
+                  description="Set GMR, CV, and sample size, then compute TOST power for a 2x2 crossover."
+                />
+              )}
+
+            {powerMode === 'sample_size' &&
+              !sampleSizeResult &&
+              !sampleSizeMutation.isPending &&
+              !sampleSizeMutation.isError && (
+                <EmptyResults
+                  icon={Scale}
+                  title="No sample-size result yet"
+                  description="Set GMR, CV, and target power, then compute the required even n for a 2x2 crossover."
+                />
+              )}
+
             {powerMode === 'power' && powerResult && !powerMutation.isPending && (
               <>
                 <div className="flex gap-3 flex-wrap">
@@ -572,6 +594,14 @@ export default function BePage() {
               </div>
               <Skeleton className="h-48 w-full rounded-sm" />
             </div>
+          )}
+
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Scale}
+              title="No BE result yet"
+              description="Upload or paste paired T/R data, choose the parameter, then run the TOST analysis."
+            />
           )}
 
           {result && !mutation.isPending && (

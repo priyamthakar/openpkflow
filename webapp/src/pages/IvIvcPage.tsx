@@ -5,11 +5,11 @@ import { Activity } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PKChart } from '@/components/shared/PKChart'
 import { MetricCard } from '@/components/shared/MetricCard'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
-import { EmptyResults } from '@/components/shared/EmptyResults'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -352,6 +352,14 @@ export default function IvIvcPage() {
               icon={Activity}
               title="IVIVC results appear here"
               description="Enter aligned in vivo and in vitro profiles, choose the deconvolution method, then run IVIVC."
+            />
+          )}
+
+          {!result && !mutation.isPending && !mutation.isError && (
+            <EmptyResults
+              icon={Activity}
+              title="No IVIVC result yet"
+              description="Paste in vivo PK, dissolution, and IV UIR profiles (or load the example), then run Level A IVIVC."
             />
           )}
 

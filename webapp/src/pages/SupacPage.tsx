@@ -203,8 +203,8 @@ function SupacClassify() {
         {!result && !mutation.isPending && !mutation.isError && (
           <EmptyResults
             icon={ShieldCheck}
-            title="SUPAC screening results appear here"
-            description="Enter the component category and quantitative change, then run the screening."
+            title="No SUPAC screen yet"
+            description="Enter the component change, then run the SUPAC-IR level screening."
           />
         )}
 
@@ -393,8 +393,8 @@ function AlcoholScreening() {
         {!result && !mutation.isPending && !mutation.isError && (
           <EmptyResults
             icon={ShieldCheck}
-            title="Alcohol screening results appear here"
-            description="Enter the control and ethanol dissolution profiles, then run the regulatory f2 screen."
+            title="No alcohol screen yet"
+            description="Enter control and ethanol dissolution profiles, then assess dose dumping."
           />
         )}
 

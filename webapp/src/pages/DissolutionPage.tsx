@@ -8,11 +8,11 @@ import { FileDropzone } from '@/components/shared/FileDropzone'
 import { ColumnMapper } from '@/components/shared/ColumnMapper'
 import { PKChart } from '@/components/shared/PKChart'
 import { MetricCard } from '@/components/shared/MetricCard'
+import { EmptyResults } from '@/components/shared/EmptyResults'
 import { ErrorBanner } from '@/components/shared/ErrorBanner'
 import { Disclaimer } from '@/components/shared/Disclaimer'
 import { DownloadReportButton } from '@/components/shared/DownloadReportButton'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
-import { EmptyResults } from '@/components/shared/EmptyResults'
 import { DissolutionWorkbench } from '@/components/dissolution/DissolutionWorkbench'
 import { PasteDataGrid, type PasteDataColumn, type PasteDataRow } from '@/components/shared/PasteDataGrid'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
@@ -434,6 +434,14 @@ export default function DissolutionPage() {
               />
             )}
 
+            {!mmResult && !multiMediaMutation.isPending && !multiMediaMutation.isError && (
+              <EmptyResults
+                icon={Waves}
+                title="No multi-media result yet"
+                description="Add at least two media profiles, then run multi-media f2 comparison across pH conditions."
+              />
+            )}
+
             {mmResult && !multiMediaMutation.isPending && (
               <>
                 <div className="flex items-center gap-4 flex-wrap">
@@ -666,6 +674,14 @@ export default function DissolutionPage() {
               icon={Waves}
               title="Dissolution comparison results appear here"
               description="Provide matched vessel-level profiles, choose reference and test formulations, then compare."
+            />
+          )}
+
+          {!result && !compareMutation.isPending && !compareMutation.isError && (
+            <EmptyResults
+              icon={Waves}
+              title="No comparison yet"
+              description="Upload or paste dissolution data, choose reference and test formulations, then run the f1/f2 comparison."
             />
           )}
 

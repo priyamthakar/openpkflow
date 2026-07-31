@@ -113,6 +113,11 @@ another feature milestone:
 3. await maintainer review on conda-forge staged-recipes PR
    [#33461](https://github.com/conda-forge/staged-recipes/pull/33461);
 
+**Ops polish (branch `fix/webapp-health-empty-results`):** TopBar health badge now
+retries through Render free-tier cold starts, auto-polls while offline, and offers
+a click-to-retry control so the Workers UI does not stick on "engine offline".
+Playwright covers health recovery plus chart/sidebar/mobile polish.
+
 Richer grid controls (row deletion, resize, drag fill) remain demand-gated.
 Do not extend the frozen `pop/estimation/` module.
 
