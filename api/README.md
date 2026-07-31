@@ -81,6 +81,24 @@ Documentation-only merges also redeploy Render, so `/health.git_sha` is the
 source of truth for the current deployed commit. The scheduled/manual
 convergence check requires both versions plus the expected commit.
 
+### Free-tier sleep and keep-warm
+
+Render free web services sleep after roughly 15 minutes without traffic. When
+asleep, the first request can take tens of seconds or fail until the instance
+wakes.
+
+Repo keep-warm (best-effort, free):
+
+- Workflow: `.github/workflows/keep-warm.yml` (**Keep Render warm**)
+- Schedule: about every 10 minutes (`GET /health`)
+- Manual run: GitHub Actions -> Keep Render warm -> Run workflow
+- Does **not** email on success; silent unless the job fails and GitHub
+  notifications are enabled for failed workflows
+- Not Cloudflare email and not a paid always-on SLA
+
+The Cloudflare Workers SPA hosts only the frontend. API warm-keeping is GitHub
+Actions -> Render, documented in root `HANDOFF.md`.
+
 ## Tests
 
 ```powershell

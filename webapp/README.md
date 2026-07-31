@@ -49,3 +49,22 @@ frontend, documentation, and Render backend were verified after v2.8.0
 publication. Render reports version 2.8.0 from `main`; its `/health` payload is
 the source of truth for the current deployed commit. See the evidence in the
 root `HANDOFF.md`.
+
+### Free-tier backend and the "engine offline" badge
+
+Render free web services sleep after ~15 minutes idle. The TopBar badge calls
+`GET /health` and may briefly show **engine offline** or **waking engine...**
+while the API cold-starts. Current behaviour (PR #49):
+
+- longer retries with backoff for cold starts
+- auto-refetch while offline
+- click the offline badge to force a retry
+
+A separate free GitHub Actions workflow (PR #50, **Keep Render warm**) pings
+`/health` about every 10 minutes so sleep is less common. That workflow is
+**not** Cloudflare and does **not** send Gmail on every ping. Successful runs
+are silent; only failed Actions may email depending on your GitHub notification
+settings.
+
+Local `npm run dev` still needs the API on port 8000; otherwise the badge is
+offline because Vite proxies `/health` to `localhost:8000`.

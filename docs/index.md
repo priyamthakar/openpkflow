@@ -35,7 +35,9 @@ It makes routine analysis faster, cleaner, and more reproducible.
 Current release and takeover status are maintained in the repository-root
 `HANDOFF.md`. The latest public release is v2.8.0, published on 2026-07-30.
 Public installation and hosted version/commit convergence are verified. The
-release includes the Advanced Dissolution Workbench.
+release includes the Advanced Dissolution Workbench. The free Render API may
+sleep when idle; a GitHub Actions keep-warm workflow and frontend health-badge
+retries reduce "engine offline" flashes (silent on success; see `HANDOFF.md`).
 
 ## What it is and is not
 
