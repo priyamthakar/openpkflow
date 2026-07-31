@@ -102,6 +102,11 @@ Dependency re-check on 2026-07-30:
 | Docs | https://priyamthakar.github.io/openpkflow/ | v2.8.0 docs, HTTP 200 |
 | PyPI | https://pypi.org/project/openpkflow/2.8.0/ | public install verified |
 
+**Free keep-warm:** `.github/workflows/keep-warm.yml` pings `/health` about every
+10 minutes so the free Render service is less likely to sleep. Best-effort only
+(not a paid always-on SLA). The frontend health badge still retries on cold starts.
+Manual run: Actions -> "Keep Render warm" -> Run workflow.
+
 ## Single next objective
 
 Keep v2.8.0 stable while collecting real workbench feedback. Before accepting

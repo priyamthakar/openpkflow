@@ -1,0 +1,48 @@
+# Keep the free Render API awake by pinging /health on a short interval.
+#
+# Why: free Render web services sleep after ~15 minutes with no traffic. The
+# Cloudflare frontend then shows "engine offline" until the service wakes.
+# A lightweight health ping about every 10 minutes usually prevents sleep.
+#
+# This is best-effort free keep-warm, not a paid always-on SLA. GitHub cron
+# can drift a few minutes; cold starts can still happen after deploys/outages.
+
+name: Keep Render warm
+
+on:
+  schedule:
+    # Every 10 minutes (Render free tier typically sleeps after ~15 min idle).
+    # GitHub schedule is best-effort and can run late, so stay under 15 min.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-warm-render
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping production /health
+        run: |
+          set -euo pipefail
+          url="https://openpkflow.onrender.com/health"
+          # Allow time for a rare cold start so the ping itself can wake the service.
+          for attempt in 1 2 3 4; do
+            echo "Attempt ${attempt}: GET ${url}"
+            if body="$(curl -fsS --max-time 100 "${url}")"; then
+              echo "${body}"
+              echo "${body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'
+              echo "Health check OK"
+              exit 0
+            fi
+            echo "Attempt ${attempt} failed; retrying..."
+            sleep 15
+          done
+          echo "All health ping attempts failed"
+          exit 1
