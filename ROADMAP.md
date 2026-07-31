@@ -221,10 +221,9 @@ pre-v2.7.0 checkpoint; current hosted state is in `HANDOFF.md`.
 - MAP PK API/page ✅ merged in PR #32 (`486788c`) with SUPAC/alcohol screening UI
 - Formal BE ANOVA API/page ✅ merged in PR #32 (`486788c`)
 - Frontend design system polish + mobile pass ✅ merged in PR #33 (`bb0d16a`)
-- Hosted production services: Cloudflare Workers frontend is current; the Render
-  backend is reachable but still reports engine version 2.6.0 and requires a
-  manual deployment/configuration check before v2.7.0 convergence; URLs and gate
-  are in `HANDOFF.md`
+- Hosted production services: Cloudflare Workers frontend + Render backend are
+  current through v2.8.0; free-tier keep-warm and health-badge recovery are on
+  `main` (PRs #49 / #50). Live URLs and ops are in `HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### v2.7.0 release (published 2026-07-25)
@@ -250,8 +249,8 @@ was resolved in v2.7.1; current hosted state is in `HANDOFF.md`.
   smoke are complete.
 - Conda-forge staged-recipes PR #33461 now targets the verified v2.7.0 sdist;
   refreshed linter, Linux, Windows, and macOS checks pass. Await maintainer review.
-- Production frontend and docs are healthy. Render `/health` still reports 2.6.0;
-  manually redeploy from `main` and verify 2.7.0 before closing the deployment gate.
+- Production frontend and docs were healthy at release time; later v2.7.1/v2.8.0
+  closed the Render version gate. See `HANDOFF.md` for current hosted state.
 - See `HANDOFF.md` for exact published state and bounded next work.
 
 ### v2.7.1 reliability release (published 2026-07-28)
@@ -313,6 +312,12 @@ merge commit `0633834` are verified.
 
 **Excluded:** new dissolution mathematics without independent validation,
 changes to frozen `pop/estimation/`, and any claim of regulatory approval.
+
+### Post-v2.8.0 free-tier ops (2026-07-31)
+
+- Health badge cold-start recovery (PR #49) and free Render keep-warm pings
+  (PR #50, every ~10 minutes) are on `main`. Best-effort free keep-warm only;
+  silent on success (no Gmail spam). Full ops notes: `HANDOFF.md`.
 
 ---
 

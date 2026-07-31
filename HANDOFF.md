@@ -1,6 +1,6 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-30
+**Last updated:** 2026-07-31
 
 ## Current state
 
@@ -102,10 +102,26 @@ Dependency re-check on 2026-07-30:
 | Docs | https://priyamthakar.github.io/openpkflow/ | v2.8.0 docs, HTTP 200 |
 | PyPI | https://pypi.org/project/openpkflow/2.8.0/ | public install verified |
 
-**Free keep-warm:** `.github/workflows/keep-warm.yml` pings `/health` about every
-10 minutes so the free Render service is less likely to sleep. Best-effort only
-(not a paid always-on SLA). The frontend health badge still retries on cold starts.
-Manual run: Actions -> "Keep Render warm" -> Run workflow.
+### Free Render free-tier ops (keep-warm + cold starts)
+
+Render free web services **sleep after ~15 minutes** with no traffic. That is
+normal free-tier behaviour, not a broken deploy.
+
+| Piece | What it does | Notes |
+| --- | --- | --- |
+| GitHub Actions `Keep Render warm` | GET `/health` about every **10 minutes** | Workflow: `.github/workflows/keep-warm.yml`. Merged via [PR #50](https://github.com/priyamthakar/openpkflow/pull/50). |
+| Frontend TopBar health badge | Retries, auto-polls while offline, click-to-retry | Merged via [PR #49](https://github.com/priyamthakar/openpkflow/pull/49). Survives residual cold starts. |
+| Cloudflare Workers frontend | Static SPA only | Does **not** send keep-warm pings and does **not** email Gmail. |
+
+**Does not email you every 10 minutes.** Successful keep-warm runs are silent.
+GitHub may email only if the workflow **fails** and your notification settings
+include failed Actions (repo Settings -> Notifications).
+
+Manual keep-warm: Actions -> **Keep Render warm** -> Run workflow.
+Run history: <https://github.com/priyamthakar/openpkflow/actions/workflows/keep-warm.yml>
+
+This is **best-effort free keep-warm**, not a paid always-on SLA. GitHub cron can
+drift; cold starts can still happen after deploys or rare missed pings.
 
 ## Single next objective
 
@@ -118,10 +134,8 @@ another feature milestone:
 3. await maintainer review on conda-forge staged-recipes PR
    [#33461](https://github.com/conda-forge/staged-recipes/pull/33461);
 
-**Ops polish (branch `fix/webapp-health-empty-results`):** TopBar health badge now
-retries through Render free-tier cold starts, auto-polls while offline, and offers
-a click-to-retry control so the Workers UI does not stick on "engine offline".
-Playwright covers health recovery plus chart/sidebar/mobile polish.
+**Ops polish (done):** health badge cold-start recovery ([PR #49](https://github.com/priyamthakar/openpkflow/pull/49));
+free keep-warm pings on `main` ([PR #50](https://github.com/priyamthakar/openpkflow/pull/50)).
 
 Richer grid controls (row deletion, resize, drag fill) remain demand-gated.
 Do not extend the frozen `pop/estimation/` module.

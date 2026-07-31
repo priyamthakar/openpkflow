@@ -29,8 +29,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
   frontend auto-deploys from `main`; the live Render service reports v2.8.0
   from `main`. Its `/health` endpoint is the source of truth for the deployed
-  commit because documentation-only merges also redeploy the service. See
-  `HANDOFF.md` "Deployment" for the verified state, smoke evidence, and URLs.
+  commit because documentation-only merges also redeploy the service. Free-tier
+  Render can sleep after idle; `.github/workflows/keep-warm.yml` pings `/health`
+  about every 10 minutes (best-effort, no email on success), and the webapp
+  TopBar retries cold starts. See `HANDOFF.md` "Deployment" for URLs and ops.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
@@ -275,6 +277,8 @@ hosted version/commit convergence are verified.
 2. Re-check the React Router advisory when an applicable patched release exists.
 3. Await maintainer review on conda-forge PR #33461 and keep
    `pop/estimation/` frozen.
+4. Keep-warm + health badge cold-start recovery are already on `main`
+   (PRs #49 / #50); treat residual offline flashes as free-tier cold starts.
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 

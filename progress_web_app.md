@@ -8,8 +8,8 @@ the core Python engine validation roadmap (see `HANDOFF.md`, `ROADMAP.md`, `AGEN
 **Rule:** no pharmacometric math in `api/` or `webapp/`. Numbers come from
 `src/openpkflow/` only.
 
-**Last updated:** 2026-07-30 (v2.8.0 is published and hosted from `main`; the
-Advanced Dissolution Workbench is live)
+**Last updated:** 2026-07-31 (v2.8.0 hosted; health badge cold-start recovery and
+free Render keep-warm on `main` via PRs #49 / #50)
 
 ---
 
@@ -224,6 +224,11 @@ Historical delivery order and the current gate (also summarized in
 11. **Active gate:** collect real workbench feedback and triage validation gaps
     before selecting another web milestone. Richer grid controls (row deletion,
     resize, drag fill) remain demand-gated.
+12. ~~Health badge cold-start recovery~~ -- done: PR #49 retries/auto-polls
+    `/health` and click-to-retry so Workers UI does not stick on offline.
+13. ~~Free Render keep-warm~~ -- done: PR #50 schedules
+    `.github/workflows/keep-warm.yml` every ~10 minutes. Silent on success
+    (no Gmail every 10 minutes). See `HANDOFF.md` Deployment.
 
 ---
 

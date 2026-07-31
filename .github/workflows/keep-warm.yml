@@ -6,6 +6,10 @@
 #
 # This is best-effort free keep-warm, not a paid always-on SLA. GitHub cron
 # can drift a few minutes; cold starts can still happen after deploys/outages.
+#
+# Emails: successful runs are silent. GitHub may notify on failure only if
+# the account has failed-workflow notifications enabled. This is not Cloudflare
+# email and does not send Gmail every 10 minutes.
 
 name: Keep Render warm
 
