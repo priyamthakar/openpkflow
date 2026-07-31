@@ -53,8 +53,7 @@ export default function FormalBePage() {
           {!result && !mutation.isPending && !mutation.isError && (
             <EmptyResults
               icon={Scale}
-              title="Formal ANOVA results appear here"
-              description="Upload complete balanced long-format TR/RT crossover data to run the formal model."
+              title="No formal ANOVA yet"              description="Upload complete balanced long-format TR/RT crossover data to run the formal model."
             />
           )}
           {result && <>

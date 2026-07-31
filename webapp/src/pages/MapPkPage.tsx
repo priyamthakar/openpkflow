@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
-import { FlaskConical, RotateCcw } from 'lucide-react'
+import { Brain, RotateCcw } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
 import { EmptyResults } from '@/components/shared/EmptyResults'
@@ -206,9 +206,8 @@ export default function MapPkPage() {
           {mutation.isPending && <LoadingState />}
           {!result && !mutation.isPending && !mutation.isError && (
             <EmptyResults
-              icon={FlaskConical}
-              title="MAP individual PK results appear here"
-              description="Review the example or enter chronological PK samples, then run the MAP estimate."
+              icon={Brain}
+              title="No MAP estimate yet"              description="Review the example or enter chronological PK samples, then run the MAP estimate."
             />
           )}
 

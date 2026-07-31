@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
-import { Archive, CheckCircle2, Circle, FileCheck2 } from 'lucide-react'
+import { Archive, CheckCircle2, Circle, Workflow } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
 import { EmptyResults } from '@/components/shared/EmptyResults'
@@ -246,9 +246,9 @@ export default function PipelinePage() {
 
           {!result && !mutation.isPending && !mutation.isError && (
             <EmptyResults
-              icon={FileCheck2}
-              title="Unified study results appear here"
-              description="Combine available stages, inspect status, and download a report with its reproducibility bundle."
+              icon={Workflow}
+              title="No pipeline results yet"
+              description="Combine any available study stages, inspect their status, then download one report and a reproducibility bundle."
             />
           )}
 

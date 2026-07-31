@@ -59,7 +59,7 @@ export default function RsabePage() {
           {!result && !mutation.isPending && !mutation.isError && (
             <EmptyResults
               icon={Sigma}
-              title="RSABE results appear here"
+              title="No RSABE result yet"
               description="Upload long-format TRR/RTR/RRT partial-replicate data to evaluate reference-scaled average bioequivalence."
             />
           )}

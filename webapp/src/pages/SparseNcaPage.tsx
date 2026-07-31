@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useOutletContext } from 'react-router-dom'
-import { FlaskConical, RotateCcw } from 'lucide-react'
+import { RotateCcw, ScatterChart } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { AnalysisShell } from '@/components/shared/AnalysisShell'
 import { EmptyResults } from '@/components/shared/EmptyResults'
@@ -171,9 +171,8 @@ export default function SparseNcaPage() {
           {mutation.isPending && <LoadingState />}
           {!result && !mutation.isPending && !mutation.isError && (
             <EmptyResults
-              icon={FlaskConical}
-              title="Sparse fit results appear here"
-              description="Review the example or enter chronological oral PK samples, then run the model-informed fit."
+              icon={ScatterChart}
+              title="No sparse fit yet"              description="Review the example or enter chronological oral PK samples, then run the model-informed fit."
             />
           )}
 
