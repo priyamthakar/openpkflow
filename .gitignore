@@ -98,3 +98,6 @@ Untitled-handoff.zip
 untitled-handoff-extracted/
 *-handoff.zip
 *-handoff-extracted/
+
+# graphify local knowledge-graph cache (machine-generated, not source)
+graphify-out/
