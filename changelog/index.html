@@ -1,0 +1,3305 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.">
+      
+      
+        <meta name="author" content="Priyam Thakar">
+      
+      
+        <link rel="canonical" href="https://priyamthakar.github.io/openpkflow/changelog/">
+      
+      
+        <link rel="prev" href="../reference/validation/">
+      
+      
+        <link rel="next" href="../migration-cheatsheet/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Changelog - OpenPKFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OpenPKFlow" class="md-header__button md-logo" aria-label="OpenPKFlow" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenPKFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/priyamthakar/openpkflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    priyamthakar/openpkflow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../positioning/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Positioning
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/dissolution/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../theory/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../validation-matrix/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Validation Matrix
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/dissolution/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../migration-cheatsheet/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Migration Guide
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OpenPKFlow" class="md-nav__button md-logo" aria-label="OpenPKFlow" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    OpenPKFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/priyamthakar/openpkflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    priyamthakar/openpkflow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/dissolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dissolution Similarity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/dissolution-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Dissolution Workbench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NCA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/sparse-nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sparse oral PK fitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formulation-to-report pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PK Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/pop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Population PK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bioequivalence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/formal-be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formal BE Decision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/bayes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian PK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ivivc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IVIVC Level A
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/dissolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dissolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nca
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/pop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    be
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/bayes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bayes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/ivivc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ivivc
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#280-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.8.0] -- 2026-07-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.8.0] -- 2026-07-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#271-2026-07-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.7.1] -- 2026-07-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.7.1] -- 2026-07-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#270-2026-07-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.7.0] -- 2026-07-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.7.0] -- 2026-07-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#260-2026-07-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.6.0] -- 2026-07-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.6.0] -- 2026-07-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#release-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#240-2026-05-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.4.0] -- 2026-05-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.4.0] -- 2026-05-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#230-2026-05-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.3.0] -- 2026-05-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.3.0] -- 2026-05-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#220-2026-05-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.2.0] -- 2026-05-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.2.0] -- 2026-05-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#210-2026-05-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.1.0] -- 2026-05-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.1.0] -- 2026-05-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#200-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.0.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.0.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#150-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.5.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.5.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#140-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.4.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.4.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#130-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.3.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.3.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#120-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.2.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.2.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.0] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.0] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#091-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.9.1] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.9.1] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#090-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.9.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.9.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#060-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.6.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.6.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#050-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.5.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.5.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#040-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.4.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.4.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2026-05-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] -- 2026-05-17
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] -- 2026-05-17">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration-cheatsheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#280-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.8.0] -- 2026-07-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.8.0] -- 2026-07-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#271-2026-07-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.7.1] -- 2026-07-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.7.1] -- 2026-07-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#270-2026-07-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.7.0] -- 2026-07-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.7.0] -- 2026-07-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#260-2026-07-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.6.0] -- 2026-07-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.6.0] -- 2026-07-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#release-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#240-2026-05-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.4.0] -- 2026-05-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.4.0] -- 2026-05-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#230-2026-05-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.3.0] -- 2026-05-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.3.0] -- 2026-05-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#220-2026-05-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.2.0] -- 2026-05-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.2.0] -- 2026-05-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#210-2026-05-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.1.0] -- 2026-05-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.1.0] -- 2026-05-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#200-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [2.0.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[2.0.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#150-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.5.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.5.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#140-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.4.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.4.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#130-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.3.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.3.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#120-2026-05-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.2.0] -- 2026-05-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.2.0] -- 2026-05-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1.0] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1.0] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.0] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.0] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#091-2026-05-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.9.1] -- 2026-05-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.9.1] -- 2026-05-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#090-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.9.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.9.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#060-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.6.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.6.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#050-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.5.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.5.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#040-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.4.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.4.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2026-05-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0] -- 2026-05-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0] -- 2026-05-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2026-05-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] -- 2026-05-17
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] -- 2026-05-17">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<p>All notable changes to OpenPKFlow will be documented in this file.</p>
+<p>Format follows <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.
+Versioning follows <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<hr />
+<h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="280-2026-07-30">[2.8.0] -- 2026-07-30<a class="headerlink" href="#280-2026-07-30" title="Permanent link">&para;</a></h2>
+<p>This additive release turns the independently validated dissolution methods
+into one report-first, auditable workflow. It adds no new dissolution formula.</p>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Advanced Dissolution Workbench for vessel-level f1/f2, bootstrap f2,
+  five-model AICc ranking, model-dependent comparison, MSD, and maximum
+  deviation.</li>
+<li>Complete HTML, PDF, and DOCX reports with plots, normalized inputs, exact
+  configuration, warnings, and the required expert-review disclaimer.</li>
+<li>Reproducibility ZIP containing normalized CSV input, configuration,
+  serialized results, HTML report, and a SHA-256 manifest.</li>
+<li>Three typed FastAPI endpoints and an editable upload/paste React workbench
+  with report and audit downloads.</li>
+<li>Core, API, and Playwright regression coverage for calculations, fail-closed
+  inputs, reports, uploads, and bundle integrity.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>In-memory dissolution validation rejects non-finite time and release values.</li>
+<li>The API inventory increases from 29 to 32 endpoints.</li>
+</ul>
+<hr />
+<h2 id="271-2026-07-28">[2.7.1] -- 2026-07-28<a class="headerlink" href="#271-2026-07-28" title="Permanent link">&para;</a></h2>
+<p>This reliability release adds deployment provenance and closes the remaining
+v2.7.0 web regression gaps. It does not change pharmacometric calculations or
+public Python APIs.</p>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/health</code> now reports engine version, deployed Git commit and branch, and the
+  Render service identifier.</li>
+<li>A scheduled/manual production convergence workflow verifies both <code>/health</code>
+  and <code>/openapi.json</code>, with optional commit-prefix matching.</li>
+<li>Playwright coverage protects chart legend restoration, PNG export, persisted
+  sidebar collapse, and mobile navigation.</li>
+</ul>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The shared <code>EmptyResults</code> state is used consistently across the remaining
+  analysis result panes.</li>
+<li>The API deployment floor is updated to FastAPI 0.140.</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Synchronized the README, handoff, agent guidance, release workflow, web/API
+  progress, dated session summary, roadmap, and future plans to the verified
+  published state and the gated v2.8.0 dissolution milestone.</li>
+<li>Recorded production convergence: Cloudflare frontend and documentation are
+  current, while Render reports v2.7.1 at release commit <code>d24263d</code>; the automated
+  health/OpenAPI smoke check passes.</li>
+<li>Synchronized the API endpoint and web-page inventories and corrected the
+  validated FDA partial-replicate RSABE scope.</li>
+</ul>
+<hr />
+<h2 id="270-2026-07-25">[2.7.0] -- 2026-07-25<a class="headerlink" href="#270-2026-07-25" title="Permanent link">&para;</a></h2>
+<p>This additive release publishes the validated post-v2.6.0 work across the Python
+package, REST API, and web application. No existing public API was removed.</p>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pipeline audit bundle</strong>: core ZIP export containing normalized inputs,
+  configuration, serialized results, HTML report, and SHA-256 manifest.</li>
+<li><strong>Pipeline API</strong>: analyze, report, and audit-bundle FastAPI endpoints with
+  schemas, adapter service, registration, and regression tests.</li>
+<li><strong>Pipeline web workflow</strong>: React page for optional dissolution, NCA, and paired-BE
+  stages with unified results, report downloads, and reproducibility audit ZIP export.</li>
+<li><strong>Sparse NCA validation and reports</strong>: fail-closed one-compartment oral fitting,
+  independent R <code>stats::nls</code> cross-validation on published <code>nlme::Theoph</code> data, and
+  HTML/Markdown screening reports.</li>
+<li><strong>Sparse NCA web workflow</strong>: analyze and report API endpoints plus a React page with
+  a published example, fit diagnostics, observed/fitted visualization, and explicit
+  model-informed screening scope.</li>
+<li><strong>MAP individual PK</strong>: FastAPI analyze/report endpoints and a React workflow for
+  oral and IV-bolus MAP screening with fit diagnostics and downloadable reports.</li>
+<li><strong>SUPAC and alcohol screening</strong>: API and web workflows for SUPAC-IR classification
+  and alcohol dose-dumping f2 assessment.</li>
+<li><strong>Formal complete balanced 2x2 BE ANOVA</strong>: long-format TR/RT analysis with a full
+  ANOVA table, reports, CLI/API/web interfaces, fail-closed design checks, and an
+  independent R cross-check.</li>
+<li><strong>FDA partial-replicate RSABE</strong>: balanced TRR/RTR/RRT analysis validated against
+  Patterson and Jones (2012), Table II. The workflow combines the scaled criterion
+  upper bound, point-estimate constraint, and conventional ABE fallback.</li>
+<li><strong>Web application polish</strong>: theme-aware chart colors, chart toolbar and PNG export,
+  grouped collapsible navigation, persisted split-pane width, run shortcuts, improved
+  empty states, and visible backend health status.</li>
+<li><strong>Production deployment wiring</strong>: Cloudflare Workers frontend and Render
+  backend configuration. The frontend deploys automatically from <code>main</code>; as of
+  2026-07-26, the reachable Render service still reports engine version 2.6.0
+  and requires a manual deployment/configuration check for v2.7.0.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The AUC scale-invariance property test now excludes unrepresentable subnormal
+  scaling and explicitly covers IEEE-754 underflow at the smallest positive float.</li>
+<li>Compatible React Router, PostCSS, Nano ID, and brace-expansion lockfile updates
+  address the available dependency advisories.</li>
+<li>Chart legend restoration, PNG export colors and target selection, mobile drawer
+  labels, dark-mode form controls, and light-theme primary-button contrast.</li>
+</ul>
+<hr />
+<h2 id="260-2026-07-15">[2.6.0] -- 2026-07-15<a class="headerlink" href="#260-2026-07-15" title="Permanent link">&para;</a></h2>
+<p>The released build passed the full standard suite (1275 passed), API tests,
+frontend lint/build/browser tests, strict docs build, mypy, wheel/sdist
+validation, Trusted Publishing, and a fresh-install CLI smoke check.</p>
+<h3 id="release-hardening">Release hardening<a class="headerlink" href="#release-hardening" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CI now runs API, frontend, Python 3.13 Linux/Windows smoke, and enforced
+  type-check jobs; Codecov uploads are confirmed working.</li>
+<li>API uploads use bounded reads and responses include standard security headers.</li>
+<li>Fixed full-Omega label generation for population PK models.</li>
+<li>Student dissolution comparison results are typed and PK route handling now
+  fails closed instead of treating unknown routes as IV bolus.</li>
+<li>Strict mypy is enforced outside the explicitly frozen legacy estimator.</li>
+</ul>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>BE paired-design intra-subject CV variance-halving before CV back-transform.</li>
+<li>NCA/pipeline fail-closed config validation; stricter BLQ and <code>auc_tau</code> handling.</li>
+<li>Sim transit model rebuilt on the Savic absorption-chain structure.</li>
+<li>IVIVC unit conversion, dissolution-rescale, and single-formulation verdict fixes.</li>
+<li>Dissolution <code>f2_method</code> now defaults explicitly to <code>regulatory</code>; ICH M13B
+  Step 2 absolute-SD check.</li>
+<li>SUPAC-IR function-specific threshold tables.</li>
+<li>Webapp stale-result guard extended to BE, Dissolution, and Sim pages.</li>
+<li><code>publish.yml</code> now requires a tag's commit to be reachable from <code>main</code>.</li>
+</ul>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Study pipeline package and CLI (<code>openpkflow study run</code>) with multi-section reports.</li>
+<li>SUPAC-IR screening and alcohol dose-dumping f2 assessment helpers.</li>
+<li>IVIVC Level B/C MDT/MRT correlation helpers.</li>
+<li>Transit-compartment oral absorption and 1-cmt oral steady-state metrics.</li>
+<li>Webapp: BE power calculator, multi-media dissolution tab, IVIVC example loader.</li>
+<li>IVIVC convolution analytical validation tests; BE power edge-case tests.</li>
+<li>Positioning page and pipeline tutorial.</li>
+</ul>
+<hr />
+<h2 id="240-2026-05-30">[2.4.0] -- 2026-05-30<a class="headerlink" href="#240-2026-05-30" title="Permanent link">&para;</a></h2>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Research-grade replicate bioequivalence screening via <code>replicate_be()</code>:
+  long-format full/partial replicate data parsing, GMR + conventional 90% CI,
+  CVwR estimation, EMA-style scaled-limit summaries, and FDA-style RSABE point
+  criterion screening. These outputs are explicitly documented as exploratory
+  and not a replacement for jurisdiction-specific validated SAS/R workflows.</li>
+<li>Replicate BE CLI/report workflow: <code>openpkflow be replicate</code>, HTML/Markdown
+  reports, JSON export, example partial-replicate CSV, and scalar reference
+  validation fixtures for the screening calculations.</li>
+<li>Release-readiness documentation and slow-validation workflow for heavyweight
+  reference checks, plus a read-only <code>scripts/release_readiness.py</code> checker.</li>
+</ul>
+<hr />
+<h2 id="230-2026-05-24">[2.3.0] -- 2026-05-24<a class="headerlink" href="#230-2026-05-24" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>pop/estimation/covariate.py</code> removed</strong> -- <code>CovariateModel</code>, <code>CovariateDef</code>, <code>apply_covariates</code>,
+  <code>pack_betas</code>, <code>unpack_betas</code> are deleted. These symbols were a non-functional skeleton in v2.2.0
+  that silently did nothing during <code>run_foce_i()</code> or <code>run_saem()</code> estimation.</li>
+<li><strong><code>PopPKModel.covariate_model</code> field removed</strong> -- <code>PopPKModel</code> no longer accepts a
+  <code>covariate_model</code> keyword argument.</li>
+<li><strong><code>PopPKResult.covariate_betas</code> field removed</strong> -- <code>PopPKResult.to_dict()</code> no longer includes
+  the <code>covariate_betas</code> key.</li>
+</ul>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Pop PK cross-validation on the 12-subject Theophylline dataset:
+  <code>tests/validation/test_pop_foce_reference.py</code>. <code>run_foce_i()</code> typical values match
+  the <code>nlme</code> reference values from Pinheiro &amp; Bates (2000), Table 8.1, within 20%
+  relative tolerance.</li>
+</ul>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>PopPKModel.n_betas</code> always returns 0 (property retained for API compatibility; will be removed in v3.0.0).</li>
+</ul>
+<h2 id="220-2026-05-23">[2.2.0] -- 2026-05-23<a class="headerlink" href="#220-2026-05-23" title="Permanent link">&para;</a></h2>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<p><strong>Population PK -- 2-compartment models, full Omega matrix, covariate support</strong>
+- <code>pop/estimation/model.py</code> -- <code>PopPKModel</code> extended: <code>n_cmt</code> field (1 or 2), <code>omega_type</code> field ("diagonal" or "full"), <code>covariate_model</code> field
+- <code>pop/estimation/omega.py</code> -- <code>log_cholesky_to_omega()</code>, <code>omega_to_log_cholesky()</code>, <code>extract_omega_cov_dict()</code>
+- <code>pop/estimation/covariate.py</code> -- <code>CovariateDef</code>, <code>CovariateModel</code>, <code>apply_covariates()</code>, <code>pack_betas()</code>/<code>unpack_betas()</code>
+- <code>pop/estimation/objective.py</code> -- extended 4-way dispatch <code>(route, n_cmt)</code> supporting 2-cmt oral and IV bolus
+- <code>pop/estimation/foce_inner.py</code> -- <code>compute_ebe()</code> and <code>compute_all_ebe()</code> pass <code>n_cmt</code> to objective
+- <code>pop/estimation/foce_i.py</code> -- outer loop constructs full Omega via <code>log_cholesky_to_omega()</code>
+- <code>pop/estimation/saem_kernel.py</code> -- S-step and M-step return full Omega matrix
+- <code>pop/estimation/saem.py</code> -- SAEM orchestrator stores full Omega chain
+- <code>pop/estimation/result.py</code> -- <code>PopPKResult</code> extended: <code>omega_off_diag</code>, <code>omega_off_se</code>, <code>covariate_betas</code> fields
+- <code>pop/estimation/reporting.py</code> -- HTML/Markdown report templates updated for covariate coefficient table and off-diagonal Omega correlation matrix</p>
+<h2 id="210-2026-05-23">[2.1.0] -- 2026-05-23<a class="headerlink" href="#210-2026-05-23" title="Permanent link">&para;</a></h2>
+<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<p><strong>Population PK -- FOCE-I and SAEM estimation</strong>
+- <code>pop/estimation/</code> -- new sub-package (11 files) implementing two-tier population PK estimation
+- <code>pop/estimation/model.py</code> -- <code>PopPKModel</code> frozen dataclass
+- <code>pop/estimation/foce_i.py</code> -- <code>run_foce_i()</code>: L-BFGS-B outer loop, per-subject EBE inner loop, 10 fail-closed diagnostics
+- <code>pop/estimation/saem.py</code> -- <code>run_saem()</code>: Robbins-Monro SA-step, analytical M-step, PyMC Metropolis S-step
+- <code>pop/estimation/result.py</code> -- <code>PopPKResult</code>: <code>.summary()</code>, <code>.to_dataframe()</code>, <code>.to_dict()</code>, <code>.plot()</code>, <code>.report()</code>
+- <code>pop/estimation/plotting.py</code> -- 6-panel pop PK diagnostic figure
+- <code>pop/estimation/reporting.py</code> -- HTML and Markdown reports
+- <code>pop/__init__.py</code> -- exports <code>PopPKModel</code>, <code>PopPKResult</code>, <code>run_foce_i</code>, <code>run_saem</code>
+- CLI: <code>openpkflow pop foce-i</code> and <code>openpkflow pop saem</code> Typer subcommands
+- 47 new tests across <code>tests/pop/</code></p>
+<hr />
+<h2 id="200-2026-05-22">[2.0.0] -- 2026-05-22<a class="headerlink" href="#200-2026-05-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h3>
+<p><strong>Bayesian PK -- Phase 1 (MAP, no extra dependencies)</strong>
+- <code>bayes/priors.py</code> -- <code>PKPrior</code>: frozen dataclass with log-normal priors for CL, Vz, ka, sigma
+- <code>bayes/map_pk.py</code> -- <code>map_individual_pk()</code>: MAP estimation via scipy L-BFGS-B in log-space; 10 fail-closed diagnostics
+- <code>bayes/results.py</code> -- <code>MapPKResult</code>: dataclass with MAP estimates, SEs, derived parameters, diagnostics
+- <code>bayes/reporting.py</code> -- <code>report_map_pk()</code>: HTML (Jinja2) and Markdown renderers
+- 35 new tests in <code>tests/bayes/test_map_pk.py</code></p>
+<p><strong>Bayesian PK -- Phase 2 (full posterior, [bayes] extra)</strong>
+- <code>bayes/bayes_pk.py</code> -- <code>bayes_individual_pk()</code>: full posterior via PyMC 5.x + Metropolis sampler
+- <code>bayes/bayes_be.py</code> -- <code>bayes_be()</code>: Bayesian 2x2 crossover BE via PyMC NUTS
+- <code>bayes/results.py</code> -- <code>BayesPKResult</code>: posterior samples, summary stats, 95% CrI
+- <code>bayes/bayes_be.py</code> -- <code>BayesBEResult</code>: P(BE), GMR posterior, variance components, frequentist comparison
+- 26 new tests in <code>tests/bayes/test_bayes_be.py</code></p>
+<p><strong>Dissolution Excel loader</strong>
+- <code>dissolution/loader.py</code> -- <code>load_dissolution_excel()</code>: loads dissolution data from <code>.xlsx</code>/<code>.xls</code>
+- <code>dissolution/study.py</code> -- <code>DissolutionStudy.from_excel()</code>: classmethod mirror of <code>from_csv()</code></p>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>bayes/__init__.py</code> -- exports <code>PKPrior</code>, <code>MapPKResult</code>, <code>BayesPKResult</code>, <code>BayesBEResult</code>, <code>map_individual_pk</code>, <code>bayes_individual_pk</code>, <code>bayes_be</code></li>
+<li><code>codecov.yml</code> -- added <code>coverage.status</code> block</li>
+</ul>
+<h2 id="150-2026-05-22">[1.5.0] -- 2026-05-22<a class="headerlink" href="#150-2026-05-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>nca/sparse.py</code> -- <code>fit_sparse_1cmt_oral()</code>: model-informed oral PK from 3+ samples,
+  fitted in concentration space with explicit convergence status</li>
+<li><code>nca/sparse.py</code> -- <code>SparseNCAResult</code>: model-informed estimates, diagnostics,
+  derived parameters, plots, and HTML/Markdown reports</li>
+<li><code>nca/sparse.py</code> -- <code>sparse_nca_bias_analysis()</code>: percent bias vs rich-sampling reference</li>
+<li>16 new tests in <code>tests/nca/test_sparse_nca.py</code></li>
+</ul>
+<h2 id="140-2026-05-22">[1.4.0] -- 2026-05-22<a class="headerlink" href="#140-2026-05-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_10">Added<a class="headerlink" href="#added_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>dissolution/multi_media.py</code> -- <code>MultiMediaStudy</code> and <code>MultiMediaResult</code></li>
+<li><code>dissolution/plotting.py</code> -- <code>multi_media_plot_b64()</code>: multi-panel dissolution overlay plot</li>
+<li><code>report/templates/multi_media_report.html</code> -- multi-media HTML report template</li>
+<li>26 new tests in <code>tests/dissolution/test_multi_media.py</code></li>
+</ul>
+<h2 id="130-2026-05-22">[1.3.0] -- 2026-05-22<a class="headerlink" href="#130-2026-05-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_11">Added<a class="headerlink" href="#added_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>nca/methods.py</code> -- steady-state parameters, urinary excretion, CDISC PP output</li>
+<li><code>nca/results.py</code> -- steady-state and urinary excretion fields</li>
+<li>26 new tests in <code>tests/nca/test_steady_state_urine.py</code></li>
+</ul>
+<h2 id="120-2026-05-22">[1.2.0] -- 2026-05-22<a class="headerlink" href="#120-2026-05-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_12">Added<a class="headerlink" href="#added_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ivivc/</code> module -- In Vitro-In Vivo Correlation Level A (FDA ER Guidance 1997)</li>
+<li><code>ivivc/methods.py</code> -- <code>wagner_nelson()</code>, <code>loo_riegelman()</code>, <code>convolution_predict()</code>, <code>levy_plot_data()</code>, <code>ivivc_predictability()</code></li>
+<li><code>ivivc/study.py</code> -- <code>IVIVCStudy</code>: full deconvolution -&gt; Levy plot -&gt; convolution -&gt; predictability workflow</li>
+<li><code>ivivc/results.py</code> -- <code>IVIVCResult</code> dataclass</li>
+<li>45 new tests in <code>tests/ivivc/test_ivivc.py</code></li>
+</ul>
+<h2 id="110-2026-05-21">[1.1.0] -- 2026-05-21<a class="headerlink" href="#110-2026-05-21" title="Permanent link">&para;</a></h2>
+<h3 id="added_13">Added<a class="headerlink" href="#added_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>dissolution/similarity.py</code> -- <code>max_deviation()</code>, <code>msd()</code>, <code>model_dependent_comparison()</code></li>
+<li><code>dissolution/study.py</code> -- ICH M13B RSD constraint check</li>
+<li><code>nca/results.py</code> -- lambda_z quality metrics, dose-normalised parameters, CDISC PP export</li>
+<li><code>nca/study.py</code> -- %AUCextrap FDA flag</li>
+<li><code>be/study.py</code> -- <code>BEStudy.to_bioeqpy_dataframe()</code> and <code>to_bioeqpy_csv()</code></li>
+<li><code>.pre-commit-config.yaml</code>, <code>.github/dependabot.yml</code>, <code>codecov.yml</code>, <code>VALIDATION.md</code></li>
+<li><code>tests/test_benchmark.py</code> -- performance benchmarks</li>
+</ul>
+<h2 id="100-2026-05-21">[1.0.0] -- 2026-05-21<a class="headerlink" href="#100-2026-05-21" title="Permanent link">&para;</a></h2>
+<h3 id="added_14">Added<a class="headerlink" href="#added_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>be/</code> -- Bioequivalence module: <code>BEStudy</code>, <code>BEResult</code>, <code>be_tost()</code>, HTML/Markdown reports, CLI</li>
+<li><code>SECURITY.md</code>, <code>CONTRIBUTING.md</code>, issue templates</li>
+</ul>
+<h2 id="091-2026-05-21">[0.9.1] -- 2026-05-21<a class="headerlink" href="#091-2026-05-21" title="Permanent link">&para;</a></h2>
+<h3 id="added_15">Added<a class="headerlink" href="#added_15" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sim/methods.py</code> -- <code>c_2cmt_iv_infusion()</code>: 2-compartment IV infusion</li>
+<li><code>validation/__init__.py</code> -- cross-validation utilities</li>
+<li><code>tests/validation/</code> -- 20 new tests: NCA truth recovery, sim Gibaldi &amp; Perrier properties</li>
+<li>Full mkdocs-material docs site</li>
+</ul>
+<h2 id="090-2026-05-18">[0.9.0] -- 2026-05-18<a class="headerlink" href="#090-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_16">Added<a class="headerlink" href="#added_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ml/surrogate.py</code> (EXPERIMENTAL) -- <code>PKSurrogate</code>: torch MLP for 1-cmt oral PK</li>
+</ul>
+<h2 id="060-2026-05-18">[0.6.0] -- 2026-05-18<a class="headerlink" href="#060-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_17">Added<a class="headerlink" href="#added_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>pop/</code> -- GOF plots (4-panel), VPC simulation-based, NONMEM-style dataset helpers</li>
+</ul>
+<h2 id="050-2026-05-18">[0.5.0] -- 2026-05-18<a class="headerlink" href="#050-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_18">Added<a class="headerlink" href="#added_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sim/</code> -- PK simulation engine: 1-cmt, 2-cmt, IV bolus/infusion/oral, repeated dosing</li>
+</ul>
+<h2 id="040-2026-05-18">[0.4.0] -- 2026-05-18<a class="headerlink" href="#040-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_19">Added<a class="headerlink" href="#added_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>nca/</code> -- Non-compartmental analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F</li>
+</ul>
+<h2 id="030-2026-05-18">[0.3.0] -- 2026-05-18<a class="headerlink" href="#030-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_20">Added<a class="headerlink" href="#added_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>ReportLab PDF and python-docx Word export for dissolution comparison and model fitting</li>
+</ul>
+<h2 id="020-2026-05-18">[0.2.0] -- 2026-05-18<a class="headerlink" href="#020-2026-05-18" title="Permanent link">&para;</a></h2>
+<h3 id="added_21">Added<a class="headerlink" href="#added_21" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dissolution model fitting: zero-order, first-order, Higuchi, Korsmeyer-Peppas, Weibull</li>
+</ul>
+<h2 id="010-2026-05-17">[0.1.0] -- 2026-05-17<a class="headerlink" href="#010-2026-05-17" title="Permanent link">&para;</a></h2>
+<h3 id="added_22">Added<a class="headerlink" href="#added_22" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>dissolution.f1()</code> and <code>dissolution.f2()</code> -- difference factor and similarity factor</li>
+<li>CSV loader, CLI commands, example dataset, full test suite</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/priyamthakar/openpkflow" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/openpkflow/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

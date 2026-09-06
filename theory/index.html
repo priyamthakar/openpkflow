@@ -1,0 +1,2903 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting.">
+      
+      
+        <meta name="author" content="Priyam Thakar">
+      
+      
+        <link rel="canonical" href="https://priyamthakar.github.io/openpkflow/theory/">
+      
+      
+        <link rel="prev" href="../tutorials/ivivc/">
+      
+      
+        <link rel="next" href="../validation-matrix/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Theory Guide - OpenPKFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#theory-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OpenPKFlow" class="md-header__button md-logo" aria-label="OpenPKFlow" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenPKFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Theory Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/priyamthakar/openpkflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    priyamthakar/openpkflow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../positioning/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Positioning
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/dissolution/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Theory Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../validation-matrix/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Validation Matrix
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/dissolution/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../migration-cheatsheet/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Migration Guide
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OpenPKFlow" class="md-nav__button md-logo" aria-label="OpenPKFlow" data-md-component="logo">
+      
+  <img src="../logo.png" alt="logo">
+
+    </a>
+    OpenPKFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/priyamthakar/openpkflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    priyamthakar/openpkflow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/dissolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dissolution Similarity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/dissolution-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Dissolution Workbench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NCA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/sparse-nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sparse oral PK fitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formulation-to-report pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PK Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/pop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Population PK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bioequivalence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/formal-be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formal BE Decision
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/bayes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian PK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ivivc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IVIVC Level A
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nca-non-compartmental-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NCA: Non-Compartmental Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NCA: Non-Compartmental Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linear-trapezoidal-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear trapezoidal rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-linear-trapezoidal-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log-linear trapezoidal rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-up-log-down-hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear-up / log-down hybrid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminal-elimination-rate-constant-lambda_z" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminal elimination rate constant ($\lambda_z$)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-nca-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derived NCA parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#steady-state-nca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steady-state NCA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#urinary-excretion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Urinary excretion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sparse-oral-model-informed-fitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparse oral model-informed fitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pk-simulation-analytical-solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PK Simulation: Analytical Solutions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PK Simulation: Analytical Solutions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-iv-bolus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment IV bolus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-iv-infusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment IV infusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-oral-bateman-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment oral (Bateman equation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compartment-iv-bolus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-compartment IV bolus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compartment-oral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-compartment oral
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#superposition-repeated-dosing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Superposition (repeated dosing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dissolution-similarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dissolution Similarity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dissolution Similarity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f2-similarity-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        f2 similarity factor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f1-difference-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        f1 difference factor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bootstrap-f2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bootstrap f2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dissolution-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dissolution models
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ivivc-in-vitro-in-vivo-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IVIVC: In Vitro-In Vivo Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IVIVC: In Vitro-In Vivo Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wagner-nelson-deconvolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wagner-Nelson deconvolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loo-riegelman-deconvolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loo-Riegelman deconvolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-convolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical convolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#predictability-pe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Predictability (%PE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#levy-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Levy plot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bioequivalence-tost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bioequivalence (TOST)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bioequivalence (TOST)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-one-sided-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two one-sided tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-of-tost-1-beta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power of TOST ($1 - \beta$)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample size
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#population-pk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Population PK
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Population PK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foce-i-objective-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FOCE-I objective function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saem-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAEM algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#information-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Information criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebe-shrinkage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EBE shrinkage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-pk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian PK
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian PK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#map-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MAP estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-bayesian-mcmc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Bayesian (MCMC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-be" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian BE
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation-matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/dissolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dissolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/nca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nca
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/pop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/be/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    be
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/bayes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bayes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/ivivc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ivivc
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/ml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ml
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration-cheatsheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nca-non-compartmental-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NCA: Non-Compartmental Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NCA: Non-Compartmental Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linear-trapezoidal-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear trapezoidal rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-linear-trapezoidal-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log-linear trapezoidal rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-up-log-down-hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear-up / log-down hybrid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminal-elimination-rate-constant-lambda_z" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminal elimination rate constant ($\lambda_z$)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#derived-nca-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derived NCA parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#steady-state-nca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steady-state NCA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#urinary-excretion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Urinary excretion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sparse-oral-model-informed-fitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sparse oral model-informed fitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pk-simulation-analytical-solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PK Simulation: Analytical Solutions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PK Simulation: Analytical Solutions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-iv-bolus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment IV bolus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-iv-infusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment IV infusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-compartment-oral-bateman-equation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1-compartment oral (Bateman equation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compartment-iv-bolus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-compartment IV bolus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compartment-oral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2-compartment oral
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#superposition-repeated-dosing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Superposition (repeated dosing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dissolution-similarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dissolution Similarity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dissolution Similarity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f2-similarity-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        f2 similarity factor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f1-difference-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        f1 difference factor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bootstrap-f2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bootstrap f2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dissolution-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dissolution models
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ivivc-in-vitro-in-vivo-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IVIVC: In Vitro-In Vivo Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IVIVC: In Vitro-In Vivo Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wagner-nelson-deconvolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wagner-Nelson deconvolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loo-riegelman-deconvolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loo-Riegelman deconvolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-convolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical convolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#predictability-pe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Predictability (%PE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#levy-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Levy plot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bioequivalence-tost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bioequivalence (TOST)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bioequivalence (TOST)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-one-sided-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two one-sided tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-of-tost-1-beta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power of TOST ($1 - \beta$)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample size
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#population-pk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Population PK
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Population PK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foce-i-objective-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FOCE-I objective function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saem-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SAEM algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#information-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Information criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebe-shrinkage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EBE shrinkage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bayesian-pk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian PK
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bayesian PK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#map-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MAP estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-bayesian-mcmc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Bayesian (MCMC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-be" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bayesian BE
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="theory-guide">Theory Guide<a class="headerlink" href="#theory-guide" title="Permanent link">&para;</a></h1>
+<p>Formula derivations for every core module in OpenPKFlow — intended for regulatory
+reviewers, method validation, and teaching reference.</p>
+<hr />
+<h2 id="nca-non-compartmental-analysis">NCA: Non-Compartmental Analysis<a class="headerlink" href="#nca-non-compartmental-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="linear-trapezoidal-rule">Linear trapezoidal rule<a class="headerlink" href="#linear-trapezoidal-rule" title="Permanent link">&para;</a></h3>
+<p>$$
+\text{AUC}<em>{\text{last}} = \sum</em>{i=0}^{n-2} \frac{C_i + C_{i+1}}{2} (t_{i+1} - t_i)
+$$</p>
+<p>Each interval is treated as a trapezoid. Exact for linear pharmacokinetics.</p>
+<h3 id="log-linear-trapezoidal-rule">Log-linear trapezoidal rule<a class="headerlink" href="#log-linear-trapezoidal-rule" title="Permanent link">&para;</a></h3>
+<p>For a declining interval $C_i &gt; C_{i+1} &gt; 0$:</p>
+<p>$$
+\int_{t_i}^{t_{i+1}} C(t)\,dt = \frac{C_i - C_{i+1}}{\ln(C_i / C_{i+1})} (t_{i+1} - t_i)
+$$</p>
+<p>Derived from $C(t) = C_i \cdot e^{-k(t-t_i)}$ with $k = \ln(C_i/C_{i+1})/(t_{i+1}-t_i)$.
+When $C_i \leq 0$ or $C_i = C_{i+1}$, falls back to linear trapezoidal.</p>
+<h3 id="linear-up-log-down-hybrid">Linear-up / log-down hybrid<a class="headerlink" href="#linear-up-log-down-hybrid" title="Permanent link">&para;</a></h3>
+<p>$$
+\text{AUC}<em>{\text{interval}} =
+\begin{cases}
+\frac{C_i + C</em>{i+1}}{2} \Delta t &amp; \text{if } C_{i+1} \geq C_i \text{ (rising)} \[4pt]
+\frac{C_i - C_{i+1}}{\ln(C_i / C_{i+1})} \Delta t &amp; \text{if } C_{i+1} &lt; C_i \text{ and } C_{i+1} &gt; 0 \text{ (declining)}
+\end{cases}
+$$</p>
+<p>This is the WinNonlin/FDA default.</p>
+<h3 id="terminal-elimination-rate-constant-lambda_z">Terminal elimination rate constant ($\lambda_z$)<a class="headerlink" href="#terminal-elimination-rate-constant-lambda_z" title="Permanent link">&para;</a></h3>
+<p>BAR² (Best Adjusted R-squared) algorithm:</p>
+<ol>
+<li>Identify all post-$C_{\max}$ positive-concentration points</li>
+<li>Enumerate every contiguous terminal window of size $k \in [3, n_{\text{post}}]$ that includes the last point</li>
+<li>For each window, fit $\ln(C) = \alpha + \lambda_z t$ via OLS</li>
+<li>Reject windows with non-negative slope</li>
+<li>Select the window maximising adjusted $R^2$; tie-break by more points, then longer time span</li>
+<li>$\lambda_z = -\,\text{slope}$</li>
+</ol>
+<h3 id="derived-nca-parameters">Derived NCA parameters<a class="headerlink" href="#derived-nca-parameters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Formula</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$t_{1/2}$</td>
+<td>$\ln(2) / \lambda_z$</td>
+<td>Terminal half-life</td>
+</tr>
+<tr>
+<td>$\text{AUC}_{\inf}$</td>
+<td>$\text{AUC}<em>{\text{last}} + C</em>{\text{last}} / \lambda_z$</td>
+<td>Extrapolated AUC</td>
+</tr>
+<tr>
+<td>$\%\text{AUC}_{\text{extrap}}$</td>
+<td>$(\text{AUC}<em>{\inf} - \text{AUC}</em>{\text{last}}) / \text{AUC}_{\inf} \times 100$</td>
+<td>FDA flag if $&gt;20\%$</td>
+</tr>
+<tr>
+<td>$\text{CL}/F$ (oral)</td>
+<td>$\text{Dose} / \text{AUC}_{\inf}$</td>
+<td>Apparent clearance</td>
+</tr>
+<tr>
+<td>$V_z/F$ (oral)</td>
+<td>$\text{Dose} / (\text{AUC}_{\inf} \cdot \lambda_z)$</td>
+<td>Apparent volume</td>
+</tr>
+<tr>
+<td>$\text{CL}$ (IV)</td>
+<td>$\text{Dose} / \text{AUC}_{\inf}$</td>
+<td>Absolute clearance</td>
+</tr>
+<tr>
+<td>$V_z$ (IV)</td>
+<td>$\text{Dose} / (\text{AUC}_{\inf} \cdot \lambda_z)$</td>
+<td>Absolute volume</td>
+</tr>
+<tr>
+<td>$C_0$ (IV bolus)</td>
+<td>$\exp(\text{intercept})$</td>
+<td>OLS of $\ln(C)$ on first 2 points</td>
+</tr>
+</tbody>
+</table>
+<h3 id="steady-state-nca">Steady-state NCA<a class="headerlink" href="#steady-state-nca" title="Permanent link">&para;</a></h3>
+<p>$$
+\begin{aligned}
+C_{\text{avg}} &amp;= \frac{\text{AUC}<em>{\tau}}{\tau} \
+\text{Fluctuation}\% &amp;= \frac{C</em>{\max,ss} - C_{\min,ss}}{C_{\text{avg}}} \times 100 \
+\text{Swing} &amp;= \frac{C_{\max,ss} - C_{\min,ss}}{C_{\min,ss}}
+\end{aligned}
+$$</p>
+<h3 id="urinary-excretion">Urinary excretion<a class="headerlink" href="#urinary-excretion" title="Permanent link">&para;</a></h3>
+<p>$$
+\begin{aligned}
+A_e(t) &amp;= \sum_{i} V_{\text{urine},i} \cdot C_{\text{urine},i} \
+\text{CL}<em>r &amp;= A</em>{e,\text{total}} / \text{AUC}<em>{\inf} \
+\%A_e &amp;= A</em>{e,\text{total}} / \text{Dose} \times 100
+\end{aligned}
+$$</p>
+<h3 id="sparse-oral-model-informed-fitting">Sparse oral model-informed fitting<a class="headerlink" href="#sparse-oral-model-informed-fitting" title="Permanent link">&para;</a></h3>
+<p>For sparse oral profiles, <code>fit_sparse_1cmt_oral()</code> fits the one-compartment model</p>
+<p>$$
+C(t) = \frac{D k_a}{V_z/F\,(k_a-k_e)}
+       \left(e^{-k_e t} - e^{-k_a t}\right),
+\qquad k_e = \frac{CL/F}{V_z/F}.
+$$</p>
+<p>The fitted parameters are $CL/F$, $V_z/F$, and $k_a$. AUCinf is then derived as
+$D/(CL/F)$; Cmax and Tmax are obtained from the fitted curve. These are
+structural-model estimates, not direct noncompartmental summaries. Sparse designs
+can be weakly identified, so convergence, standard errors, residuals, bounds, and
+study-specific sampling adequacy must be reviewed.</p>
+<hr />
+<h2 id="pk-simulation-analytical-solutions">PK Simulation: Analytical Solutions<a class="headerlink" href="#pk-simulation-analytical-solutions" title="Permanent link">&para;</a></h2>
+<p>All simulations use closed-form solutions (no numerical ODE integration). Superposition
+is applied for multiple doses — valid only for <strong>linear PK</strong>.</p>
+<h3 id="1-compartment-iv-bolus">1-compartment IV bolus<a class="headerlink" href="#1-compartment-iv-bolus" title="Permanent link">&para;</a></h3>
+<p>$$
+C(t) = \frac{D}{V_z}\, e^{-k_e t}, \quad k_e = \frac{CL}{V_z}
+$$</p>
+<p>$C(0) = D/V_z$, mono-exponential decay.</p>
+<h3 id="1-compartment-iv-infusion">1-compartment IV infusion<a class="headerlink" href="#1-compartment-iv-infusion" title="Permanent link">&para;</a></h3>
+<p>During infusion $(t \leq T)$:</p>
+<p>$$
+C(t) = \frac{R_0}{\text{CL}} \left(1 - e^{-k_e t}\right), \quad R_0 = D/T
+$$</p>
+<p>Post-infusion $(t &gt; T)$:</p>
+<p>$$
+C(t) = \frac{R_0}{\text{CL}} \left(1 - e^{-k_e T}\right) e^{-k_e (t - T)}
+$$</p>
+<h3 id="1-compartment-oral-bateman-equation">1-compartment oral (Bateman equation)<a class="headerlink" href="#1-compartment-oral-bateman-equation" title="Permanent link">&para;</a></h3>
+<p>$$
+C(t) = \frac{D \cdot k_a}{V_z/F \cdot (k_a - k_e)} \left(e^{-k_e t} - e^{-k_a t}\right)
+$$</p>
+<p>Peak time:</p>
+<p>$$
+t_{\max} = \frac{\ln(k_a / k_e)}{k_a - k_e}
+$$</p>
+<p><strong>Flip-flop case</strong> $(k_a = k_e)$:</p>
+<p>$$
+C(t) = \frac{D \cdot k}{V_z/F} \cdot t \cdot e^{-k t}
+$$</p>
+<h3 id="2-compartment-iv-bolus">2-compartment IV bolus<a class="headerlink" href="#2-compartment-iv-bolus" title="Permanent link">&para;</a></h3>
+<p>$$
+C(t) = A e^{-\alpha t} + B e^{-\beta t}
+$$</p>
+<p>where $\alpha &gt; \beta$, $A + B = D/V_1$ (the initial condition), and:</p>
+<p>$$
+\begin{aligned}
+\alpha, \beta &amp;= \frac{1}{2}\left[(k_{10} + k_{12} + k_{21}) \pm \sqrt{(k_{10} + k_{12} + k_{21})^2 - 4k_{10}k_{21}}\right] \
+A &amp;= \frac{D}{V_1} \cdot \frac{\alpha - k_{21}}{\alpha - \beta} \
+B &amp;= \frac{D}{V_1} \cdot \frac{k_{21} - \beta}{\alpha - \beta} \
+k_{10} &amp;= \frac{CL}{V_1}, \quad k_{12} = \frac{Q}{V_1}, \quad k_{21} = \frac{Q}{V_2}
+\end{aligned}
+$$</p>
+<h3 id="2-compartment-oral">2-compartment oral<a class="headerlink" href="#2-compartment-oral" title="Permanent link">&para;</a></h3>
+<p>$$
+C(t) = A_1 e^{-\alpha t} + A_2 e^{-\beta t} + A_3 e^{-k_a t}
+$$</p>
+<p>with $A_1 + A_2 + A_3 = 0$ (ensuring $C(0) = 0$).</p>
+<h3 id="superposition-repeated-dosing">Superposition (repeated dosing)<a class="headerlink" href="#superposition-repeated-dosing" title="Permanent link">&para;</a></h3>
+<p>For a linear system, concentration after $N$ doses is the sum of individual dose
+contributions shifted by their administration times:</p>
+<p>$$
+C_{\text{total}}(t) = \sum_{i=1}^{N} C_{\text{unit}}(t - t_{\text{dose},i}) \cdot \text{Dose}<em>i / D</em>{\text{unit}}
+$$</p>
+<p>This principle is used for all repeated-dose simulations.</p>
+<hr />
+<h2 id="dissolution-similarity">Dissolution Similarity<a class="headerlink" href="#dissolution-similarity" title="Permanent link">&para;</a></h2>
+<h3 id="f2-similarity-factor">f2 similarity factor<a class="headerlink" href="#f2-similarity-factor" title="Permanent link">&para;</a></h3>
+<p>$$
+f_2 = 50 \cdot \log_{10}\left(\frac{100}{\sqrt{1 + \frac{1}{n}\sum_{i=1}^{n}(R_i - T_i)^2}}\right)
+$$</p>
+<ul>
+<li>$f_2 = 100$ when profiles are identical</li>
+<li>$f_2 \geq 50$ indicates similarity (FDA 1997)</li>
+<li>Time points after both profiles exceed $85\%$ release are trimmed (regulatory method)</li>
+</ul>
+<h3 id="f1-difference-factor">f1 difference factor<a class="headerlink" href="#f1-difference-factor" title="Permanent link">&para;</a></h3>
+<p>$$
+f_1 = \frac{\sum_{i=1}^{n} |R_i - T_i|}{\sum_{i=1}^{n} R_i} \times 100
+$$</p>
+<ul>
+<li>$f_1 = 0$ when profiles are identical</li>
+<li>$f_1 \leq 15$ indicates similarity</li>
+</ul>
+<h3 id="bootstrap-f2">Bootstrap f2<a class="headerlink" href="#bootstrap-f2" title="Permanent link">&para;</a></h3>
+<p>When $n &lt; 12$ vessels, the bootstrap 90\% CI for $f_2$ is computed:</p>
+<ol>
+<li>Bootstrap-resample the vessel-level data $B = 2000$ times</li>
+<li>Compute $f_2$ for each resample</li>
+<li>Report the 90\% CI; similarity concluded if CI lower bound $\geq 50$</li>
+</ol>
+<p>Reference: Shah et al. (1998), <em>Pharm Res</em> 15(6):889-896.</p>
+<h3 id="dissolution-models">Dissolution models<a class="headerlink" href="#dissolution-models" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Equation</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zero-order</td>
+<td>$Q(t) = k_0 t$</td>
+<td>$k_0$</td>
+</tr>
+<tr>
+<td>First-order</td>
+<td>$Q(t) = 100(1 - e^{-k_1 t})$</td>
+<td>$k_1$</td>
+</tr>
+<tr>
+<td>Higuchi</td>
+<td>$Q(t) = k_H \sqrt{t}$</td>
+<td>$k_H$</td>
+</tr>
+<tr>
+<td>Korsmeyer-Peppas</td>
+<td>$Q(t) = k t^n$</td>
+<td>$k, n$</td>
+</tr>
+<tr>
+<td>Weibull</td>
+<td>$Q(t) = 100(1 - e^{-(t/\beta)^\alpha})$</td>
+<td>$\alpha, \beta$</td>
+</tr>
+</tbody>
+</table>
+<p>Models are fitted via <code>scipy.optimize.curve_fit</code> (NLS) and ranked by AICc.</p>
+<p>Reference: Costa &amp; Lobo (2001), <em>Eur J Pharm Sci</em> 13(2):123-133.</p>
+<hr />
+<h2 id="ivivc-in-vitro-in-vivo-correlation">IVIVC: In Vitro-In Vivo Correlation<a class="headerlink" href="#ivivc-in-vitro-in-vivo-correlation" title="Permanent link">&para;</a></h2>
+<h3 id="wagner-nelson-deconvolution">Wagner-Nelson deconvolution<a class="headerlink" href="#wagner-nelson-deconvolution" title="Permanent link">&para;</a></h3>
+<p>For a 1-compartment model with first-order elimination:</p>
+<p>$$
+F_a(t) = \frac{C(t) + k_e \cdot \text{AUC}<em>{0\to t}}{k_e \cdot \text{AUC}</em>{0\to\infty}}
+$$</p>
+<ul>
+<li>$F_a(t)$ is the fraction absorbed up to time $t$</li>
+<li>Requires only $k_e$ (from terminal phase) and plasma concentrations</li>
+<li>Does not require a separate IV dose</li>
+</ul>
+<p>Reference: Wagner &amp; Nelson (1963), <em>J Pharm Sci</em> 52(6):610-611.</p>
+<h3 id="loo-riegelman-deconvolution">Loo-Riegelman deconvolution<a class="headerlink" href="#loo-riegelman-deconvolution" title="Permanent link">&para;</a></h3>
+<p>For a 2-compartment model:</p>
+<p>$$
+F_a(t) = \frac{C_p(t) + k_{10} \cdot \text{AUC}<em>{0\to t} + A</em>{p,t}/V_1}{k_{10} \cdot \text{AUC}_{0\to\infty}}
+$$</p>
+<p>where $A_{p,t}$ is the amount in the peripheral compartment at time $t$, computed recursively:</p>
+<p>$$
+A_{p}(t_{i+1}) = A_{p}(t_i) \cdot e^{-k_{21}\Delta t} + \frac{C_p(t_i) \cdot Q \cdot (1 - e^{-k_{21}\Delta t})}{k_{21}} + C_p(t_{i+1}) \cdot V_2 - \frac{C_p(t_i) \cdot V_2 \cdot k_{21} \cdot (1 - e^{-k_{21}\Delta t})}{k_{21}}
+$$</p>
+<p>Requires micro-rate constants $k_{10}, k_{12}, k_{21}$ from a separate IV study.</p>
+<p>Reference: Loo &amp; Riegelman (1968), <em>J Pharm Sci</em> 57(6):918-928.</p>
+<h3 id="numerical-convolution">Numerical convolution<a class="headerlink" href="#numerical-convolution" title="Permanent link">&para;</a></h3>
+<p>Predicted concentration from dissolution:</p>
+<p>$$
+C_{\text{pred}}(t) = \sum_{i=1}^{m} \Delta F_{\text{diss},i} \cdot C_{\text{IR}}(t - t_i)
+$$</p>
+<p>where $C_{\text{IR}}$ is the unit impulse response (IR formulation profile) and
+$\Delta F_{\text{diss},i}$ is the incremental fraction dissolved.</p>
+<h3 id="predictability-pe">Predictability (%PE)<a class="headerlink" href="#predictability-pe" title="Permanent link">&para;</a></h3>
+<p>$$
+\%\text{PE}<em>{AUC} = \frac{\text{AUC}</em>{\text{obs}} - \text{AUC}<em>{\text{pred}}}{\text{AUC}</em>{\text{obs}}} \times 100
+$$</p>
+<p>FDA IVIVC acceptance criteria:
+- Mean $\%$PE for $C_{\max}$ and AUC $\leq 10\%$
+- Individual $\%$PE for $C_{\max}$ $\leq 15\%$</p>
+<p>Reference: FDA Guidance IVIVC (1997).</p>
+<h3 id="levy-plot">Levy plot<a class="headerlink" href="#levy-plot" title="Permanent link">&para;</a></h3>
+<p>Linear regression of $F_{a,\text{in-vivo}}$ vs $F_{\text{diss, in-vitro}}$:</p>
+<p>$$
+F_{a,\text{in-vivo}} = a + b \cdot F_{\text{diss, in-vitro}}
+$$</p>
+<p>$R^2$ measures the strength of the IVIVC. A perfect 1:1 relationship gives
+$R^2 = 1$, slope $= 1$, intercept $= 0$.</p>
+<hr />
+<h2 id="bioequivalence-tost">Bioequivalence (TOST)<a class="headerlink" href="#bioequivalence-tost" title="Permanent link">&para;</a></h2>
+<h3 id="two-one-sided-tests">Two one-sided tests<a class="headerlink" href="#two-one-sided-tests" title="Permanent link">&para;</a></h3>
+<p>For paired log-transform data:</p>
+<ol>
+<li>Compute log-differences: $d_i = \ln(T_i) - \ln(R_i)$</li>
+<li>Mean log-difference: $\bar{d} = \frac{1}{n}\sum d_i$</li>
+<li>Geometric mean ratio: $\text{GMR} = e^{\bar{d}}$</li>
+<li>Intra-subject variance: $s^2 = \frac{1}{n-1}\sum(d_i - \bar{d})^2$</li>
+<li>Intra-subject CV: $\text{CV}_{\text{intra}}\% = 100 \cdot \sqrt{e^{s^2} - 1}$</li>
+<li>90\% confidence interval for GMR:</li>
+</ol>
+<p>$$
+\text{CI}<em>{90\%} = \exp\left(\bar{d} \pm t</em>{0.05, n-1} \cdot \frac{s}{\sqrt{n}}\right)
+$$</p>
+<p><strong>Decision rule:</strong> Bioequivalent if $\text{CI}<em>{\text{lower}} \geq 0.80$ and
+$\text{CI}</em>{\text{upper}} \leq 1.25$.</p>
+<p>Reference: Schuirmann (1987), <em>J Pharmacokinet Biopharm</em> 15(6):657-680.</p>
+<h3 id="power-of-tost-1-beta">Power of TOST ($1 - \beta$)<a class="headerlink" href="#power-of-tost-1-beta" title="Permanent link">&para;</a></h3>
+<p>Using the non-central $t$ distribution:</p>
+<p>$$
+\text{power} = P\left(t_{n-2}(\delta) &gt; t_{0.05, n-2}\right) - P\left(t_{n-2}(\delta) &lt; -t_{0.05, n-2}\right)
+$$</p>
+<p>where:</p>
+<p>$$
+\delta = \frac{\ln(\text{GMR})}{s / \sqrt{n}}
+$$</p>
+<p>This is the exact Phillips non-central $t$ method.</p>
+<p>Reference: Phillips (1990), <em>J Pharmacokinet Biopharm</em> 18(2):137-144.</p>
+<h3 id="sample-size">Sample size<a class="headerlink" href="#sample-size" title="Permanent link">&para;</a></h3>
+<p>Sequential search for the smallest even $n$ such that power $\geq$ target (default 0.80).</p>
+<p>Reference: Diletti et al. (1991), <em>Int J Clin Pharmacol Ther Toxicol</em> 29(1):1-8.</p>
+<hr />
+<h2 id="population-pk">Population PK<a class="headerlink" href="#population-pk" title="Permanent link">&para;</a></h2>
+<h3 id="model-structure">Model structure<a class="headerlink" href="#model-structure" title="Permanent link">&para;</a></h3>
+<p>$$
+C_{ij} = f(\phi_i, t_{ij})
+$$</p>
+<p>where $\phi_i$ are individual parameters:</p>
+<p>$$
+\phi_i = \theta_{\text{pop}} \cdot \exp(\eta_i), \quad \eta_i \sim \mathcal{N}(0, \Omega)
+$$</p>
+<p>Residual error model (combined):</p>
+<p>$$
+y_{ij} = C_{ij} + \epsilon_{ij}, \quad \epsilon_{ij} \sim \mathcal{N}(0, \sigma_{\text{prop}}^2 \cdot C_{ij}^2 + \sigma_{\text{add}}^2)
+$$</p>
+<h3 id="foce-i-objective-function">FOCE-I objective function<a class="headerlink" href="#foce-i-objective-function" title="Permanent link">&para;</a></h3>
+<p>The first-order conditional estimation with interaction (-2 log-likelihood):</p>
+<p>$$
+-2\ell(\theta, \Omega, \Sigma) = \sum_{i=1}^{N} \left[ n_i \ln(2\pi) + \ln|V_i| + (y_i - f_i - G_i\hat{\eta}_i)^T V_i^{-1}(y_i - f_i - G_i\hat{\eta}_i) + \hat{\eta}_i^T \Omega^{-1} \hat{\eta}_i + \ln|\Omega| \right]
+$$</p>
+<p>where:</p>
+<ul>
+<li>$V_i = G_i \Omega G_i^T + \Sigma_i$ (linearised marginal variance)</li>
+<li>$G_i = \partial f_i / \partial \eta_i^T$ (Jacobian of predictions w.r.t. random effects)</li>
+<li>$\hat{\eta}<em>i = \arg\min</em>\eta \left[ (y_i - f_i(\eta))^T \Sigma_i^{-1}(y_i - f_i(\eta)) + \eta^T \Omega^{-1} \eta \right]$ (empirical Bayes estimate)</li>
+</ul>
+<p><strong>Inner loop:</strong> Per-subject L-BFGS-B optimisation for $\hat{\eta}<em>i$ (EBEs)
+<strong>Outer loop:</strong> L-BFGS-B over $\theta</em>{\text{pop}}, \Omega, \Sigma$</p>
+<p>Reference: Lindstrom &amp; Bates (1990), <em>Biometrics</em> 46:673-687.</p>
+<h3 id="saem-algorithm">SAEM algorithm<a class="headerlink" href="#saem-algorithm" title="Permanent link">&para;</a></h3>
+<p><strong>Simulation (S-step):</strong> Sample $\eta_i^{(k)}$ from the conditional distribution
+$p(\eta_i \mid y_i, \theta^{(k-1)})$ using Metropolis MCMC.</p>
+<p><strong>Stochastic Approximation (SA-step):</strong></p>
+<p>$$
+s_k = s_{k-1} + \gamma_k \left(S(\eta^{(k)}) - s_{k-1}\right)
+$$</p>
+<p>where $\gamma_k = 1/k^\alpha$ (Robbins-Monro gain, $\alpha \in (0.5, 1]$).</p>
+<p><strong>Maximisation (M-step):</strong> Analytical update of population parameters from
+sufficient statistics $s_k$.</p>
+<p>Reference: Delyon, Lavielle &amp; Moulines (1999), <em>Ann Stat</em> 27(1):94-128.</p>
+<h3 id="information-criteria">Information criteria<a class="headerlink" href="#information-criteria" title="Permanent link">&para;</a></h3>
+<p>$$
+\begin{aligned}
+\text{AIC} &amp;= -2\ell + 2p \
+\text{BIC} &amp;= -2\ell + p \ln(N_{\text{obs}})
+\end{aligned}
+$$</p>
+<p>where $p$ is the total number of estimated parameters ($\theta_{\text{pop}} + \Omega + \Sigma$).</p>
+<h3 id="ebe-shrinkage">EBE shrinkage<a class="headerlink" href="#ebe-shrinkage" title="Permanent link">&para;</a></h3>
+<p>$$
+\text{Shrinkage}<em>k = 1 - \frac{\text{Var}(\hat{\eta}</em>{k,i})}{\omega_k^2}
+$$</p>
+<ul>
+<li>0\% = no shrinkage (data dominates)</li>
+<li>100\% = complete shrinkage (prior dominates)</li>
+<li>High shrinkage ($&gt; 30\%$) indicates the data contains little information
+  about that parameter</li>
+</ul>
+<p>Reference: Savic &amp; Karlsson (2009), <em>AAPS J</em> 11(3):558-569.</p>
+<hr />
+<h2 id="bayesian-pk">Bayesian PK<a class="headerlink" href="#bayesian-pk" title="Permanent link">&para;</a></h2>
+<h3 id="map-estimation">MAP estimation<a class="headerlink" href="#map-estimation" title="Permanent link">&para;</a></h3>
+<p>Maximises the log-posterior:</p>
+<p>$$
+\hat{\theta}<em>{\text{MAP}} = \arg\max</em>\theta \left[\ln p(\theta) + \ln p(y \mid \theta)\right]
+$$</p>
+<p>With log-normal priors $\theta_k \sim \text{LogNormal}(\mu_k, \sigma_k^2)$:</p>
+<p>$$
+\ln p(\theta) = -\sum_k \left[\frac{(\ln\theta_k - \mu_k)^2}{2\sigma_k^2} + \ln(\theta_k) + \ln(\sigma_k) + \frac{1}{2}\ln(2\pi)\right]
+$$</p>
+<p>Optimised via L-BFGS-B in log-space. Hessian at the mode gives asymptotic
+standard errors (inverse Fisher information).</p>
+<p>Reference: Sheiner &amp; Beal (1982), <em>J Pharm Sci</em> 71:1344-1348.</p>
+<h3 id="full-bayesian-mcmc">Full Bayesian (MCMC)<a class="headerlink" href="#full-bayesian-mcmc" title="Permanent link">&para;</a></h3>
+<p>Posterior sampling via PyMC NUTS:</p>
+<p>$$
+p(\theta \mid y) \propto p(\theta) \cdot p(y \mid \theta)
+$$</p>
+<p>Outputs include 95\% credible intervals and effective sample size (ESS).</p>
+<h3 id="bayesian-be">Bayesian BE<a class="headerlink" href="#bayesian-be" title="Permanent link">&para;</a></h3>
+<p>Posterior probability of bioequivalence:</p>
+<p>$$
+P(\text{BE} \mid y) = P(0.80 \leq \text{GMR} \leq 1.25 \mid y)
+$$</p>
+<p>Bayesian and frequentist GMR estimates are reported side-by-side.</p>
+<p>Reference: Grieve (1985), <em>Biometrics</em> 41:979-990.</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ol>
+<li>FDA Guidance: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997)</li>
+<li>FDA Guidance: Extended Release Oral Dosage Forms — IVIVC (1997)</li>
+<li>FDA Guidance: Statistical Approaches to Establishing Bioequivalence (2001)</li>
+<li>FDA Guidance: BA/BE Studies for Orally Administered Drug Products (2003)</li>
+<li>Schuirmann (1987), <em>J Pharmacokinet Biopharm</em> 15(6):657-680</li>
+<li>Phillips (1990), <em>J Pharmacokinet Biopharm</em> 18(2):137-144</li>
+<li>Gibaldi &amp; Perrier (1982), <em>Pharmacokinetics</em>, 2nd ed., Marcel Dekker</li>
+<li>Rowland &amp; Tozer (2011), <em>Clinical Pharmacokinetics</em>, 4th ed.</li>
+<li>Wagner &amp; Nelson (1963), <em>J Pharm Sci</em> 52(6):610-611</li>
+<li>Loo &amp; Riegelman (1968), <em>J Pharm Sci</em> 57(6):918-928</li>
+<li>Lindstrom &amp; Bates (1990), <em>Biometrics</em> 46:673-687</li>
+<li>Delyon, Lavielle &amp; Moulines (1999), <em>Ann Stat</em> 27(1):94-128</li>
+<li>Sheiner &amp; Beal (1982), <em>J Pharm Sci</em> 71:1344-1348</li>
+<li>Savic &amp; Karlsson (2009), <em>AAPS J</em> 11(3):558-569</li>
+<li>Costa &amp; Lobo (2001), <em>Eur J Pharm Sci</em> 13(2):123-133</li>
+<li>Shah et al. (1998), <em>Pharm Res</em> 15(6):889-896</li>
+<li>Pinheiro &amp; Bates (2000), <em>Mixed-Effects Models in S and S-PLUS</em>, Springer</li>
+<li>Grieve (1985), <em>Biometrics</em> 41:979-990</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/priyamthakar/openpkflow" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/openpkflow/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
