@@ -21,7 +21,7 @@ repos:
         exclude: \.html$|\.csv$|\.json$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v1.20.2
     hooks:
       - id: mypy
         args: [--ignore-missing-imports, --follow-imports=silent]
@@ -29,10 +29,9 @@ repos:
         # continue-on-error; pre-existing issues in older modules tracked separately.
         files: ^src/openpkflow/bayes/
         additional_dependencies:
-          # numpy>=2.3 ships stubs with PEP 695 `type` statements; mypy 1.13
-          # cannot parse them at the configured target version. Pin until the
-          # mirrors-mypy rev is bumped.
-          - numpy>=1.24,<2.3
+          # Cap mirrors the CI Type check job: NumPy 2.5 stubs require a Python
+          # 3.12 mypy target, but the project type-checks its 3.10 floor.
+          - numpy<2.5
           - pandas>=2.0
           - scipy>=1.10
           - matplotlib>=3.7
