@@ -10,8 +10,9 @@ workflow (`gh-pages` remains as the CI-managed docs deployment branch).
 - Merged PR [#57](https://github.com/priyamthakar/openpkflow/pull/57)
   (uvicorn >=0.52.4) and PR [#58](https://github.com/priyamthakar/openpkflow/pull/58)
   (Playwright chrome-behavior coverage) into `main`.
-- Committed the pre-commit numpy<2.3 pin that fixes the previously failing
-  `pre-commit` CI job (mypy 1.13 cannot parse numpy 2.3 PEP 695 stubs).
+- Fixed the long-broken `pre-commit` CI job: bumped `mirrors-mypy` to
+  v1.20.2 (mypy 1.13 cannot parse numpy 2.3+ PEP 695 stubs) and capped the
+  hook env at `numpy<2.5`, mirroring the CI Type check job.
 - Landed the pending portfolio-demo availability doc polish from the
   `D:\openpkflow-docs-demo` worktree.
 - Deleted all merged or superseded branches (local and remote): `release/*`,
