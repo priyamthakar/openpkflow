@@ -1,6 +1,27 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-07-31
+**Last updated:** 2026-09-06
+
+## Repo consolidation (2026-09-06)
+
+Development is consolidated on `main`; the repo now uses a single-branch
+workflow (`gh-pages` remains as the CI-managed docs deployment branch).
+
+- Merged PR [#57](https://github.com/priyamthakar/openpkflow/pull/57)
+  (uvicorn >=0.52.4) and PR [#58](https://github.com/priyamthakar/openpkflow/pull/58)
+  (Playwright chrome-behavior coverage) into `main`.
+- Committed the pre-commit numpy<2.3 pin that fixes the previously failing
+  `pre-commit` CI job (mypy 1.13 cannot parse numpy 2.3 PEP 695 stubs).
+- Landed the pending portfolio-demo availability doc polish from the
+  `D:\openpkflow-docs-demo` worktree.
+- Deleted all merged or superseded branches (local and remote): `release/*`,
+  `docs/*` (except `gh-pages`), `fix/*`, `agent/*`, `pr52`, `test/*`, and the
+  `subagent-*` scratch branches.
+- Removed all secondary worktrees (`D:\openpkflow-v2.8.0`,
+  `D:\openpkflow-docs-demo`, `D:\openpkflow-v2.7.0-release`,
+  `D:\openpkflow-v2.7.1-docsync`, `D:\openpkflow-v2.7.1-v2.8.0`, and the
+  agent scratch worktrees). The `D:\openpkflow` checkout remains the single
+  working copy.
 
 ## Current state
 
@@ -16,7 +37,6 @@ OpenPKFlow **v2.8.0 is published and hosted convergence is verified**.
 - Post-release documentation PRs:
   [#46](https://github.com/priyamthakar/openpkflow/pull/46) (`3923aff`) and
   [#47](https://github.com/priyamthakar/openpkflow/pull/47) (`4039ed8`)
-- Isolated worktree: `D:\openpkflow-v2.8.0`
 
 The original `D:\openpkflow` checkout and its user-owned untracked content
 remain untouched.
@@ -164,4 +184,5 @@ Do not extend the frozen `pop/estimation/` module.
 - Preserve explicit AUC method and BLQ handling.
 - Keep pharmacometric logic in `src/openpkflow/`, never in `api/` or `webapp/`.
 - Do not use `--no-verify`, force-push, or amend published commits.
-- Preserve the original checkout and use the isolated worktree for follow-up.
+- Work directly on `main` in the `D:\openpkflow` checkout (single-branch
+  workflow since the 2026-09-06 consolidation).
