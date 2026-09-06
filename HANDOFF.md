@@ -107,6 +107,10 @@ Dependency re-check on 2026-07-30:
 Render free web services **sleep after ~15 minutes** with no traffic. That is
 normal free-tier behaviour, not a broken deploy.
 
+**Operating decision:** retain the 10-minute keep-warm workflow for the public
+OpenPKFlow portfolio/demo. It improves the first visit for recruiters,
+collaborators, and evaluators, but it is not a production uptime mechanism.
+
 | Piece | What it does | Notes |
 | --- | --- | --- |
 | GitHub Actions `Keep Render warm` | GET `/health` about every **10 minutes** | Workflow: `.github/workflows/keep-warm.yml`. Merged via [PR #50](https://github.com/priyamthakar/openpkflow/pull/50). |
@@ -122,6 +126,18 @@ Run history: <https://github.com/priyamthakar/openpkflow/actions/workflows/keep-
 
 This is **best-effort free keep-warm**, not a paid always-on SLA. GitHub cron can
 drift; cold starts can still happen after deploys or rare missed pings.
+
+Render currently grants 750 shared free instance-hours per workspace each
+calendar month. One continuously warm service uses about 720 hours in a 30-day
+month or 744 hours in a 31-day month. Monitor Render's monthly usage and
+disable or reassess keep-warm before adding another free web service to the
+same workspace. If dependable production availability becomes a requirement,
+use a paid always-on instance instead of tightening the ping schedule.
+
+Current platform references:
+
+- Render free-instance behaviour and limits: <https://render.com/docs/free>
+- GitHub scheduled-workflow caveats: <https://docs.github.com/en/actions/how-tos/troubleshoot-workflows>
 
 ## Single next objective
 

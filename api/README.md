@@ -96,6 +96,13 @@ Repo keep-warm (best-effort, free):
   notifications are enabled for failed workflows
 - Not Cloudflare email and not a paid always-on SLA
 
+This workflow is intentionally retained for the public portfolio/demo so a
+first-time evaluator is less likely to encounter a cold start. It is not a
+production uptime design. One continuously warm service nearly consumes
+Render's shared 750 free instance-hours in a long month; monitor workspace
+usage and reassess before adding another free service. Use a paid always-on
+instance if dependable production availability is required.
+
 The Cloudflare Workers SPA hosts only the frontend. API warm-keeping is GitHub
 Actions -> Render, documented in root `HANDOFF.md`.
 

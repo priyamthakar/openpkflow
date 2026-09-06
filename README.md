@@ -435,7 +435,7 @@ bundle without adding new pharmacometric formulas. See
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live demo](https://openpkflow.priyamthakar1.workers.dev). Free Render may sleep when idle; repo keep-warm + UI retries mitigate that (see [HANDOFF.md](HANDOFF.md)). |
+| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live portfolio demo](https://openpkflow.priyamthakar1.workers.dev). A best-effort keep-warm workflow and UI retries reduce free Render cold starts; this is demo availability, not a production SLA (see [HANDOFF.md](HANDOFF.md)). |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
 \* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).

@@ -228,7 +228,9 @@ Historical delivery order and the current gate (also summarized in
     `/health` and click-to-retry so Workers UI does not stick on offline.
 13. ~~Free Render keep-warm~~ -- done: PR #50 schedules
     `.github/workflows/keep-warm.yml` every ~10 minutes. Silent on success
-    (no Gmail every 10 minutes). See `HANDOFF.md` Deployment.
+    (no Gmail every 10 minutes). Retained as a portfolio/demo convenience, not
+    a production SLA; monitor shared Render free-instance usage. See
+    `HANDOFF.md` Deployment.
 
 ---
 

@@ -316,8 +316,10 @@ changes to frozen `pop/estimation/`, and any claim of regulatory approval.
 ### Post-v2.8.0 free-tier ops (2026-07-31)
 
 - Health badge cold-start recovery (PR #49) and free Render keep-warm pings
-  (PR #50, every ~10 minutes) are on `main`. Best-effort free keep-warm only;
-  silent on success (no Gmail spam). Full ops notes: `HANDOFF.md`.
+  (PR #50, every ~10 minutes) are on `main`. Retain for portfolio/demo
+  availability only; best-effort, not a production SLA, and silent on success
+  (no Gmail spam). Monitor shared free instance-hours before adding another
+  Render service. Full ops notes: `HANDOFF.md`.
 
 ---
 

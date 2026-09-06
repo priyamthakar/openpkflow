@@ -34,8 +34,9 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   from `main`. Its `/health` endpoint is the source of truth for the deployed
   commit because documentation-only merges also redeploy the service. Free-tier
   Render can sleep after idle; `.github/workflows/keep-warm.yml` pings `/health`
-  about every 10 minutes (best-effort, no email on success), and the webapp
-  TopBar retries cold starts. See `HANDOFF.md` "Deployment" for URLs and ops.
+  about every 10 minutes for portfolio/demo availability (best-effort, not a
+  production SLA, no email on success), and the webapp TopBar retries cold
+  starts. See `HANDOFF.md` "Deployment" for URLs and ops.
 
 **Takeover:** read `HANDOFF.md` first for branch/PR/release state.
 

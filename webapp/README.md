@@ -66,5 +66,9 @@ A separate free GitHub Actions workflow (PR #50, **Keep Render warm**) pings
 are silent; only failed Actions may email depending on your GitHub notification
 settings.
 
+The keep-warm workflow is a portfolio/demo convenience, not a production SLA.
+The badge retry and manual retry remain required because scheduled jobs can be
+delayed and Render can still restart or cold-start the service.
+
 Local `npm run dev` still needs the API on port 8000; otherwise the badge is
 offline because Vite proxies `/health` to `localhost:8000`.

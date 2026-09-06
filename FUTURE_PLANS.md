@@ -64,7 +64,9 @@ and hosted version/commit convergence are verified.
 - ~~Frontend health badge cold-start recovery~~ -- PR #49 (retry, auto-poll,
   click-to-retry). Live Workers bundle redeployed.
 - ~~Free Render keep-warm~~ -- PR #50: GitHub Actions pings `/health` about
-  every 10 minutes. Best-effort only; does not email on success. Documented in
+  every 10 minutes. Retained for portfolio/demo availability only; best-effort,
+  not a production SLA, and does not email on success. Monitor the shared free
+  instance-hour allowance before adding another Render service. Documented in
   `HANDOFF.md`, `api/README.md`, and `webapp/README.md`.
 
 ### Product slice
