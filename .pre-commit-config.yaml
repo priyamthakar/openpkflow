@@ -29,7 +29,10 @@ repos:
         # continue-on-error; pre-existing issues in older modules tracked separately.
         files: ^src/openpkflow/bayes/
         additional_dependencies:
-          - numpy>=1.24
+          # numpy>=2.3 ships stubs with PEP 695 `type` statements; mypy 1.13
+          # cannot parse them at the configured target version. Pin until the
+          # mirrors-mypy rev is bumped.
+          - numpy>=1.24,<2.3
           - pandas>=2.0
           - scipy>=1.10
           - matplotlib>=3.7
