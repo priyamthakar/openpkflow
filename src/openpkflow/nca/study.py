@@ -237,9 +237,17 @@ class NCAStudy:
             t_auclast = t[: tlast_idx + 1]
             c_auclast = c[: tlast_idx + 1]
 
-            if self._auc_method == "linear":
-                auclast_val: float = auc_linear(t_auclast, c_auclast)
-                auc_warnings: list[str] = []
+            auc_warnings: list[str] = []
+            if tlast_idx < 1:
+                # No interval ends at a quantifiable concentration (all BLQ, or only the
+                # first sample quantifiable), so AUC(0-tlast) has zero width.
+                auclast_val: float = 0.0
+                auc_warnings.append(
+                    "Fewer than 2 samples up to the last quantifiable concentration; "
+                    "AUClast set to 0."
+                )
+            elif self._auc_method == "linear":
+                auclast_val = auc_linear(t_auclast, c_auclast)
             else:
                 fn = auc_log if self._auc_method == "log" else auc_linear_up_log_down
                 res: AUCResult = fn(t_auclast, c_auclast)
