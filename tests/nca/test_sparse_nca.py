@@ -177,6 +177,31 @@ class TestFitSparse1cmtOral:
         assert "model-informed screening" in rendered
         assert "Final regulatory interpretation" in rendered
 
+    def test_default_initial_guess_outside_bounds_is_clipped(self):
+        """Heuristic CL_F guess above the 1000 bound must not abort the fit.
+
+        Expected values are the simulating parameters (Bateman 1-cmt oral,
+        Gibaldi & Perrier 1982 Eq. 1-13); the sparse 3-point trapezoid puts
+        dose/AUC above the default upper CL_F bound before clipping.
+        """
+        times = np.array([0.5, 2.0, 8.0])
+        conc = c_1cmt_oral(times, 100.0, 50.0, 9000.0, 0.5)
+
+        result = fit_sparse_1cmt_oral(times, conc, 100.0)
+
+        assert result.converged
+        assert pytest.approx(50.0, rel=0.05) == result.CL_F
+        assert result.Vz_F == pytest.approx(9000.0, rel=0.05)
+
+    def test_plot_closes_saved_figure(self, tmp_path):
+        import matplotlib.pyplot as plt
+
+        times = np.array([0.5, 2.0, 8.0, 24.0])
+        result = fit_sparse_1cmt_oral(times, c_1cmt_oral(times, 100.0, 5.0, 50.0, 0.8), 100.0)
+        before = len(plt.get_fignums())
+        result.plot(output_path=str(tmp_path / "fit.png"))
+        assert len(plt.get_fignums()) == before
+
     def test_converged_false_on_bad_data(self):
         # Impossibly high values with random noise that can't fit a 1-cmt model
         np.random.seed(42)
