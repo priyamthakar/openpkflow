@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Query
 from fastapi.responses import FileResponse
 
+from app.deps import report_output
 from app.schemas.ivivc import IvIvcRequest, IvIvcResponse
 from app.services.ivivc_service import run_ivivc, write_ivivc_report
 
@@ -39,8 +38,8 @@ def report(
     from starlette.background import BackgroundTask
 
     ext = _EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    write_ivivc_report(req, tmp_out, fmt=format)
+    with report_output(ext) as tmp_out:
+        write_ivivc_report(req, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
         media_type=_MIME.get(format, "text/html"),

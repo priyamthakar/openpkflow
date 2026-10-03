@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Body
 from fastapi.responses import FileResponse
 
+from app.deps import report_output
 from app.schemas.sim import SimRequest, SimResponse
 from app.services.sim_service import run_sim
 
@@ -57,8 +56,8 @@ def report(
     from starlette.background import BackgroundTask
 
     ext = _EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    result.report(tmp_out, format=format)
+    with report_output(ext) as tmp_out:
+        result.report(tmp_out, format=format)
     return FileResponse(
         path=str(tmp_out),
         media_type=_MIME.get(format, "text/html"),

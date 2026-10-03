@@ -10,7 +10,7 @@ from typing import Literal
 from fastapi import APIRouter, Form, UploadFile
 from fastapi.responses import FileResponse
 
-from app.deps import saved_upload
+from app.deps import report_output, saved_upload
 from app.schemas.be import (
     BeOptions,
     BeResponse,
@@ -66,8 +66,7 @@ def report(
 
     opts = BeOptions.model_validate(json.loads(options))
     ext = _EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    with saved_upload(file) as path:
+    with report_output(ext) as tmp_out, saved_upload(file) as path:
         write_be_report(path, opts, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
