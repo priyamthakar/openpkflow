@@ -25,7 +25,12 @@ from openpkflow.dissolution.models import (
     fit_dissolution_models,
     model_dependent_comparison,
 )
-from openpkflow.dissolution.similarity import MSDResult, max_deviation, msd
+from openpkflow.dissolution.similarity import (
+    MSDVesselResult,
+    max_deviation,
+    msd_vessels,
+    regulatory_cutoff,
+)
 from openpkflow.dissolution.study import ComparisonResult, DissolutionStudy
 
 if TYPE_CHECKING:
@@ -142,7 +147,7 @@ class DissolutionWorkbenchResult:
     reference_models: DissolutionFitResults
     test_models: DissolutionFitResults
     model_comparison: ModelComparisonResult
-    msd_result: MSDResult
+    msd_result: MSDVesselResult | None
     maximum_deviation: float
     warnings: list[str]
     generated_at_utc: str
@@ -155,6 +160,7 @@ class DissolutionWorkbenchResult:
         dict[str, object]
             Serialized inputs, configuration, calculations, and evidence labels.
         """
+        msd = self.msd_result
         return {
             "metadata": {
                 "openpkflow_version": __version__,
@@ -202,11 +208,15 @@ class DissolutionWorkbenchResult:
             },
             "alternatives": {
                 "maximum_deviation": self.maximum_deviation,
-                "msd": self.msd_result.msd,
-                "msd_squared": self.msd_result.msd_squared,
-                "chi2_05_critical": self.msd_result.chi2_05_critical,
-                "n_timepoints": self.msd_result.n_timepoints,
-                "msd_is_similar": self.msd_result.is_similar,
+                "msd_method": "Tsong et al. (1996) pooled-covariance MSD, 90% Hotelling region",
+                "msd": msd.msd if msd else None,
+                "msd_squared": msd.msd_squared if msd else None,
+                "msd_ci_lower": msd.ci_lower if msd else None,
+                "msd_ci_upper": msd.ci_upper if msd else None,
+                "msd_similarity_limit": msd.similarity_limit if msd else None,
+                "msd_similarity_limit_pct": msd.similarity_limit_pct if msd else None,
+                "n_timepoints": msd.n_timepoints if msd else None,
+                "msd_is_similar": msd.is_similar if msd else None,
             },
             "warnings": list(self.warnings),
             "disclaimer": _DISCLAIMER,
@@ -424,6 +434,7 @@ def run_dissolution_workbench(
             n_replicates=config.bootstrap_replicates,
             confidence_level=config.confidence_level,
             seed=config.seed,
+            f2_method=config.f2_method,
         )
         reference_models = fit_dissolution_models(
             reference_times,
@@ -449,8 +460,17 @@ def run_dissolution_workbench(
 
     reference_mean = reference_matrix.mean(axis=0).tolist()
     test_mean = test_matrix.mean(axis=0).tolist()
-    msd_result = msd(reference_mean, test_mean)
     maximum = max_deviation(reference_mean, test_mean)
+    n_used = (
+        regulatory_cutoff(reference_mean, test_mean)
+        if config.f2_method == "regulatory"
+        else len(reference_mean)
+    )
+    msd_result: MSDVesselResult | None = None
+    try:
+        msd_result = msd_vessels(reference_matrix[:, :n_used], test_matrix[:, :n_used])
+    except ValueError as exc:
+        captured.append(f"MSD not evaluable: {exc}")
     all_warnings = list(dict.fromkeys([*comparison.warnings, *captured]))
 
     return DissolutionWorkbenchResult(

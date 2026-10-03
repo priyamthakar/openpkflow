@@ -185,11 +185,15 @@ class WorkbenchModelComparisonResponse(BaseModel):
 
 class WorkbenchAlternativesResponse(BaseModel):
     maximum_deviation: float
-    msd: float
-    msd_squared: float
-    chi2_05_critical: float
-    n_timepoints: int
-    msd_is_similar: bool
+    msd_method: str
+    msd: float | None
+    msd_squared: float | None
+    msd_ci_lower: float | None
+    msd_ci_upper: float | None
+    msd_similarity_limit: float | None
+    msd_similarity_limit_pct: float | None
+    n_timepoints: int | None
+    msd_is_similar: bool | None
 
 
 class WorkbenchResponse(BaseModel):

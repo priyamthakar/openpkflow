@@ -76,6 +76,15 @@ def _profile_plot_png(result: DissolutionWorkbenchResult) -> bytes:
     return stream.getvalue()
 
 
+def _msd_cells(result: DissolutionWorkbenchResult) -> tuple[str, str]:
+    msd = result.msd_result
+    if msd is None:
+        return "Not evaluable (see warnings)", "No MSD decision"
+    value = f"{msd.msd:.3f} / {msd.ci_upper:.3f} / {msd.similarity_limit:.3f}"
+    decision = "Supports similarity" if msd.is_similar else "Does not support similarity"
+    return value, decision
+
+
 def _model_rows(result: DissolutionWorkbenchResult) -> list[list[str]]:
     rows: list[list[str]] = []
     for label, fits in (
@@ -144,9 +153,7 @@ def render_workbench_html(result: DissolutionWorkbenchResult) -> str:
     bootstrap_decision = (
         "Supports similarity" if bootstrap.is_similar else "Does not support similarity"
     )
-    msd_decision = (
-        "Supports similarity" if result.msd_result.is_similar else "Does not support similarity"
-    )
+    msd_value, msd_decision = _msd_cells(result)
     model_decision = (
         "Supports similarity" if model_comparison.is_similar else "Does not support similarity"
     )
@@ -204,12 +211,12 @@ img {{ display:block; max-width:100%; margin:12px auto; }}
 <tbody>
 <tr><td>Point f2</td><td>{comparison.f2_value:.3f}</td>
 <td>{point_decision}</td></tr>
-<tr><td>Bootstrap f2 (all points)</td><td>{bootstrap.ci_lower:.3f} to
+<tr><td>Bootstrap f2 ({html.escape(comparison.f2_method)})</td><td>{bootstrap.ci_lower:.3f} to
 {bootstrap.ci_upper:.3f}</td>
 <td>{bootstrap_decision}</td></tr>
 <tr><td>Mahalanobis statistical distance</td>
-<td>{result.msd_result.msd_squared:.3f} (critical {result.msd_result.chi2_05_critical:.3f})</td>
-<td>{msd_decision}</td></tr>
+<td>{html.escape(msd_value)}</td>
+<td>{html.escape(msd_decision)}</td></tr>
 <tr><td>Model-dependent {html.escape(model_comparison.param_name)}</td>
 <td>{model_comparison.ratio_pct:.2f}% (90% CI {model_comparison.ci_lo:.2f} -
 {model_comparison.ci_hi:.2f}%)</td>
@@ -275,11 +282,7 @@ def _write_pdf(result: DissolutionWorkbenchResult, output_path: Path) -> bytes:
                     f"{result.bootstrap.ci_lower:.3f} - {result.bootstrap.ci_upper:.3f}",
                 ],
                 ["Maximum deviation", f"{result.maximum_deviation:.3f}"],
-                [
-                    "MSD squared / critical",
-                    f"{result.msd_result.msd_squared:.3f} / "
-                    f"{result.msd_result.chi2_05_critical:.3f}",
-                ],
+                ["MSD / 90% CI upper / limit", _msd_cells(result)[0]],
             ],
             colWidths=[2.7 * inch, 2.7 * inch],
         ),
@@ -376,13 +379,7 @@ def _write_docx(result: DissolutionWorkbenchResult, output_path: Path) -> bytes:
             f"{result.bootstrap.ci_lower:.3f} - {result.bootstrap.ci_upper:.3f}",
             "Supports similarity" if result.bootstrap.is_similar else "Does not support similarity",
         ),
-        (
-            "MSD squared / critical",
-            f"{result.msd_result.msd_squared:.3f} / {result.msd_result.chi2_05_critical:.3f}",
-            "Supports similarity"
-            if result.msd_result.is_similar
-            else "Does not support similarity",
-        ),
+        ("MSD / 90% CI upper / limit", *_msd_cells(result)),
     ]
     for summary_values in summary_rows:
         cells = summary.add_row().cells
