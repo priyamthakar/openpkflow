@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import pandas as pd
 
@@ -543,6 +543,7 @@ class DissolutionStudy:
         n_replicates: int = 5000,
         confidence_level: float = 0.90,
         seed: int | None = None,
+        f2_method: Literal["all_points", "regulatory"] = "all_points",
     ) -> BootstrapF2Result:
         """Compare two formulations using bootstrap f2 confidence interval.
 
@@ -561,6 +562,8 @@ class DissolutionStudy:
             CI level, e.g. 0.90 for 90% CI. Default 0.90.
         seed : int or None, optional
             Random seed for reproducibility.
+        f2_method : {"all_points", "regulatory"}, optional
+            Timepoint selection passed to bootstrap_f2. Default "all_points".
 
         Returns
         -------
@@ -599,6 +602,7 @@ class DissolutionStudy:
             n_replicates=n_replicates,
             confidence_level=confidence_level,
             seed=seed,
+            f2_method=f2_method,
         )
 
     def fit_models(
