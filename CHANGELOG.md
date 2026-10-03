@@ -18,7 +18,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (pooled covariance, Tsong et al. 1996 90% Hotelling region vs. a 10%
   per-timepoint similarity limit) on the same timepoints as f2, and reports
   "not evaluable" when there are too few vessels or the covariance is singular.
-  `msd()` now emits a `UserWarning`.
+  `msd()` now emits a `UserWarning`. `msd_vessels()` is cross-validated against
+  `disprofas::mimcr()` (six cases including its documented example) via
+  `scripts/disprofas_msd_crossval.R`.
 - **Workbench bootstrap f2 ignored the FDA 85% rule**: with the default
   `f2_method="regulatory"`, point f2 used the trimmed timepoints but the
   bootstrap resampled all of them, so plateau points could push the CI above 50
