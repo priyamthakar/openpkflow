@@ -13,7 +13,7 @@ Non-Compartmental Analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F.
 | `auc_linear(times, concs)` | function | Linear trapezoidal AUC |
 | `auc_log(times, concs)` | function | Log-linear trapezoidal AUC |
 | `auc_linear_up_log_down(times, concs)` | function | Linear-up/log-down AUC |
-| `lambda_z(times, concs, ...)` | function | Terminal rate constant (BAR2 auto-selection) |
+| `lambda_z(times, concs, ..., adj_r2_tolerance=1e-4)` | function | Terminal rate constant (BAR2 auto-selection; windows within `adj_r2_tolerance` of the best adjusted R2 prefer more points, as in PKNCA) |
 | `auc_inf_obs(AUClast, Clast, lambda_z)` | function | AUCinf by extrapolation |
 | `cmax(concs)` | function | Maximum concentration |
 | `tmax(times, concs)` | function | Time of maximum concentration |

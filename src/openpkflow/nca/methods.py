@@ -368,6 +368,7 @@ def lambda_z(
     method: Literal["auto", "manual"] = "auto",
     time_range: tuple[float, float] | None = None,
     time_points: list[float] | None = None,
+    adj_r2_tolerance: float = 1e-4,
 ) -> LambdaZResult:
     """Estimate the terminal elimination rate constant lambda_z.
 
@@ -383,6 +384,10 @@ def lambda_z(
         For manual method: include points with time_range[0] <= t <= time_range[1].
     time_points : list[float] or None, optional
         For manual method: include exactly these time points (matched with np.isclose).
+    adj_r2_tolerance : float, optional
+        For auto method: windows whose adjusted R-squared is within this amount of
+        the best are treated as equally good and the one with the most points wins.
+        Default 1e-4 (PKNCA ``adj.r.squared.factor`` default); 0 requires an exact tie.
 
     Returns
     -------
@@ -395,6 +400,8 @@ def lambda_z(
         If validation fails, fewer than 3 usable points, no negative-slope
         window found, or manual selection constraints are unsatisfied.
     """
+    if not (math.isfinite(adj_r2_tolerance) and adj_r2_tolerance >= 0.0):
+        raise ValueError(f"adj_r2_tolerance must be finite and >= 0 (got {adj_r2_tolerance}).")
     t_all, c_all = _validate_time_conc(times, concs, min_points=2)
     t_arr = np.asarray(t_all, dtype=float)
     c_arr = np.asarray(c_all, dtype=float)
@@ -403,9 +410,10 @@ def lambda_z(
     # Mirrors the PKNCA R package approach: enumerate all terminal "tail"
     # windows (contiguous subsets of size 3..N that include the last
     # quantifiable point), fit log(conc) ~ time by OLS, require negative
-    # slope, then rank by adjusted R-squared descending; tie-break by more
-    # points, then longer time span.  Reference: PKNCA (Bacon et al., 2023),
-    # https://cran.r-project.org/package=PKNCA
+    # slope, keep the windows whose adjusted R-squared is within
+    # adj_r2_tolerance of the best, then take the one with the most points
+    # (PKNCA pk.calc.half.life documented rule, adj.r.squared.factor = 1e-4).
+    # Reference: PKNCA (Bacon et al., 2023), https://cran.r-project.org/package=PKNCA
     if method == "auto":
         # Step 1: identify post-Cmax positive-concentration subset
         cmax_idx = int(np.nanargmax(c_arr))
@@ -423,38 +431,34 @@ def lambda_z(
             )
 
         # Step 2: enumerate tail windows (size 3 .. n_post), all including last point
-        best: dict[str, Any] | None = None
+        candidates: list[dict[str, Any]] = []
         for window_size in range(3, n_post + 1):
             start_idx = n_post - window_size
             wt = post_t[start_idx:]
             wc = post_c[start_idx:]
-            log_wc = np.log(wc)
-
-            slope, intercept, r2, adj_r2 = _ols_fit(wt, log_wc)
-
+            slope, intercept, r2, adj_r2 = _ols_fit(wt, np.log(wc))
             if slope >= 0.0:
                 # lambda_z must be positive (declining log-linear)
                 continue
-
-            if best is None or (
-                adj_r2 > best["adj_r2"]
-                or (adj_r2 == best["adj_r2"] and window_size > best["n"])
-                or (
-                    adj_r2 == best["adj_r2"]
-                    and window_size == best["n"]
-                    and (wt[-1] - wt[0]) > best["span"]
-                )
-            ):
-                best = {
+            candidates.append(
+                {
                     "slope": slope,
                     "intercept": intercept,
                     "r2": r2,
                     "adj_r2": adj_r2,
                     "n": window_size,
-                    "span": float(wt[-1] - wt[0]),
                     "wt": wt.tolist(),
                     "wc": wc.tolist(),
                 }
+            )
+
+        best: dict[str, Any] | None = None
+        if candidates:
+            top_adj_r2 = max(cand["adj_r2"] for cand in candidates)
+            best = max(
+                (cand for cand in candidates if cand["adj_r2"] >= top_adj_r2 - adj_r2_tolerance),
+                key=lambda cand: cand["n"],
+            )
 
         if best is None:
             raise ValueError(

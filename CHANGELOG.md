@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **lambda_z auto-selection now uses PKNCA's adjusted-R2 tolerance**: windows
+  within `adj_r2_tolerance` (default 1e-4, PKNCA `adj.r.squared.factor`) of
+  the best adjusted R2 are treated as equal and the one with the most points
+  is selected. Previously only an exact tie preferred more points, so some
+  profiles selected fewer points than PKNCA. Pass `adj_r2_tolerance=0` for the
+  old behaviour. Cross-validated against PKNCA via
+  `scripts/pknca_lambda_z_tolerance_crossval.R`.
+
 ### Fixed
 
 - **Workbench MSD always reported "supports similarity"**: the mean-profile
