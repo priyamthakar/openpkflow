@@ -56,3 +56,25 @@ def test_zero_tolerance_requires_exact_tie() -> None:
 def test_invalid_tolerance_raises(bad: float) -> None:
     with pytest.raises(ValueError, match="adj_r2_tolerance"):
         lambda_z(_TIMES, _NEAR, adj_r2_tolerance=bad)
+
+
+def test_include_tmax_allows_cmax_in_terminal_window() -> None:
+    """IV bolus: the first sample is Cmax and lies on the log-linear decline.
+
+    Expected value is the simulating rate constant (C = 10 exp(-0.3 t),
+    Gibaldi & Perrier 1982 Eq. 1-2). PKNCA's default excludes the Tmax sample
+    (``allow.tmax.in.half.life = FALSE``); Phoenix WinNonlin includes it for
+    IV bolus.
+    """
+    import math
+
+    times = [0.25, 0.5, 1.0, 2.0]
+    concs = [10.0 * math.exp(-0.3 * t) for t in times]
+
+    default = lambda_z(times, concs)
+    with_tmax = lambda_z(times, concs, include_tmax=True)
+
+    assert default.n_points == 3
+    assert with_tmax.n_points == 4
+    assert with_tmax.time_start == 0.25
+    assert with_tmax.lambda_z == pytest.approx(0.3, rel=1e-12)

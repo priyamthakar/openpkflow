@@ -26,14 +26,14 @@ Unit note -- Theoph dose:
   including Subject 9. The 320 mg fixed nominal dose is used here to match WNL.
 
 Known deviations (documented, not treated as failures):
-  1. Theoph S6 lambda_z: WNL selects 7 points (2.03-23.85h, adj_R^2=0.9971),
-     BAR^2 auto selects 3 points with higher adj_R^2. Resulting lambda_z is 4.3%
-     higher in OpenPKFlow. All downstream AUC and CL parameters remain within 2%
-     because the terminal phase contributes only ~12% of AUCinf for this subject.
-     S6 is excluded from the lambda_z/HL test but included in all AUC/CL tests.
-  2. Indometh S4 lambda_z: WNL uses all 11 points (0.25-8h), BAR^2 uses fewer.
-     5.8% lambda_z difference. S4 excluded from lambda_z/HL test and from
-     AUCINF/CL/Vz C0-augmentation tests (lambda_z propagates into those params).
+  1. Theoph S6 lambda_z (resolved): WNL selects 7 points (2.03-23.85h). The
+     7-point window's adjusted R^2 is within 1e-4 of the 3-point window's, so
+     the WinNonlin/PKNCA adjusted-R^2 tolerance (lambda_z adj_r2_tolerance,
+     default 1e-4) now selects the same 7 points. All 12 subjects are tested.
+  2. Indometh lambda_z (resolved): for IV bolus WinNonlin allows the Cmax
+     sample (the first, 0.25 h) in the terminal window; S4 uses all 11 points.
+     lambda_z(include_tmax=True) follows that convention and matches all 6
+     subjects. PKNCA excludes Tmax by default, so include_tmax defaults to False.
   3. Indometh AUClast base gap (closed by c0_back_extrapolated): WinNonlin adds a
      C0 back-extrapolated area from t=0 to t_first=0.25h in its AUClast for IV
      bolus data without a t=0 observation. base auc_linear() starts at t_first,
@@ -351,7 +351,7 @@ _WNL_INDOMETH_LINEAR: dict[int, dict] = {
         AUCINF_obs=2.938974,
         Vz_obs=18.677030,
         Cl_obs=8.506369,
-    ),  # lambda_z excluded (auto-sel diff); AUCINF/CL/Vz excluded from C0 tests
+    ),  # all 11 points incl. Cmax in WNL's terminal window (include_tmax=True)
     5: dict(
         Cmax=2.05,
         Tmax=0.25,
@@ -380,18 +380,11 @@ _DOSE_THEOPH = 320.0  # mg nominal (see module docstring)
 _DOSE_INDO = 25.0  # mg IV bolus
 _TOL = 0.02  # 2% relative tolerance
 
-# S6 Theoph: lambda_z auto-selection diverges -- exclude from lambda_z/HL/Vz_F/%Extrap tests.
-# Vz_F = Dose/(lambda_z * AUCinf) and %Extrap = Clast/lambda_z / AUCinf, both depend
-# directly on lambda_z, so the 4.3% lambda_z gap propagates to ~3.6% in these derived params.
-_THEOPH_LAMBDA_Z_SUBJECTS = [s for s in range(1, 13) if s != 6]
-_THEOPH_VZ_F_SUBJECTS = [s for s in range(1, 13) if s != 6]
-_THEOPH_EXTRAP_SUBJECTS = [s for s in range(1, 13) if s != 6]
-
-# S4 Indometh: lambda_z auto-selection diverges -- exclude from lambda_z/HL tests
-_INDO_LAMBDA_Z_SUBJECTS = [s for s in range(1, 7) if s != 4]
-
-# S4 Indometh: lambda_z divergence propagates to AUCINF/CL/Vz -- exclude from those C0 tests
-_INDO_AUCINF_SUBJECTS = [s for s in range(1, 7) if s != 4]
+_THEOPH_LAMBDA_Z_SUBJECTS = list(range(1, 13))
+_THEOPH_VZ_F_SUBJECTS = list(range(1, 13))
+_THEOPH_EXTRAP_SUBJECTS = list(range(1, 13))
+_INDO_LAMBDA_Z_SUBJECTS = list(range(1, 7))
+_INDO_AUCINF_SUBJECTS = list(range(1, 7))
 
 
 # ---------------------------------------------------------------------------
@@ -434,7 +427,7 @@ def _run_theoph(s: int) -> dict:
 def _run_indo(s: int) -> dict:
     d = _INDOMETH_INPUT[s]
     times, concs = d["times"], d["concs"]
-    lz = lambda_z(times, concs, method="auto")
+    lz = lambda_z(times, concs, method="auto", include_tmax=True)
     return dict(
         Cmax=cmax(concs),
         Tmax=tmax(times, concs),
@@ -485,12 +478,8 @@ class TestWinNonLinTheoph:
             obs = theoph_results[s]["Tmax"]
             assert obs == pytest.approx(ref, abs=1e-4), f"S{s} Tmax: {obs} vs WNL {ref}"
 
-    def test_lambda_z_11_subjects_within_2pct(self, theoph_results: dict) -> None:
-        """S6 excluded: WNL selects 7 points (2.03-23.85h), BAR^2 selects 3 (9-24h).
-
-        WNL lambda_z S6=0.08780, OpenPKFlow=0.09158 (4.3% diff). All other
-        subjects agree within 0.01%.
-        """
+    def test_lambda_z_all_subjects_within_2pct(self, theoph_results: dict) -> None:
+        """All 12 subjects, including S6 (7-point window via the 1e-4 adj-R^2 tolerance)."""
         failures = []
         for s in _THEOPH_LAMBDA_Z_SUBJECTS:
             ref = _WNL_THEOPH_LINEAR[s]["Lambda_z"]
@@ -500,8 +489,8 @@ class TestWinNonLinTheoph:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_half_life_11_subjects_within_2pct(self, theoph_results: dict) -> None:
-        """S6 excluded for same reason as lambda_z (see test_lambda_z_11_subjects)."""
+    def test_half_life_all_subjects_within_2pct(self, theoph_results: dict) -> None:
+        """All 12 subjects (see test_lambda_z_all_subjects_within_2pct)."""
         failures = []
         for s in _THEOPH_LAMBDA_Z_SUBJECTS:
             ref = _WNL_THEOPH_LINEAR[s]["HL"]
@@ -551,9 +540,9 @@ class TestWinNonLinTheoph:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_auc_pct_extrap_linear_11_subjects_within_2pct(self, theoph_results: dict) -> None:
+    def test_auc_pct_extrap_linear_all_subjects_within_2pct(self, theoph_results: dict) -> None:
         """%Extrap = Clast/lambda_z / AUCinf -- directly proportional to 1/lambda_z.
-        S6 excluded: same lambda_z auto-selection divergence as test_lambda_z_11_subjects.
+        All 12 subjects (S6 resolved by the adj-R^2 tolerance).
         """
         failures = []
         for s in _THEOPH_EXTRAP_SUBJECTS:
@@ -575,9 +564,9 @@ class TestWinNonLinTheoph:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_vz_f_linear_11_subjects_within_2pct(self, theoph_results: dict) -> None:
+    def test_vz_f_linear_all_subjects_within_2pct(self, theoph_results: dict) -> None:
         """Vz_F = Dose/(lambda_z * AUCinf) -- directly proportional to 1/lambda_z.
-        S6 excluded: same lambda_z auto-selection divergence as test_lambda_z_11_subjects.
+        All 12 subjects (S6 resolved by the adj-R^2 tolerance).
         dose=320 mg (nominal). See module docstring for explanation.
         """
         failures = []
@@ -599,8 +588,8 @@ class TestWinNonLinTheoph:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_vz_f_log_11_subjects_within_2pct(self, theoph_results: dict) -> None:
-        """S6 excluded: same lambda_z auto-selection divergence as test_lambda_z_11_subjects."""
+    def test_vz_f_log_all_subjects_within_2pct(self, theoph_results: dict) -> None:
+        """All 12 subjects (S6 resolved by the adj-R^2 tolerance)."""
         failures = []
         for s in _THEOPH_VZ_F_SUBJECTS:
             ref = _WNL_THEOPH_LOG[s]["Vz_F_obs"]
@@ -636,12 +625,8 @@ class TestWinNonLinIndometh:
             obs = indo_results[s]["Tmax"]
             assert obs == pytest.approx(ref, abs=1e-4), f"S{s} Tmax: {obs} vs WNL {ref}"
 
-    def test_lambda_z_5_subjects_within_2pct(self, indo_results: dict) -> None:
-        """S4 excluded: WNL uses all 11 points (0.25-8h), BAR^2 uses fewer.
-
-        WNL lambda_z S4=0.45545, OpenPKFlow=0.42908 (5.8% diff). Subjects 1-3,
-        5, 6 agree within 0.01%.
-        """
+    def test_lambda_z_all_subjects_within_2pct(self, indo_results: dict) -> None:
+        """All 6 subjects with include_tmax=True (WNL IV-bolus convention; S4 uses 11 points)."""
         failures = []
         for s in _INDO_LAMBDA_Z_SUBJECTS:
             ref = _WNL_INDOMETH_LINEAR[s]["Lambda_z"]
@@ -651,8 +636,8 @@ class TestWinNonLinIndometh:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_half_life_5_subjects_within_2pct(self, indo_results: dict) -> None:
-        """S4 excluded for same reason as lambda_z."""
+    def test_half_life_all_subjects_within_2pct(self, indo_results: dict) -> None:
+        """All 6 subjects (see test_lambda_z_all_subjects_within_2pct)."""
         failures = []
         for s in _INDO_LAMBDA_Z_SUBJECTS:
             ref = _WNL_INDOMETH_LINEAR[s]["HL"]
@@ -702,7 +687,7 @@ def _run_indo_with_c0(s: int) -> dict:
     t_aug = [0.0] + list(times)
     c_aug = [c0] + list(concs)
     auc_l = auc_linear(t_aug, c_aug)
-    lz = lambda_z(times, concs, method="auto")
+    lz = lambda_z(times, concs, method="auto", include_tmax=True)
     ainf_l = auc_inf_obs(auc_l, concs[-1], lz)
     pct_ext = auc_percent_extrapolated(auc_l, ainf_l)
     cv_l = clearance_volume_parameters(_DOSE_INDO, ainf_l, lz, route="iv_bolus")
@@ -732,8 +717,8 @@ class TestWinNonLinIndomethC0BackExt:
     Reference: WNL_Indometh_Linear sheet, phoenix_winnonlin_combined_public_data.xlsx
     (NonCompart-tests repository, Certara WinNonlin output).
 
-    S4 excluded from AUCINF/CL/Vz tests: lambda_z auto-selection diverges 5.8%
-    from WNL (uses all 11 points); AUClast is independent of lambda_z and passes.
+    lambda_z uses include_tmax=True (WinNonlin IV-bolus convention), which matches
+    WNL's terminal window for all 6 subjects including S4 (all 11 points).
     """
 
     def test_c0_all_subjects_within_1e4(self, indo_results_c0: dict) -> None:
@@ -754,8 +739,8 @@ class TestWinNonLinIndomethC0BackExt:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_aucinf_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
-        """AUCINF with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+    def test_aucinf_all_6_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """AUCINF with C0 augmentation, all 6 subjects."""
         failures = []
         for s in _INDO_AUCINF_SUBJECTS:
             ref = _WNL_INDOMETH_LINEAR[s]["AUCINF_obs"]
@@ -765,8 +750,8 @@ class TestWinNonLinIndomethC0BackExt:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_cl_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
-        """CL with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+    def test_cl_all_6_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """CL with C0 augmentation, all 6 subjects."""
         failures = []
         for s in _INDO_AUCINF_SUBJECTS:
             ref = _WNL_INDOMETH_LINEAR[s]["Cl_obs"]
@@ -776,8 +761,8 @@ class TestWinNonLinIndomethC0BackExt:
                 failures.append(f"S{s}: obs={obs:.6f} ref={ref:.6f} diff={diff:.2%}")
         assert not failures, "\n".join(failures)
 
-    def test_vz_5_subjects_within_2pct(self, indo_results_c0: dict) -> None:
-        """Vz with C0 augmentation, 5 subjects (S4 excluded: lambda_z divergence)."""
+    def test_vz_all_6_subjects_within_2pct(self, indo_results_c0: dict) -> None:
+        """Vz with C0 augmentation, all 6 subjects."""
         failures = []
         for s in _INDO_AUCINF_SUBJECTS:
             ref = _WNL_INDOMETH_LINEAR[s]["Vz_obs"]

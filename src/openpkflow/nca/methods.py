@@ -369,6 +369,7 @@ def lambda_z(
     time_range: tuple[float, float] | None = None,
     time_points: list[float] | None = None,
     adj_r2_tolerance: float = 1e-4,
+    include_tmax: bool = False,
 ) -> LambdaZResult:
     """Estimate the terminal elimination rate constant lambda_z.
 
@@ -388,6 +389,10 @@ def lambda_z(
         For auto method: windows whose adjusted R-squared is within this amount of
         the best are treated as equally good and the one with the most points wins.
         Default 1e-4 (PKNCA ``adj.r.squared.factor`` default); 0 requires an exact tie.
+    include_tmax : bool, optional
+        For auto method: allow the Cmax sample in the terminal window. Default False
+        (PKNCA ``allow.tmax.in.half.life``); True follows the Phoenix WinNonlin
+        IV-bolus convention, where the first sample is usually Cmax.
 
     Returns
     -------
@@ -417,7 +422,8 @@ def lambda_z(
     if method == "auto":
         # Step 1: identify post-Cmax positive-concentration subset
         cmax_idx = int(np.nanargmax(c_arr))
-        post_mask = np.arange(len(t_arr)) > cmax_idx
+        first_idx = cmax_idx if include_tmax else cmax_idx + 1
+        post_mask = np.arange(len(t_arr)) >= first_idx
         post_mask &= c_arr > 0.0
 
         post_t = t_arr[post_mask]
