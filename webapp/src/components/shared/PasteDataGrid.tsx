@@ -1,4 +1,5 @@
 import type React from 'react'
+import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -18,24 +19,72 @@ interface Props {
   hint?: string
 }
 
+function emptyRow(columns: PasteDataColumn[]): PasteDataRow {
+  return columns.reduce<PasteDataRow>((acc, c) => {
+    acc[c.key] = ''
+    return acc
+  }, {})
+}
+
 export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props) {
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [anchor, setAnchor] = useState<number | null>(null)
+  const selectedRows = [...selected].filter((i) => i < rows.length)
+
+  function commit(next: PasteDataRow[]) {
+    setSelected(new Set())
+    setAnchor(null)
+    onChange(next)
+  }
+
   function updateCell(rowIndex: number, key: string, value: string) {
     onChange(rows.map((row, i) => (i === rowIndex ? { ...row, [key]: value } : row)))
   }
 
+  function toggleRow(rowIndex: number, extend: boolean) {
+    const next = new Set(extend ? selected : [])
+    if (extend && anchor !== null) {
+      const [lo, hi] = anchor < rowIndex ? [anchor, rowIndex] : [rowIndex, anchor]
+      for (let i = lo; i <= hi; i += 1) next.add(i)
+    } else if (selected.has(rowIndex) && selected.size === 1) {
+      next.delete(rowIndex)
+    } else {
+      next.add(rowIndex)
+    }
+    setSelected(next)
+    setAnchor(rowIndex)
+  }
+
+  function deleteSelected() {
+    const remaining = rows.filter((_, i) => !selected.has(i))
+    commit(remaining.length > 0 ? remaining : [emptyRow(columns)])
+  }
+
+  function clearAll() {
+    commit([emptyRow(columns)])
+  }
+
+  function handleCellKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    rowIndex: number,
+    key: string,
+  ) {
+    // Excel-style fill down: Ctrl/Cmd+D copies the value from the cell above.
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && rowIndex > 0) {
+      e.preventDefault()
+      updateCell(rowIndex, key, String(rows[rowIndex - 1][key] ?? ''))
+    }
+  }
+
   function addRow(afterIndex: number) {
-    const empty = columns.reduce<PasteDataRow>((acc, c) => {
-      acc[c.key] = ''
-      return acc
-    }, {})
     const next = [...rows]
-    next.splice(afterIndex + 1, 0, empty)
-    onChange(next)
+    next.splice(afterIndex + 1, 0, emptyRow(columns))
+    commit(next)
   }
 
   function deleteRow(rowIndex: number) {
     if (rows.length <= 1) return
-    onChange(rows.filter((_, i) => i !== rowIndex))
+    commit(rows.filter((_, i) => i !== rowIndex))
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
@@ -43,7 +92,7 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
     const pasted = parseGridText(text, columns)
     if (pasted.length === 0) return
     e.preventDefault()
-    onChange(pasted)
+    commit(pasted)
   }
 
   function copyCsv() {
@@ -60,6 +109,10 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
           <h3 className="text-sm font-semibold text-text">Paste / edit table</h3>
           <p className="text-text-muted text-[12px] mt-0.5">
             {hint ?? 'Paste tabular data from Excel or Prism. Headers are optional.'}
+          </p>
+          <p className="hidden text-text-dim text-[11px] mt-0.5 sm:block">
+            Click row numbers to select (Shift for a range). Ctrl/Cmd+D fills down from the
+            cell above. Drag a column header edge to resize.
           </p>
         </div>
         <button
@@ -146,6 +199,7 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
               {columns.map((column) => (
                 <th
                   key={column.key}
+                  style={{ resize: 'horizontal', overflow: 'hidden', minWidth: 80 }}
                   className="px-2.5 py-2 bg-surface-2 text-text text-left border-b border-border font-semibold text-xs whitespace-nowrap"
                 >
                   {column.label}
@@ -158,13 +212,31 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
             {rows.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
+                aria-selected={selected.has(rowIndex)}
                 className={cn(
                   'group transition-colors',
-                  rowIndex % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.02]',
+                  selected.has(rowIndex)
+                    ? 'bg-accent/[0.06]'
+                    : rowIndex % 2 === 0
+                      ? 'bg-transparent'
+                      : 'bg-white/[0.02]',
                 )}
               >
-                <td className="px-2 py-1.5 text-text-muted text-xs text-right tabular-nums">
-                  {rowIndex + 1}
+                <td className="px-1 py-1 text-right">
+                  <button
+                    type="button"
+                    onClick={(e) => toggleRow(rowIndex, e.shiftKey)}
+                    aria-pressed={selected.has(rowIndex)}
+                    aria-label={`Select row ${rowIndex + 1}`}
+                    className={cn(
+                      'w-full rounded-sm px-1 py-1 text-xs tabular-nums transition-colors',
+                      selected.has(rowIndex)
+                        ? 'bg-accent/20 text-accent font-semibold'
+                        : 'text-text-muted hover:bg-surface-2',
+                    )}
+                  >
+                    {rowIndex + 1}
+                  </button>
                 </td>
                 {columns.map((column) => {
                   const value = row[column.key] ?? ''
@@ -176,6 +248,7 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
                       <input
                         value={strVal}
                         onChange={(e) => updateCell(rowIndex, column.key, e.target.value)}
+                        onKeyDown={(e) => handleCellKeyDown(e, rowIndex, column.key)}
                         className={cn(
                           'w-full bg-surface-2 border rounded-sm px-2 py-1.5 text-sm font-medium text-text',
                           'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
@@ -222,6 +295,22 @@ export function PasteDataGrid({ columns, rows, onChange, filename, hint }: Props
           {rows.length} row{rows.length !== 1 ? 's' : ''} ready for {filename}
         </span>
         <div className="flex gap-2 sm:shrink-0">
+          {selectedRows.length > 0 && (
+            <button
+              type="button"
+              onClick={deleteSelected}
+              className="min-h-9 w-full px-3 py-1 text-xs border border-danger/40 bg-danger/10 text-danger rounded-sm hover:bg-danger/20 transition-colors sm:w-auto"
+            >
+              Delete {selectedRows.length} selected
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={clearAll}
+            className="min-h-9 w-full px-3 py-1 text-xs border border-border-2 bg-surface-2 text-text-muted rounded-sm hover:border-danger/40 hover:text-danger transition-colors sm:w-auto"
+          >
+            Clear
+          </button>
           <button
             type="button"
             onClick={() => addRow(rows.length - 1)}
