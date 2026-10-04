@@ -174,6 +174,15 @@ Route values: `"oral"`, `"iv_bolus"`, `"iv_infusion"`.
 Oral route yields apparent clearance and volume: `CL_F`, `Vz_F`.
 IV routes yield absolute clearance and volume: `CL`, `Vz`.
 
+### CLI
+
+```bash
+openpkflow nca run theoph.csv --auc-method linear_up_log_down --blq-method zero \
+  --report nca_report.html --csv nca_parameters.csv --cdisc-pp nca_pp.csv
+```
+
+`--auc-method` and `--blq-method` are required; add `--tau` for steady-state parameters.
+
 ---
 
 ## Quick start: PK simulation
