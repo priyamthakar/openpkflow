@@ -340,11 +340,15 @@ export interface WorkbenchResponse {
   }
   alternatives: {
     maximum_deviation: number
-    msd: number
-    msd_squared: number
-    chi2_05_critical: number
-    n_timepoints: number
-    msd_is_similar: boolean
+    msd_method: string
+    msd: number | null
+    msd_squared: number | null
+    msd_ci_lower: number | null
+    msd_ci_upper: number | null
+    msd_similarity_limit: number | null
+    msd_similarity_limit_pct: number | null
+    n_timepoints: number | null
+    msd_is_similar: boolean | null
   }
   warnings: string[]
   disclaimer: string

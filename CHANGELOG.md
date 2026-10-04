@@ -9,6 +9,43 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **lambda_z auto-selection now uses PKNCA's adjusted-R2 tolerance**: windows
+  within `adj_r2_tolerance` (default 1e-4, PKNCA `adj.r.squared.factor`) of
+  the best adjusted R2 are treated as equal and the one with the most points
+  is selected. Previously only an exact tie preferred more points, so some
+  profiles selected fewer points than PKNCA. Pass `adj_r2_tolerance=0` for the
+  old behaviour. Cross-validated against PKNCA via
+  `scripts/pknca_lambda_z_tolerance_crossval.R`.
+
+### Fixed
+
+- **Workbench MSD always reported "supports similarity"**: the mean-profile
+  `msd()` divided the differences by their own variance, so MSD squared was
+  identically n - 1 and below the chi-squared critical value for any pair of
+  profiles. The workbench now uses the new vessel-level `msd_vessels()`
+  (pooled covariance, Tsong et al. 1996 90% Hotelling region vs. a 10%
+  per-timepoint similarity limit) on the same timepoints as f2, and reports
+  "not evaluable" when there are too few vessels or the covariance is singular.
+  `msd()` now emits a `UserWarning`. `msd_vessels()` is cross-validated against
+  `disprofas::mimcr()` (six cases including its documented example) via
+  `scripts/disprofas_msd_crossval.R`.
+- **Workbench bootstrap f2 ignored the FDA 85% rule**: with the default
+  `f2_method="regulatory"`, point f2 used the trimmed timepoints but the
+  bootstrap resampled all of them, so plateau points could push the CI above 50
+  while point f2 failed. `bootstrap_f2()` and
+  `DissolutionStudy.bootstrap_compare()` gain `f2_method`.
+- **NCA study aborted on an all-BLQ subject**: a subject with no quantifiable
+  concentration (or only the first sample quantifiable) raised and stopped the
+  whole study. AUClast is now 0 with a warning.
+- **Sparse NCA silently returned an unconverged fit** when the default initial
+  guess fell outside the parameter bounds; the guess is now clipped into the
+  bounds. `SparseNCAResult.plot()` also closes saved figures.
+- **API report endpoints** used race-prone `tempfile.mktemp` and leaked the
+  output file when report generation failed; they now use a private `mkstemp`
+  path that is removed on failure.
+
 ---
 
 ## [2.8.0] - 2026-07-30

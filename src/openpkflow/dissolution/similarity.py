@@ -17,6 +17,7 @@ Scale-Up and Post-Approval Changes (SUPAC-IR, 1995). CDER.
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -83,6 +84,28 @@ def _validate_profiles(
     return ref, tst
 
 
+def regulatory_cutoff(reference: Sequence[float], test: Sequence[float]) -> int:
+    """Return how many leading timepoints the FDA 85% rule keeps for f2.
+
+    Parameters
+    ----------
+    reference : Sequence[float]
+        Reference mean profile as percent released.
+    test : Sequence[float]
+        Test mean profile as percent released.
+
+    Returns
+    -------
+    int
+        Number of leading timepoints up to and including the first one where
+        both profiles exceed 85%, or all timepoints if none does.
+    """
+    for i, (r, t) in enumerate(zip(reference, test, strict=True)):
+        if r > 85.0 and t > 85.0:
+            return i + 1
+    return len(reference)
+
+
 def f2(
     reference: Sequence[float],
     test: Sequence[float],
@@ -143,12 +166,7 @@ def f2(
     ref, tst = _validate_profiles(reference, test)
 
     if method == "regulatory":
-        # FDA guidance: only one timepoint above 85% for both profiles
-        cutoff = len(ref)
-        for i, (r, t) in enumerate(zip(ref, tst, strict=True)):
-            if r > 85.0 and t > 85.0:
-                cutoff = i + 1  # include this point, exclude all after
-                break
+        cutoff = regulatory_cutoff(ref, tst)
         ref = ref[:cutoff]
         tst = tst[:cutoff]
         if len(ref) < 3:
@@ -291,18 +309,25 @@ def msd(reference: Sequence[float], test: Sequence[float]) -> MSDResult:
         If profiles are empty, lengths mismatch, values are outside [0, 100],
         or fewer than 3 timepoints are supplied.
 
-    Notes
+    Warns
     -----
-    For the single-batch case (no replication data), the variance-covariance
-    is estimated as a diagonal matrix using an approximate residual variance.
-    When multiple batches are available, the pooled variance-covariance can be
-    supplied directly via the batch-level API in DissolutionStudy.
+    UserWarning
+        Always. Without vessel-level data the covariance is estimated from the
+        differences themselves, which makes MSD squared identically n - 1 for any
+        non-identical pair of profiles. Use :func:`msd_vessels` instead.
 
     References
     ----------
     FDA Guidance for Industry: Polymer-Based Solid Oral Dosage Forms
     (1999). CDER. Section on Mahalanobis distance methodology.
     """
+    warnings.warn(
+        "msd() on mean profiles divides by the variance of the differences themselves, "
+        "so MSD squared is always n_timepoints - 1 and is_similar carries no information. "
+        "Use msd_vessels() with vessel-level data for a similarity decision.",
+        UserWarning,
+        stacklevel=2,
+    )
     ref, tst = _validate_profiles(reference, test)
     n = len(ref)
 
@@ -379,3 +404,179 @@ class MSDResult:
             f"Chi2(0.05, {self.n_timepoints}): {self.chi2_05_critical:.4f}\n"
             f"Verdict: {verdict}\n"
         )
+
+
+@dataclass(frozen=True)
+class MSDVesselResult:
+    """Vessel-level Mahalanobis distance with the Tsong et al. (1996) similarity decision.
+
+    Parameters
+    ----------
+    msd : float
+        Mahalanobis distance between the test and reference mean profiles.
+    ci_lower : float
+        Lower bound of the Hotelling T-squared confidence region for the MSD.
+    ci_upper : float
+        Upper bound of the Hotelling T-squared confidence region for the MSD.
+    similarity_limit : float
+        MSD of a uniform ``similarity_limit_pct`` difference at every timepoint.
+    similarity_limit_pct : float
+        Allowed percentage-point difference at each timepoint.
+    confidence_level : float
+        Confidence level of the region (0.90 per Tsong et al.).
+    f_critical : float
+        F quantile with (p, n_R + n_T - p - 1) degrees of freedom.
+    n_timepoints : int
+        Number of timepoints p.
+    n_reference : int
+        Number of reference vessels.
+    n_test : int
+        Number of test vessels.
+    is_similar : bool
+        True when ci_upper <= similarity_limit.
+    """
+
+    msd: float
+    ci_lower: float
+    ci_upper: float
+    similarity_limit: float
+    similarity_limit_pct: float
+    confidence_level: float
+    f_critical: float
+    n_timepoints: int
+    n_reference: int
+    n_test: int
+    is_similar: bool
+
+    @property
+    def msd_squared(self) -> float:
+        """Squared Mahalanobis distance."""
+        return self.msd**2
+
+    def summary(self) -> str:
+        """Return a textual summary of the vessel-level MSD result.
+
+        Returns
+        -------
+        str
+            Multi-line summary with MSD, confidence region, limit, and verdict.
+        """
+        verdict = "SIMILAR" if self.is_similar else "NOT SIMILAR"
+        level = self.confidence_level * 100.0
+        return (
+            f"Mahalanobis Statistical Distance (Tsong et al. 1996)\n"
+            f"====================================================\n"
+            f"Timepoints: {self.n_timepoints}  |  Vessels R/T: "
+            f"{self.n_reference}/{self.n_test}\n"
+            f"MSD: {self.msd:.4f}\n"
+            f"{level:.0f}% CI: [{self.ci_lower:.4f}, {self.ci_upper:.4f}]\n"
+            f"Similarity limit ({self.similarity_limit_pct:g}% per point): "
+            f"{self.similarity_limit:.4f}\n"
+            f"Verdict: {verdict}\n"
+        )
+
+
+def msd_vessels(
+    reference: np.ndarray | Sequence[Sequence[float]],
+    test: np.ndarray | Sequence[Sequence[float]],
+    *,
+    similarity_limit_pct: float = 10.0,
+    confidence_level: float = 0.90,
+) -> MSDVesselResult:
+    """Model-independent multivariate MSD similarity test from vessel-level data.
+
+    Parameters
+    ----------
+    reference : array-like, shape (n_R, p)
+        Reference percent released, one row per vessel.
+    test : array-like, shape (n_T, p)
+        Test percent released, one row per vessel, same timepoints as reference.
+    similarity_limit_pct : float, optional
+        Allowed difference at every timepoint, by default 10 percentage points.
+    confidence_level : float, optional
+        Confidence level of the Hotelling region, by default 0.90.
+
+    Returns
+    -------
+    MSDVesselResult
+        MSD, its confidence region, the similarity limit, and the decision.
+
+    Raises
+    ------
+    ValueError
+        If shapes mismatch, values are non-finite or outside [0, 100], there are
+        too few vessels for p timepoints (n_R + n_T - p - 1 < 1), or the pooled
+        covariance matrix is singular (e.g. zero-variance plateau timepoints).
+
+    References
+    ----------
+    Tsong Y, Hammerstrom T, Sathe P, Shah VP (1996). Statistical assessment of
+    mean differences between two dissolution data sets. Drug Inf J 30:1105-1112.
+    FDA Guidance for Industry: SUPAC-MR (1997), Appendix B.
+    """
+    ref = np.asarray(reference, dtype=float)
+    tst = np.asarray(test, dtype=float)
+    if ref.ndim != 2 or tst.ndim != 2:
+        raise ValueError("reference and test must be 2-D arrays (n_vessels, n_timepoints).")
+    if ref.shape[1] != tst.shape[1]:
+        raise ValueError(
+            f"reference and test must have the same number of timepoints "
+            f"(got {ref.shape[1]} and {tst.shape[1]})."
+        )
+    for label, arr in (("reference", ref), ("test", tst)):
+        if not np.all(np.isfinite(arr)):
+            raise ValueError(f"{label} contains NaN or infinite values.")
+        if np.any(arr < 0.0) or np.any(arr > 100.0):
+            raise ValueError(f"{label} values must be percent released in [0, 100].")
+    if not 0.0 < confidence_level < 1.0:
+        raise ValueError(f"confidence_level must be in (0, 1) (got {confidence_level}).")
+    if similarity_limit_pct <= 0.0:
+        raise ValueError(f"similarity_limit_pct must be > 0 (got {similarity_limit_pct}).")
+
+    n_r, p = ref.shape
+    n_t = tst.shape[0]
+    if p < 2:
+        raise ValueError("MSD requires at least 2 timepoints.")
+    df2 = n_r + n_t - p - 1
+    if n_r < 2 or n_t < 2 or df2 < 1:
+        raise ValueError(
+            f"MSD needs n_R + n_T - p - 1 >= 1 and >= 2 vessels per product "
+            f"(got n_R={n_r}, n_T={n_t}, p={p})."
+        )
+
+    pooled = ((n_r - 1) * np.cov(ref, rowvar=False) + (n_t - 1) * np.cov(tst, rowvar=False)) / (
+        n_r + n_t - 2
+    )
+    if np.linalg.matrix_rank(pooled) < p:
+        raise ValueError(
+            "Pooled variance-covariance matrix is singular (for example, timepoints "
+            "where every vessel reads the same value); MSD cannot be evaluated."
+        )
+    s_inv = np.linalg.inv(pooled)
+    diff = tst.mean(axis=0) - ref.mean(axis=0)
+    msd_val = math.sqrt(max(float(diff @ s_inv @ diff), 0.0))
+
+    import scipy.stats as st
+
+    # Hotelling region {y : k (y - d)' S^-1 (y - d) <= F} is a ball of radius
+    # sqrt(F / k) in the S^-1 metric, so the MSD bounds are msd -/+ that radius.
+    k = (n_r * n_t / (n_r + n_t)) * df2 / ((n_r + n_t - 2) * p)
+    f_crit = float(st.f.ppf(confidence_level, p, df2))
+    radius = math.sqrt(f_crit / k)
+    limit_vec = np.full(p, float(similarity_limit_pct))
+    limit = math.sqrt(float(limit_vec @ s_inv @ limit_vec))
+    ci_upper = msd_val + radius
+
+    return MSDVesselResult(
+        msd=msd_val,
+        ci_lower=max(msd_val - radius, 0.0),
+        ci_upper=ci_upper,
+        similarity_limit=limit,
+        similarity_limit_pct=float(similarity_limit_pct),
+        confidence_level=float(confidence_level),
+        f_critical=f_crit,
+        n_timepoints=p,
+        n_reference=n_r,
+        n_test=n_t,
+        is_similar=ci_upper <= limit,
+    )

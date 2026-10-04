@@ -209,3 +209,25 @@ class TestBootstrapF2:
         assert result.n_timepoints == 5
         assert result.n_reference_vessels == 6
         assert result.n_test_vessels == 6
+
+    def test_regulatory_method_uses_point_estimate_timepoints(self):
+        """Regulatory bootstrap keeps the same timepoints as regulatory point f2.
+
+        Source: FDA (1997) Dissolution Testing of IR Solid Oral Dosage Forms --
+        only one measurement after 85% dissolution of both products is used.
+        """
+        from openpkflow.dissolution.similarity import f2
+
+        plateau = np.array([[30, 55, 75, 88, 95, 98, 99, 100]] * 3, dtype=float)
+        slower = np.array([[18, 38, 60, 86, 94, 97, 99, 100]] * 3, dtype=float)
+
+        result = bootstrap_f2(plateau, slower, n_replicates=50, seed=0, f2_method="regulatory")
+
+        assert result.n_timepoints == 4
+        expected = f2(plateau[0], slower[0], method="regulatory")
+        assert result.f2_observed == pytest.approx(expected)
+        assert result.f2_observed < f2(plateau[0], slower[0], method="all_points")
+
+    def test_unknown_f2_method_raises(self):
+        with pytest.raises(ValueError, match="Unknown f2_method"):
+            bootstrap_f2(REF_SIMILAR, TST_SIMILAR, f2_method="bogus")  # type: ignore[arg-type]

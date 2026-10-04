@@ -81,6 +81,11 @@ def fit_sparse_1cmt_oral(
 
     if bounds is None:
         bounds = ((0.01, 0.1, 0.01), (1000.0, 10000.0, 10.0))
+    # curve_fit rejects an infeasible x0 outright; keep the heuristic guess inside the box.
+    lower, upper = np.asarray(bounds[0], dtype=float), np.asarray(bounds[1], dtype=float)
+    span = upper - lower
+    clipped = np.clip(np.asarray(p0, dtype=float), lower + 1e-6 * span, upper - 1e-6 * span)
+    p0 = (float(clipped[0]), float(clipped[1]), float(clipped[2]))
 
     def _model(t_eval: np.ndarray, CL_F: float, Vz_F: float, ka: float) -> np.ndarray:
         return c_1cmt_oral(t_eval, dose, CL_F, Vz_F, ka)
@@ -306,8 +311,7 @@ class SparseNCAResult:
             fig.savefig(output_path, dpi=300, bbox_inches="tight")
         if show:
             plt.show()
-        if not output_path and not show:
-            plt.close(fig)
+        plt.close(fig)
 
     def report(
         self,

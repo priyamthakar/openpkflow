@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 import json
-import tempfile
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Form, UploadFile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
-from app.deps import saved_upload
+from app.deps import report_output, saved_upload
 from app.schemas.nca import NcaOptions, NcaResponse, SparseNcaRequest, SparseNcaResponse
 from app.services.nca_service import (
     run_nca,
@@ -52,8 +50,7 @@ def report(
     """Run NCA and stream the rendered report for download."""
     opts = NcaOptions.model_validate(json.loads(options))
     ext = _EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    with saved_upload(file) as path:
+    with report_output(ext) as tmp_out, saved_upload(file) as path:
         write_nca_report(path, opts, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
@@ -77,9 +74,8 @@ def report_sparse(
 ) -> FileResponse:
     """Fit sparse samples and stream a screening report."""
     ext = ".md" if format == "markdown" else ".html"
-    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-        tmp_out = Path(tmp.name)
-    write_sparse_nca_report(request, tmp_out, fmt=format)
+    with report_output(ext) as tmp_out:
+        write_sparse_nca_report(request, tmp_out, fmt=format)
     return FileResponse(
         path=tmp_out,
         media_type="text/markdown" if format == "markdown" else "text/html",

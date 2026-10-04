@@ -28,3 +28,13 @@ def test_upload_limit(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> No
 
     assert response.status_code == 413
     assert response.json() == {"detail": "Upload exceeds configured size limit."}
+
+
+def test_report_output_is_created_privately_and_removed_on_failure() -> None:
+    with pytest.raises(RuntimeError), deps.report_output(".html") as path:
+        assert path.exists()
+        assert path.stat().st_mode & 0o077 == 0
+        leaked = path
+        raise RuntimeError("report generation failed")
+
+    assert not leaked.exists()

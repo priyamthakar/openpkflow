@@ -414,6 +414,13 @@ export function DissolutionWorkbench() {
               <Badge variant={result.bootstrap_f2.is_similar ? 'success' : 'danger'}>
                 Bootstrap CI {result.bootstrap_f2.is_similar ? 'supports similarity' : 'does not support similarity'}
               </Badge>
+              {result.alternatives.msd_is_similar == null ? (
+                <Badge variant="default">MSD not evaluable</Badge>
+              ) : (
+                <Badge variant={result.alternatives.msd_is_similar ? 'success' : 'danger'}>
+                  MSD {result.alternatives.msd_is_similar ? 'supports similarity' : 'does not support similarity'}
+                </Badge>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -422,7 +429,9 @@ export function DissolutionWorkbench() {
               <MetricCard label="Bootstrap CI lower" value={result.bootstrap_f2.ci_lower} />
               <MetricCard label="Bootstrap CI upper" value={result.bootstrap_f2.ci_upper} />
               <MetricCard label="Max deviation" value={result.alternatives.maximum_deviation} />
-              <MetricCard label="MSD squared" value={result.alternatives.msd_squared} />
+              <MetricCard label="MSD" value={result.alternatives.msd} />
+              <MetricCard label="MSD 90% CI upper" value={result.alternatives.msd_ci_upper} />
+              <MetricCard label="MSD limit" value={result.alternatives.msd_similarity_limit} />
             </div>
 
             <div className="rounded-sm border border-border bg-surface p-4 lg:p-5">

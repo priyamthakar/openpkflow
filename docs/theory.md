@@ -46,7 +46,7 @@ BAR² (Best Adjusted R-squared) algorithm:
 2. Enumerate every contiguous terminal window of size $k \in [3, n_{\text{post}}]$ that includes the last point
 3. For each window, fit $\ln(C) = \alpha + \lambda_z t$ via OLS
 4. Reject windows with non-negative slope
-5. Select the window maximising adjusted $R^2$; tie-break by more points, then longer time span
+5. Keep the windows whose adjusted $R^2$ is within `adj_r2_tolerance` (default $10^{-4}$, PKNCA's `adj.r.squared.factor`) of the best, then select the one with the most points
 6. $\lambda_z = -\,\text{slope}$
 
 ### Derived NCA parameters

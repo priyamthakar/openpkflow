@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -38,3 +39,16 @@ def saved_upload(upload: UploadFile) -> Iterator[Path]:
         yield tmp_path
     finally:
         tmp_path.unlink(missing_ok=True)
+
+
+@contextmanager
+def report_output(suffix: str) -> Iterator[Path]:
+    """Create a private temp path for a generated report; delete it if generation fails."""
+    fd, name = tempfile.mkstemp(suffix=suffix)
+    os.close(fd)
+    path = Path(name)
+    try:
+        yield path
+    except BaseException:
+        path.unlink(missing_ok=True)
+        raise

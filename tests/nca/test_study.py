@@ -112,6 +112,30 @@ class TestNCAStudyAnalyze:
         assert summary.blq_method == "zero"
         assert summary.results[0].blq_method == "zero"
 
+    @pytest.mark.parametrize("method", ["linear", "log", "linear_up_log_down"])
+    def test_all_blq_subject_does_not_abort_study(self, method: str) -> None:
+        """All-BLQ subject gives AUClast = 0 (zero-width 0..tlast interval).
+
+        Source: FDA (2003) BA/BE guidance -- AUClast integrates to the last
+        quantifiable concentration; with none quantifiable the area is zero.
+        """
+        placebo = _oral_df().assign(subject="2", conc=0.0)
+        df = pd.concat([_oral_df(), placebo], ignore_index=True)
+        summary = NCAStudy(df, auc_method=method, blq_method="zero").analyze()
+        assert len(summary.results) == 2
+        blq = summary.results[1]
+        assert blq.AUClast == 0.0
+        assert blq.Cmax == 0.0
+        assert blq.AUCinf_obs is None
+        assert any("AUClast set to 0" in w for w in blq.warnings)
+
+    def test_only_first_sample_quantifiable_gives_zero_auclast(self) -> None:
+        """tlast at the first sample time leaves a zero-width AUC(0-tlast) interval."""
+        df = _oral_df().assign(conc=[5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        result = NCAStudy(df, auc_method="linear", blq_method="zero").analyze().results[0]
+        assert result.AUClast == 0.0
+        assert result.Cmax == 5.0
+
 
 class TestNCAStudyFromCsv:
     def test_from_csv_loads_and_analyzes(self, tmp_path: Path) -> None:

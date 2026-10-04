@@ -14,10 +14,12 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 
 from .similarity import f2 as _f2
+from .similarity import regulatory_cutoff
 
 
 @dataclass(frozen=True)
@@ -75,6 +77,7 @@ def bootstrap_f2(
     n_replicates: int = 5000,
     confidence_level: float = 0.90,
     seed: int | None = None,
+    f2_method: Literal["all_points", "regulatory"] = "all_points",
 ) -> BootstrapF2Result:
     """Compute bootstrap f2 confidence interval.
 
@@ -90,6 +93,10 @@ def bootstrap_f2(
         CI level, e.g. 0.90 for 90% CI. Default 0.90.
     seed : int or None
         Random seed for reproducibility.
+    f2_method : {"all_points", "regulatory"}, optional
+        Timepoint selection, by default "all_points". ``"regulatory"`` applies the
+        FDA 85% rule to the observed mean profiles once and resamples on that
+        fixed timepoint set, so the CI matches the point estimate's selection.
 
     Returns
     -------
@@ -114,6 +121,13 @@ def bootstrap_f2(
             f"reference and test must have the same number of timepoints, "
             f"got {reference.shape[1]} and {test.shape[1]}"
         )
+
+    if f2_method == "regulatory":
+        cutoff = regulatory_cutoff(reference.mean(axis=0).tolist(), test.mean(axis=0).tolist())
+        reference = reference[:, :cutoff]
+        test = test[:, :cutoff]
+    elif f2_method != "all_points":
+        raise ValueError(f"Unknown f2_method {f2_method!r}. Use 'all_points' or 'regulatory'.")
 
     n_ref, n_tp = reference.shape
     n_tst = test.shape[0]

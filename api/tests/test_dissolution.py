@@ -216,6 +216,10 @@ def test_workbench_analyze_contract(client: TestClient) -> None:
     assert len(body["model_fits"]["reference"]["fits"]) == 5
     assert len(body["normalized_rows"]) == 42
     assert "Final regulatory interpretation" in body["disclaimer"]
+    # 3 vessels per product cannot support a pooled covariance over 6 timepoints.
+    assert body["alternatives"]["msd"] is None
+    assert body["alternatives"]["msd_is_similar"] is None
+    assert any("MSD not evaluable" in warning for warning in body["warnings"])
 
 
 def test_workbench_report_download(client: TestClient) -> None:

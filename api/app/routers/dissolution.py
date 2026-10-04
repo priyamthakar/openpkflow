@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import json
-import tempfile
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 
-from app.deps import saved_upload
+from app.deps import report_output, saved_upload
 from app.schemas.dissolution import (
     CompareResponse,
     DissolutionColumns,
@@ -88,8 +86,7 @@ def report(
 
     cols = DissolutionColumns.model_validate(json.loads(columns))
     ext = _EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    with saved_upload(file) as path:
+    with report_output(ext) as tmp_out, saved_upload(file) as path:
         write_dissolution_report(path, cols, reference, test, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
@@ -114,8 +111,8 @@ def multi_media_report(
     from starlette.background import BackgroundTask
 
     ext = _MM_EXT.get(format, ".html")
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    write_multi_media_report(req, tmp_out, fmt=format)
+    with report_output(ext) as tmp_out:
+        write_multi_media_report(req, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
         media_type=_MM_MIME.get(format, "text/html"),
@@ -139,8 +136,8 @@ def workbench_report(
     from starlette.background import BackgroundTask
 
     ext = f".{format}"
-    tmp_out = Path(tempfile.mktemp(suffix=ext))
-    write_workbench_report(req, tmp_out, fmt=format)
+    with report_output(ext) as tmp_out:
+        write_workbench_report(req, tmp_out, fmt=format)
     return FileResponse(
         path=str(tmp_out),
         media_type=_MM_MIME[format],
@@ -154,8 +151,8 @@ def workbench_audit_bundle(req: WorkbenchRequest) -> FileResponse:
     """Stream the reproducibility ZIP and SHA-256 manifest."""
     from starlette.background import BackgroundTask
 
-    tmp_out = Path(tempfile.mktemp(suffix=".zip"))
-    write_workbench_audit_bundle(req, tmp_out)
+    with report_output(".zip") as tmp_out:
+        write_workbench_audit_bundle(req, tmp_out)
     return FileResponse(
         path=str(tmp_out),
         media_type="application/zip",

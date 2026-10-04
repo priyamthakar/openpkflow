@@ -16,7 +16,7 @@ from .models import (
     model_dependent_comparison,
 )
 from .multi_media import MultiMediaResult, MultiMediaStudy
-from .similarity import MSDResult, f1, f2, max_deviation, msd
+from .similarity import MSDResult, MSDVesselResult, f1, f2, max_deviation, msd, msd_vessels
 from .study import ComparisonResult, DissolutionStudy
 from .supac import (
     AlcoholDoseDumpingResult,
@@ -39,6 +39,8 @@ __all__ = [
     "max_deviation",
     "msd",
     "MSDResult",
+    "msd_vessels",
+    "MSDVesselResult",
     "bootstrap_f2",
     "BootstrapF2Result",
     "DissolutionCSVConfig",

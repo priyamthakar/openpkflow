@@ -173,3 +173,60 @@ def test_workbench_configuration_rejects_unvalidated_model() -> None:
             test_label="Test",
             model_comparison_model="hixson_crowell",
         )
+
+
+def _plateau_dataframe(test_profile: list[float]) -> pd.DataFrame:
+    times = [5.0, 10.0, 15.0, 20.0, 30.0, 45.0, 60.0, 90.0]
+    reference = [30.0, 55.0, 75.0, 88.0, 95.0, 98.0, 99.0, 100.0]
+    rng = np.random.default_rng(0)
+    rows: list[dict[str, str | float]] = []
+    for formulation, values in (("Reference", reference), ("Test", test_profile)):
+        for vessel in range(12):
+            for time, value in zip(times, values, strict=True):
+                rows.append(
+                    {
+                        "formulation": formulation,
+                        "batch": f"{formulation[0]}{vessel}",
+                        "time": time,
+                        "percent_released": float(np.clip(value + rng.normal(0, 1.5), 0, 100)),
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
+def test_workbench_bootstrap_uses_regulatory_timepoints() -> None:
+    """Bootstrap f2 follows the FDA (1997) 85% rule used by the point estimate.
+
+    With plateau timepoints included, the bootstrap previously reported a CI lower
+    bound above 50 while the regulatory point f2 was below 50.
+    """
+    slower = [18.0, 38.0, 60.0, 86.0, 94.0, 97.0, 99.0, 100.0]
+    result = run_dissolution_workbench(_plateau_dataframe(slower), _config())
+
+    assert result.bootstrap.n_timepoints == result.comparison.n_timepoints == 4
+    assert result.bootstrap.f2_observed == pytest.approx(result.comparison.f2_value)
+    assert result.comparison.f2_value < 50.0
+    assert not result.bootstrap.is_similar
+
+
+def test_workbench_msd_decision_tracks_profile_difference() -> None:
+    """Tsong et al. (1996) vessel-level MSD rejects a clearly slower test product."""
+    slower = [18.0, 38.0, 60.0, 86.0, 94.0, 97.0, 99.0, 100.0]
+    close = [29.0, 54.0, 74.0, 87.0, 95.0, 98.0, 99.0, 100.0]
+
+    dissimilar = run_dissolution_workbench(_plateau_dataframe(slower), _config())
+    similar = run_dissolution_workbench(_plateau_dataframe(close), _config())
+
+    assert dissimilar.msd_result is not None and not dissimilar.msd_result.is_similar
+    assert similar.msd_result is not None and similar.msd_result.is_similar
+    payload = dissimilar.to_dict()["alternatives"]
+    assert payload["msd_is_similar"] is False  # type: ignore[index]
+
+
+def test_workbench_msd_not_evaluable_with_too_few_vessels() -> None:
+    """Three vessels per product cannot estimate a 7x7 pooled covariance."""
+    result = run_dissolution_workbench(_workbench_dataframe(), _config())
+
+    assert result.msd_result is None
+    assert any("MSD not evaluable" in warning for warning in result.warnings)
+    assert result.to_dict()["alternatives"]["msd_is_similar"] is None  # type: ignore[index]
