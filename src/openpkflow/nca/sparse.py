@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -114,8 +115,9 @@ def fit_sparse_1cmt_oral(
     pred = _model(t, CL_F, Vz_F, ka)
     fitted_conc = pred.tolist()
 
-    # AUClast from trapezoidal integration of predicted profile
-    AUClast = float(np.trapezoid(pred[0 : len(t)], t[0 : len(t)]))
+    # AUC(0 - tlast) of the fitted curve itself; a trapezoid over 3-5 sparse
+    # samples misses the curvature and the area before the first sample.
+    AUClast = _auc_1cmt_oral_0_to(float(t[-1]), dose, float(CL_F), float(Vz_F), float(ka))
 
     # Cmax and Tmax from model-predicted profile (dense grid)
     t_dense = np.linspace(0, t[-1] * 1.5, 500)
@@ -146,6 +148,17 @@ def fit_sparse_1cmt_oral(
         observed_conc=c.tolist(),
         fitted_conc=fitted_conc,
     )
+
+
+def _auc_1cmt_oral_0_to(t_end: float, dose: float, cl_f: float, vz_f: float, ka: float) -> float:
+    # Integral of the Bateman function (Gibaldi & Perrier 1982, Eq. 1-13) from 0 to t_end;
+    # as t_end -> inf it tends to dose / cl_f.
+    k = cl_f / vz_f
+    if math.isclose(ka, k, rel_tol=1e-9):
+        return dose * k / vz_f * (1.0 - math.exp(-k * t_end) * (1.0 + k * t_end)) / k**2
+    elimination = -math.expm1(-k * t_end) / k
+    absorption = -math.expm1(-ka * t_end) / ka
+    return dose * ka / (vz_f * (ka - k)) * (elimination - absorption)
 
 
 @dataclass
@@ -181,7 +194,7 @@ class SparseNCAResult:
     ka_se : float or None
         Standard error of ka estimate.
     AUClast : float
-        AUC to last observed time from model profile (h * ng/mL).
+        AUC from 0 to the last sampling time of the fitted model curve (h * ng/mL).
     AUCinf : float
         AUC to infinity = dose / CL_F (h * ng/mL).
     Cmax : float
