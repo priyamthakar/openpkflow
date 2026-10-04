@@ -4,8 +4,28 @@ This checklist is for OpenPKFlow v2.x releases. Keep it short and mechanical.
 
 ## Current release state
 
-**v2.8.0 was published on 2026-07-30.** It adds the Advanced Dissolution
-Workbench without new pharmacometric formulas.
+**v2.9.0 was published on 2026-10-04.** Correctness and validation release:
+workbench MSD and bootstrap f2 decisions fixed, exact BE power, PKNCA/WinNonlin
+lambda_z parity, and an NCA CLI.
+
+- Release PR: <https://github.com/priyamthakar/openpkflow/pull/62> (fixes in
+  <https://github.com/priyamthakar/openpkflow/pull/61>)
+- Release commit: `02600a7a6aab611a224d65a9782a01bc5d346bd1`
+- GitHub Release: <https://github.com/priyamthakar/openpkflow/releases/tag/v2.9.0>
+- PyPI: <https://pypi.org/project/openpkflow/2.9.0/>
+- Trusted Publishing run (build, TestPyPI, PyPI all passed):
+  <https://github.com/priyamthakar/openpkflow/actions/runs/37172605110>
+- Fresh public install (2026-10-04): `pip install openpkflow==2.9.0` reports
+  2.9.0; CLI `version`, `similarity`, `nca run` and exact BE power verified.
+- Pending: Render `/health` convergence to v2.9.0 was not checked (the
+  scheduled `Production convergence` job has been timing out on free-tier cold
+  starts since 2026-10-01; run it manually with `expected_version=2.9.0`). The
+  deployed `git_sha` follows the latest `main`, not the tag: after the uvicorn
+  bump (#60) it is `fe622c1` or later, so pass `expected_git_sha` only for the
+  current `main` head.
+
+Previous release: **v2.8.0 was published on 2026-07-30.** It adds the Advanced
+Dissolution Workbench without new pharmacometric formulas.
 
 - Release PR: <https://github.com/priyamthakar/openpkflow/pull/45>
 - Release commit: `06338340be90b5a5dec4e70ebe2311f540d3b1b3`

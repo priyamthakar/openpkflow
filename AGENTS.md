@@ -30,7 +30,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service reports v2.8.0
+  frontend auto-deploys from `main`; the live Render service reported v2.8.0 (v2.9.0 pending check)
   from `main`. Its `/health` endpoint is the source of truth for the deployed
   commit because documentation-only merges also redeploy the service. Free-tier
   Render can sleep after idle; `.github/workflows/keep-warm.yml` pings `/health`
@@ -267,13 +267,18 @@ Each test cites a source: paper DOI, FDA guidance ID, or reference implementatio
 
 ## Current focus
 
-**v2.8.0** is the latest published release. The Advanced Dissolution Workbench,
-three FastAPI endpoints, typed React tab, reports, and audit bundle are live.
-PR #45, the full CI matrix, Trusted Publishing, a fresh public install, and
-hosted version/commit convergence are verified.
+**v2.9.0** is the latest published release (2026-10-04): a correctness and
+validation release. Workbench MSD now uses vessel-level `msd_vessels()` (Tsong
+1996, cross-validated against disprofas) and bootstrap f2 follows the 85% rule;
+BE power is exact (Owen's Q, matches PowerTOST); lambda_z follows PKNCA's
+adjusted-R2 tolerance with an opt-in WinNonlin IV-bolus `include_tmax`; plus
+`openpkflow nca run` and paste-grid controls. PRs #61/#62, the full CI matrix,
+Trusted Publishing, and a fresh public PyPI install are verified. Hosted Render
+convergence for v2.9.0 still needs a `/health` check (see `HANDOFF.md`).
 
 **Immediate next work (in order):**
-1. Keep v2.8.0 stable and collect real Advanced Workbench feedback.
+1. Confirm Render `/health` reports v2.9.0, then keep it stable and collect
+   real Advanced Workbench feedback.
 2. Re-check the React Router advisory when an applicable patched release exists.
 3. Await maintainer review on conda-forge PR #33461 and keep
    `pop/estimation/` frozen.
@@ -299,6 +304,7 @@ See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 2.7.0          sparse NCA, formal BE/RSABE, pipeline API/web, UI polish        RELEASED
 2.7.1          deployment provenance, convergence gate, UI regressions         RELEASED
 2.8.0          Advanced Dissolution Workbench                                  RELEASED
+2.9.0          exact BE power, MSD/bootstrap fixes, lambda_z parity, NCA CLI   RELEASED
 0.7.0          Pharmpy bridge                                                   SKIPPED (reserved)
 ```
 
