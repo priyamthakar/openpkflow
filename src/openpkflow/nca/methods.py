@@ -144,6 +144,16 @@ def _validate_time_conc(
 # ---------------------------------------------------------------------------
 
 
+def _log_mean(c1: float, c2: float) -> float:
+    # (c1 - c2) / ln(c1 / c2). For nearly equal concentrations both numerator and log
+    # cancel; c2 * expm1(x) / x with x = log1p((c1 - c2) / c2) keeps full precision.
+    ratio = c1 / c2
+    if abs(ratio - 1.0) < 0.5:
+        x = math.log1p((c1 - c2) / c2)
+        return c2 if x == 0.0 else c2 * math.expm1(x) / x
+    return (c1 - c2) / math.log(ratio)
+
+
 def auc_linear(times: list[float], concs: list[float]) -> float:
     """Compute AUC by the linear trapezoidal rule.
 
@@ -210,7 +220,7 @@ def auc_log(times: list[float], concs: list[float]) -> AUCResult:
             )
             total += (c1 + c2) / 2.0 * dt
         else:
-            total += (c1 - c2) / math.log(c1 / c2) * dt
+            total += _log_mean(c1, c2) * dt
     return AUCResult(value=total, warnings=warnings)
 
 
@@ -257,7 +267,7 @@ def auc_linear_up_log_down(times: list[float], concs: list[float]) -> AUCResult:
                 )
                 total += (c1 + c2) / 2.0 * dt
             else:
-                total += (c1 - c2) / math.log(c1 / c2) * dt
+                total += _log_mean(c1, c2) * dt
     return AUCResult(value=total, warnings=warnings)
 
 

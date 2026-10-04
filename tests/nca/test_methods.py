@@ -476,3 +476,22 @@ class TestTmaxMixedWithZero:
 
     def test_zero_is_max(self) -> None:
         assert tmax([0, 1, 2], [0.0, -0.5, -1.0]) == 0.0  # max is 0 at t=0
+
+
+class TestLogTrapezoidPrecision:
+    """Log-trapezoid area (c1 - c2) / ln(c1/c2) * dt for nearly equal concentrations."""
+
+    def test_nearly_equal_concentrations_scale_linearly(self) -> None:
+        """Hypothesis-found case: AUC must scale exactly with concentration
+        (AUC is linear in C by definition; FDA 2003 BA/BE guidance)."""
+        base = auc_log([0.0, 1.0, 2.0], [1.0, 1000.0, 999.9999999999999]).value
+        scaled = auc_log([0.0, 1.0, 2.0], [0.109375, 109.375, 109.37499999999999]).value
+        assert scaled / base == pytest.approx(0.109375, rel=1e-12)
+
+    def test_matches_closed_form_for_exponential_decay(self) -> None:
+        """Exact for C = 10 exp(-k t): area over [0, 1] = 10 (1 - e^-k) / k (Gibaldi & Perrier)."""
+        import math
+
+        k = 1e-9
+        result = auc_log([0.0, 1.0], [10.0, 10.0 * math.exp(-k)]).value
+        assert result == pytest.approx(10.0 * -math.expm1(-k) / k, rel=1e-14)
