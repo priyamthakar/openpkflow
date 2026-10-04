@@ -34,11 +34,117 @@ app.add_typer(pop_app, name="pop")
 study_app = typer.Typer(help="End-to-end study pipeline commands.")
 app.add_typer(study_app, name="study")
 
+nca_app = typer.Typer(help="Non-compartmental analysis commands.")
+app.add_typer(nca_app, name="nca")
+
 
 @app.command("version")
 def version_command() -> None:
     """Print the installed version of openpkflow."""
     typer.echo(f"openpkflow {__version__}")
+
+
+_REPORT_FORMATS = {".html": "html", ".htm": "html", ".md": "markdown", ".markdown": "markdown"}
+_REPORT_FORMATS.update({".pdf": "pdf", ".docx": "docx"})
+
+
+@nca_app.command("run")
+def nca_run(
+    csv_path: Path = typer.Argument(
+        ...,
+        help="Long-format CSV with subject, time, conc, dose and route columns.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+    ),
+    auc_method: str = typer.Option(
+        ...,
+        "--auc-method",
+        help="AUC rule: linear, log, or linear_up_log_down (required, no default).",
+    ),
+    blq_method: str = typer.Option(
+        ...,
+        "--blq-method",
+        help="BLQ handling: none, zero, drop, half_lloq, or lloq (required, no default).",
+    ),
+    lloq: float | None = typer.Option(None, "--lloq", help="LLOQ for half_lloq / lloq."),
+    subject_col: str = typer.Option("subject", help="Column name for subject IDs."),
+    time_col: str = typer.Option("time", help="Column name for sample times."),
+    conc_col: str = typer.Option("conc", help="Column name for concentrations."),
+    dose_col: str = typer.Option("dose", help="Column name for dose."),
+    route_col: str = typer.Option("route", help="Column name for route."),
+    tau: float | None = typer.Option(
+        None, "--tau", help="Dosing interval; enables steady-state parameters."
+    ),
+    report: Path | None = typer.Option(
+        None,
+        "--report",
+        help="Write a summary report (.html, .md, .pdf or .docx; format from extension).",
+    ),
+    csv_out: Path | None = typer.Option(
+        None, "--csv", help="Write the per-subject parameter table to this CSV path."
+    ),
+    cdisc_out: Path | None = typer.Option(
+        None, "--cdisc-pp", help="Write a CDISC SDTM PP-style parameter table (CSV)."
+    ),
+) -> None:
+    """Run NCA for every subject in a CSV file.
+
+    Example::
+
+        openpkflow nca run theoph.csv --auc-method linear_up_log_down --blq-method zero
+        openpkflow nca run data.csv --auc-method linear --blq-method none --report nca.html
+    """
+    from openpkflow.nca.study import NCAStudy
+
+    valid_auc = ("linear", "log", "linear_up_log_down")
+    if auc_method not in valid_auc:
+        typer.echo(f"Error: --auc-method must be one of {', '.join(valid_auc)}.", err=True)
+        raise typer.Exit(1)
+    report_format: str | None = None
+    if report is not None:
+        report_format = _REPORT_FORMATS.get(report.suffix.lower())
+        if report_format is None:
+            typer.echo("Error: --report must end in .html, .md, .pdf or .docx.", err=True)
+            raise typer.Exit(1)
+
+    try:
+        study = NCAStudy.from_csv(
+            csv_path,
+            auc_method=cast(Literal["linear", "log", "linear_up_log_down"], auc_method),
+            blq_method=blq_method,
+            subject_col=subject_col,
+            time_col=time_col,
+            conc_col=conc_col,
+            dose_col=dose_col,
+            route_col=route_col,
+            lloq=lloq,
+            steady_state=tau is not None,
+            tau=tau,
+        )
+        summary = study.analyze()
+    except (FileNotFoundError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(summary.summary())
+
+    if csv_out is not None:
+        csv_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_dataframe().to_csv(csv_out, index=False)
+        typer.echo(f"\nParameter table written to: {csv_out}")
+    if cdisc_out is not None:
+        cdisc_out.parent.mkdir(parents=True, exist_ok=True)
+        summary.to_cdisc_pp().to_csv(cdisc_out, index=False)
+        typer.echo(f"CDISC PP table written to: {cdisc_out}")
+    if report is not None and report_format is not None:
+        try:
+            summary.report(report, format=report_format)
+            typer.echo(f"Report written to: {report}")
+        except Exception as exc:  # noqa: BLE001
+            typer.echo(f"Warning: could not write report: {exc}", err=True)
+            raise typer.Exit(1)
 
 
 @study_app.command("run")
