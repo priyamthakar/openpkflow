@@ -548,7 +548,7 @@ class DissolutionStudy:
         """Compare two formulations using bootstrap f2 confidence interval.
 
         Extracts vessel-level data from the loaded CSV and calls bootstrap_f2.
-        Suitable for small samples where fewer than 12 vessels are available.
+        Recommended when within-product variability is too high for point f2.
 
         Parameters
         ----------

@@ -64,7 +64,8 @@ class BootstrapF2Result:
             f"  Reference vessels: {self.n_reference_vessels}",
             f"  Test vessels:      {self.n_test_vessels}",
             "",
-            "Note: Bootstrap f2 is suitable when <12 vessels are available.",
+            "Note: bootstrap f2 is recommended when high within-product variability",
+            "violates the point-f2 CV criteria (EMA BE Q&A; Shah et al. 1998).",
             "Regulatory acceptance requires expert interpretation.",
         ]
         return "\n".join(lines)
@@ -139,10 +140,11 @@ def bootstrap_f2(
     if n_tst < 2:
         raise ValueError("At least 2 test vessels are required for bootstrap.")
 
-    if n_ref >= 12 or n_tst >= 12:
+    if n_ref < 12 or n_tst < 12:
         warnings.warn(
-            "Bootstrap f2 is designed for small samples (<12 vessels). "
-            "With n>=12, the regulatory single-point f2 is preferred.",
+            f"Bootstrap f2 with {n_ref} reference / {n_tst} test vessels: FDA (1997) "
+            "dissolution profile comparisons use 12 units per product, and percentile "
+            "intervals from fewer vessels are less stable.",
             UserWarning,
             stacklevel=2,
         )
