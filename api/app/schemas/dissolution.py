@@ -86,6 +86,7 @@ class WorkbenchConfigRequest(BaseModel):
         "weibull",
     ] = "weibull"
     model_comparison_param_index: int = Field(default=0, ge=0)
+    msd_similarity_limit_pct: float = Field(default=10.0, gt=0.0, le=15.0)
 
     @model_validator(mode="after")
     def labels_are_distinct(self) -> WorkbenchConfigRequest:
@@ -194,6 +195,7 @@ class WorkbenchAlternativesResponse(BaseModel):
     msd_similarity_limit_pct: float | None
     n_timepoints: int | None
     msd_is_similar: bool | None
+    msd_min_total_vessels: int
 
 
 class WorkbenchResponse(BaseModel):

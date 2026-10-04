@@ -470,6 +470,7 @@ function workbenchResponse(payload: {
       msd_similarity_limit_pct: 10,
       n_timepoints: 6,
       msd_is_similar: true,
+      msd_min_total_vessels: 8,
     },
     warnings: [],
     disclaimer,

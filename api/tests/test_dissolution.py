@@ -259,3 +259,17 @@ def test_workbench_unmatched_timepoints_fail_closed(client: TestClient) -> None:
     response = client.post("/api/dissolution/workbench/analyze", json=payload)
     assert response.status_code == 422
     assert "same time points" in response.json()["detail"]
+
+
+def test_workbench_rejects_msd_limit_above_15(client: TestClient) -> None:
+    payload = _workbench_payload()
+    payload["config"]["msd_similarity_limit_pct"] = 20  # type: ignore[index]
+    response = client.post("/api/dissolution/workbench/analyze", json=payload)
+    assert response.status_code == 422
+
+
+def test_workbench_reports_msd_vessel_requirement(client: TestClient) -> None:
+    response = client.post("/api/dissolution/workbench/analyze", json=_workbench_payload())
+    assert response.status_code == 200, response.text
+    # Regulatory f2 keeps 6 timepoints here, so MSD needs n_R + n_T >= 8.
+    assert response.json()["alternatives"]["msd_min_total_vessels"] == 8

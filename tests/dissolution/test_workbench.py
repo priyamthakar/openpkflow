@@ -230,3 +230,30 @@ def test_workbench_msd_not_evaluable_with_too_few_vessels() -> None:
     assert result.msd_result is None
     assert any("MSD not evaluable" in warning for warning in result.warnings)
     assert result.to_dict()["alternatives"]["msd_is_similar"] is None  # type: ignore[index]
+
+
+def test_workbench_msd_limit_setting_scales_similarity_limit() -> None:
+    """Tsong et al. (1996): D_M^max = sqrt(d_g' S^-1 d_g) is linear in the limit d_g."""
+    close = [29.0, 54.0, 74.0, 87.0, 95.0, 98.0, 99.0, 100.0]
+    base = run_dissolution_workbench(_plateau_dataframe(close), _config())
+    wide_config = DissolutionWorkbenchConfig(
+        reference_label="Reference",
+        test_label="Test",
+        bootstrap_replicates=250,
+        seed=42,
+        msd_similarity_limit_pct=15.0,
+    )
+    wide = run_dissolution_workbench(_plateau_dataframe(close), wide_config)
+
+    assert base.msd_result is not None and wide.msd_result is not None
+    assert wide.msd_result.similarity_limit == pytest.approx(1.5 * base.msd_result.similarity_limit)
+    assert wide.msd_result.msd == pytest.approx(base.msd_result.msd)
+    assert base.to_dict()["alternatives"]["msd_min_total_vessels"] == 6  # type: ignore[index]
+
+
+@pytest.mark.parametrize("limit", [0.0, -1.0, 15.5])
+def test_workbench_rejects_msd_limit_out_of_range(limit: float) -> None:
+    with pytest.raises(ValueError, match="msd_similarity_limit_pct"):
+        DissolutionWorkbenchConfig(
+            reference_label="Reference", test_label="Test", msd_similarity_limit_pct=limit
+        )

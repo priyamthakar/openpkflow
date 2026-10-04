@@ -250,6 +250,7 @@ export interface WorkbenchConfig {
   seed: number | null
   model_comparison_model: WorkbenchModel
   model_comparison_param_index: number
+  msd_similarity_limit_pct?: number
 }
 
 export interface WorkbenchRequest {
@@ -349,6 +350,7 @@ export interface WorkbenchResponse {
     msd_similarity_limit_pct: number | null
     n_timepoints: number | null
     msd_is_similar: boolean | null
+  msd_min_total_vessels: number
   }
   warnings: string[]
   disclaimer: string
