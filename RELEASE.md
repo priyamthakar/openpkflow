@@ -17,9 +17,12 @@ lambda_z parity, and an NCA CLI.
   <https://github.com/priyamthakar/openpkflow/actions/runs/37172605110>
 - Fresh public install (2026-10-04): `pip install openpkflow==2.9.0` reports
   2.9.0; CLI `version`, `similarity`, `nca run` and exact BE power verified.
-- Pending: Render `/health` convergence to v2.9.0 at `02600a7` was not checked
-  (the scheduled `Production convergence` job has been timing out on free-tier
-  cold starts since 2026-10-01; run it manually with `expected_version=2.9.0`).
+- Pending: Render `/health` convergence to v2.9.0 was not checked (the
+  scheduled `Production convergence` job has been timing out on free-tier cold
+  starts since 2026-10-01; run it manually with `expected_version=2.9.0`). The
+  deployed `git_sha` follows the latest `main`, not the tag: after the uvicorn
+  bump (#60) it is `fe622c1` or later, so pass `expected_git_sha` only for the
+  current `main` head.
 
 Previous release: **v2.8.0 was published on 2026-07-30.** It adds the Advanced
 Dissolution Workbench without new pharmacometric formulas.
