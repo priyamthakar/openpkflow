@@ -1,6 +1,31 @@
 # OpenPKFlow Handoff
 
-**Last updated:** 2026-09-06
+**Last updated:** 2026-10-04
+
+## v2.9.0 release (2026-10-04)
+
+OpenPKFlow **v2.9.0 is published to PyPI**; hosted Render convergence is not
+yet verified.
+
+- Fix PR [#61](https://github.com/priyamthakar/openpkflow/pull/61) (`3a7f4e2`):
+  workbench MSD always "similar" (degenerate mean-only MSD) replaced by
+  vessel-level `msd_vessels()`; bootstrap f2 85% rule; all-BLQ NCA crash;
+  sparse fit initial guess; API temp files; PKNCA lambda_z tolerance;
+  disprofas and PKNCA cross-validation scripts.
+- Release PR [#62](https://github.com/priyamthakar/openpkflow/pull/62)
+  (`02600a7`): exact BE power (Owen's Q, PowerTOST to 1e-9); `include_tmax`
+  closes all WinNonlin lambda_z exclusions; `openpkflow nca run`; analytic
+  sparse AUClast; bootstrap f2 note; workbench MSD limit setting; paste-grid
+  controls; stable log trapezoid.
+- GitHub Release and tag `v2.9.0` at `02600a7`; Trusted Publishing
+  [run 37172605110](https://github.com/priyamthakar/openpkflow/actions/runs/37172605110)
+  passed; fresh public `pip install openpkflow==2.9.0` verified.
+- **Resume:** check `https://openpkflow.onrender.com/health` reports
+  `engine_version` 2.9.0 and `git_sha` starting `02600a7` (or later `main`), or
+  run the `Production convergence` workflow with `expected_version=2.9.0`. The
+  scheduled run has failed 2026-10-01..03 with `/health` read timeouts
+  (free-tier cold start), not a deploy error.
+
 
 ## Repo consolidation (2026-09-06)
 
@@ -121,7 +146,7 @@ Dependency re-check on 2026-07-30:
 | Frontend | https://openpkflow.priyamthakar1.workers.dev | v2.8.0 surface, HTTP 200 |
 | Backend | https://openpkflow.onrender.com | v2.8.0 from `main`, 32 paths |
 | Docs | https://priyamthakar.github.io/openpkflow/ | v2.8.0 docs, HTTP 200 |
-| PyPI | https://pypi.org/project/openpkflow/2.8.0/ | public install verified |
+| PyPI | https://pypi.org/project/openpkflow/2.9.0/ | v2.9.0 public install verified 2026-10-04 |
 
 ### Free Render free-tier ops (keep-warm + cold starts)
 
@@ -162,7 +187,7 @@ Current platform references:
 
 ## Single next objective
 
-Keep v2.8.0 stable while collecting real workbench feedback. Before accepting
+Keep v2.9.0 stable while collecting real workbench feedback. Before accepting
 another feature milestone:
 
 1. triage real user feedback and remaining validation gaps;
