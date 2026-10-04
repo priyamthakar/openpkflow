@@ -113,6 +113,7 @@ export function DissolutionWorkbench() {
   const [confidence, setConfidence] = useState(0.9)
   const [seed, setSeed] = useState(2026)
   const [comparisonModel, setComparisonModel] = useState<WorkbenchModel>('weibull')
+  const [msdLimit, setMsdLimit] = useState(10)
   const [inputError, setInputError] = useState('')
   const [auditPending, setAuditPending] = useState(false)
   const [auditError, setAuditError] = useState('')
@@ -136,10 +137,21 @@ export function DissolutionWorkbench() {
         seed,
         model_comparison_model: comparisonModel,
         model_comparison_param_index: 0,
+        msd_similarity_limit_pct: msdLimit,
       },
     }),
-    [rows, reference, test, f2Method, replicates, confidence, seed, comparisonModel],
+    [rows, reference, test, f2Method, replicates, confidence, seed, comparisonModel, msdLimit],
   )
+  const vesselCounts = useMemo(() => {
+    const payload = payloadRows(rows)
+    const vessels = (label: string) =>
+      new Set(payload.filter((row) => row.formulation === label).map((row) => row.batch)).size
+    return {
+      reference: vessels(reference),
+      test: vessels(test),
+      timepoints: new Set(payload.map((row) => row.time)).size,
+    }
+  }, [rows, reference, test])
 
   const mutation = useMutation<WorkbenchResponse, Error>({
     mutationFn: () => analyzeDissolutionWorkbench(request),
@@ -368,6 +380,26 @@ export function DissolutionWorkbench() {
                 ))}
               </Select>
             </label>
+            <label className="flex items-center justify-between gap-3 text-sm font-semibold">
+              MSD similarity limit
+              <Select
+                aria-label="MSD similarity limit"
+                value={msdLimit}
+                onChange={(event) => {
+                  setMsdLimit(Number(event.target.value))
+                  resetResult()
+                }}
+                className="w-40 bg-surface-2 text-text"
+              >
+                <option value={10}>10% (EMA)</option>
+                <option value={15}>15% (Tsong 1996)</option>
+              </Select>
+            </label>
+            <p className="text-xs text-text-muted" data-testid="msd-vessel-hint">
+              MSD needs reference + test vessels &ge; time points used + 2. Loaded:{' '}
+              {vesselCounts.reference} reference + {vesselCounts.test} test vessels,{' '}
+              {vesselCounts.timepoints} time points.
+            </p>
           </div>
         </section>
 
@@ -415,7 +447,9 @@ export function DissolutionWorkbench() {
                 Bootstrap CI {result.bootstrap_f2.is_similar ? 'supports similarity' : 'does not support similarity'}
               </Badge>
               {result.alternatives.msd_is_similar == null ? (
-                <Badge variant="default">MSD not evaluable</Badge>
+                <Badge variant="default">
+                  MSD not evaluable (needs &ge; {result.alternatives.msd_min_total_vessels} vessels)
+                </Badge>
               ) : (
                 <Badge variant={result.alternatives.msd_is_similar ? 'success' : 'danger'}>
                   MSD {result.alternatives.msd_is_similar ? 'supports similarity' : 'does not support similarity'}

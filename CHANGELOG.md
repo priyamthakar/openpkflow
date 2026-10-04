@@ -9,15 +9,59 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.9.0] - 2026-10-04
+
+Correctness and validation release. It fixes two Advanced Dissolution Workbench
+decisions that could report "supports similarity" incorrectly, makes BE power
+exact, aligns lambda_z selection with PKNCA and WinNonlin, and adds an NCA CLI.
+
+### Migration notes
+
+- Workbench API: `alternatives.chi2_05_critical` is replaced by MSD CI and
+  limit fields, and the MSD fields are `null` when MSD is not evaluable (too few
+  vessels or a singular covariance). The three bundled 3-vessel examples are
+  not evaluable for MSD.
+- `lambda_z` can select more points than before on some profiles; use
+  `adj_r2_tolerance=0` to reproduce v2.8.0.
+- `msd()` on mean profiles warns; use `msd_vessels()` with vessel data.
+
+### Added
+
+- **`openpkflow nca run`**: command-line NCA over a CSV with required
+  `--auc-method` and `--blq-method` (no silent defaults), optional `--tau`
+  for steady state, and `--report` (HTML/Markdown/PDF/DOCX), `--csv` and
+  `--cdisc-pp` outputs.
+- **`msd_vessels()`**: vessel-level Mahalanobis distance with pooled
+  covariance and the Tsong et al. (1996) 90% Hotelling region against a
+  per-timepoint similarity limit. Cross-validated against `disprofas::mimcr()`
+  on six cases, including its documented example
+  (`scripts/disprofas_msd_crossval.R`).
+- **`lambda_z(adj_r2_tolerance=..., include_tmax=...)`**: the PKNCA
+  adjusted-R2 tolerance (default 1e-4) and an opt-in Phoenix WinNonlin IV-bolus
+  convention that lets the Cmax sample into the terminal window.
+- **Workbench MSD settings**: `msd_similarity_limit_pct` (10% default, up to
+  15%) in the library, API and UI, plus the vessel count MSD needs.
+- **Paste grid controls** on every web page: row-range selection with bulk
+  delete, Ctrl/Cmd+D fill down, Clear, and resizable columns.
+
 ### Changed
 
-- **lambda_z auto-selection now uses PKNCA's adjusted-R2 tolerance**: windows
-  within `adj_r2_tolerance` (default 1e-4, PKNCA `adj.r.squared.factor`) of
-  the best adjusted R2 are treated as equal and the one with the most points
-  is selected. Previously only an exact tie preferred more points, so some
-  profiles selected fewer points than PKNCA. Pass `adj_r2_tolerance=0` for the
-  old behaviour. Cross-validated against PKNCA via
-  `scripts/pknca_lambda_z_tolerance_crossval.R`.
+- **lambda_z auto-selection uses PKNCA's adjusted-R2 tolerance**: windows within
+  1e-4 of the best adjusted R2 are treated as equal and the one with the most
+  points wins (previously only an exact tie). Pass `adj_r2_tolerance=0` for the
+  old rule. Pinned against PKNCA `pk.calc.half.life()`; the WinNonlin reference
+  test now covers all 12 Theoph and 6 Indometh subjects with no exclusions.
+- **BE power is exact**: `be_tost_power()` integrates Owen's Q and matches
+  PowerTOST `power.TOST(method="exact")` to 1e-9. The previous non-central t
+  approximation returned 0 at low power (small n or high CV). Sample-size
+  results can change by one step where the approximation was off.
+- **Sparse NCA AUClast** is the analytic integral of the fitted curve from 0 to
+  the last sample instead of a trapezoid over the sparse fitted points.
+- **Bootstrap f2 note** points to high variability as the reason to use it and
+  warns only below the 12 units per product of FDA (1997), instead of warning
+  at 12 or more vessels.
 
 ### Fixed
 
@@ -36,6 +80,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   bootstrap resampled all of them, so plateau points could push the CI above 50
   while point f2 failed. `bootstrap_f2()` and
   `DissolutionStudy.bootstrap_compare()` gain `f2_method`.
+- **Log trapezoid precision**: `(c1 - c2) / ln(c1/c2)` lost precision to
+  cancellation when consecutive concentrations were nearly equal, breaking
+  AUC scale-linearity; it now uses a stable `expm1`/`log1p` form there.
+- **BE power fixtures**: the stored PowerTOST sample-size scenario 4 power
+  (0.8652) was the approximation's value; regenerated fixtures use PowerTOST's
+  0.8675705.
 - **NCA study aborted on an all-BLQ subject**: a subject with no quantifiable
   concentration (or only the first sample quantifiable) raised and stopped the
   whole study. AUClast is now 0 with a warning.

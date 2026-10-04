@@ -197,12 +197,17 @@ class TestBootstrapF2:
         with pytest.raises(ValueError, match="2 reference vessels"):
             bootstrap_f2(ref, tst)
 
-    def test_warns_large_sample(self):
+    def test_no_vessel_count_warning_at_twelve_units(self):
+        """FDA (1997) dissolution guidance: 12 units per product is the standard."""
         big = np.ones((12, 5))
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             bootstrap_f2(big, big.copy(), n_replicates=10, seed=0)
-            assert any("Bootstrap f2" in str(warning.message) for warning in w)
+        assert not any("12 units" in str(warning.message) for warning in w)
+
+    def test_warns_below_twelve_units(self):
+        with pytest.warns(UserWarning, match="12 units per product"):
+            bootstrap_f2(REF_SIMILAR, TST_SIMILAR, n_replicates=10, seed=0)
 
     def test_metadata_stored(self):
         result = bootstrap_f2(REF_SIMILAR, TST_SIMILAR, n_replicates=100, seed=0)

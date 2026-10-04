@@ -470,6 +470,7 @@ function workbenchResponse(payload: {
       msd_similarity_limit_pct: 10,
       n_timepoints: 6,
       msd_is_similar: true,
+      msd_min_total_vessels: 8,
     },
     warnings: [],
     disclaimer,
@@ -484,6 +485,7 @@ test('Advanced dissolution workbench runs and downloads report and audit bundle'
     expect(payload.rows).toHaveLength(42)
     expect(payload.config.bootstrap_replicates).toBe(1000)
     expect(payload.config.f2_method).toBe('regulatory')
+    expect(payload.config.msd_similarity_limit_pct).toBe(10)
     await route.fulfill({ json: workbenchResponse(payload) })
   })
   await page.route('**/api/dissolution/workbench/report?format=html', async (route) => {

@@ -79,8 +79,12 @@ def _profile_plot_png(result: DissolutionWorkbenchResult) -> bytes:
 def _msd_cells(result: DissolutionWorkbenchResult) -> tuple[str, str]:
     msd = result.msd_result
     if msd is None:
-        return "Not evaluable (see warnings)", "No MSD decision"
-    value = f"{msd.msd:.3f} / {msd.ci_upper:.3f} / {msd.similarity_limit:.3f}"
+        needed = result.comparison.n_timepoints + 2
+        return f"Not evaluable (needs >= {needed} vessels in total)", "No MSD decision"
+    value = (
+        f"{msd.msd:.3f} / {msd.ci_upper:.3f} / {msd.similarity_limit:.3f} "
+        f"({msd.similarity_limit_pct:g}% per point)"
+    )
     decision = "Supports similarity" if msd.is_similar else "Does not support similarity"
     return value, decision
 

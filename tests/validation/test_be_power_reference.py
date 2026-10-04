@@ -17,11 +17,14 @@ Reference:
   Int J Clin Pharmacol Ther Toxicol, 29(1):1-8.
 
 Formula (both PowerTOST and openpkflow):
-  Exact non-central t-distribution (Owen's Q):
-    power = 1 - F_nct(t_crit, df, delta_u) - F_nct(t_crit, df, delta_l)
-  where sigma_w = sqrt(log(1 + CV^2)), se = sigma_w * sqrt(2/n), df = n - 2.
-  Matches PowerTOST power.TOST(method="exact") to < 1e-5 in probability
-  units across 6 diverse scenarios.
+  Exact power via Owen's Q (Owen 1965, Biometrika 52:437-446; Phillips 1990):
+    power = Q_df(-t_crit, delta_2; 0, R) - Q_df(t_crit, delta_1; 0, R)
+  where sigma_w = sqrt(log(1 + CV^2)), se = sigma_w * sqrt(2/n), df = n - 2,
+  delta_1 = log(GMR/0.80)/se, delta_2 = log(GMR/1.25)/se and
+  R = (delta_1 - delta_2) sqrt(df) / (2 t_crit).
+  Matches PowerTOST power.TOST(method="exact") and sampleN.TOST to < 1e-8,
+  including low-power cases where the shifted non-central t approximation is
+  negative (previously clipped to 0).
 
 Degenerate properties:
   - power -> 1.0 as n -> inf for GMR=1.0 (large-sample behavior)
@@ -43,21 +46,21 @@ from openpkflow.be.methods import be_sample_size, be_tost_power
 # ---------------------------------------------------------------------------
 
 _POWERTOST_POWER_REFERENCE: dict[str, dict[str, object]] = {
-    "1": {"GMR": 0.95, "CV": 0.15, "n": 24, "power": 0.986761},
-    "2": {"GMR": 1.00, "CV": 0.20, "n": 18, "power": 0.887592},
-    "3": {"GMR": 0.90, "CV": 0.25, "n": 36, "power": 0.634540},
-    "4": {"GMR": 1.05, "CV": 0.10, "n": 12, "power": 0.989960},
-    "5": {"GMR": 0.80, "CV": 0.30, "n": 48, "power": 0.050000},
-    "6": {"GMR": 0.95, "CV": 0.35, "n": 40, "power": 0.688789},
+    "1": {"GMR": 0.95, "CV": 0.15, "n": 24, "power": 0.9867605314},
+    "2": {"GMR": 1.0, "CV": 0.2, "n": 18, "power": 0.8875924028},
+    "3": {"GMR": 0.9, "CV": 0.25, "n": 36, "power": 0.6345398613},
+    "4": {"GMR": 1.05, "CV": 0.1, "n": 12, "power": 0.9899604646},
+    "5": {"GMR": 0.8, "CV": 0.3, "n": 48, "power": 0.0499999936},
+    "6": {"GMR": 0.95, "CV": 0.35, "n": 40, "power": 0.6887888664},
 }
 
 _POWERTOST_SAMPLE_SIZE_REFERENCE: dict[str, dict[str, object]] = {
-    "1": {"target_power": 0.80, "GMR": 0.95, "CV": 0.20, "n": 20, "achieved_power": 0.8346801909},
-    "2": {"target_power": 0.90, "GMR": 0.95, "CV": 0.15, "n": 16, "achieved_power": 0.9260213185},
-    "3": {"target_power": 0.80, "GMR": 0.90, "CV": 0.25, "n": 56, "achieved_power": 0.8035816681},
-    "4": {"target_power": 0.80, "GMR": 1.00, "CV": 0.10, "n": 6, "achieved_power": 0.8652044666},
-    "5": {"target_power": 0.90, "GMR": 0.95, "CV": 0.30, "n": 52, "achieved_power": 0.9019649888},
-    "6": {"target_power": 0.80, "GMR": 0.85, "CV": 0.15, "n": 78, "achieved_power": 0.8080020738},
+    "1": {"target_power": 0.8, "GMR": 0.95, "CV": 0.2, "n": 20, "achieved_power": 0.8346801909},
+    "2": {"target_power": 0.9, "GMR": 0.95, "CV": 0.15, "n": 16, "achieved_power": 0.9260210848},
+    "3": {"target_power": 0.8, "GMR": 0.9, "CV": 0.25, "n": 56, "achieved_power": 0.8035824365},
+    "4": {"target_power": 0.8, "GMR": 1.0, "CV": 0.1, "n": 6, "achieved_power": 0.8675704829},
+    "5": {"target_power": 0.9, "GMR": 0.95, "CV": 0.3, "n": 52, "achieved_power": 0.9019652036},
+    "6": {"target_power": 0.8, "GMR": 0.85, "CV": 0.15, "n": 78, "achieved_power": 0.8080017931},
 }
 
 
@@ -72,68 +75,68 @@ class TestPowerTOSTCrossValidation:
     def test_power_matches_powertost_scenario_1(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["1"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_power_matches_powertost_scenario_2(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["2"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_power_matches_powertost_scenario_3(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["3"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_power_matches_powertost_scenario_4(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["4"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_power_matches_powertost_scenario_5(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["5"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_power_matches_powertost_scenario_6(self) -> None:
         s = _POWERTOST_POWER_REFERENCE["6"]
         result = be_tost_power(float(s["GMR"]), float(s["CV"]), int(s["n"]))
-        assert result == pytest.approx(float(s["power"]), abs=1e-5)
+        assert result == pytest.approx(float(s["power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_1(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["1"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_2(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["2"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_3(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["3"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_4(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["4"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_5(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["5"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_sample_size_matches_powertost_scenario_6(self) -> None:
         s = _POWERTOST_SAMPLE_SIZE_REFERENCE["6"]
         n, pw = be_sample_size(float(s["GMR"]), float(s["CV"]), float(s["target_power"]))
         assert n == int(s["n"])
-        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-5)
+        assert pw == pytest.approx(float(s["achieved_power"]), abs=1e-8)
 
     def test_power_approaches_one_as_n_grows_for_gmr_one(self) -> None:
         pwr = be_tost_power(gmr=1.0, cv=0.15, n=100)
@@ -230,3 +233,35 @@ class TestPowerTOSTCrossValidation:
         for gmr, cv, n in scenarios:
             pwr = be_tost_power(gmr, cv, n)
             assert 0.0 <= pwr <= 1.0
+
+
+# PowerTOST 1.5-7 power.TOST(method="exact"); the shifted non-central t
+# approximation (method="nct") returns 0 for every one of these.
+_POWERTOST_LOW_POWER_REFERENCE = [
+    (1.00, 0.50, 12, 0.006119024540),
+    (0.90, 0.60, 8, 0.001431875119),
+    (0.95, 0.40, 6, 0.012149427944),
+    (1.10, 0.80, 10, 0.000196612049),
+    (0.92, 0.30, 4, 0.032747608716),
+    (1.00, 0.25, 4, 0.057353319171),
+]
+
+
+@pytest.mark.parametrize(("gmr", "cv", "n", "expected"), _POWERTOST_LOW_POWER_REFERENCE)
+def test_low_power_matches_powertost_exact(gmr: float, cv: float, n: int, expected: float) -> None:
+    """Small-n / high-CV power matches PowerTOST exact (Owen's Q) to 1e-9."""
+    assert be_tost_power(gmr, cv, n) == pytest.approx(expected, abs=1e-9)
+
+
+def test_exact_power_dips_with_n_at_very_low_power_like_powertost() -> None:
+    """PowerTOST 1.5-7 power.TOST(CV=0.39744306305400345, theta0=1): exact power is
+    not monotone in n at tiny power (n = 4, 6, 8, 10)."""
+    cv = 0.39744306305400345
+    expected = {4: 0.016485740054, 6: 0.012802559824, 8: 0.014847901761, 10: 0.020704182221}
+    for n, power in expected.items():
+        assert be_tost_power(1.0, cv, n) == pytest.approx(power, abs=1e-9)
+
+
+def test_large_n_power_does_not_underflow() -> None:
+    """PowerTOST 1.5-7 gives power 1.0 at n = 1000, CV 12.5%, GMR 1.0."""
+    assert be_tost_power(1.0, 0.125, 1000) == pytest.approx(1.0, abs=1e-9)

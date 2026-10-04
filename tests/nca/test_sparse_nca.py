@@ -267,3 +267,41 @@ class TestFitSparse1cmtOral:
 
         result = fit_sparse_1cmt_oral(times, conc, dose)
         assert result.AUCinf > result.AUClast * 0.5
+
+
+class TestSparseAnalyticAUClast:
+    """AUClast integrates the fitted Bateman curve (Gibaldi & Perrier 1982, Eq. 1-13)."""
+
+    def test_matches_numerical_integral_of_fitted_curve(self):
+        from scipy.integrate import quad
+
+        times = np.array([0.5, 2.0, 8.0])
+        conc = c_1cmt_oral(times, 100.0, 5.0, 50.0, 0.8)
+        result = fit_sparse_1cmt_oral(times, conc, 100.0)
+
+        expected, _ = quad(
+            lambda x: float(c_1cmt_oral([x], 100.0, result.CL_F, result.Vz_F, result.ka)[0]),
+            0.0,
+            8.0,
+        )
+        assert result.AUClast == pytest.approx(expected, rel=1e-9)
+
+    def test_includes_area_before_first_sample(self):
+        """Trapezoids over samples alone would start at t = 0.5 h, not 0."""
+        times = np.array([0.5, 2.0, 8.0])
+        conc = c_1cmt_oral(times, 100.0, 5.0, 50.0, 0.8)
+        result = fit_sparse_1cmt_oral(times, conc, 100.0)
+        assert result.AUClast > float(np.trapezoid(conc, times))
+
+    def test_tends_to_dose_over_clf(self):
+        from openpkflow.nca.sparse import _auc_1cmt_oral_0_to
+
+        assert _auc_1cmt_oral_0_to(1e6, 100.0, 5.0, 50.0, 0.8) == pytest.approx(20.0)
+
+    def test_flip_flop_limit_ka_equals_k(self):
+        from scipy.integrate import quad
+
+        from openpkflow.nca.sparse import _auc_1cmt_oral_0_to
+
+        expected, _ = quad(lambda x: float(c_1cmt_oral([x], 100.0, 5.0, 50.0, 0.1)[0]), 0.0, 24.0)
+        assert _auc_1cmt_oral_0_to(24.0, 100.0, 5.0, 50.0, 0.1) == pytest.approx(expected, rel=1e-9)

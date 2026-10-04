@@ -132,7 +132,7 @@ result.report("pop_report.html")
 |-----------|-----------|-------|
 | f1 (difference factor) | `f1(reference, test)` | 0 = identical |
 | f2 (similarity factor) | `f2(reference, test)` | 100 = identical, >=50 passes |
-| Bootstrap f2 | `study.bootstrap_compare(ref, test)` | CI for samples <12 vessels |
+| Bootstrap f2 | `study.bootstrap_compare(ref, test)` | CI for f2 when variability is too high for point f2 |
 | Max deviation | `max_deviation(reference, test)` | FDA alternative when f2 cannot be used |
 | MSD (Mahalanobis) | `msd(reference, test_matrix)` | Chi-squared test |
 | Model fitting (Weibull) | `study.fit_models(formulation, models=["weibull"])` | AICc ranking |

@@ -144,6 +144,16 @@ def _validate_time_conc(
 # ---------------------------------------------------------------------------
 
 
+def _log_mean(c1: float, c2: float) -> float:
+    # (c1 - c2) / ln(c1 / c2). For nearly equal concentrations both numerator and log
+    # cancel; c2 * expm1(x) / x with x = log1p((c1 - c2) / c2) keeps full precision.
+    ratio = c1 / c2
+    if abs(ratio - 1.0) < 0.5:
+        x = math.log1p((c1 - c2) / c2)
+        return c2 if x == 0.0 else c2 * math.expm1(x) / x
+    return (c1 - c2) / math.log(ratio)
+
+
 def auc_linear(times: list[float], concs: list[float]) -> float:
     """Compute AUC by the linear trapezoidal rule.
 
@@ -210,7 +220,7 @@ def auc_log(times: list[float], concs: list[float]) -> AUCResult:
             )
             total += (c1 + c2) / 2.0 * dt
         else:
-            total += (c1 - c2) / math.log(c1 / c2) * dt
+            total += _log_mean(c1, c2) * dt
     return AUCResult(value=total, warnings=warnings)
 
 
@@ -257,7 +267,7 @@ def auc_linear_up_log_down(times: list[float], concs: list[float]) -> AUCResult:
                 )
                 total += (c1 + c2) / 2.0 * dt
             else:
-                total += (c1 - c2) / math.log(c1 / c2) * dt
+                total += _log_mean(c1, c2) * dt
     return AUCResult(value=total, warnings=warnings)
 
 
@@ -369,6 +379,7 @@ def lambda_z(
     time_range: tuple[float, float] | None = None,
     time_points: list[float] | None = None,
     adj_r2_tolerance: float = 1e-4,
+    include_tmax: bool = False,
 ) -> LambdaZResult:
     """Estimate the terminal elimination rate constant lambda_z.
 
@@ -388,6 +399,10 @@ def lambda_z(
         For auto method: windows whose adjusted R-squared is within this amount of
         the best are treated as equally good and the one with the most points wins.
         Default 1e-4 (PKNCA ``adj.r.squared.factor`` default); 0 requires an exact tie.
+    include_tmax : bool, optional
+        For auto method: allow the Cmax sample in the terminal window. Default False
+        (PKNCA ``allow.tmax.in.half.life``); True follows the Phoenix WinNonlin
+        IV-bolus convention, where the first sample is usually Cmax.
 
     Returns
     -------
@@ -417,7 +432,8 @@ def lambda_z(
     if method == "auto":
         # Step 1: identify post-Cmax positive-concentration subset
         cmax_idx = int(np.nanargmax(c_arr))
-        post_mask = np.arange(len(t_arr)) > cmax_idx
+        first_idx = cmax_idx if include_tmax else cmax_idx + 1
+        post_mask = np.arange(len(t_arr)) >= first_idx
         post_mask &= c_arr > 0.0
 
         post_t = t_arr[post_mask]

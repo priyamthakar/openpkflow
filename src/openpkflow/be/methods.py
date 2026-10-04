@@ -14,6 +14,9 @@ DOI: 10.1007/BF01063556
 Diletti, E., Hauschke, D., Steinijans, V.W. (1991). Sample size determination
 for bioequivalence assessment by means of confidence intervals.
 Int J Clin Pharmacol Ther Toxicol, 29(1):1-8.
+
+Owen, D.B. (1965). A special case of a bivariate non-central t-distribution.
+Biometrika, 52(3/4), 437-446.
 """
 
 from __future__ import annotations
@@ -22,7 +25,8 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from scipy.stats import nct
+from scipy import integrate
+from scipy.stats import chi
 from scipy.stats import t as t_dist
 
 
@@ -183,8 +187,10 @@ def be_tost_power(
     geometric mean ratio is *gmr* and the intra-subject CV is *cv*,
     given *n* subjects in a standard 2x2 crossover trial.
 
-    Uses the non-central t-distribution method (Phillips 1990; Diletti et
-    al. 1991).  Matches PowerTOST `power.TOST(method="exact")`.
+    Uses the exact Owen's Q formulation of TOST power (Owen 1965; Phillips
+    1990), which matches PowerTOST ``power.TOST(method="exact")``. The shifted
+    non-central t approximation goes negative (and was clipped to 0) when power
+    is low, e.g. small n or high CV.
 
     Parameters
     ----------
@@ -224,17 +230,48 @@ def be_tost_power(
         raise ValueError(f"cv must be positive (got {cv}).")
     if n < 3:
         raise ValueError(f"n must be at least 3 (got {n}).")
+    if not (0.0 < be_lower < be_upper):
+        raise ValueError(
+            f"be_lower must be positive and less than be_upper (got {be_lower}, {be_upper})."
+        )
 
     sigma_w = math.sqrt(math.log(1.0 + cv**2))
     se = sigma_w * math.sqrt(2.0 / n)
     df = n - 2
 
     t_crit = float(t_dist.ppf(1.0 - alpha, df))
-    delta_l = math.log(gmr / be_lower) / se
-    delta_u = math.log(be_upper / gmr) / se
+    delta_1 = math.log(gmr / be_lower) / se
+    delta_2 = math.log(gmr / be_upper) / se
+    # Upper integration limit: beyond it the two one-sided rejection regions no longer overlap.
+    upper = (delta_1 - delta_2) * math.sqrt(df) / (2.0 * t_crit)
 
-    power = 1.0 - nct.cdf(t_crit, df, delta_u) - nct.cdf(t_crit, df, delta_l)
+    power = _owens_q(df, -t_crit, delta_2, upper) - _owens_q(df, t_crit, delta_1, upper)
     return float(max(0.0, min(1.0, power)))
+
+
+def _owens_q(df: int, t: float, delta: float, upper: float) -> float:
+    # Owen (1965) Q_df(t, delta; 0, upper): the x^(df-1) phi(x) kernel normalises to the
+    # chi(df) density, so Q = E[Phi(t X / sqrt(df) - delta); 0 < X < upper], X ~ chi(df).
+    if upper <= 0.0:
+        return 0.0
+    # chi(df) mass is a narrow peak near sqrt(df) for large df; integrating only where
+    # it is non-negligible keeps quad from stepping over it on a long [0, upper] interval.
+    lower = float(chi.ppf(1e-15, df))
+    upper = min(upper, float(chi.isf(1e-15, df)))
+    if upper <= lower:
+        return 0.0
+    sqrt_df = math.sqrt(df)
+    log_norm = math.lgamma(df / 2.0) + (df / 2.0 - 1.0) * math.log(2.0)
+
+    def integrand(x: float) -> float:
+        if x <= 0.0:
+            return 0.0
+        chi_pdf = math.exp((df - 1.0) * math.log(x) - 0.5 * x * x - log_norm)
+        phi = 0.5 * math.erfc(-(t * x / sqrt_df - delta) / math.sqrt(2.0))
+        return phi * chi_pdf
+
+    value, _ = integrate.quad(integrand, lower, upper, epsabs=1e-13, epsrel=1e-12, limit=200)
+    return float(value)
 
 
 def be_sample_size(
@@ -250,7 +287,7 @@ def be_sample_size(
     """Sample size for a 2x2 crossover TOST bioequivalence study.
 
     Finds the smallest *n* such that :func:`be_tost_power` >= *target_power*.
-    Uses sequential integer search starting from 2.
+    Searches even n >= 4 in order (balanced 2x2 sequences).
 
     Parameters
     ----------
@@ -291,19 +328,16 @@ def be_sample_size(
         raise ValueError(f"target_power must be in (0, 1) (got {target_power}).")
 
     achieved = 0.0
+    last_n = 4
+    # Sequential, not bisection: exact power can dip with n at very low power
+    # (PowerTOST: CV 0.397, GMR 1, n = 4 -> 6 gives 0.0165 -> 0.0128).
     for n in range(4, max_n + 1, 2):
-        achieved = be_tost_power(
-            gmr,
-            cv,
-            n,
-            be_lower=be_lower,
-            be_upper=be_upper,
-            alpha=alpha,
-        )
+        achieved = be_tost_power(gmr, cv, n, be_lower=be_lower, be_upper=be_upper, alpha=alpha)
+        last_n = n
         if achieved >= target_power:
             return n, achieved
 
     raise RuntimeError(
         f"Target power {target_power} not reached within max_n={max_n}. "
-        f"Last power at n={max_n}: {achieved:.6f}."
+        f"Last power at n={last_n}: {achieved:.6f}."
     )

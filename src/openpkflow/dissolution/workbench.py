@@ -73,6 +73,9 @@ class DissolutionWorkbenchConfig:
         Validated model used for the parameter comparison.
     model_comparison_param_index : int, optional
         Zero-based fitted parameter index.
+    msd_similarity_limit_pct : float, optional
+        Allowed MSD difference at every timepoint, by default 10 (EMA maximum);
+        Tsong et al. (1996) proposed up to 15.
     """
 
     reference_label: str
@@ -83,6 +86,7 @@ class DissolutionWorkbenchConfig:
     seed: int | None = 2026
     model_comparison_model: str = "weibull"
     model_comparison_param_index: int = 0
+    msd_similarity_limit_pct: float = 10.0
 
     def __post_init__(self) -> None:
         """Validate configuration values."""
@@ -102,6 +106,8 @@ class DissolutionWorkbenchConfig:
             )
         if self.model_comparison_param_index < 0:
             raise ValueError("model_comparison_param_index must be non-negative.")
+        if not 0.0 < self.msd_similarity_limit_pct <= 15.0:
+            raise ValueError("msd_similarity_limit_pct must be in (0, 15].")
 
     def to_dict(self) -> dict[str, object]:
         """Return a JSON-safe configuration dictionary.
@@ -217,6 +223,7 @@ class DissolutionWorkbenchResult:
                 "msd_similarity_limit_pct": msd.similarity_limit_pct if msd else None,
                 "n_timepoints": msd.n_timepoints if msd else None,
                 "msd_is_similar": msd.is_similar if msd else None,
+                "msd_min_total_vessels": self.comparison.n_timepoints + 2,
             },
             "warnings": list(self.warnings),
             "disclaimer": _DISCLAIMER,
@@ -468,7 +475,11 @@ def run_dissolution_workbench(
     )
     msd_result: MSDVesselResult | None = None
     try:
-        msd_result = msd_vessels(reference_matrix[:, :n_used], test_matrix[:, :n_used])
+        msd_result = msd_vessels(
+            reference_matrix[:, :n_used],
+            test_matrix[:, :n_used],
+            similarity_limit_pct=config.msd_similarity_limit_pct,
+        )
     except ValueError as exc:
         captured.append(f"MSD not evaluable: {exc}")
     all_warnings = list(dict.fromkeys([*comparison.warnings, *captured]))
