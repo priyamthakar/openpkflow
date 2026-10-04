@@ -51,8 +51,15 @@ class TestTOSTSymmetric:
         st.integers(min_value=4, max_value=60),
     )
     def test_power_monotonic_in_n(self, gmr, cv, n):
-        """Power should increase with sample size (all else equal)."""
+        """Power increases with sample size once it is above the test size.
+
+        Exact TOST power can dip with n when power is tiny (PowerTOST 1.5-7
+        power.TOST: CV 0.397, GMR 1, n 4 -> 6 gives 0.0165 -> 0.0128; pinned in
+        tests/validation/test_be_power_reference.py), so the property is only
+        asserted where power is at least 0.10.
+        """
         power_n = be_tost_power(gmr=gmr, cv=cv, n=n)
+        assume(power_n >= 0.10)
         power_n2 = be_tost_power(gmr=gmr, cv=cv, n=n + 2)
         assert power_n2 >= power_n - 1e-12
 
