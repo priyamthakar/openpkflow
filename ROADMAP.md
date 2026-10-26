@@ -313,6 +313,18 @@ merge commit `0633834` are verified.
 **Excluded:** new dissolution mathematics without independent validation,
 changes to frozen `pop/estimation/`, and any claim of regulatory approval.
 
+### v2.9.0 correctness and validation release (published 2026-10-04)
+
+- Workbench MSD replaced by vessel-level `msd_vessels()` (Tsong 1996),
+  cross-validated against disprofas `mimcr()`; bootstrap f2 follows the 85% rule;
+  configurable MSD limit and vessel requirement.
+- Exact BE power via Owen's Q (PowerTOST `method="exact"` to 1e-9).
+- lambda_z: PKNCA adjusted-R2 tolerance and opt-in WinNonlin IV-bolus
+  `include_tmax`; WinNonlin reference test has no exclusions.
+- `openpkflow nca run` CLI, analytic sparse AUClast, paste-grid controls, and
+  fixes for all-BLQ NCA subjects, sparse-fit start values, log-trapezoid
+  precision, and API temp files. PRs #61 and #62.
+
 ### Post-v2.8.0 free-tier ops (2026-07-31)
 
 - Health badge cold-start recovery (PR #49) and free Render keep-warm pings
