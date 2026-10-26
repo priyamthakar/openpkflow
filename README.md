@@ -408,13 +408,16 @@ vpc.report("vpc_report.html")
 Post-1.0.0: IVIVC Level A, multi-media, SS/urine NCA, sparse NCA, Bayesian PK/BE,
 FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipeline +
 SUPAC/alcohol + IVIVC B/C + transit (v2.6), and sparse NCA + formal BE/RSABE +
-pipeline/web hardening (v2.7). See [ROADMAP.md](ROADMAP.md),
+pipeline/web hardening (v2.7), the Advanced Dissolution Workbench (v2.8), and a
+correctness and validation release (v2.9). See [ROADMAP.md](ROADMAP.md),
 [HANDOFF.md](HANDOFF.md), and
 [SESSION_SUMMARY_2026-07-28.md](SESSION_SUMMARY_2026-07-28.md) for current state.
 
-v2.8.0 is the current published release. It adds the Advanced Dissolution
-Workbench across the core package, API, web app, reports, and reproducibility
-bundle without adding new pharmacometric formulas. See
+v2.9.0 is the current published release. It corrects the Advanced Dissolution
+Workbench MSD and bootstrap f2 similarity decisions, computes BE power exactly
+(Owen's Q), aligns lambda_z selection with PKNCA and WinNonlin, and adds
+`openpkflow nca run`. v2.8.0 added the Workbench itself without new
+pharmacometric formulas. See
 [FUTURE_PLANS.md](FUTURE_PLANS.md) for demand-gated follow-up ideas.
 
 ---

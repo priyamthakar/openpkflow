@@ -33,11 +33,13 @@ It does not replace expert regulatory judgement or validated commercial platform
 It makes routine analysis faster, cleaner, and more reproducible.
 
 Current release and takeover status are maintained in the repository-root
-`HANDOFF.md`. The latest public release is v2.8.0, published on 2026-07-30.
+`HANDOFF.md`. The latest public release is v2.9.0, published on 2026-10-04.
 Public installation and hosted version/commit convergence are verified. The
-release includes the Advanced Dissolution Workbench. The free Render API may
-sleep when idle; a GitHub Actions keep-warm workflow and frontend health-badge
-retries improve portfolio/demo availability and reduce "engine offline" flashes.
+release corrects the Advanced Dissolution Workbench MSD and bootstrap f2
+decisions, computes BE power exactly, aligns lambda_z selection with PKNCA and
+WinNonlin, and adds `openpkflow nca run`. The free Render API may sleep when
+idle; a best-effort GitHub Actions keep-warm workflow and frontend health-badge
+retries reduce "engine offline" flashes.
 This is best-effort demo hosting, not a production SLA (silent on success; see
 `HANDOFF.md`).
 

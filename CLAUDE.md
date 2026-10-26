@@ -27,7 +27,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   multi-media, and Advanced Workbench tabs), Simulation, IVIVC, Bioequivalence (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, SUPAC & Alcohol, and Study Pipeline.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
-  frontend auto-deploys from `main`; the live Render service reported v2.8.0 (v2.9.0 pending check)
+  frontend auto-deploys from `main`; the live Render service reports v2.9.0
   from `main`. Its `/health` endpoint is the source of truth for the deployed
   commit because documentation-only merges also redeploy the service. Free-tier
   Render can sleep after idle; `.github/workflows/keep-warm.yml` pings `/health`
@@ -274,17 +274,18 @@ validation release. Workbench MSD now uses vessel-level `msd_vessels()` (Tsong
 BE power is exact (Owen's Q, matches PowerTOST); lambda_z follows PKNCA's
 adjusted-R2 tolerance with an opt-in WinNonlin IV-bolus `include_tmax`; plus
 `openpkflow nca run` and paste-grid controls. PRs #61/#62, the full CI matrix,
-Trusted Publishing, and a fresh public PyPI install are verified. Hosted Render
-convergence for v2.9.0 still needs a `/health` check (see `HANDOFF.md`).
+Trusted Publishing, a fresh public PyPI install, and hosted Render convergence
+(2026-10-26) are verified.
 
 **Immediate next work (in order):**
-1. Confirm Render `/health` reports v2.9.0, then keep it stable and collect
-   real Advanced Workbench feedback.
-2. Re-check the React Router advisory when an applicable patched release exists.
-3. Await maintainer review on conda-forge PR #33461 and keep
+1. Keep v2.9.0 stable and collect real Advanced Workbench feedback.
+2. conda-forge PR #33461 is waiting on the author: convert the recipe to v1
+   `recipe.yaml`, move it to 2.9.0, and ask for review again. Keep
    `pop/estimation/` frozen.
-4. Keep-warm + health badge cold-start recovery are already on `main`
-   (PRs #49 / #50); treat residual offline flashes as free-tier cold starts.
+3. Keep-warm runs every 2-3 hours in practice, not every 10 minutes (GitHub
+   throttles the schedule); decide whether to accept that or move the pinger.
+   The convergence check now wakes Render first (PR #67), and the React
+   Router advisory is cleared (PR #68).
 
 See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
