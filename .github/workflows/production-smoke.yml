@@ -20,6 +20,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -27,13 +28,25 @@ jobs:
           python-version: "3.12"
       - name: Install package
         run: python -m pip install .
+      # Free Render instances sleep when idle and can take over a minute to wake.
+      # Wake the service first so the check reports deploy state, not cold starts.
+      - name: Wake free-tier service
+        run: |
+          for attempt in 1 2 3 4; do
+            if curl -fsS --max-time 100 "https://openpkflow.onrender.com/health"; then
+              exit 0
+            fi
+            echo "Wake attempt ${attempt} failed; retrying..."
+            sleep 15
+          done
+          echo "Service did not wake; the convergence check will report the error."
       - name: Verify production version and provenance
         env:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
           EXPECTED_GIT_SHA: ${{ inputs.expected_git_sha }}
         run: |
           version="${EXPECTED_VERSION:-$(python -c 'import openpkflow; print(openpkflow.__version__)')}"
-          args=(--base-url "https://openpkflow.onrender.com" --expected-version "$version")
+          args=(--base-url "https://openpkflow.onrender.com" --expected-version "$version" --timeout 120)
           if [[ -n "$EXPECTED_GIT_SHA" ]]; then
             args+=(--expected-git-sha "$EXPECTED_GIT_SHA")
           fi
