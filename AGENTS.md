@@ -281,8 +281,8 @@ Trusted Publishing, a fresh public PyPI install, and hosted Render convergence
 2. conda-forge PR #33461 is waiting on the author: convert the recipe to v1
    `recipe.yaml`, move it to 2.9.0, and ask for review again. Keep
    `pop/estimation/` frozen.
-3. Keep-warm runs every 2-3 hours in practice, not every 10 minutes (GitHub
-   throttles the schedule); decide whether to accept that or move the pinger.
+3. Keep-warm produced one run every 2-3 hours when measured on 2026-10-26, not
+   one every 10 minutes; decide whether to accept that or move the pinger.
    The convergence check now wakes Render first (PR #67), and the React
    Router advisory is cleared (PR #68).
 

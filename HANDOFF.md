@@ -30,18 +30,20 @@ OpenPKFlow **v2.9.0 is published and hosted convergence is verified**.
 - PR [#66](https://github.com/priyamthakar/openpkflow/pull/66): `fastapi>=0.143.2`.
 - PR [#67](https://github.com/priyamthakar/openpkflow/pull/67): the
   scheduled `Production convergence` job failed on 7 of 8 runs from 2026-10-18
-  to 2026-10-25 with `/health` read timeouts. Its 30 s per-request timeout was
-  shorter than a free-tier cold start. The job now wakes Render with the
+  to 2026-10-25. Every failure was the same `/health` read timeout at the 30 s
+  per-request limit, consistent with a free-tier cold start; a manual check on
+  2026-10-26 found the deployment healthy. The job now wakes Render with the
   keep-warm retry loop and runs the check with `--timeout 120`.
 - PR [#68](https://github.com/priyamthakar/openpkflow/pull/68): the webapp
-  lockfile moves `react-router` and `react-router-dom` from 7.18.1 to 7.18.4.
-  GHSA-qwww-vcr4-c8h2 is patched in 7.18.2, so `npm audit` no longer flags it.
+  lockfile moves `react-router` and `react-router-dom` from 7.18.1 to 7.18.4
+  (GHSA-qwww-vcr4-c8h2 is patched in 7.18.2). A second commit runs
+  `npm audit fix` within existing ranges (vite 8.3.5, rolldown 1.2.15, zod
+  4.6.7 and other build tooling), so `npm audit` reports 0 vulnerabilities.
 - conda-forge staged-recipes PR
   [#33461](https://github.com/conda-forge/staged-recipes/pull/33461) is waiting
   on the author, not on maintainers. It has been labelled "Awaiting author
   contribution" since 2026-09-30, after the reviewer asked on 2026-09-11 for the
   v1 `recipe.yaml` format. The recipe still targets 2.7.0.
-
 
 ## Repo consolidation (2026-09-06)
 
@@ -65,7 +67,7 @@ workflow (`gh-pages` remains as the CI-managed docs deployment branch).
   agent scratch worktrees). The `D:\openpkflow` checkout remains the single
   working copy.
 
-## Current state
+## v2.8.0 release (2026-07-30)
 
 OpenPKFlow **v2.8.0 is published and hosted convergence is verified**.
 
@@ -119,7 +121,7 @@ formula.
 - FastAPI and React remain adapters; calculations stay in
   `src/openpkflow/dissolution/`.
 
-## Verification evidence
+## v2.8.0 verification evidence
 
 Local release validation:
 
@@ -185,16 +187,17 @@ Run history: <https://github.com/priyamthakar/openpkflow/actions/workflows/keep-
 
 This is **best-effort free keep-warm**, not a paid always-on SLA.
 
-**Measured cadence (2026-10-26):** GitHub ran the 10-minute schedule only 8
-times between 2026-10-25 00:00 UTC and 2026-10-26 02:00 UTC, roughly once every
-2-3 hours. Render therefore sleeps for most of the day and many first visits
-still hit a cold start. Whether to accept this or move the ping to a more
-reliable scheduler is an open owner decision.
+**Measured cadence (2026-10-26):** the 10-minute schedule produced only 8 runs
+between 2026-10-25 00:00 UTC and 2026-10-26 02:00 UTC, roughly one every 2-3
+hours. Those gaps exceed Render's idle-sleep threshold, so the workflow cannot
+reliably prevent sleep, and first visits after quiet periods may still hit a
+cold start. Whether to accept this or move the ping to a more reliable
+scheduler is an open owner decision.
 
 Render currently grants 750 shared free instance-hours per workspace each
 calendar month. A continuously warm service would use about 720 hours in a
-30-day month or 744 hours in a 31-day month; at the measured cadence actual use
-is lower. Monitor Render's monthly usage and
+30-day month or 744 hours in a 31-day month; actual use depends on real traffic
+as well as pings. Monitor Render's monthly usage and
 disable or reassess keep-warm before adding another free web service to the
 same workspace. If dependable production availability becomes a requirement,
 use a paid always-on instance instead of tightening the ping schedule.
