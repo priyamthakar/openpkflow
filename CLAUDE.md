@@ -30,9 +30,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   frontend auto-deploys from `main`; the live Render service reports v2.9.0
   from `main`. Its `/health` endpoint is the source of truth for the deployed
   commit because documentation-only merges also redeploy the service. Free-tier
-  Render can sleep after idle; `.github/workflows/keep-warm.yml` pings `/health`
-  about every 10 minutes for portfolio/demo availability (best-effort, not a
-  production SLA, no email on success), and the webapp TopBar retries cold
+  Render can sleep after idle; `.github/workflows/keep-warm.yml` is scheduled to
+  ping `/health` every 10 minutes but ran only every 2-3 hours when measured on
+  2026-10-26 (best-effort portfolio/demo availability, not a production SLA, no
+  email on success), and the webapp TopBar retries cold
   starts. See `HANDOFF.md` "Deployment" for URLs and ops.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
