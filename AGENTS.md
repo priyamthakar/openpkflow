@@ -32,7 +32,8 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
   frontend auto-deploys from `main`; the live Render service reports v2.9.0
   from `main`. Its `/health` endpoint is the source of truth for the deployed
-  commit because documentation-only merges also redeploy the service. Free-tier
+  commit, which may lag `main`: on 2026-10-26 merges touching only `.github/`,
+  `webapp/` and docs did not redeploy it (cause not yet checked in Render). Free-tier
   Render can sleep after idle; `.github/workflows/keep-warm.yml` is scheduled to
   ping `/health` every 10 minutes but ran only every 2-3 hours when measured on
   2026-10-26 (best-effort portfolio/demo availability, not a production SLA, no

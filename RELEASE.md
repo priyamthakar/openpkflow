@@ -19,9 +19,9 @@ lambda_z parity, and an NCA CLI.
   2.9.0; CLI `version`, `similarity`, `nca run` and exact BE power verified.
 - Hosted convergence verified 2026-10-26: Render `/health` reported
   `engine_version` 2.9.0 at `main` commit `fe622c1`, with 32 OpenAPI paths. The
-  deployed `git_sha` follows the latest `main`, not the tag, so pass
-  `expected_git_sha` to the `Production convergence` workflow only for the
-  current `main` head.
+  deployed `git_sha` is the last commit Render deployed and may lag `main`
+  (see `HANDOFF.md`), so pass `expected_git_sha` to the `Production
+  convergence` workflow only for a commit `/health` has already reported.
 
 Previous release: **v2.8.0 was published on 2026-07-30.** It adds the Advanced
 Dissolution Workbench without new pharmacometric formulas.

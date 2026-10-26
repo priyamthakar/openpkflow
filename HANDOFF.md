@@ -21,9 +21,16 @@ OpenPKFlow **v2.9.0 is published and hosted convergence is verified**.
   passed; fresh public `pip install openpkflow==2.9.0` verified.
 - Hosted convergence verified 2026-10-26: Render `/health` reported
   `engine_version` 2.9.0 at `main` commit `fe622c1`, and `/openapi.json`
-  reported 2.9.0 with 32 paths. The deployed `git_sha` follows the latest
-  `main`, not the tag, so every later merge changes it; `/health` stays the
-  source of truth.
+  reported 2.9.0 with 32 paths. Render then deployed `e909e5c` (#66, which
+  changed `api/requirements.txt`).
+- Render did **not** redeploy the five later `main` merges on 2026-10-26
+  (`8de08e0` through `4aceffe`), which touched only `.github/`, `webapp/` and
+  docs. `2d3c17b` stayed the CI-green `main` head for about 1.5 hours while
+  `/health` kept reporting `e909e5c`. The cause has not been checked in the
+  Render dashboard; a build filter, disabled auto-deploy, or failed builds
+  would all fit. `e909e5c` already contains every `src/` and `api/` change, so
+  the live API is current. `/health.git_sha` is the last *deployed* commit and
+  may lag `main`.
 
 ## Post-v2.9.0 maintenance (2026-10-26)
 
@@ -144,8 +151,9 @@ Publication and hosted validation:
 - Cloudflare frontend and GitHub Pages docs: HTTP 200
 - Render `/health` and `/openapi.json`: v2.8.0, branch `main`, service
   `srv-d8fb63navr4c73a3gclg`. The release first converged at `0633834`;
-  documentation-only merges also redeploy Render, so `/health.git_sha` is the
-  source of truth for the current deployed `main` commit.
+  documentation-only merges also redeployed Render at that time (not observed
+  on 2026-10-26; see the v2.9.0 section), so `/health.git_sha` is the source of
+  truth for the deployed commit.
 - production OpenAPI inventory: **32 paths**
 
 Dependency re-check on 2026-07-30: `npm audit` flagged GHSA-qwww-vcr4-c8h2
@@ -219,7 +227,10 @@ another feature milestone:
    [#33461](https://github.com/conda-forge/staged-recipes/pull/33461), which is
    waiting on the author: convert the recipe to v1 `recipe.yaml`, move it to
    2.9.0, and ask for review again;
-4. decide whether the measured keep-warm cadence is acceptable.
+4. decide whether the measured keep-warm cadence is acceptable;
+5. check the Render dashboard (Settings -> Build & Deploy -> Auto-Deploy and
+   Build Filters, plus the Events list for failed deploys) to explain why the
+   2026-10-26 non-API merges did not redeploy.
 
 **Ops polish (done):** health badge cold-start recovery ([PR #49](https://github.com/priyamthakar/openpkflow/pull/49));
 free keep-warm pings on `main` ([PR #50](https://github.com/priyamthakar/openpkflow/pull/50));
