@@ -104,7 +104,7 @@ usage and reassess before adding another free service. Use a paid always-on
 instance if dependable production availability is required.
 
 The Cloudflare Workers SPA hosts only the frontend. API warm-keeping is GitHub
-Actions -> Render, documented in root `HANDOFF.md`.
+Actions -> Render, documented in `dev/HANDOFF.md`.
 
 ## Tests
 

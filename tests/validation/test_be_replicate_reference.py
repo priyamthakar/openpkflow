@@ -1,7 +1,7 @@
 """Replicate BE validation against external R/SAS-compatible scalar fixtures.
 
 Regenerate with:
-  Rscript scripts/replicate_be_crossval.R
+  Rscript scripts/crossval/replicate_be_crossval.R
 
 Scope
 -----

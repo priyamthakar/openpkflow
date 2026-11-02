@@ -11,7 +11,7 @@
 # Output feeds tests/validation/test_nca_lambda_z_pknca_tolerance.py.
 #
 # Usage:
-#   Rscript scripts/pknca_lambda_z_tolerance_crossval.R
+#   Rscript scripts/crossval/pknca_lambda_z_tolerance_crossval.R
 #
 # Requires: R >= 4.1, PKNCA >= 0.12.1
 #

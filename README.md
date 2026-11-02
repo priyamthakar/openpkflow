@@ -399,7 +399,7 @@ vpc.report("vpc_report.html")
 | Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | FDA partial-replicate RSABE decision | :white_check_mark: validated (Patterson & Jones 2012) | :x: | :white_check_mark: | :x: |
 
-\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [dev/HANDOFF.md](dev/HANDOFF.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
 \*\*\* Screening helper with documented thresholds; not full SUPAC guidance automation.
 
@@ -409,16 +409,15 @@ Post-1.0.0: IVIVC Level A, multi-media, SS/urine NCA, sparse NCA, Bayesian PK/BE
 FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipeline +
 SUPAC/alcohol + IVIVC B/C + transit (v2.6), and sparse NCA + formal BE/RSABE +
 pipeline/web hardening (v2.7), the Advanced Dissolution Workbench (v2.8), and a
-correctness and validation release (v2.9). See [ROADMAP.md](ROADMAP.md),
-[HANDOFF.md](HANDOFF.md), and
-[SESSION_SUMMARY_2026-07-28.md](SESSION_SUMMARY_2026-07-28.md) for current state.
+correctness and validation release (v2.9). See [ROADMAP.md](ROADMAP.md) and
+[dev/HANDOFF.md](dev/HANDOFF.md) for current state.
 
 v2.9.0 is the current published release. It corrects the Advanced Dissolution
 Workbench MSD and bootstrap f2 similarity decisions, computes BE power exactly
 (Owen's Q), aligns lambda_z selection with PKNCA and WinNonlin, and adds
 `openpkflow nca run`. v2.8.0 added the Workbench itself without new
 pharmacometric formulas. See
-[FUTURE_PLANS.md](FUTURE_PLANS.md) for demand-gated follow-up ideas.
+[dev/FUTURE_PLANS.md](dev/FUTURE_PLANS.md) for demand-gated follow-up ideas.
 
 ---
 
@@ -447,10 +446,10 @@ pharmacometric formulas. See
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live portfolio demo](https://openpkflow.priyamthakar1.workers.dev). A best-effort keep-warm workflow and UI retries reduce free Render cold starts; this is demo availability, not a production SLA (see [HANDOFF.md](HANDOFF.md)). |
+| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live portfolio demo](https://openpkflow.priyamthakar1.workers.dev). A best-effort keep-warm workflow and UI retries reduce free Render cold starts; this is demo availability, not a production SLA (see [dev/HANDOFF.md](dev/HANDOFF.md)). |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
-\* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [HANDOFF.md](HANDOFF.md).
+\* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [dev/HANDOFF.md](dev/HANDOFF.md).
 \*\* Replicate BE is research-grade screening only.
 
 ---

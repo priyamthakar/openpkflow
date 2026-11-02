@@ -1,7 +1,7 @@
 """External-reference regression for complete balanced 2x2 formal BE ANOVA.
 
 The expected treatment contrast and residual MSE were generated with the
-independent R model in ``scripts/be_anova_crossval.R`` using R 4.6.0.
+independent R model in ``scripts/crossval/be_anova_crossval.R`` using R 4.6.0.
 
 References
 ----------

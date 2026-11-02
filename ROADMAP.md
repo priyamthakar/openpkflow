@@ -104,7 +104,7 @@ Scope: model-informed AUC from limited sampling (2-5 samples).
 
 ### v2.0.0 -- Bayesian PK ✅ DONE
 
-Scope: `bayes/` module. Architecture Decision Record: `V2_ARCHITECTURE_DECISION.md`.
+Scope: `bayes/` module. Architecture Decision Record: `dev/V2_ARCHITECTURE_DECISION.md`.
 
 **Phase 1 -- MAP (scipy, zero new dependencies):**
 - `PKPrior` frozen dataclass: log-normal priors for CL, Vz, ka, sigma with bounds ✅
@@ -204,12 +204,12 @@ published to PyPI on 2026-07-15.
 
 - `docs/positioning.md`, `docs/tutorials/pipeline.md` ✅
 - Docker / docker-compose polish; pipeline examples ✅
-- HANDOFF.md / AGENTS.md / CLAUDE.md updated for takeover ✅
+- dev/HANDOFF.md / AGENTS.md / CLAUDE.md updated for takeover ✅
 
 ### Post-v2.6.0 follow-ups
 
 The deployment statements in this subsection record the historical
-pre-v2.7.0 checkpoint; current hosted state is in `HANDOFF.md`.
+pre-v2.7.0 checkpoint; current hosted state is in `dev/HANDOFF.md`.
 
 - Formal BE ANOVA ✅ implemented in OpenPKFlow with independent R cross-check
 - FDA partial-replicate RSABE ✅ implemented, validated against Patterson & Jones
@@ -223,13 +223,13 @@ pre-v2.7.0 checkpoint; current hosted state is in `HANDOFF.md`.
 - Frontend design system polish + mobile pass ✅ merged in PR #33 (`bb0d16a`)
 - Hosted production services: Cloudflare Workers frontend + Render backend are
   current through v2.8.0; free-tier keep-warm and health-badge recovery are on
-  `main` (PRs #49 / #50). Live URLs and ops are in `HANDOFF.md`
+  `main` (PRs #49 / #50). Live URLs and ops are in `dev/HANDOFF.md`
 - Extending frozen `pop/estimation/` — out of scope, not a follow-up (see CLAUDE.md)
 
 ### v2.7.0 release (published 2026-07-25)
 
 The deployment statement below records the v2.7.0 release-time checkpoint. It
-was resolved in v2.7.1; current hosted state is in `HANDOFF.md`.
+was resolved in v2.7.1; current hosted state is in `dev/HANDOFF.md`.
 
 - Pipeline audit ZIP, FastAPI endpoints, and React page: merged in PR #30.
 - Sparse NCA validation/API/page: merged in PR #31.
@@ -250,8 +250,8 @@ was resolved in v2.7.1; current hosted state is in `HANDOFF.md`.
 - Conda-forge staged-recipes PR #33461 now targets the verified v2.7.0 sdist;
   refreshed linter, Linux, Windows, and macOS checks pass. Await maintainer review.
 - Production frontend and docs were healthy at release time; later v2.7.1/v2.8.0
-  closed the Render version gate. See `HANDOFF.md` for current hosted state.
-- See `HANDOFF.md` for exact published state and bounded next work.
+  closed the Render version gate. See `dev/HANDOFF.md` for current hosted state.
+- See `dev/HANDOFF.md` for exact published state and bounded next work.
 
 ### v2.7.1 reliability release (published 2026-07-28)
 
@@ -331,7 +331,7 @@ changes to frozen `pop/estimation/`, and any claim of regulatory approval.
   (PR #50, every ~10 minutes) are on `main`. Retain for portfolio/demo
   availability only; best-effort, not a production SLA, and silent on success
   (no Gmail spam). Monitor shared free instance-hours before adding another
-  Render service. Full ops notes: `HANDOFF.md`.
+  Render service. Full ops notes: `dev/HANDOFF.md`.
 
 ---
 

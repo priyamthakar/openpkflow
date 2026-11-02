@@ -5,7 +5,7 @@
 # It prints the treatment contrast, residual MSE, and ANOVA table for a supplied CSV.
 #
 # Usage:
-# Rscript scripts/be_anova_crossval.R path/to/data.csv AUCinf
+# Rscript scripts/crossval/be_anova_crossval.R path/to/data.csv AUCinf
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 2) stop("Usage: Rscript be_anova_crossval.R input.csv endpoint")

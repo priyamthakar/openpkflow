@@ -27,7 +27,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 - `webapp/` — React + Vite + Tailwind frontend. Current pages: Home, NCA, Sparse NCA,
   Dissolution (single, multi-media, and Advanced Workbench tabs), Sim, IVIVC, BE (analysis + power tab),
   Formal BE ANOVA, FDA RSABE, MAP Individual PK, SUPAC & Alcohol Screening, and
-  Study Pipeline. See `progress_web_app.md` for the full file map and next candidates.
+  Study Pipeline. See `dev/progress_web_app.md` for the full file map and next candidates.
 - Do NOT add pharmacometric logic to api/ or webapp/. Add to src/openpkflow/ first.
 - Deployed live: frontend on Cloudflare Workers and backend on Render. The
   frontend auto-deploys from `main`; the live Render service reports v2.9.0
@@ -38,9 +38,9 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
   ping `/health` every 10 minutes but ran only every 2-3 hours when measured on
   2026-10-26 (best-effort portfolio/demo availability, not a production SLA, no
   email on success), and the webapp TopBar retries cold
-  starts. See `HANDOFF.md` "Deployment" for URLs and ops.
+  starts. See `dev/HANDOFF.md` "Deployment" for URLs and ops.
 
-**Takeover:** read `HANDOFF.md` first for branch/PR/release state.
+**Takeover:** read `dev/HANDOFF.md` first for branch/PR/release state.
 
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
@@ -107,7 +107,7 @@ mypy src/openpkflow
 python -m build
 
 # PKNCA cross-validation (requires R + PKNCA)
-"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/crossval/pknca_theoph_crossval.R')"
 
 # CLI
 openpkflow version
@@ -240,7 +240,7 @@ tolerance for every subject. Cmax matches exactly.
 
 Run with:
 ```bash
-"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/crossval/pknca_theoph_crossval.R')"
 ```
 
 The R script outputs a `_PKNCA_REFERENCE` dict that goes into
@@ -288,7 +288,7 @@ Trusted Publishing, a fresh public PyPI install, and hosted Render convergence
    The convergence check now wakes Render first (PR #67), and the React
    Router advisory is cleared (PR #68).
 
-See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
+See `dev/HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 

@@ -1,4 +1,3 @@
-.libPaths("D:/R-library/4.6")
 library(replicateBE)
 data(rds07, package = "replicateBE")
 

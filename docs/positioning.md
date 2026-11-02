@@ -52,7 +52,7 @@ pharmacokinetic, and regulatory experts.
 
 Version **2.8.0** is the current published release, dated 2026-07-30. It
 includes the Advanced Dissolution Workbench.
-Always read **`HANDOFF.md` at the repository root** in the working tree for
+Always read **`dev/HANDOFF.md`** in the working tree for
 branch name, PR number, verification results, and release status.
 
 ## Where formal BE and PopPK live

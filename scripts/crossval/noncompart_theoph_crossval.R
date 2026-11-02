@@ -6,7 +6,7 @@
 # 12-subject theophylline dataset vs openpkflow.
 #
 # Usage:
-#   Rscript scripts/noncompart_theoph_crossval.R
+#   Rscript scripts/crossval/noncompart_theoph_crossval.R
 #
 # Requires: R >= 4.0, NonCompart >= 0.8.0
 #
@@ -22,7 +22,7 @@
 
 suppressPackageStartupMessages(library(NonCompart))
 
-csv_path <- "D:/openpkflow/src/openpkflow/datasets/theoph.csv"
+csv_path <- "src/openpkflow/datasets/theoph.csv"
 stopifnot(file.exists(csv_path))
 
 cat(sprintf("# Dataset: %s\n", csv_path))

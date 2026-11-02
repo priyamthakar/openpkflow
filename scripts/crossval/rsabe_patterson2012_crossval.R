@@ -1,4 +1,3 @@
-.libPaths("D:/R-library/4.6")
 
 # Table II, Patterson SD, Jones B. "Viewpoint: observations on scaled average
 # bioequivalence." Pharmaceutical Statistics 2012;11(1):1-7. DOI 10.1002/pst.498.

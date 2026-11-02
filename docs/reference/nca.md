@@ -76,9 +76,9 @@ regulatory analysis. See the [sparse oral PK tutorial](../tutorials/sparse-nca.m
 The NCA module is cross-validated against PKNCA 0.12.1 (Denney et al., 2015) on the
 12-subject R nlme::Theoph theophylline dataset. AUClast matches within 2% relative
 tolerance for every subject. Cmax matches exactly. See `tests/validation/` and
-`scripts/pknca_theoph_crossval.R`.
+`scripts/crossval/pknca_theoph_crossval.R`.
 
 The sparse oral fit is independently cross-checked against R 4.6.0 `stats::nls`
 using five observations from published `nlme::Theoph` subject 1. See
 `tests/validation/test_sparse_nca_theoph_reference.py` and
-`scripts/sparse_nca_theoph_crossval.R`.
+`scripts/crossval/sparse_nca_theoph_crossval.R`.

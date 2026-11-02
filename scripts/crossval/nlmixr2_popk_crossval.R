@@ -9,9 +9,9 @@
 # and EBEs formatted as a Python dict for use in test_pop_foce_reference.py.
 #
 # Usage (from project root):
-#   "C:\Program Files\R\R-4.6.0\bin\Rscript.exe" scripts/nlmixr2_popk_crossval.R
+#   Rscript scripts/crossval/nlmixr2_popk_crossval.R
 #
-# Requires: nlmixr2 >= 5.0.0  (installed at D:/R-library/4.6)
+# Requires: nlmixr2 >= 5.0.0
 #
 # Reference:
 #   Pinheiro JC, Bates DM (2000). Mixed-Effects Models in S and S-PLUS.
@@ -25,10 +25,9 @@
 #   objective (-2LL with conditional linearisation) on the same 1-cmt oral
 #   model. Parameter estimates differ due to optimizer tolerance, numerical
 #   Hessian differences, and inner-loop convergence criteria. A 20% relative
-#   tolerance is appropriate per HANDOFF.md.
+#   tolerance is appropriate per dev/HANDOFF.md.
 # ---------------------------------------------------------------------------
 
-.libPaths("D:/R-library/4.6")
 
 suppressPackageStartupMessages({
   library(nlmixr2)
@@ -39,15 +38,7 @@ args <- commandArgs(trailingOnly = TRUE)
 if (length(args) >= 1) {
   csv_path <- args[1]
 } else {
-  script_dir <- tryCatch(
-    dirname(sys.frame(1)$ofile),
-    error = function(e) getwd()
-  )
-  if (is.null(script_dir) || script_dir == "") script_dir <- getwd()
-  csv_path <- normalizePath(
-    file.path(script_dir, "..", "src", "openpkflow", "datasets", "theoph.csv"),
-    mustWork = FALSE
-  )
+  csv_path <- file.path("src", "openpkflow", "datasets", "theoph.csv")
 }
 
 stopifnot(file.exists(csv_path))

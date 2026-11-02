@@ -7,7 +7,7 @@
 # half_life, adj_R2, n_points, CL_F (cl.obs), Vz_F (vz.obs).
 #
 # Usage:
-#   Rscript scripts/pknca_theoph_crossval_extended.R
+#   Rscript scripts/crossval/pknca_theoph_crossval_extended.R
 #
 # Requires:
 #   - R >= 4.0
@@ -24,13 +24,11 @@ suppressPackageStartupMessages({
   library(dplyr)
 })
 
-csv_path <- normalizePath(
-  file.path(dirname(sys.frame(1)$ofile %||% "."), "..",
-            "src", "openpkflow", "datasets", "theoph.csv"),
-  mustWork = FALSE
-)
-if (!file.exists(csv_path)) {
-  csv_path <- "D:/openpkflow/src/openpkflow/datasets/theoph.csv"
+args <- commandArgs(trailingOnly = TRUE)
+csv_path <- if (length(args) >= 1) {
+  args[1]
+} else {
+  file.path("src", "openpkflow", "datasets", "theoph.csv")
 }
 
 stopifnot(file.exists(csv_path))

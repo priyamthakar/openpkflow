@@ -8,7 +8,7 @@
 # ready block for tests/validation/test_msd_disprofas_reference.py.
 #
 # Usage:
-#   Rscript scripts/disprofas_msd_crossval.R
+#   Rscript scripts/crossval/disprofas_msd_crossval.R
 #
 # Requires:
 #   - R >= 4.0

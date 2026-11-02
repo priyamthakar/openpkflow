@@ -15,7 +15,7 @@ imbalanced-design edge cases that Table II does not exercise).
 
 ## Why this note exists
 
-`HANDOFF.md` flags FDA partial-replicate RSABE as blocked on an external,
+`dev/HANDOFF.md` flags FDA partial-replicate RSABE as blocked on an external,
 pinned, subject-level observed-data comparator. This session searched public
 sources for a usable dataset + reference decision. Findings below.
 
@@ -45,7 +45,7 @@ sources for a usable dataset + reference decision. Findings below.
 - If the DS07/rds07 identity is confirmed, this gives a public-domain,
   redistributable, real-design (simulated-data) partial-replicate dataset
   with an independently published FDA-style worked numeric result to
-  reproduce - closing exactly the gap `HANDOFF.md` describes.
+  reproduce - closing exactly the gap `dev/HANDOFF.md` describes.
 - Not yet done: (a) confirm DS07 subject count/design matches rds07 (360
   subjects, 3 sequences, GMR 0.90) beyond the naming coincidence, (b) pull
   the actual rds07 CSV and reproduce CVwR/Howe's-stat with `be/rsabe.py`'s
@@ -72,7 +72,7 @@ sources for a usable dataset + reference decision. Findings below.
 
 ### 5. CRAN `ReplicateBE` (general)
 
-- EMA ABEL-oriented as previously noted in `HANDOFF.md`; the `TRR.RTR.RRT`
+- EMA ABEL-oriented as previously noted in `dev/HANDOFF.md`; the `TRR.RTR.RRT`
   datasets above are the one part of this ecosystem that looks reusable for
   FDA-style validation, via the independent Pumas cross-check in candidate 1.
 

@@ -6,7 +6,7 @@
 # PowerTOST 1.5-7.
 #
 # Usage:
-#   Rscript scripts/powertost_crossval.R
+#   Rscript scripts/crossval/powertost_crossval.R
 #
 # Requires: R >= 4.0, PowerTOST >= 1.5
 #

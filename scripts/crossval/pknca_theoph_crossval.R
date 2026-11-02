@@ -7,7 +7,7 @@
 # Python-dictionary-ready block for use in test_nca_theoph_reference.py.
 #
 # Usage:
-#   Rscript scripts/pknca_theoph_crossval.R
+#   Rscript scripts/crossval/pknca_theoph_crossval.R
 #
 # Requires:
 #   - R >= 4.0
@@ -38,13 +38,8 @@ args <- commandArgs(trailingOnly = TRUE)
 if (length(args) >= 1) {
   csv_path <- args[1]
 } else {
-  # Default path relative to project root (script is in scripts/)
-  script_dir <- dirname(sys.frame(1)$ofile)
-  if (is.null(script_dir) || script_dir == "") {
-    script_dir <- getwd()
-  }
-  csv_path <- file.path(script_dir, "..", "src", "openpkflow", "datasets", "theoph.csv")
-  csv_path <- normalizePath(csv_path, mustWork = FALSE)
+  # Default path relative to the repository root (run from there)
+  csv_path <- file.path("src", "openpkflow", "datasets", "theoph.csv")
 }
 
 stopifnot(file.exists(csv_path))

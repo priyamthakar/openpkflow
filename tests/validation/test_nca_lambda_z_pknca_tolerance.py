@@ -3,7 +3,7 @@
 PKNCA ``pk.calc.half.life()`` (documented rule, log-linear method) keeps the
 windows whose adjusted R-squared is within ``adj.r.squared.factor`` (default
 1e-4) of the best and then selects the one with the most points. Reference
-values were produced by ``scripts/pknca_lambda_z_tolerance_crossval.R`` with
+values were produced by ``scripts/crossval/pknca_lambda_z_tolerance_crossval.R`` with
 PKNCA 0.12.1.9002 (GitHub commit 9e0a391) on R 4.5.3.
 
 Source: PKNCA R package, https://github.com/humanpred/pknca,
