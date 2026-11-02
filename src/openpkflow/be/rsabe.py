@@ -51,6 +51,18 @@ class FdaRsabeResult:
     aggregate_criterion_upper: float
     point_estimate_constraint_met: bool
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
     @property
     def bioequivalent(self) -> bool:
         """Return whether the decision is PASS."""

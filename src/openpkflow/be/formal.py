@@ -51,6 +51,41 @@ class FormalBEResult:
     anova: list[AnovaRow]
     data: pd.DataFrame
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return the ANOVA source table as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per source with ``source``, ``df``, ``sum_squares``,
+            ``mean_square``, ``f_value`` and ``p_value``.
+        """
+        return pd.DataFrame(
+            [
+                {
+                    "source": row.source,
+                    "df": row.df,
+                    "sum_squares": row.sum_squares,
+                    "mean_square": row.mean_square,
+                    "f_value": row.f_value,
+                    "p_value": row.p_value,
+                }
+                for row in self.anova
+            ]
+        )
+
     @property
     def bioequivalent(self) -> bool:
         """Return whether the formal decision is PASS."""

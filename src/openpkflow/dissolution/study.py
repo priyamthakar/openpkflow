@@ -69,6 +69,22 @@ class ComparisonResult:
     f2_method: str = "all_points"
     warnings: list[str] = field(default_factory=list)
 
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return the mean profiles as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per time point with ``time``, ``reference_mean`` and ``test_mean``.
+        """
+        return pd.DataFrame(
+            {
+                "time": list(self.time_points),
+                "reference_mean": list(self.reference_mean),
+                "test_mean": list(self.test_mean),
+            }
+        )
+
     def summary(self) -> str:
         """Return a human-readable text summary of the comparison result.
 

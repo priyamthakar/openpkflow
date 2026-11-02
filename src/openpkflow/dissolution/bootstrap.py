@@ -35,6 +35,18 @@ class BootstrapF2Result:
     n_reference_vessels: int
     n_test_vessels: int
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
     @property
     def is_similar(self) -> bool:
         """True if lower bound of CI >= 50."""

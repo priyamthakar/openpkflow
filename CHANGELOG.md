@@ -9,6 +9,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `to_dict()` on the 15 public result classes that lacked it: `MSDResult`,
+  `MSDVesselResult`, `BootstrapF2Result`, `ModelComparisonResult`,
+  `AlcoholDoseDumpingResult`, `AUCResult`, `LambdaZResult`, `NCASummaryResults`,
+  `BEResult`, `BETOSTResult`, `FormalBEResult`, `FdaRsabeResult`,
+  `LinearCorrelationResult`, `GOFResult` and `VPCResult`. Every exported result
+  class now has one. NumPy values become built-in types and DataFrames become lists
+  of row dicts, so the output passes through `json.dumps`.
+- `to_dataframe()` on `ComparisonResult` (one row per time point),
+  `DissolutionFitResults` (one row per model, parameters as `param_<name>`
+  columns), `MultiMediaResult` (one row per medium), `AlcoholDoseDumpingResult`
+  (one row per ethanol medium), `BEResult` (a copy of the per-subject table),
+  `FormalBEResult` (the ANOVA table) and `VPCResult` (one row per bin).
+- `import openpkflow` now gives access to every subpackage as an attribute
+  (`openpkflow.nca.NCAStudy`, `openpkflow.be.formal_be_anova`). Each subpackage is
+  imported on first access, so `import openpkflow` alone still loads none of them.
+
 ### Changed
 
 - The 18 reference cross-validation scripts moved to `scripts/crossval/` and the

@@ -15,6 +15,7 @@ import numpy as np
 from openpkflow.dissolution.study import ComparisonResult, DissolutionStudy
 
 if TYPE_CHECKING:
+    import pandas as pd
     from matplotlib.figure import Figure
 
 
@@ -30,6 +31,29 @@ class MultiMediaResult:
     test_label: str
     media_names: list[str] = field(default_factory=list)
     per_media_results: dict[str, ComparisonResult] = field(default_factory=dict)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return the per-medium f1 and f2 values as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per medium with ``medium``, ``f1_value``, ``f2_value`` and
+            ``n_timepoints``.
+        """
+        import pandas as pd
+
+        return pd.DataFrame(
+            [
+                {
+                    "medium": m,
+                    "f1_value": self.per_media_results[m].f1_value,
+                    "f2_value": self.per_media_results[m].f2_value,
+                    "n_timepoints": self.per_media_results[m].n_timepoints,
+                }
+                for m in self.media_names
+            ]
+        )
 
     @property
     def f2_summary(self) -> dict[str, float]:
