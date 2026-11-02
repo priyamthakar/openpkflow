@@ -11,22 +11,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Repository layout: reference cross-validation scripts moved to
-  `scripts/crossval/` (now machine-independent: no hardcoded local paths) and
-  release/deployment checks to `scripts/ops/`, with a `scripts/README.md` index.
-  Internal maintainer notes (`HANDOFF.md`, `RELEASE.md`, `FUTURE_PLANS.md`,
+- The 18 reference cross-validation scripts moved to `scripts/crossval/` and the
+  two release and deployment checks to `scripts/ops/`. `scripts/README.md` lists
+  each script with its reference implementation and the test that uses it. The
+  R scripts read datasets from repository-relative paths instead of `D:/` paths
+  and no longer call `.libPaths("D:/R-library/4.6")`.
+- Maintainer notes (`HANDOFF.md`, `RELEASE.md`, `FUTURE_PLANS.md`,
   `progress_web_app.md`, `V2_ARCHITECTURE_DECISION.md`) moved to `dev/`.
-- Packaging metadata: SPDX `license = "MIT"` with `license-files`, summary
-  aligned with the project positioning, OS-independent and medical-science
-  classifiers, Changelog URL; the sdist no longer ships agent instructions or
+- Package metadata declares the license as the SPDX expression `MIT` with
+  `license-files`, uses the README tagline as the summary, adds the
+  "Operating System :: OS Independent" and "Medical Science Apps." classifiers
+  and a Changelog URL. The sdist no longer includes `AGENTS.md`, `CLAUDE.md` or
   `codecov.yml`.
 
 ### Removed
 
-- Stray files: `docs/openfit/` (planning notes for a different project),
-  root `SESSION_SUMMARY_*.md`, root `demo.ipynb` (superseded by
-  `examples/openpkflow_tour.ipynb`), the superseded conda-forge `meta.yaml`,
-  committed generated example reports, and the `probe_*` scratch scripts.
+- `docs/openfit/`, which held planning notes for a different project.
+- The four root `SESSION_SUMMARY_*.md` files and root `demo.ipynb`;
+  `examples/openpkflow_tour.ipynb` is the remaining example notebook.
+- `scripts/conda-forge/meta.yaml`, which still targeted 2.5.0.
+- Four generated reports committed under `examples/` and three `probe_*`
+  scratch scripts.
 
 ---
 

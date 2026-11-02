@@ -82,11 +82,13 @@ _SIGMA_PROP_RANGE = (0.01, 0.60)
 # ---------------------------------------------------------------------------
 # FOCE-I openpkflow reference values
 #
-# These are openpkflow's own FOCE-I estimates on theoph.csv, computed once per
-# session by the fixture. They serve as a self-consistency check.
+# No stored self-reference values: this dict is empty and no test reads it.
+# The session-scoped `foce_result` fixture runs FOCE-I on theoph.csv once, and
+# the tests below check that fit for convergence, plausible ranges and the
+# Pinheiro & Bates (2000) nlme estimates.
 # ---------------------------------------------------------------------------
 
-_OPENPKFLOW_REFERENCE: dict[str, float] = {}  # filled by fixture; see _run_foce_i_once
+_OPENPKFLOW_REFERENCE: dict[str, float] = {}
 
 
 # ---------------------------------------------------------------------------
