@@ -290,3 +290,10 @@ def test_unknown_attribute_raises() -> None:
 
     with pytest.raises(AttributeError, match="no attribute 'not_a_module'"):
         _ = openpkflow.not_a_module  # type: ignore[attr-defined]
+
+
+def test_all_lists_every_lazy_subpackage() -> None:
+    """__all__ and the lazy-import set name the same subpackages."""
+    import openpkflow
+
+    assert set(openpkflow.__all__) - {"__version__"} == set(openpkflow._SUBMODULES)

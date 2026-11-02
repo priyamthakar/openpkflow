@@ -35,7 +35,7 @@ def to_builtin(value: Any) -> Any:
         return to_builtin(value.item())
     if isinstance(value, dict):
         return {_key(k): to_builtin(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return [to_builtin(v) for v in value]
     return value
 
@@ -66,4 +66,4 @@ def dataclass_to_dict(obj: Any, exclude: tuple[str, ...] = ()) -> dict[str, Any]
 def _key(key: Any) -> Any:
     if isinstance(key, np.generic):
         key = key.item()
-    return key if isinstance(key, (str, int, float, bool)) or key is None else str(key)
+    return key if isinstance(key, str | int | float | bool) or key is None else str(key)
