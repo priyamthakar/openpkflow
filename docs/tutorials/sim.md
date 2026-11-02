@@ -1,7 +1,7 @@
-# Tutorial: PK Simulation
+# PK Simulation Tutorial
 
 !!! info "Theory"
-    See the [Theory Guide](../theory.md#pk-simulation-analytical-solutions) for the Bateman
+    See the [Theory Guide](../theory.md#analytical-pk-simulation) for the Bateman
     equation, 2-compartment biexponential derivation, and superposition principle.
 
 
@@ -22,7 +22,7 @@ times   = np.linspace(0, 24, 200)
 
 result = simulate(model, regimen, times)
 print(result.summary())
-# Cmax=5.0 mg/L at Tmax=0.0 h, t1/2=2.77 h
+# Cmax 5 mg/L at Tmax 0 h; half_life 2.773 h
 ```
 
 ---
@@ -105,4 +105,4 @@ result  = simulate(model, regimen, np.linspace(0, 48, 500))
 | `oral` | `CL_F`, `Vz_F`, `ka` (1-cmt) or `CL_F`, `V1_F`, `Q`, `V2`, `ka` (2-cmt) |
 
 Simulation uses analytical closed-form solutions (not numerical ODE integration).
-Superposition is applied for multiple doses — valid only for **linear PK**.
+Superposition is applied for multiple doses, which is valid only for **linear PK**.

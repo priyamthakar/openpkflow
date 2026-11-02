@@ -24,11 +24,6 @@ The product focus is a **formulation-to-report pipeline**: load study data,
 run transparent calculations, and export shareable reports for formulation,
 PK, and regulatory review teams.
 
-Philosophy:
-
-> A transparent, reproducible, open-source Python workflow for dissolution, NCA,
-> PK/PD simulation, and pharmacometric reporting.
-
 ## What OpenPKFlow is not
 
 OpenPKFlow is **not**:
@@ -48,13 +43,6 @@ OpenPKFlow is **not**:
 Final regulatory interpretation must always be reviewed by qualified formulation,
 pharmacokinetic, and regulatory experts.
 
-## Current release context (for agents)
-
-Version **2.8.0** is the current published release, dated 2026-07-30. It
-includes the Advanced Dissolution Workbench.
-Always read **`dev/HANDOFF.md`** in the working tree for
-branch name, PR number, verification results, and release status.
-
 ## Where formal BE and PopPK live
 
 | Capability | OpenPKFlow role | Formal / companion path |
@@ -73,10 +61,10 @@ regulatory NLME engine.
 
 Typical sequential workflow (library APIs or CLI):
 
-1. **Dissolution** -- f1/f2 (and optional bootstrap) on multi-batch profiles
-2. **NCA** -- per-subject AUClast, Cmax, half-life, CL/F (or CL for IV)
-3. **BE** -- paired TOST on NCA-derived parameters (or pre-computed AUCs)
-4. **Report** -- HTML / Markdown / PDF / DOCX with the mandatory disclaimer
+1. **Dissolution**: f1/f2 (and optional bootstrap) on multi-batch profiles
+2. **NCA**: per-subject AUClast, Cmax, half-life, CL/F (or CL for IV)
+3. **BE**: paired TOST on NCA-derived parameters (or pre-computed AUCs)
+4. **Report**: HTML / Markdown / PDF / DOCX with the mandatory disclaimer
 
 IVIVC Level A sits beside this path for extended-release development when
 dissolution and IV / oral PK support a correlation.

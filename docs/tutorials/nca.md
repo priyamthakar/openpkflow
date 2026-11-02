@@ -1,7 +1,7 @@
-# Tutorial: Non-Compartmental Analysis (NCA)
+# Noncompartmental Analysis (NCA) Tutorial
 
 !!! info "Theory"
-    See the [Theory Guide](../theory.md#nca-non-compartmental-analysis) for the mathematical
+    See the [Theory Guide](../theory.md#noncompartmental-analysis-nca) for the mathematical
     derivations of trapezoidal AUC, lambda_z BAR² algorithm, and all derived NCA parameters.
 
 
@@ -72,7 +72,7 @@ Expected mean values (self-consistent regression): AUClast ~98.5, Cmax ~8.9, t1/
 
 ## 5. AUClast and tlast
 
-AUClast follows the FDA/EMA NCA definition: AUC from time 0 to **tlast** — the last time
+AUClast follows the FDA/EMA NCA definition: AUC from time 0 to **tlast**, the last time
 point with a quantifiable (positive) concentration. Trailing zero or negative
 concentrations are automatically excluded from the trapezoidal sum. This matches PKNCA
 0.12.1 behavior and is validated on all 12 theophylline reference subjects within 2%

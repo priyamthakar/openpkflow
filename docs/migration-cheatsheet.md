@@ -1,10 +1,10 @@
-# Coming from WinNonlin / NONMEM
+# Migration from WinNonlin and NONMEM
 
-A quick-reference guide for scientists transitioning from Phoenix WinNonlin and NONMEM to OpenPKFlow.
+This page maps Phoenix WinNonlin and NONMEM workflows and parameter names to their OpenPKFlow equivalents.
 
 ---
 
-## WinNonlin NCA -> OpenPKFlow NCA
+## WinNonlin NCA and OpenPKFlow NCA
 
 | WinNonlin | OpenPKFlow | Notes |
 |-----------|-----------|-------|
@@ -42,7 +42,7 @@ results.report("nca_report.html")
 
 ---
 
-## WinNonlin Bioequivalence -> OpenPKFlow BE
+## WinNonlin Bioequivalence and OpenPKFlow BE
 
 | WinNonlin | OpenPKFlow | Notes |
 |-----------|-----------|-------|
@@ -58,7 +58,7 @@ results.report("nca_report.html")
 
 ---
 
-## WinNonlin IVIVC -> OpenPKFlow IVIVC
+## WinNonlin IVIVC and OpenPKFlow IVIVC
 
 | WinNonlin | OpenPKFlow | Notes |
 |-----------|-----------|-------|
@@ -81,7 +81,7 @@ result.report("ivivc_report.html")
 
 ---
 
-## Phoenix NLME / NONMEM -> OpenPKFlow Pop PK
+## Phoenix NLME / NONMEM and OpenPKFlow Pop PK
 
 | Phoenix NLME / NONMEM | OpenPKFlow | Notes |
 |----------------------|-----------|-------|
@@ -116,7 +116,7 @@ result.report("pop_report.html")
 
 ---
 
-## NONMEM VPC -> OpenPKFlow Pop Diagnostics
+## NONMEM VPC and OpenPKFlow Pop Diagnostics
 
 | NONMEM (PsN `vpc`) | OpenPKFlow | Notes |
 |-------------------|-----------|-------|
@@ -126,7 +126,7 @@ result.report("pop_report.html")
 
 ---
 
-## WinNonlin Dissolution -> OpenPKFlow Dissolution
+## WinNonlin Dissolution and OpenPKFlow Dissolution
 
 | WinNonlin | OpenPKFlow | Notes |
 |-----------|-----------|-------|
@@ -155,7 +155,7 @@ result.report("dissolution_report.html")
 
 ---
 
-## PK Simulation -> OpenPKFlow Sim
+## PK Simulation and OpenPKFlow Sim
 
 | Phoenix WinNonlin PKS | OpenPKFlow | Notes |
 |----------------------|-----------|-------|
@@ -187,7 +187,7 @@ closed. EMA ABEL and full-replicate RSABE are not supported.
 
 ---
 
-## Environment R -> OpenPKFlow
+## R Environment and OpenPKFlow
 
 | R (PKNCA/nlmixr2) | OpenPKFlow | Notes |
 |------------------|-----------|-------|

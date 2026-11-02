@@ -1,4 +1,4 @@
-# Tutorial: Bayesian PK
+# Bayesian PK Tutorial
 
 !!! info "Theory"
     See the [Theory Guide](../theory.md#bayesian-pk) for the MAP log-posterior derivation,

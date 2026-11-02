@@ -97,8 +97,8 @@ BEStudy(
 Required DataFrame columns: `subject_col`, `reference_col`, `test_col`.
 
 `sequence_col`:
-- Default `"sequence"` — silently dropped if absent from the DataFrame.
-- Any other name — raises `ValueError` if absent.
+- Default `"sequence"`: silently dropped if absent from the DataFrame.
+- Any other name: raises `ValueError` if absent.
 - Pass `None` explicitly to indicate no sequence column.
 
 ### `.analyze()`

@@ -1,9 +1,9 @@
-# RSABE External Validation: Dataset Search Findings
+# RSABE External Validation Dataset Search
 
 ## Status
 
 Superseded - 2026-07-19. The `rds07`/Pumas lead below was never pursued to
-completion: the user provided direct access to Patterson SD, Jones B (2012)
+completion: the project owner obtained Patterson SD, Jones B (2012)
 *Pharmaceutical Statistics* 11(1):1-7 (DOI 10.1002/pst.498) instead, which
 contains a complete worked FDA-method example (Table II, 51 real subjects)
 with every intermediate number needed to validate an implementation. That
@@ -13,11 +13,12 @@ is kept for the historical record and in case the `rds07` lead is useful for
 a future, independent second fixture (e.g. to validate the sigma_wR-floor or
 imbalanced-design edge cases that Table II does not exercise).
 
-## Why this note exists
+## Background
 
-`dev/HANDOFF.md` flags FDA partial-replicate RSABE as blocked on an external,
-pinned, subject-level observed-data comparator. This session searched public
-sources for a usable dataset + reference decision. Findings below.
+At the time, the maintainer notes (now `dev/HANDOFF.md`) listed FDA
+partial-replicate RSABE as blocked on an external, pinned, subject-level
+observed-data comparator. This search of public sources looked for a usable
+dataset with a reference decision.
 
 ## Candidates evaluated
 

@@ -40,10 +40,10 @@ Ranked by AICc (small-sample-corrected). Pass `models=["weibull", "first_order"]
 
 ## Report formats
 
-`.report("out.html")` — HTML
-`.report("out.md")` — Markdown
-`.report("out.pdf")` — PDF (requires `openpkflow[reports]`)
-`.report("out.docx")` — Word (requires `openpkflow[reports]`)
+`.report("out.html")`: HTML
+`.report("out.md")`: Markdown
+`.report("out.pdf")`: PDF (requires `openpkflow[reports]`)
+`.report("out.docx")`: Word (requires `openpkflow[reports]`)
 
 Workbench reports support HTML, PDF, and DOCX. The workbench audit ZIP contains
 normalized input, exact configuration, serialized results, HTML report, and a

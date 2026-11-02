@@ -1,4 +1,4 @@
-# Tutorial: Population PK
+# Population PK Tutorial
 
 This tutorial covers FOCE-I and SAEM population PK parameter estimation,
 goodness-of-fit (GOF) diagnostics, visual predictive checks (VPC), and

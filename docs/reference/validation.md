@@ -18,7 +18,7 @@ from openpkflow.validation import pct_bias, within_pct
 # Check that NCA-recovered CL is within 5% of true CL
 true_cl = 5.0
 recovered_cl = 5.12
-print(pct_bias(recovered_cl, true_cl))    # 2.4
+print(round(pct_bias(recovered_cl, true_cl), 2))    # 2.4
 print(within_pct(recovered_cl, true_cl, pct=5.0))  # True
 ```
 

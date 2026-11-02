@@ -26,7 +26,7 @@ Non-Compartmental Analysis: AUC, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F.
 
 ## Parameter naming conventions
 
-- **Oral:** `CL_F` (apparent clearance), `Vz_F` (apparent volume) — never mix with IV labels
+- **Oral:** `CL_F` (apparent clearance), `Vz_F` (apparent volume); never mixed with IV labels
 - **IV bolus / IV infusion:** `CL`, `Vz` (absolute)
 
 ## AUC methods

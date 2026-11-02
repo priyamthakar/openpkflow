@@ -11,7 +11,7 @@ In Vitro-In Vivo Correlation (Level A): deconvolution, convolution prediction, L
 | `convolution_predict(dissolution_times, dissolution_pct, ...)` | function | Numerical convolution of dissolution input with IV UIR |
 | `levy_plot_data(in_vitro_times, in_vitro_fraction, in_vivo_fraction)` | function | Compute Levy plot regression data (slope, R2, residuals) |
 | `ivivc_predictability(observed_cmax, predicted_cmax, observed_auc, predicted_auc)` | function | FDA %PE assessment; returns pass/fail per FDA 1997 criteria |
-| `IVIVCResult` | dataclass | Comprehensive IVIVC result; `.summary()`, `.plot()`, `.report()`, `.to_dict()` |
+| `IVIVCResult` | dataclass | IVIVC result; `.summary()`, `.plot()`, `.report()`, `.to_dict()` |
 | `IVIVCStudy` | class | High-level orchestrator: `.analyze()` returns `IVIVCResult` |
 
 ## Deconvolution methods
@@ -62,5 +62,6 @@ All three must pass for overall IVIVC predictability.
 - The convolution predictor uses numerical trapezoidal convolution with a uniform
   time grid spanning the UIR range. Input rate is computed from the derivative of
   the interpolated dissolution curve.
-- Levy plots filter to the 0.05-0.95 fraction range for robust regression,
-  per FDA convention.
+- Levy plot regression uses only points where both the in vitro and in vivo
+  fractions lie strictly between 0.05 and 0.95. This cutoff is an OpenPKFlow
+  choice, not a value taken from FDA guidance.

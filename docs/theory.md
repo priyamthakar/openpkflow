@@ -1,11 +1,11 @@
 # Theory Guide
 
-Formula derivations for every core module in OpenPKFlow — intended for regulatory
-reviewers, method validation, and teaching reference.
+Formula derivations for the NCA, simulation, dissolution, IVIVC, bioequivalence,
+population PK and Bayesian PK modules, for readers who check the methods or teach them.
 
 ---
 
-## NCA: Non-Compartmental Analysis
+## Noncompartmental Analysis (NCA)
 
 ### Linear trapezoidal rule
 
@@ -100,10 +100,10 @@ study-specific sampling adequacy must be reviewed.
 
 ---
 
-## PK Simulation: Analytical Solutions
+## Analytical PK Simulation
 
 All simulations use closed-form solutions (no numerical ODE integration). Superposition
-is applied for multiple doses — valid only for **linear PK**.
+is applied for multiple doses, which is valid only for **linear PK**.
 
 ### 1-compartment IV bolus
 
@@ -230,7 +230,7 @@ Reference: Costa & Lobo (2001), *Eur J Pharm Sci* 13(2):123-133.
 
 ---
 
-## IVIVC: In Vitro-In Vivo Correlation
+## In Vitro-In Vivo Correlation (IVIVC)
 
 ### Wagner-Nelson deconvolution
 
@@ -479,7 +479,7 @@ Reference: Grieve (1985), *Biometrics* 41:979-990.
 ## References
 
 1. FDA Guidance: Dissolution Testing of Immediate Release Solid Oral Dosage Forms (1997)
-2. FDA Guidance: Extended Release Oral Dosage Forms — IVIVC (1997)
+2. FDA Guidance: Extended Release Oral Dosage Forms: IVIVC (1997)
 3. FDA Guidance: Statistical Approaches to Establishing Bioequivalence (2001)
 4. FDA Guidance: BA/BE Studies for Orally Administered Drug Products (2003)
 5. Schuirmann (1987), *J Pharmacokinet Biopharm* 15(6):657-680

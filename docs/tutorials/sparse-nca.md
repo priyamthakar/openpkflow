@@ -1,4 +1,4 @@
-# Tutorial: Sparse oral PK fitting
+# Sparse Oral PK Fitting Tutorial
 
 OpenPKFlow can fit a one-compartment oral model to three or more
 time-concentration observations. This is a **model-informed screening workflow**,

@@ -17,9 +17,9 @@ executable reference and analytical tests, with report-first outputs for review.
 
 ---
 
-## What it does
+## Features
 
-OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a clean Python workflow for:
+OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a Python workflow for:
 
 - **Dissolution similarity:** f1, f2, bootstrap f2, maximum deviation, MSD (Mahalanobis Statistical Distance), model fitting (Weibull, Higuchi, first-order, zero-order, Korsmeyer-Peppas), model-dependent comparison via 90% CI
 - **NCA:** AUClast, AUCinf, Cmax, Tmax, lambda_z, half-life, CL/F, Vz/F; three AUC methods, explicit BLQ handling, %AUCextrap flag, dose-normalised parameters, CDISC PP output; model-informed one-compartment oral screening from 3+ samples
@@ -34,15 +34,14 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 - **PK simulation:** 1- and 2-compartment models, oral/IV bolus/IV infusion, repeated dosing
 - **Population PK diagnostics:** 4-panel GOF plots (OBS vs PRED, IWRES vs TIME/IPRED), simulation-based VPC with percentile bands, NONMEM-style dataset helpers
 - **Population PK estimation (v2.3.0):** FOCE-I (scipy, zero extra deps) and SAEM (PyMC `[bayes]` extra) for 1- and 2-compartment oral/IV models; diagonal or full Omega block matrix; `PopPKResult` with `.summary()`, `.plot()` (6-panel), `.report()` (research-grade; FOCE-I sanity-checked against the `nlme` Theophylline reference)
-- **Theory guide:** Full LaTeX formula derivations for every module (NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK) for regulatory review support and teaching
+- **Theory guide:** LaTeX formula derivations for NCA, simulation, dissolution, IVIVC, BE, population PK and Bayesian PK
 - **ML surrogate (experimental):** torch MLP that approximates 1-cmt oral profiles
 
 It does not replace expert regulatory judgement or validated commercial platforms.
-It makes routine analysis faster, cleaner, and more reproducible.
 
 ---
 
-## Install
+## Installation
 
 ```bash
 pip install openpkflow
@@ -62,7 +61,7 @@ pip install openpkflow[bayes]
 
 ---
 
-## Quick start: dissolution similarity
+## Dissolution Similarity
 
 ```python
 from openpkflow.dissolution import f1, f2
@@ -74,7 +73,7 @@ print(f"f1 = {f1(reference, test):.2f}")
 print(f"f2 = {f2(reference, test):.2f}")
 ```
 
-### From a CSV file
+### From a CSV File
 
 ```python
 from openpkflow.dissolution import DissolutionStudy
@@ -91,7 +90,7 @@ result.report("dissolution_report.pdf", format="pdf")   # requires [reports]
 
 CSV format: `formulation,batch,time,percent_released`
 
-### Advanced dissolution workbench
+### Advanced Dissolution Workbench
 
 ```python
 from openpkflow.dissolution import (
@@ -126,7 +125,7 @@ openpkflow similarity --reference "20,40,60,80" --test "21,39,61,79"
 
 ---
 
-## Quick start: NCA
+## Noncompartmental Analysis
 
 ```python
 from openpkflow.nca import NCAStudy
@@ -153,7 +152,7 @@ result.report("nca_subject1.html")
 summary.report("nca_summary.html")
 ```
 
-### NCA CSV format
+### NCA CSV Format
 
 ```csv
 subject,time,conc,dose,route
@@ -185,7 +184,7 @@ openpkflow nca run theoph.csv --auc-method linear_up_log_down --blq-method zero 
 
 ---
 
-## Quick start: PK simulation
+## PK Simulation
 
 ```python
 import numpy as np
@@ -205,7 +204,7 @@ result.report("sim_report.pdf", format="pdf")   # requires [reports]
 
 ---
 
-## Quick start: Bayesian individual PK (MAP)
+## Bayesian Individual PK (MAP)
 
 ```python
 from openpkflow.bayes import map_individual_pk, PKPrior
@@ -231,7 +230,9 @@ print(f"CL_F = {result.cl_mean:.3g}  [95% CrI: {result.cl_95ci[0]:.3g}, {result.
 print(f"P(shrinkage) = {result.shrinkage_cl:.1%}")
 ```
 
-## Quick start: Bayesian bioequivalence (requires `[bayes]`)
+## Bayesian Bioequivalence
+
+Requires the `[bayes]` extra.
 
 ```python
 import pandas as pd
@@ -255,7 +256,7 @@ result.report("bayes_be_report.html")
 
 ---
 
-## Quick start: bioequivalence
+## Bioequivalence
 
 ```python
 import pandas as pd
@@ -278,7 +279,7 @@ result.report("be_report.html")
 result_nti = study.analyze(be_lower=0.90, be_upper=1.1111)
 ```
 
-### From NCAStudy results (convenience)
+### From NCAStudy Results
 
 ```python
 from openpkflow.be import BEStudy
@@ -293,7 +294,7 @@ study = BEStudy.from_nca_results(
 result = study.analyze()
 ```
 
-### Formal complete balanced 2x2 BE ANOVA
+### Formal Complete Balanced 2x2 BE ANOVA
 
 OpenPKFlow supports formal complete balanced `TR`/`RT` 2x2 crossover ANOVA with
 long-format data, ANOVA source tables, a treatment contrast, GMR, confidence interval,
@@ -311,7 +312,7 @@ FDA partial-replicate `TRR`/`RTR`/`RRT` RSABE is implemented and validated again
 Patterson & Jones (2012) *Pharmaceutical Statistics* 11(1):1-7, Table II
 (DOI 10.1002/pst.498); `NOT_EVALUABLE` is returned only when the reference is not
 highly variable (CVwR < 30%), in which case standard average BE applies instead.
-Requires balanced sequence allocation (equal subjects per sequence) — unbalanced
+Requires balanced sequence allocation (equal subjects per sequence); unbalanced
 data (e.g. from unequal dropout) fails closed rather than being silently biased.
 EMA ABEL, full-replicate RSABE, and NTI decisions remain out of scope.
 
@@ -333,7 +334,7 @@ CSV format: `subject, sequence, reference, test`
 
 ---
 
-## Quick start: population PK diagnostics
+## Population PK Diagnostics
 
 ```python
 import pandas as pd
@@ -365,7 +366,7 @@ vpc.report("vpc_report.html")
 
 ---
 
-## Feature comparison
+## Feature Comparison
 
 | Capability | OpenPKFlow | PKNCA (R) | WinNonlin | Pharmpy |
 |---|---|---|---|---|
@@ -399,29 +400,27 @@ vpc.report("vpc_report.html")
 | Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
 | FDA partial-replicate RSABE decision | :white_check_mark: validated (Patterson & Jones 2012) | :x: | :white_check_mark: | :x: |
 
-\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [dev/HANDOFF.md](dev/HANDOFF.md).
+\* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [VALIDATION.md](VALIDATION.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
 \*\*\* Screening helper with documented thresholds; not full SUPAC guidance automation.
 
 ## Roadmap
 
-Post-1.0.0: IVIVC Level A, multi-media, SS/urine NCA, sparse NCA, Bayesian PK/BE,
-FOCE-I/SAEM (frozen), replicate BE screening (v2.4), web app (v2.5), study pipeline +
-SUPAC/alcohol + IVIVC B/C + transit (v2.6), and sparse NCA + formal BE/RSABE +
-pipeline/web hardening (v2.7), the Advanced Dissolution Workbench (v2.8), and a
-correctness and validation release (v2.9). See [ROADMAP.md](ROADMAP.md) and
-[dev/HANDOFF.md](dev/HANDOFF.md) for current state.
+v2.9.0 is the current release. It corrects the Advanced Dissolution Workbench MSD
+and bootstrap f2 similarity decisions, computes BE power exactly (Owen's Q), aligns
+lambda_z selection with PKNCA and WinNonlin, and adds `openpkflow nca run`.
+v2.8.0 added the Workbench itself without new pharmacometric formulas.
 
-v2.9.0 is the current published release. It corrects the Advanced Dissolution
-Workbench MSD and bootstrap f2 similarity decisions, computes BE power exactly
-(Owen's Q), aligns lambda_z selection with PKNCA and WinNonlin, and adds
-`openpkflow nca run`. v2.8.0 added the Workbench itself without new
-pharmacometric formulas. See
-[dev/FUTURE_PLANS.md](dev/FUTURE_PLANS.md) for demand-gated follow-up ideas.
+Earlier 2.x releases added the web app (v2.5); the study pipeline, SUPAC and
+alcohol dose-dumping screening, IVIVC Level B/C helpers and transit absorption
+(v2.6); and sparse NCA with formal BE and FDA partial-replicate RSABE (v2.7).
+Population PK estimation (FOCE-I and SAEM) is frozen except for bug fixes.
+[CHANGELOG.md](CHANGELOG.md) lists every release and [ROADMAP.md](ROADMAP.md)
+the planned work.
 
 ---
 
-## Current status
+## Module Status
 
 | Module | Status |
 |---|---|
@@ -446,36 +445,39 @@ pharmacometric formulas. See
 | Bioequivalence TOST + power/n + replicate screening\*\* | Stable |
 | Formal complete balanced 2x2 crossover ANOVA | Stable; independent R cross-check |
 | FDA partial-replicate RSABE | Stable; validated against Patterson & Jones (2012) Table II |
-| Web app (`api/` + `webapp/`) | Stable through v2.8.0; includes the Advanced Dissolution Workbench and 32 API endpoints. [Live portfolio demo](https://openpkflow.priyamthakar1.workers.dev). A best-effort keep-warm workflow and UI retries reduce free Render cold starts; this is demo availability, not a production SLA (see [dev/HANDOFF.md](dev/HANDOFF.md)). |
+| Web app (`api/` + `webapp/`) | Stable; 32 API endpoints, including the Advanced Dissolution Workbench. [Live demo](https://openpkflow.priyamthakar1.workers.dev) on free hosting that sleeps when idle, so the first request after a pause can be slow. |
 | ML surrogate (torch MLP, EXPERIMENTAL) | Prototype (v0.9.0) |
 
-\* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [dev/HANDOFF.md](dev/HANDOFF.md).
+\* Research-grade; FOCE-I checked against `nlme` Theophylline reference. See [VALIDATION.md](VALIDATION.md).
 \*\* Replicate BE is research-grade screening only.
 
 ---
 
-## By the numbers
+## Project Size
 
-Measured from the final v2.8.0 documentation tree on 2026-07-30:
+Measured on 2026-11-02, after v2.9.0. Line counts are `wc -l` over git-tracked
+`.py` files, blank lines and comments included.
 
 | Stat | Value |
 |---|---|
-| Lines of Python source (`src/`) | 22,544 |
-| Lines of Python tests (`tests/`) | 14,747 |
-| Python files | 176 (87 source + 89 tests) |
-| Standard test selection | 1,324 passed, 22 deselected |
+| Lines of Python source (`src/`) | 26,709 |
+| Lines of Python tests (`tests/`) | 18,580 |
+| Python files | 178 (87 source + 91 tests) |
+| Test selection without slow and MCMC tests\* | 1,373 passed, 9 skipped, 22 deselected |
 | HTML report templates | 13 |
-| Bundled example datasets | 6 |
+| Bundled example datasets (CSV) | 5 |
+
+\* `pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc"`
 
 ---
 
 ## Validation
 
-Validation combines published/public comparator outputs, analytical solutions, and
-hand-checkable sanity cases. Each scientific reference test identifies its comparator
-or source; the exact scope is documented in [VALIDATION.md](VALIDATION.md).
+Validation combines published or public comparator outputs, analytical solutions and
+hand-checkable sanity cases. Each scientific reference test names its comparator
+or source; [VALIDATION.md](VALIDATION.md) documents the exact scope.
 
-**NCA: four-way cross-validation against Phoenix WinNonlin:**
+**NCA cross-validation:**
 NCA results are cross-validated against Phoenix WinNonlin (Certara), PKNCA 0.12.1, and NonCompart 0.8.0
 on the standard R `nlme::Theoph` (12-subject oral theophylline) and `nlme::Indometh` (6-subject IV bolus
 indomethacin) datasets. Key validated parameters: AUClast, AUCinf, CL/F, Vz/F, lambda_z, half-life.
@@ -488,7 +490,7 @@ The model-informed sparse oral fit is independently cross-checked against R 4.6.
 structural-model cross-check does not establish general suitability for every drug or
 sampling design.
 
-See [VALIDATION.md](VALIDATION.md) for the full regulatory test traceability matrix.
+[VALIDATION.md](VALIDATION.md) maps each validation test to its reference.
 
 ---
 
@@ -501,11 +503,11 @@ Final regulatory interpretation should be reviewed by qualified formulation, pha
 
 ## Documentation
 
-- **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)** - Full LaTeX formula derivations for every module: NCA, simulation, dissolution, IVIVC, BE, pop PK, Bayesian PK. Designed for regulatory review support and teaching.
-- **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)** - Coming from WinNonlin, NONMEM, or R? Quick-reference mapping for every parameter and function.
-- **[Tutorials](https://priyamthakar.github.io/openpkflow/)** - Step-by-step worked examples for the supported analysis workflows.
-- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/validation-matrix/)** - External comparators, analytical checks, test locations, and current limits.
-- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)** - Function and class reference across the public analysis modules.
+- **[Theory Guide](https://priyamthakar.github.io/openpkflow/theory/)**: LaTeX formula derivations for NCA, simulation, dissolution, IVIVC, BE, population PK and Bayesian PK.
+- **[Migration Guide](https://priyamthakar.github.io/openpkflow/migration-cheatsheet/)**: WinNonlin, NONMEM and R parameter and function names mapped to OpenPKFlow.
+- **[Tutorials](https://priyamthakar.github.io/openpkflow/)**: worked examples for each analysis workflow.
+- **[Validation Matrix](https://priyamthakar.github.io/openpkflow/validation-matrix/)**: external comparators, analytical checks, test locations and current limits.
+- **[API Reference](https://priyamthakar.github.io/openpkflow/reference/)**: functions and classes in the public analysis modules.
 
 ---
 
@@ -526,4 +528,4 @@ https://github.com/priyamthakar/openpkflow
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
+MIT. See [LICENSE](LICENSE).

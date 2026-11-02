@@ -1,4 +1,4 @@
-# Tutorial: Formulation-to-report pipeline
+# Formulation-to-Report Pipeline Tutorial
 
 This tutorial shows the intended **sequential** study workflow with OpenPKFlow:
 dissolution similarity, NCA on a PK dataset, then optional BE screening and
