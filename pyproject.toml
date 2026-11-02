@@ -1,14 +1,15 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "openpkflow"
 version = "2.9.0"
-description = "Python-first toolkit for dissolution, NCA, PK/PD simulation, and pharmacometric reporting."
+description = "Transparent, reproducible, open-source Python workflow for dissolution, NCA, PK/PD simulation, and pharmacometric reporting."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Priyam Thakar", email = "priyamthakar1@gmail.com" }
 ]
@@ -20,18 +21,21 @@ keywords = [
   "PKPD",
   "formulation",
   "bioequivalence",
+  "IVIVC",
+  "pharmacokinetic-simulation",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "Intended Audience :: Healthcare Industry",
-  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
   "Typing :: Typed",
 ]
 dependencies = [
@@ -77,6 +81,7 @@ Homepage = "https://github.com/priyamthakar/openpkflow"
 Repository = "https://github.com/priyamthakar/openpkflow"
 Issues = "https://github.com/priyamthakar/openpkflow/issues"
 Documentation = "https://priyamthakar.github.io/openpkflow/"
+Changelog = "https://github.com/priyamthakar/openpkflow/blob/main/CHANGELOG.md"
 
 [project.scripts]
 openpkflow = "openpkflow.cli:app"
@@ -88,7 +93,7 @@ packages = ["src/openpkflow"]
 "src/openpkflow/py.typed" = "openpkflow/py.typed"
 
 # Explicit sdist allowlist: never ship webapp/node_modules, wrangler state,
-# hypothesis caches, Playwright artifacts, or local handoff archives.
+# hypothesis caches, Playwright artifacts, agent instructions, or dev/ notes.
 [tool.hatch.build.targets.sdist]
 only-include = [
   "src/openpkflow",
@@ -103,12 +108,9 @@ only-include = [
   "VALIDATION.md",
   "pyproject.toml",
   "mkdocs.yml",
-  "codecov.yml",
   "SECURITY.md",
   "CONTRIBUTING.md",
   "CODE_OF_CONDUCT.md",
-  "AGENTS.md",
-  "CLAUDE.md",
 ]
 exclude = [
   "**/__pycache__",

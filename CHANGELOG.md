@@ -9,6 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Repository layout: reference cross-validation scripts moved to
+  `scripts/crossval/` (now machine-independent: no hardcoded local paths) and
+  release/deployment checks to `scripts/ops/`, with a `scripts/README.md` index.
+  Internal maintainer notes (`HANDOFF.md`, `RELEASE.md`, `FUTURE_PLANS.md`,
+  `progress_web_app.md`, `V2_ARCHITECTURE_DECISION.md`) moved to `dev/`.
+- Packaging metadata: SPDX `license = "MIT"` with `license-files`, summary
+  aligned with the project positioning, OS-independent and medical-science
+  classifiers, Changelog URL; the sdist no longer ships agent instructions or
+  `codecov.yml`.
+
+### Removed
+
+- Stray files: `docs/openfit/` (planning notes for a different project),
+  root `SESSION_SUMMARY_*.md`, root `demo.ipynb` (superseded by
+  `examples/openpkflow_tour.ipynb`), the superseded conda-forge `meta.yaml`,
+  committed generated example reports, and the `probe_*` scratch scripts.
+
 ---
 
 ## [2.9.0] - 2026-10-04
