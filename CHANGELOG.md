@@ -9,6 +9,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The 18 reference cross-validation scripts moved to `scripts/crossval/` and the
+  two release and deployment checks to `scripts/ops/`. `scripts/README.md` lists
+  each script with its reference implementation and the test that uses it. The
+  R scripts read datasets from repository-relative paths instead of `D:/` paths
+  and no longer call `.libPaths("D:/R-library/4.6")`.
+- Maintainer notes (`HANDOFF.md`, `RELEASE.md`, `FUTURE_PLANS.md`,
+  `progress_web_app.md`, `V2_ARCHITECTURE_DECISION.md`) moved to `dev/`.
+- Package metadata declares the license as the SPDX expression `MIT` with
+  `license-files`, uses the README tagline as the summary, adds the
+  "Operating System :: OS Independent" and "Medical Science Apps." classifiers
+  and a Changelog URL. The sdist no longer includes `AGENTS.md`, `CLAUDE.md` or
+  `codecov.yml`.
+
+### Removed
+
+- `docs/openfit/`, which held planning notes for a different project.
+- The four root `SESSION_SUMMARY_*.md` files and root `demo.ipynb`;
+  `examples/openpkflow_tour.ipynb` is the remaining example notebook.
+- `scripts/conda-forge/meta.yaml`, which still targeted 2.5.0.
+- Four generated reports committed under `examples/` and three `probe_*`
+  scratch scripts.
+
 ---
 
 ## [2.9.0] - 2026-10-04

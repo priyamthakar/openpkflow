@@ -57,7 +57,7 @@ or rank-deficient input rather than silently changing the estimand.
 openpkflow be anova formal_be.csv --parameter AUCinf --report formal_be.html
 ```
 
-The independently executable R cross-check is `scripts/be_anova_crossval.R`; its
+The independently executable R cross-check is `scripts/crossval/be_anova_crossval.R`; its
 fixture is `tests/validation/data/be_anova_balanced_2x2.csv`.
 
 ## FDA partial-replicate RSABE
@@ -97,8 +97,8 @@ BEStudy(
 Required DataFrame columns: `subject_col`, `reference_col`, `test_col`.
 
 `sequence_col`:
-- Default `"sequence"` — silently dropped if absent from the DataFrame.
-- Any other name — raises `ValueError` if absent.
+- Default `"sequence"`: silently dropped if absent from the DataFrame.
+- Any other name: raises `ValueError` if absent.
 - Pass `None` explicitly to indicate no sequence column.
 
 ### `.analyze()`

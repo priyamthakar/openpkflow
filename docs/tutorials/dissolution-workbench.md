@@ -1,4 +1,4 @@
-# Tutorial: Advanced Dissolution Workbench
+# Advanced Dissolution Workbench Tutorial
 
 The Advanced Dissolution Workbench combines the existing validated dissolution
 methods into one vessel-level, report-first workflow. It adds orchestration and

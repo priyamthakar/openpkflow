@@ -44,7 +44,7 @@ from openpkflow.nca.methods import (
     tmax,
 )
 
-XLSX = Path(__file__).parent.parent / "phoenix_winnonlin_combined_public_data.xlsx"
+XLSX = Path(__file__).resolve().parents[2] / "phoenix_winnonlin_combined_public_data.xlsx"
 
 if not XLSX.exists():
     sys.exit(f"ERROR: {XLSX} not found")

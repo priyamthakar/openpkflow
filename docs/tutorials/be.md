@@ -1,4 +1,4 @@
-# Tutorial: Bioequivalence Convenience Layer
+# Bioequivalence Convenience Layer Tutorial
 
 !!! info "Theory"
     See the [Theory Guide](../theory.md#bioequivalence-tost) for the TOST mathematics,

@@ -35,12 +35,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   ping `/health` every 10 minutes but ran only every 2-3 hours when measured on
   2026-10-26 (best-effort portfolio/demo availability, not a production SLA, no
   email on success), and the webapp TopBar retries cold
-  starts. See `HANDOFF.md` "Deployment" for URLs and ops.
+  starts. See `dev/HANDOFF.md` "Deployment" for URLs and ops.
 - Both dirs are separate from `src/openpkflow/` and do NOT reimplement pharmacometric math.
 - Do not add new pharmacometric logic to `api/` or `webapp/`. If a new analysis is needed,
   first add it to the appropriate `src/openpkflow/` module, then expose it in `api/`.
-- See `progress_web_app.md` for the full file map, completed features, and next candidates.
-- Takeover state: read `HANDOFF.md` first (release state, active branch, resume checklist).
+- See `dev/progress_web_app.md` for the full file map, completed features, and next candidates.
+- Takeover state: read `dev/HANDOFF.md` first (release state, active branch, resume checklist).
 
 **Out of scope — do not extend (existing code is frozen at v2.3.0):**
 - `pop/estimation/` — FOCE-I and SAEM exist but must not be extended. Pharmpy and
@@ -108,7 +108,7 @@ mypy src/openpkflow
 python -m build
 
 # PKNCA cross-validation (requires R + PKNCA)
-"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/crossval/pknca_theoph_crossval.R')"
 
 # CLI
 openpkflow version
@@ -241,7 +241,7 @@ tolerance for every subject. Cmax matches exactly.
 
 Run with:
 ```bash
-"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/pknca_theoph_crossval.R')"
+"C:\Program Files\R\R-4.6.0\bin\Rscript.exe" -e ".libPaths('D:/R-library/4.6'); source('scripts/crossval/pknca_theoph_crossval.R')"
 ```
 
 The R script outputs a `_PKNCA_REFERENCE` dict that goes into
@@ -289,7 +289,7 @@ Trusted Publishing, a fresh public PyPI install, and hosted Render convergence
    The convergence check now wakes Render first (PR #67), and the React
    Router advisory is cleared (PR #68).
 
-See `HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
+See `dev/HANDOFF.md` for branch/PR state and `ROADMAP.md` for the full ladder.
 
 **Before any new feature:** run `python -m build && python -m twine check dist/*` to confirm the wheel is clean.
 

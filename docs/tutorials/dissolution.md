@@ -1,4 +1,4 @@
-# Tutorial: Dissolution Similarity
+# Dissolution Similarity Tutorial
 
 !!! info "Theory"
     See the [Theory Guide](../theory.md#dissolution-similarity) for the f1, f2 formula
@@ -18,9 +18,9 @@ from openpkflow.dissolution import f1, f2
 reference = [20.0, 40.0, 60.0, 80.0, 90.0]
 test      = [21.0, 39.0, 61.0, 79.0, 88.0]
 
-print(f"f1 = {f1(reference, test):.2f}")   # 1.33
-print(f"f2 = {f2(reference, test):.2f}")   # 72.80
-# f2 >= 50 → profiles are similar (FDA 1997 guidance)
+print(f"f1 = {f1(reference, test):.2f}")   # 2.07
+print(f"f2 = {f2(reference, test):.2f}")   # 89.63
+# f2 >= 50 means the profiles are similar (FDA 1997 guidance)
 ```
 
 **FDA threshold:** f2 >= 50 indicates similarity. f1 < 15 is sometimes cited as a complementary criterion.

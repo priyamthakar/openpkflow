@@ -1,4 +1,4 @@
-# Tutorial: Sparse oral PK fitting
+# Sparse Oral PK Fitting Tutorial
 
 OpenPKFlow can fit a one-compartment oral model to three or more
 time-concentration observations. This is a **model-informed screening workflow**,
@@ -60,7 +60,7 @@ API clients can use:
 
 `tests/validation/test_sparse_nca_theoph_reference.py` checks the Python result
 against an independent bounded nonlinear least-squares fit from R 4.6.0
-`stats::nls`. Recreate the reference with `scripts/sparse_nca_theoph_crossval.R`.
+`stats::nls`. Recreate the reference with `scripts/crossval/sparse_nca_theoph_crossval.R`.
 
 Agreement on this published example is a reproducible cross-check, not general
 validation for every drug, sampling design, or structural model.

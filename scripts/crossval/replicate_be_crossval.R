@@ -5,7 +5,7 @@
 # Generate scalar reference fixtures for OpenPKFlow replicate BE screening.
 #
 # Usage:
-#   Rscript scripts/replicate_be_crossval.R
+#   Rscript scripts/crossval/replicate_be_crossval.R
 #
 # Optional:
 #   If PowerTOST is installed, EMA scaled limits are also computed with

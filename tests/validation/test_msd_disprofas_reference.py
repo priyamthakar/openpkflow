@@ -1,6 +1,6 @@
 """Cross-validation of msd_vessels() against disprofas::mimcr() (Tsong 1996 MIMCR).
 
-Reference values were produced by ``scripts/disprofas_msd_crossval.R`` with
+Reference values were produced by ``scripts/crossval/disprofas_msd_crossval.R`` with
 disprofas 0.2.1.9000 (GitHub commit 429d6f1, 2025-03-23) on R 4.5.3, using the
 datasets bundled with disprofas (dip1, dip2, dip3, dip4). The time points are
 the ones mimcr() selected with its default ``bounds = c(1, 85)`` rule.

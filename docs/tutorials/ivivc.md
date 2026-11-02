@@ -1,7 +1,7 @@
-# Tutorial: IVIVC Level A
+# IVIVC Level A Tutorial
 
 !!! info "Theory"
-    See the [Theory Guide](../theory.md#ivivc-in-vitro-in-vivo-correlation) for the
+    See the [Theory Guide](../theory.md#in-vitro-in-vivo-correlation-ivivc) for the
     Wagner-Nelson and Loo-Riegelman deconvolution derivations, convolution prediction, and
     FDA predictability (%PE) criteria.
 
@@ -64,7 +64,7 @@ fa_2cmt = loo_riegelman(
 
 ---
 
-## 3. Levy plot: correlating in vitro and in vivo
+## 3. Levy plot of in vitro against in vivo fractions
 
 Match dissolution time points to the fraction absorbed curve and build a
 Levy plot with linear regression:

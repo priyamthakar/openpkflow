@@ -6,7 +6,7 @@
 # example_dissolution.csv dataset (3 reference batches, 3 test batches).
 #
 # Usage:
-#   Rscript scripts/bootf2_dissolution_crossval.R
+#   Rscript scripts/crossval/bootf2_dissolution_crossval.R
 #
 # Requires: R >= 4.0, bootf2 >= 0.4.0
 #
@@ -24,7 +24,7 @@
 
 suppressPackageStartupMessages(library(bootf2))
 
-csv_path <- "D:/openpkflow/src/openpkflow/datasets/example_dissolution.csv"
+csv_path <- "src/openpkflow/datasets/example_dissolution.csv"
 stopifnot(file.exists(csv_path))
 
 cat(sprintf("# Dataset: %s\n", csv_path))

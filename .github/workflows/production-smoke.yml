@@ -50,4 +50,4 @@ jobs:
           if [[ -n "$EXPECTED_GIT_SHA" ]]; then
             args+=(--expected-git-sha "$EXPECTED_GIT_SHA")
           fi
-          python scripts/production_smoke.py "${args[@]}"
+          python scripts/ops/production_smoke.py "${args[@]}"

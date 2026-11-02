@@ -7,7 +7,7 @@
 # steady-state model.
 #
 # Usage:
-#   Rscript scripts/pknca_ss_crossval.R
+#   Rscript scripts/crossval/pknca_ss_crossval.R
 #
 # Requires:
 #   - R >= 4.0
@@ -27,7 +27,7 @@ suppressPackageStartupMessages({
   library(dplyr)
 })
 
-csv_path <- "D:/openpkflow/src/openpkflow/datasets/ss_crossval.csv"
+csv_path <- "src/openpkflow/datasets/ss_crossval.csv"
 stopifnot(file.exists(csv_path))
 
 TAU <- 8.0  # dosing interval in hours

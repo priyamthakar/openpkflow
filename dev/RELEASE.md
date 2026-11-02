@@ -65,7 +65,7 @@ public install, and hosted version/commit convergence all passed.
    - `CHANGELOG.md` and `docs/changelog.md` dated section
 2. Confirm `docs/changelog.md` has a dated release section with user-facing
    changes, caveats, and migration notes.
-3. Run `python scripts/release_readiness.py` before tagging. Warnings are
+3. Run `python scripts/ops/release_readiness.py` before tagging. Warnings are
    acceptable before the tag/release exists; failures must be fixed.
 4. Run tests:
    - Standard: `python -m pytest --ignore=tests/pop/test_saem.py --ignore=tests/bayes/test_bayes_be.py -k "not MCMC and not mcmc" -q`
@@ -110,6 +110,6 @@ Use the matching section from `docs/changelog.md`. Include:
 
 ## Post-release agent handoff
 
-Update `HANDOFF.md`, `SESSION_SUMMARY_<date>.md`, AGENTS.md, CLAUDE.md,
-ROADMAP.md, and `progress_web_app.md` with the released version, verified checks,
+Update `dev/HANDOFF.md`, AGENTS.md, CLAUDE.md,
+ROADMAP.md, and `dev/progress_web_app.md` with the released version, verified checks,
 active branch, incomplete work, and exact resume commands.

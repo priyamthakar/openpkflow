@@ -1,6 +1,6 @@
 # Future Plans
 
-This is a living catalog of ideas beyond the [ROADMAP.md](ROADMAP.md) milestones.
+This is a living catalog of ideas beyond the [ROADMAP.md](../ROADMAP.md) milestones.
 ROADMAP keeps the committed schedule; this file captures blue-sky possibilities,
 competitive gaps, and longer-term bets that may reshape priorities.
 
