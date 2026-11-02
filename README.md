@@ -366,39 +366,39 @@ vpc.report("vpc_report.html")
 
 ---
 
-## Feature Comparison
+## Capabilities
 
-| Capability | OpenPKFlow | PKNCA (R) | WinNonlin | Pharmpy |
-|---|---|---|---|---|
-| Dissolution f1 / f2 | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| Bootstrap f2 | :white_check_mark: | :x: | :x: | :x: |
-| Dissolution model fitting (5 models + AICc) | :white_check_mark: | :x: | :x: | :x: |
-| MSD / max deviation / model-dependent comparison | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| NCA (AUClast, AUCinf, CL/F, lambda_z), cross-validated vs Phoenix WinNonlin | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| C0 back-extrapolation for IV bolus (matches WinNonlin within 2%) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| %AUCextrap flag, dose-normalised params | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| CDISC PP output (SDTM, PPTESTCD codes) | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| Bioequivalence convenience (paired 2x2 TOST) | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| PK simulation (1/2-cmt, oral/IV) | :white_check_mark: | :x: | :white_check_mark: | :white_check_mark: |
-| Population PK diagnostics (GOF, VPC) | :white_check_mark: | :x: | :x: | :white_check_mark: |
-| Multi-format reports (HTML, PDF, DOCX) | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| Open-source and free | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
-| Python-native API | :white_check_mark: | :x: | :x: | :white_check_mark: |
-| Regulatory reference validation (citations) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: |
-| IVIVC (Level A) | :white_check_mark: (v1.2.0) | :x: | :white_check_mark: | :x: |
-| Multi-media dissolution | :white_check_mark: (v1.4.0) | :x: | :white_check_mark: | :x: |
-| Sparse oral PK screening (model-informed) | :white_check_mark: (v1.5.0) | :white_check_mark: | :x: | :x: |
-| Steady-state NCA + urinary excretion | :white_check_mark: (v1.3.0) | :white_check_mark: | :white_check_mark: | :x: |
-| MAP individual PK (scipy, no extra deps) | :white_check_mark: (v2.0.0) | :x: | :white_check_mark: | :x: |
-| Full Bayesian PK + Bayesian BE (PyMC) | :white_check_mark: (v2.0.0) | :x: | :x: | :x: |
-| Population PK estimation: FOCE-I + SAEM (1/2-cmt, full Omega) | :white_check_mark: (v2.3.0)\* | :x: | :x: | :x: |
-| Replicate BE screening (CVwR/scaled-limit summaries) | :white_check_mark: (v2.4.0)\*\* | :x: | :white_check_mark: | :x: |
-| Formal complete balanced 2x2 BE ANOVA | :white_check_mark: | :x: | :white_check_mark: | :x: |
-| Study pipeline (dissolution + NCA + BE orchestration) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
-| SUPAC-IR screening + alcohol dose-dumping f2 | :white_check_mark: (v2.6.0)\*\*\* | :x: | :x: | :x: |
-| IVIVC Level B/C helpers (MDT/MRT) | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
-| Transit-compartment oral absorption + SS metrics | :white_check_mark: (v2.6.0) | :x: | :x: | :x: |
-| FDA partial-replicate RSABE decision | :white_check_mark: validated (Patterson & Jones 2012) | :x: | :white_check_mark: | :x: |
+The last column gives the release whose CHANGELOG entry added the capability. A
+dash means the CHANGELOG does not show a single release for it.
+
+| Area | Capability | Added in |
+|---|---|---|
+| Dissolution | f1 / f2 | v0.1.0 |
+| Dissolution | Bootstrap f2 | v0.1.1 |
+| Dissolution | Model fitting (5 models, AICc ranking) | v0.2.0 |
+| Dissolution | MSD, maximum deviation, model-dependent comparison | v1.1.0 |
+| Dissolution | Multi-media dissolution | v1.4.0 |
+| Dissolution | SUPAC-IR screening and alcohol dose-dumping f2\*\*\* | v2.6.0 |
+| NCA | AUClast, AUCinf, CL/F, lambda_z, cross-validated against Phoenix WinNonlin | - |
+| NCA | C0 back-extrapolation for IV bolus (within 2% of WinNonlin) | - |
+| NCA | %AUCextrap flag, dose-normalised parameters | v1.1.0 |
+| NCA | CDISC PP output (SDTM, PPTESTCD codes) | v1.1.0 |
+| NCA | Steady-state and urinary excretion NCA | v1.3.0 |
+| NCA | Model-informed sparse oral PK screening | v1.5.0 |
+| Bioequivalence | Paired 2x2 TOST | v1.0.0 |
+| Bioequivalence | Replicate BE screening (CVwR and scaled-limit summaries)\*\* | v2.4.0 |
+| Bioequivalence | Formal complete balanced 2x2 ANOVA | v2.7.0 |
+| Bioequivalence | FDA partial-replicate RSABE, validated against Patterson & Jones (2012) | v2.7.0 |
+| Simulation | 1- and 2-compartment models, oral and IV | - |
+| Simulation | Transit-compartment oral absorption and steady-state metrics | v2.6.0 |
+| IVIVC | Level A | v1.2.0 |
+| IVIVC | Level B/C helpers (MDT/MRT) | v2.6.0 |
+| Population PK | Diagnostics (GOF, VPC) | v0.6.0 |
+| Population PK | FOCE-I and SAEM estimation (1/2-cmt, full Omega)\* | v2.1.0; 2-cmt and full Omega v2.2.0 |
+| Bayesian | MAP individual PK (scipy, no extra dependencies) | v2.0.0 |
+| Bayesian | Full Bayesian PK and Bayesian BE (PyMC) | v2.0.0 |
+| Workflow | Study pipeline (dissolution, NCA and BE orchestration) | v2.6.0 |
+| Reports | HTML and Markdown; PDF and Word | v0.1.0; v0.3.0 |
 
 \* Research-grade; FOCE-I typical values are sanity-checked against `nlme` Theophylline reference values. See [VALIDATION.md](VALIDATION.md).
 \*\* Research-grade screening only; not a validated FDA/EMA RSABE submission engine.
