@@ -386,6 +386,18 @@ class MSDResult:
     chi2_05_critical: float
     is_similar: bool
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
     def summary(self) -> str:
         """Return a textual summary of the MSD result.
 
@@ -447,6 +459,18 @@ class MSDVesselResult:
     n_reference: int
     n_test: int
     is_similar: bool
+
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
 
     @property
     def msd_squared(self) -> float:

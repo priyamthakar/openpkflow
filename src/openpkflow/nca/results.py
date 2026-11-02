@@ -277,6 +277,24 @@ class NCASummaryResults:
     auc_method: str = ""
     blq_method: str = ""
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the study settings and per-subject results as built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            ``study_label``, ``auc_method``, ``blq_method`` and ``results``, a list with
+            one ``NCAResult.to_dict()`` per subject.
+        """
+        from openpkflow._export import to_builtin
+
+        return {
+            "study_label": self.study_label,
+            "auc_method": self.auc_method,
+            "blq_method": self.blq_method,
+            "results": [to_builtin(r.to_dict()) for r in self.results],
+        }
+
     def summary(self) -> str:
         """Return an ASCII-only tabular summary of all subjects.
 

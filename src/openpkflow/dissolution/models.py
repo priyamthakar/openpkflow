@@ -16,9 +16,13 @@ import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.optimize import OptimizeWarning, curve_fit
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Model callables
@@ -246,6 +250,26 @@ class DissolutionFitResults:
     time_points: list[float]
     observed_mean: list[float]
     fits: list[ModelFit]
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return the fit metrics as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per model with fit metrics; fitted parameters are columns named
+            ``param_<name>``.
+        """
+        import pandas as pd
+
+        rows = []
+        for fit in self.fits:
+            row = fit.to_dict()
+            params = row.pop("params")
+            assert isinstance(params, dict)
+            row.update({f"param_{k}": v for k, v in params.items()})
+            rows.append(row)
+        return pd.DataFrame(rows)
 
     @property
     def best(self) -> ModelFit:
@@ -690,6 +714,18 @@ class ModelComparisonResult:
     ci_lo: float
     ci_hi: float
     is_similar: bool
+
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
 
     def summary(self) -> str:
         """Return a textual summary of the model comparison.

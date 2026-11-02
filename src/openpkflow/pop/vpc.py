@@ -110,6 +110,41 @@ class VPCResult:
     study_label: str = ""
     warnings: list[str] = field(default_factory=list)
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return the binned observed and simulated percentiles as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per bin with ``bin_mid`` and the observed and simulated lower,
+            median and upper percentiles.
+        """
+        import pandas as pd
+
+        return pd.DataFrame(
+            {
+                "bin_mid": list(self.bin_mids),
+                "obs_lower": list(self.obs_lower),
+                "obs_median": list(self.obs_median),
+                "obs_upper": list(self.obs_upper),
+                "sim_lower": list(self.sim_lower),
+                "sim_median": list(self.sim_median),
+                "sim_upper": list(self.sim_upper),
+            }
+        )
+
     def summary(self) -> str:
         """Return an ASCII text summary of the VPC result.
 

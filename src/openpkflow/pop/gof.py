@@ -139,6 +139,18 @@ class GOFResult:
     study_label: str = ""
     warnings: list[str] = field(default_factory=list)
 
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
     def __post_init__(self) -> None:
         n = len(self.dv)
         for attr in ("pred", "ipred", "time", "id"):

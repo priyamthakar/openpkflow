@@ -18,9 +18,12 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from openpkflow.dissolution.similarity import f2
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # Excipient functional classes from SUPAC-IR composition tables (percent of
 # total target dosage-form weight). Level 1 max and Level 2 max absolute %.
@@ -118,6 +121,32 @@ class AlcoholDoseDumpingResult:
     f2_by_ethanol_pct: dict[float, float]
     f2_threshold: float
     overall_pass: bool
+
+    def to_dict(self) -> dict[str, object]:
+        """Return the result as a dict of built-in Python types.
+
+        Returns
+        -------
+        dict[str, object]
+            One key per field; arrays and DataFrames become lists.
+        """
+        from openpkflow._export import dataclass_to_dict
+
+        return dataclass_to_dict(self)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Return f2 by ethanol concentration as a DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per ethanol medium with ``ethanol_pct`` and ``f2``.
+        """
+        import pandas as pd
+
+        return pd.DataFrame(
+            [{"ethanol_pct": pct, "f2": f2} for pct, f2 in self.f2_by_ethanol_pct.items()]
+        )
 
 
 def classify_supac_ir_level(
