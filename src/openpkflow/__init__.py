@@ -30,7 +30,22 @@ _SUBMODULES = frozenset(
     }
 )
 
-__all__ = ["__version__", *sorted(_SUBMODULES)]
+__all__ = [
+    "__version__",
+    "bayes",
+    "be",
+    "datasets",
+    "dissolution",
+    "ivivc",
+    "ml",
+    "nca",
+    "pipeline",
+    "pop",
+    "report",
+    "sim",
+    "student",
+    "validation",
+]
 
 if TYPE_CHECKING:
     from openpkflow import (
