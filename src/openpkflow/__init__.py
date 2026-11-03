@@ -6,7 +6,7 @@ import importlib
 from types import ModuleType
 from typing import TYPE_CHECKING
 
-__version__ = "2.9.0"
+__version__ = "2.10.0"
 __author__ = "Priyam Thakar"
 __email__ = "priyamthakar1@gmail.com"
 __license__ = "MIT"

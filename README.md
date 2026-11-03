@@ -406,10 +406,13 @@ dash means the CHANGELOG does not show a single release for it.
 
 ## Roadmap
 
-v2.9.0 is the current release. It corrects the Advanced Dissolution Workbench MSD
-and bootstrap f2 similarity decisions, computes BE power exactly (Owen's Q), aligns
-lambda_z selection with PKNCA and WinNonlin, and adds `openpkflow nca run`.
-v2.8.0 added the Workbench itself without new pharmacometric formulas.
+v2.10.0 is the current release. It adds `to_dict()` to every public result object,
+`to_dataframe()` to the table-shaped ones, and attribute access to subpackages after
+`import openpkflow`, without changing any calculation. v2.9.0 corrected the Advanced
+Dissolution Workbench MSD and bootstrap f2 similarity decisions, computed BE power
+exactly (Owen's Q), aligned lambda_z selection with PKNCA and WinNonlin, and added
+`openpkflow nca run`. v2.8.0 added the Workbench itself without new pharmacometric
+formulas.
 
 Earlier 2.x releases added the web app (v2.5); the study pipeline, SUPAC and
 alcohol dose-dumping screening, IVIVC Level B/C helpers and transit absorption
