@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [2.10.0] - 2026-11-03
+
+API usability and repository cleanup release. Every public result object can now
+be exported with `to_dict()`, table-shaped results gain `to_dataframe()`, and
+subpackages are reachable from `import openpkflow`. No pharmacometric calculation
+changed. Two documentation examples printed wrong f1/f2 values and are corrected.
+
 ### Added
 
 - `to_dict()` on the 15 public result classes that lacked it: `MSDResult`,

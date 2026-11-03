@@ -31,10 +31,10 @@ OpenPKFlow gives formulation scientists, PK/PD researchers, and CRO/CDMO teams a
 
 It does not replace expert regulatory judgement or validated commercial platforms.
 
-The latest release is v2.9.0 (2026-10-04). It corrects the Advanced Dissolution
-Workbench MSD and bootstrap f2 decisions, computes BE power exactly, aligns
-lambda_z selection with PKNCA and WinNonlin, and adds `openpkflow nca run`; see
-the [Changelog](changelog.md). The hosted web demo runs on a free Render instance
+The latest release is v2.10.0 (2026-11-03). It adds `to_dict()` to every public
+result object, `to_dataframe()` to the table-shaped ones, and attribute access to
+subpackages after `import openpkflow`, without changing any calculation; see the
+[Changelog](changelog.md). The hosted web demo runs on a free Render instance
 that sleeps when idle, so the first request after a pause can be slow. It is a
 demo, not a production service.
 

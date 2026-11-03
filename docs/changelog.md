@@ -11,6 +11,57 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.10.0] - 2026-11-03
+
+API usability and repository cleanup release. Every public result object can now
+be exported with `to_dict()`, table-shaped results gain `to_dataframe()`, and
+subpackages are reachable from `import openpkflow`. No pharmacometric calculation
+changed. Two documentation examples printed wrong f1/f2 values and are corrected.
+
+### Added
+
+- `to_dict()` on the 15 public result classes that lacked it: `MSDResult`,
+  `MSDVesselResult`, `BootstrapF2Result`, `ModelComparisonResult`,
+  `AlcoholDoseDumpingResult`, `AUCResult`, `LambdaZResult`, `NCASummaryResults`,
+  `BEResult`, `BETOSTResult`, `FormalBEResult`, `FdaRsabeResult`,
+  `LinearCorrelationResult`, `GOFResult` and `VPCResult`. Every exported result
+  class now has one. NumPy values become built-in types and DataFrames become lists
+  of row dicts, so the output passes through `json.dumps`.
+- `to_dataframe()` on `ComparisonResult` (one row per time point),
+  `DissolutionFitResults` (one row per model, parameters as `param_<name>`
+  columns), `MultiMediaResult` (one row per medium), `AlcoholDoseDumpingResult`
+  (one row per ethanol medium), `BEResult` (a copy of the per-subject table),
+  `FormalBEResult` (the ANOVA table) and `VPCResult` (one row per bin).
+- `import openpkflow` now gives access to every subpackage as an attribute
+  (`openpkflow.nca.NCAStudy`, `openpkflow.be.formal_be_anova`). Each subpackage is
+  imported on first access, so `import openpkflow` alone still loads none of them.
+
+### Changed
+
+- The 18 reference cross-validation scripts moved to `scripts/crossval/` and the
+  two release and deployment checks to `scripts/ops/`. `scripts/README.md` lists
+  each script with its reference implementation and the test that uses it. The
+  R scripts read datasets from repository-relative paths instead of `D:/` paths
+  and no longer call `.libPaths("D:/R-library/4.6")`.
+- Maintainer notes (`HANDOFF.md`, `RELEASE.md`, `FUTURE_PLANS.md`,
+  `progress_web_app.md`, `V2_ARCHITECTURE_DECISION.md`) moved to `dev/`.
+- Package metadata declares the license as the SPDX expression `MIT` with
+  `license-files`, uses the README tagline as the summary, adds the
+  "Operating System :: OS Independent" and "Medical Science Apps." classifiers
+  and a Changelog URL. The sdist no longer includes `AGENTS.md`, `CLAUDE.md` or
+  `codecov.yml`.
+
+### Removed
+
+- `docs/openfit/`, which held planning notes for a different project.
+- The four root `SESSION_SUMMARY_*.md` files and root `demo.ipynb`;
+  `examples/openpkflow_tour.ipynb` is the remaining example notebook.
+- `scripts/conda-forge/meta.yaml`, which still targeted 2.5.0.
+- Four generated reports committed under `examples/` and three `probe_*`
+  scratch scripts.
+
+---
+
 ## [2.9.0] -- 2026-10-04
 
 Correctness and validation release. It fixes two Advanced Dissolution Workbench
