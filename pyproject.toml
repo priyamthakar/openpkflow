@@ -61,7 +61,7 @@ bayes = [
 ]
 ml = [
   "scikit-learn>=1.4",
-  "torch>=2.0",
+  "torch>=2.14.1",
 ]
 dev = [
   "pytest>=8.0",
